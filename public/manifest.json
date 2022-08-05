@@ -1,0 +1,15 @@
+{
+  "name": "TonMask",
+  "description": "A TON Wallet in your Browser",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "action": {
+      "default_popup": "index.html",
+      "default_title": "Open the Wallet"
+  },
+  "icons": {
+      "16": "tonmask-logo16.png",
+      "48": "tonmask-logo48.png",
+      "128": "tonmask-logo128.png"
+  }
+}
