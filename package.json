@@ -5,6 +5,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
     "styled-components": "^5.3.5",
     "web-vitals": "^2.1.4",
     "webextension-polyfill": "^0.9.0"
@@ -20,11 +21,13 @@
     "@types/styled-components": "^5.1.25",
     "@types/webextension-polyfill": "^0.9.0",
     "react-scripts": "5.0.1",
-    "typescript": "^4.7.4"
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.74.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build": "node task/build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

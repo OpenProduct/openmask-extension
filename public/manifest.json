@@ -17,12 +17,11 @@
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
-    "http://localhost:8545/",
     "activeTab",
     "webRequest",
     "notifications"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   }
 }
