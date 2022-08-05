@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { Logo } from './Logo';
+import styled, { ThemeProvider } from "styled-components";
+import { Logo } from "./Logo";
+import defaultTheme from "./styles/defailtTheme";
+
+const Container = styled.div`
+  text-align: center;
+`;
+
+const AppHeader = styled.header`
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+`;
+
+const Link = styled.a`
+  color: #61dafb;
+`;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Logo />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={defaultTheme}>
+      <Container>
+        <AppHeader>
+          <Logo />
+          <p>
+            Edit <code>src/App.tsx</code> and save to reload.
+          </p>
+          <Link
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn React
+          </Link>
+        </AppHeader>
+      </Container>
+    </ThemeProvider>
   );
 }
 
