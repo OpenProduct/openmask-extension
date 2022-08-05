@@ -1,6 +1,6 @@
 import styled, { ThemeProvider } from "styled-components";
-import { Logo } from "./Logo";
-import defaultTheme from "./styles/defailtTheme";
+import { Logo } from "../components/Logo";
+import defaultTheme from "../styles/defailtTheme";
 
 const Container = styled.div`
   text-align: center;
