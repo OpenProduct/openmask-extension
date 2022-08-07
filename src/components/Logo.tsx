@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 const spinX = keyframes`
@@ -138,7 +138,30 @@ const Faces = bottomFaces
   .concat(middleTopFaces)
   .concat(upFaces);
 
-export const Logo = () => {
+export const Logo: FC<{ isLoading?: boolean; isLeft?: boolean }> = ({
+  isLoading = false,
+  isLeft = false,
+}) => {
+  return (
+    <WrapRotorX>
+      <WrapRotorY isLoading={isLoading} isLeft={isLeft}>
+        <WrapRotorZ>
+          {Faces.map((Face, i) => (
+            <Face key={i} />
+          ))}
+        </WrapRotorZ>
+      </WrapRotorY>
+    </WrapRotorX>
+  );
+};
+
+const Block = styled.div`
+  position: relative;
+  width: 100%;
+  height: 150px;
+`;
+
+export const LoadingLogo = () => {
   const [loading, setLoading] = useState(false);
   const [left, setLeft] = useState(true);
 
@@ -148,20 +171,8 @@ export const Logo = () => {
   };
 
   return (
-    <div
-      style={{ width: "300px", height: "300px" }}
-      onMouseEnter={onLoading}
-      onMouseLeave={() => setLoading(false)}
-    >
-      <WrapRotorX>
-        <WrapRotorY isLoading={loading} isLeft={left}>
-          <WrapRotorZ>
-            {Faces.map((Face, i) => (
-              <Face key={i} />
-            ))}
-          </WrapRotorZ>
-        </WrapRotorY>
-      </WrapRotorX>
-    </div>
+    <Block onMouseEnter={onLoading} onMouseLeave={() => setLoading(false)}>
+      <Logo isLoading={loading} isLeft={left} />
+    </Block>
   );
 };

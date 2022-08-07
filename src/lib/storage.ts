@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { checkForError } from "./utils";
+
+type AppState = any;
 
 /**
  *  * @property {boolean} isInitialized - Whether the first vault has been created.
@@ -44,78 +45,8 @@ import { checkForError } from "./utils";
  * @property {boolean} forgottenPassword - Returns true if the user has initiated the password recovery screen, is recovering from seed phrase.
  */
 
-export interface Wallet {
-  name?: string;
-  mnemonic: string;
-  address: string;
-}
-
-export interface Account {
-  password: string;
-  wallets: Wallet[];
-}
-
-export interface AppState {
-  // Whether the first vault has been created.
-  isInitialized: boolean;
-  // Whether the vault is currently decrypted and accounts are available for selection.
-  isUnlocked: boolean;
-
-  account: Account;
-}
-
 export const isSupported = () => {
   return Boolean(browser.storage.local);
-};
-
-export const useAppStore = () => {
-  const [store, setStore] = useState<AppState | undefined>();
-  const [error, setError] = useState<
-    browser.Runtime.PropertyLastErrorType | undefined
-  >();
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    const { local } = browser.storage;
-    local
-      .get(null)
-      .then((result) => {
-        const err = checkForError();
-        if (err) {
-          setError(err);
-        } else {
-          setStore(result as AppState);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  return {
-    store,
-    loading,
-    error,
-  };
-};
-
-export const getAppState = async () => {
-  if (!isSupported()) {
-    return undefined;
-  }
-
-  const { local } = browser.storage;
-  return new Promise<AppState>((resolve, reject) => {
-    local.get(null).then((result) => {
-      const err = checkForError();
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result as AppState);
-      }
-    });
-  });
 };
 
 /**

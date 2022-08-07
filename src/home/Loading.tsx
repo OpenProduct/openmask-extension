@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Logo } from "../components/Logo";
+import { LoadingLogo } from "../components/Logo";
 
 const AppHeader = styled.header`
   min-height: 100vh;
@@ -8,15 +8,13 @@ const AppHeader = styled.header`
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
-
   text-align: center;
 `;
 
 export const Loading = () => {
   return (
     <AppHeader>
-      <Logo />
+      <LoadingLogo />
       <p>Loading</p>
     </AppHeader>
   );
