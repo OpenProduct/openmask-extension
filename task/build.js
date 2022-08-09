@@ -2,7 +2,7 @@ const { notify, exec } = require("./utils");
 
 notify(`Build TonMask UI`);
 
-exec("npx react-scripts build", {
+exec("npx react-app-rewired build", {
   stdio: "inherit",
   env: {
     ...process.env,

@@ -43,7 +43,7 @@ export const useNetworkStore = <T>(query: QueryType, defaultValue: T) => {
     [query, network],
     () => {
       const { local } = browser.storage;
-      return local.get(query).then<T>((result) => {
+      return local.get(`${query}_${network}`).then<T>((result) => {
         const err = checkForError();
         if (err) {
           throw err;
@@ -67,6 +67,6 @@ export const useMutateNetworkStore = <T>(query: QueryType) => {
     if (err) {
       throw err;
     }
-    client.setQueryData([`${query}_${network}`], value);
+    await client.resetQueries([query, network]);
   });
 };

@@ -7,6 +7,7 @@ import {
   H1,
 } from "../../components/Components";
 import { LoadingLogo } from "../../components/Logo";
+import { useCreateWalletMutation } from "../../lib/state/account";
 import { Header } from "../Header";
 
 const Body = styled(Container)`
@@ -19,6 +20,7 @@ const Body = styled(Container)`
 `;
 
 export const Initialize = () => {
+  const onCreate = useCreateWalletMutation();
   return (
     <>
       <Header />
@@ -26,7 +28,7 @@ export const Initialize = () => {
         <LoadingLogo />
         <H1>New to TON?</H1>
         <ButtonColumn>
-          <ButtonPositive>Create Wallet</ButtonPositive>
+          <ButtonPositive onClick={onCreate}>Create Wallet</ButtonPositive>
           <ButtonNegative>Import Wallet</ButtonNegative>
         </ButtonColumn>
       </Body>

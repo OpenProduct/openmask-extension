@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import TonWeb from "tonweb";
 import { useNetwork } from ".";
 
 export interface NetworkConfig {
@@ -8,7 +9,7 @@ export interface NetworkConfig {
   scanUrl: string;
 }
 
-export const networkConfigs: NetworkConfig[] = [
+const networkConfigs: NetworkConfig[] = [
   {
     name: "Mainnet",
     rpcUrl: "https://toncenter.com/api/v2/jsonRPC",
@@ -23,10 +24,20 @@ export const networkConfigs: NetworkConfig[] = [
   },
 ];
 
+export const useTonProvider = () => {
+  const config = useNetworkConfig();
+
+  return useMemo(() => {
+    return new TonWeb(
+      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
+    );
+  }, [config]);
+};
+
 export const useNetworkConfig = () => {
   const { data } = useNetwork();
-  return useMemo(
-    () => networkConfigs.find((item) => item.name === data),
-    [data]
-  );
+  return useMemo(() => {
+    const result = networkConfigs.find((item) => item.name === data);
+    return result ?? networkConfigs[0];
+  }, [data]);
 };
