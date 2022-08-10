@@ -1,20 +1,20 @@
 import { FC, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-const spinX = keyframes`
-from { transform: rotateX(0); }
-to { transform: rotateX(360deg); }
-`;
+// const spinX = keyframes`
+// from { transform: rotateX(0); }
+// to { transform: rotateX(360deg); }
+// `;
 
-const spinY = keyframes`
-from { transform: rotateY(0); }
-to { transform: rotateY(360deg); }
-`;
+// const spinY = keyframes`
+// from { transform: rotateY(0); }
+// to { transform: rotateY(360deg); }
+// `;
 
-const spinZ = keyframes`
-from { transform: rotateZ(0); }
-to { transform: rotateZ(360deg); }
-`;
+// const spinZ = keyframes`
+// from { transform: rotateZ(0); }
+// to { transform: rotateZ(360deg); }
+// `;
 
 const loadingRight = keyframes`
 0% {   transform: rotateZ(0); }

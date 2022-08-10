@@ -36,6 +36,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-size: 110%;
 `;
 
 const Content: FC<{ account: AccountState | undefined }> = ({ account }) => {

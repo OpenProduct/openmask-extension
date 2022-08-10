@@ -53,3 +53,25 @@ export const ButtonNegative = styled(Button)`
     background: #f9fafb;
   }
 `;
+
+export const Badge = styled.div`
+  border: 1px solid ${(props) => props.theme.darkGray};
+  padding: 5px 20px;
+  border-radius: 20px;
+`;
+
+export const Icon = styled.span`
+  color: ${(props) => props.theme.darkGray};
+  font-size: 250%;
+  border: 1px solid ${(props) => props.theme.darkGray};
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  cursor: pointer;
+
+  &:hover {
+    color: ${(props) => props.theme.gray};
+    border: 1px solid ${(props) => props.theme.gray};
+  }
+`;

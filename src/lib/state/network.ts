@@ -9,7 +9,7 @@ export interface NetworkConfig {
   scanUrl: string;
 }
 
-const networkConfigs: NetworkConfig[] = [
+export const networkConfigs: NetworkConfig[] = [
   {
     name: "Mainnet",
     rpcUrl: "https://toncenter.com/api/v2/jsonRPC",

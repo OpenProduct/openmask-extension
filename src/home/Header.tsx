@@ -1,6 +1,9 @@
 import styled from "styled-components";
-import { Container } from "../components/Components";
+import { Badge, Container, Icon } from "../components/Components";
+import { DropDown } from "../components/DropDown";
+import { UserIcon } from "../components/Icons";
 import { QueryType, useMutateStore, useNetwork } from "../lib/state";
+import { networkConfigs } from "../lib/state/network";
 
 const Head = styled(Container)`
   flex-shrink: 0;
@@ -8,23 +11,28 @@ const Head = styled(Container)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${(props) => props.theme.lightGray};
 `;
 
 export const Header = () => {
   const { data } = useNetwork();
 
-  const { mutateAsync, reset } = useMutateStore<string>(QueryType.network);
-
-  const onClick = async () => {
-    await mutateAsync(data === "Testnet" ? "Mainnet" : "Testnet");
-    reset();
-  };
+  const { mutate } = useMutateStore<string>(QueryType.network);
 
   return (
     <Head>
       <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
-      <span onClick={onClick}>{data}</span>
+      <DropDown
+        options={networkConfigs}
+        renderOption={(c) => c.name}
+        onSelect={(c) => mutate(c.name)}
+      >
+        <Badge>{data}</Badge>
+      </DropDown>
+
+      <Icon>
+        <UserIcon />
+      </Icon>
     </Head>
   );
 };
