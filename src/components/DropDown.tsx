@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback, useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import styled from "styled-components";
 
 const DropDownContainer = styled.div`
@@ -14,14 +14,16 @@ const DropDownListContainer = styled.div`
   top: 100%;
   right: 0;
   z-index: 1;
-`;
-
-const DropDownList = styled.div`
   background-color: ${(props) => props.theme.background};
   border: 1px solid ${(props) => props.theme.lightGray};
+  border-radius: 5px;
 `;
 
-const ListItem = styled.div`
+export const DropDownListPayload = styled.div`
+  white-space: nowrap;
+`;
+
+export const ListItem = styled.div`
   cursor: pointer;
   padding: 10px 20px;
 
@@ -30,46 +32,58 @@ const ListItem = styled.div`
   }
 `;
 
-export interface DropDownProps<T> extends PropsWithChildren {
-  options: T[];
-  renderOption: (option: T) => React.ReactNode;
-  onSelect: (option: T) => void;
+export interface DropDownProps extends PropsWithChildren {
+  payload: (onClose: () => void) => React.ReactNode;
 }
 
-export const DropDown = <T extends any>({
-  children,
-  options,
-  renderOption,
-  onSelect,
-}: DropDownProps<T>) => {
+export const DropDown = ({ children, payload }: DropDownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggling = () => {
     setIsOpen((value) => !value);
   };
 
-  const onOptionClicked = useCallback(
-    (option: T) => () => {
-      setIsOpen(false);
-      onSelect(option);
-    },
-    [setIsOpen, onSelect]
-  );
-
   return (
     <DropDownContainer>
       <DropDownHeader onClick={toggling}>{children}</DropDownHeader>
       {isOpen && (
-        <DropDownListContainer>
-          <DropDownList>
-            {options.map((option, index) => (
-              <ListItem onClick={onOptionClicked(option)} key={index}>
-                {renderOption(option)}
-              </ListItem>
-            ))}
-          </DropDownList>
-        </DropDownListContainer>
+        <DropDownListContainer>{payload(toggling)}</DropDownListContainer>
       )}
     </DropDownContainer>
+  );
+};
+
+export interface DropDownListProps<T> extends PropsWithChildren {
+  options: T[];
+  renderOption: (option: T) => React.ReactNode;
+  onSelect: (option: T) => void;
+}
+
+export const DropDownList = <T extends any>({
+  children,
+  options,
+  renderOption,
+  onSelect,
+}: DropDownListProps<T>) => {
+  return (
+    <DropDown
+      payload={(onClose) => (
+        <DropDownListPayload>
+          {options.map((option, index) => (
+            <ListItem
+              key={index}
+              onClick={() => {
+                onClose();
+                onSelect(option);
+              }}
+            >
+              {renderOption(option)}
+            </ListItem>
+          ))}
+        </DropDownListPayload>
+      )}
+    >
+      {children}
+    </DropDown>
   );
 };

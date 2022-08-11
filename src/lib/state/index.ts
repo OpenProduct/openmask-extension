@@ -5,6 +5,8 @@ import { checkForError } from "../utils";
 export enum QueryType {
   network = "network",
   account = "account",
+  balance = "balance",
+  address = "address",
 }
 
 export const useMutateStore = <T>(query: QueryType) => {
@@ -40,15 +42,15 @@ export const useNetwork = () => {
 export const useNetworkStore = <T>(query: QueryType, defaultValue: T) => {
   const { data: network } = useNetwork();
   return useQuery<T>(
-    [query, network],
+    [network, query],
     () => {
       const { local } = browser.storage;
-      return local.get(`${query}_${network}`).then<T>((result) => {
+      return local.get(`${network}_${query}`).then<T>((result) => {
         const err = checkForError();
         if (err) {
           throw err;
         }
-        return result[`${query}_${network}`] ?? defaultValue;
+        return result[`${network}_${query}`] ?? defaultValue;
       });
     },
     {
@@ -62,11 +64,11 @@ export const useMutateNetworkStore = <T>(query: QueryType) => {
   const { data: network } = useNetwork();
   return useMutation<void, Error, T>(async (value) => {
     const { local } = browser.storage;
-    await local.set({ [`${query}_${network}`]: value });
+    await local.set({ [`${network}_${query}`]: value });
     const err = checkForError();
     if (err) {
       throw err;
     }
-    await client.resetQueries([query, network]);
+    await client.resetQueries([network, query]);
   });
 };

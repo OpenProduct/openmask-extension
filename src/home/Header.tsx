@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
-import { DropDown } from "../components/DropDown";
+import { DropDownList } from "../components/DropDown";
 import { UserIcon } from "../components/Icons";
 import { QueryType, useMutateStore, useNetwork } from "../lib/state";
 import { networkConfigs } from "../lib/state/network";
@@ -22,14 +22,13 @@ export const Header = () => {
   return (
     <Head>
       <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
-      <DropDown
+      <DropDownList
         options={networkConfigs}
         renderOption={(c) => c.name}
         onSelect={(c) => mutate(c.name)}
       >
         <Badge>{data}</Badge>
-      </DropDown>
-
+      </DropDownList>
       <Icon>
         <UserIcon />
       </Icon>

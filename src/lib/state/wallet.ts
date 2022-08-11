@@ -1,34 +1,22 @@
-// import { WalletContract, WalletV3R2Source } from "ton";
+import { useQuery } from "@tanstack/react-query";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
-
-// import { TonClient } from "ton";
-
-// export const isTestnet = true;
-
-// export const workchain = 0; // normally 0, only special contracts should be deployed to masterchain (-1)
-
-// const endpoint = isTestnet
-//   ? `https://testnet.toncenter.com/api/v2/jsonRPC`
-//   : `https://toncenter.com/api/v2/jsonRPC`;
-
-// export const toTonClient = () =>
-//   new TonClient({
-//     endpoint,
-//     apiKey: process.env.TON_TONCENTER_APIKEY,
-//   });
+import { WalletContract } from "tonweb/dist/types/contract/wallet/wallet-contract";
+import { Address } from "tonweb/dist/types/utils/address";
+import { QueryType, useNetwork } from ".";
+import { useTonProvider } from "./network";
 
 export interface WalletState {
   name?: string;
   mnemonic: string;
   address: string;
+  publicKey: string;
+  version: keyof typeof TonWeb.Wallets.all;
 }
-
-// const ton = new TonWeb(new TonWeb.HttpProvider(this.isTestnet ? testnetRpc : mainnetRpc, {apiKey: IS_EXTENSION ? extensionApiKey : apiKey}));
 
 const lastWalletVersion = "v4R2";
 
-export const createWallet = async (ton: TonWeb) => {
+export const createWallet = async (ton: TonWeb): Promise<WalletState> => {
   const mnemonic = await tonMnemonic.generateMnemonic();
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
 
@@ -41,25 +29,45 @@ export const createWallet = async (ton: TonWeb) => {
   return {
     name: "Account 1",
     mnemonic: mnemonic.join(" "),
-    address: address.toString(true, true, true),
+    address: address.toString(false),
+    publicKey: Buffer.from(keyPair.publicKey).toString("utf-8"),
+    version: lastWalletVersion,
   };
 };
 
-// export const toWalletContract = async (walletKey: KeyPair) => {
-//   return WalletContract.create(
-//     toTonClient(),
-//     WalletV3R2Source.create({ publicKey: walletKey.publicKey, workchain })
-//   );
-// };
+export const useWalletContract = (state: WalletState) => {
+  const ton = useTonProvider();
 
-// export const initialWallet = async (): Promise<WalletState> => {
-//   const mnemonic = await mnemonicNew(24);
-//   const keys = await mnemonicToWalletKey(mnemonic);
-//   const contract = await toWalletContract(keys);
+  const WalletClass = ton.wallet.all[state.version];
+  const walletContract = new WalletClass(ton.provider, {
+    publicKey: new Uint8Array(Buffer.from(state.publicKey)),
+    wc: 0,
+  });
 
-//   return {
-//     name: "Account 1",
-//     mnemonic: mnemonic.join(" "),
-//     address: contract.address.toFriendly(),
-//   };
-// };
+  return walletContract;
+};
+
+const balanceFormat = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 4,
+});
+
+export const useBalance = (state: WalletState, contract: WalletContract) => {
+  const { data: network } = useNetwork();
+
+  return useQuery<string>(
+    [network, state.address, QueryType.balance],
+    async () => {
+      const value = await contract.provider.getBalance(state.address);
+      return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
+    }
+  );
+};
+
+export const useAddress = (state: WalletState, contract: WalletContract) => {
+  const { data: network } = useNetwork();
+
+  return useQuery<Address>([network, state.address, QueryType.address], () =>
+    contract.getAddress()
+  );
+};

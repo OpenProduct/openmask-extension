@@ -8,14 +8,13 @@ export interface AccountState {
   isLock: boolean;
   password?: string;
   wallets: WalletState[];
-  activeWallet: number;
+  activeWallet?: string;
 }
 
 const defaultAccountState: AccountState = {
   isInitialized: false,
   isLock: false,
   wallets: [],
-  activeWallet: 0,
 };
 
 export const useAccountState = () => {
@@ -31,12 +30,13 @@ export const useCreateWalletMutation = () => {
 
   return useCallback(async () => {
     if (!data) return;
-    const wallets = data.wallets.concat([await createWallet(ton)]);
+    const wallet = await createWallet(ton);
+    const wallets = data.wallets.concat([wallet]);
     await mutateAsync({
       ...data,
       isInitialized: true,
       wallets,
-      activeWallet: wallets.length,
+      activeWallet: wallet.address,
     });
     reset();
   }, [ton, mutateAsync, reset, data]);
