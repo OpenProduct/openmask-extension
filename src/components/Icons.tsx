@@ -74,3 +74,57 @@ export const CopyIcon = () => {
     </svg>
   );
 };
+
+export const CheckIcon = () => {
+  return (
+    <svg
+      focusable="false"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+    >
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+        fillRule="nonzero"
+      ></path>
+    </svg>
+  );
+};
+
+export const ReceiveIcon = () => {
+  return (
+    <svg
+      focusable="false"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+    >
+      <path
+        d="M20 5.41 18.59 4 7 15.59V9H5v10h10v-2H8.41z"
+        fill="currentColor"
+        fillRule="nonzero"
+      ></path>
+    </svg>
+  );
+};
+
+export const SendIcon = () => {
+  return (
+    <svg
+      focusable="false"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+    >
+      <path
+        d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"
+        fill="currentColor"
+        fillRule="nonzero"
+      ></path>
+    </svg>
+  );
+};

@@ -1,17 +1,10 @@
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
-import {
-  DropDown,
-  DropDownListPayload,
-  ListItem,
-} from "../components/DropDown";
-import { MoreIcon, TonIcon } from "../components/Icons";
-import { WalletName } from "../components/WalletName";
-import ExtensionPlatform from "../lib/extension";
-import { useAccountState } from "../lib/state/account";
-import { useNetworkConfig } from "../lib/state/network";
+import { ReceiveIcon, SendIcon, TonIcon } from "../components/Icons";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
 import { Header } from "./Header";
+import { WalletMenu } from "./wallet/WalletMenu";
+import { WalletName } from "./wallet/WalletName";
 
 const Body = styled.div`
   width: 100%;
@@ -46,70 +39,66 @@ const Connect = styled(Badge)`
   font-size: smaller;
 `;
 
-const Menu = styled.div`
-  position: absolute;
-  right: ${(props) => props.theme.padding};
-`;
-
 const Amount = styled.span`
-  margin: ${(props) => props.theme.padding} 0;
+  margin: ${(props) => props.theme.padding} 0 30px;
   font-size: xx-large;
   font-weight: bold;
 `;
 
-const useActiveWallet = () => {
-  const { data } = useAccountState();
+const ActionIcon = styled(Icon)`
+  background: #0088cb;
+  color: white;
+`;
 
-  console.log(data);
+const Row = styled.div`
+  display: flex;
+  gap: 30px;
+`;
 
-  return data?.wallets.find((i) => i.address === data.activeWallet)!;
-};
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  cursor: pointer;
+`;
 
+const Text = styled.span`
+  font-size: larger;
+`;
 export const Home = () => {
-  const config = useNetworkConfig();
-  const wallet = useActiveWallet();
-  const contract = useWalletContract(wallet);
-  const { data: balance } = useBalance(wallet, contract);
-  const { data: address } = useAddress(wallet, contract);
+  const wallet = useWalletContract();
+  const { data: balance } = useBalance(wallet);
+  const { data: address } = useAddress(wallet);
+
+  const friendly = address?.toString(true, true, true) ?? wallet.state.address;
+
   return (
     <>
       <Header />
       <Body>
         <Wallet>
           <Connect>Connected</Connect>
-          {wallet && <WalletName wallet={wallet} />}
-          <Menu>
-            <DropDown
-              payload={(onClose) => {
-                return (
-                  <DropDownListPayload>
-                    <ListItem
-                      onClick={() => {
-                        onClose();
-                        ExtensionPlatform.openTab({
-                          url: `${config.scanUrl}/account/${address?.toString(
-                            true,
-                            false,
-                            true
-                          )}`,
-                        });
-                      }}
-                    >
-                      Open ton scan
-                    </ListItem>
-                  </DropDownListPayload>
-                );
-              }}
-            >
-              <Icon>
-                <MoreIcon />
-              </Icon>
-            </DropDown>
-          </Menu>
+          <WalletName address={friendly} name={wallet.state.name} />
+          <WalletMenu address={friendly} />
         </Wallet>
         <Balance>
           <TonIcon />
-          <Amount>{balance} TON</Amount>
+          <Amount>{balance ?? "..."} TON</Amount>
+          <Row>
+            <Column>
+              <ActionIcon>
+                <ReceiveIcon />
+              </ActionIcon>
+              <Text>Receive</Text>
+            </Column>
+            <Column>
+              <ActionIcon>
+                <SendIcon />
+              </ActionIcon>
+              <Text>Send</Text>
+            </Column>
+          </Row>
         </Balance>
       </Body>
     </>
