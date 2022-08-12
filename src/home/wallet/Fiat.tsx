@@ -1,12 +1,11 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
-import { useCoinPrice } from "../../lib/api";
 
 const Price = styled.span`
   margin: 0 0 20px;
   font-size: large;
   font-weight: bold;
-  color: ${(props) => props.theme.darkGray};
+  color: ${(props) => props.theme.lightColor};
 `;
 
 const fiatFormat = new Intl.NumberFormat("en-US", {
@@ -14,20 +13,20 @@ const fiatFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export const Fiat: FC<{ balance?: string }> = ({ balance }) => {
-  const { data: price } = useCoinPrice(balance != null);
-
-  const value = useMemo(() => {
+export const useTonFiat = (balance?: string, price?: number) => {
+  return useMemo(() => {
     if (price && balance) {
       return `${fiatFormat.format(parseFloat(balance) * price)}`;
     } else {
-      return "-";
+      return undefined;
     }
   }, [price, balance]);
+};
 
-  if (!balance) {
-    return null;
-  }
-
-  return <Price>{value}$</Price>;
+export const Fiat: FC<{ balance?: string; price?: number }> = ({
+  balance,
+  price,
+}) => {
+  const value = useTonFiat(balance, price);
+  return <Price>{value ?? "-"}$</Price>;
 };

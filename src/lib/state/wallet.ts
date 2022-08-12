@@ -92,3 +92,11 @@ export const useAddress = (wallet: Wallet) => {
     () => wallet.contract.getAddress()
   );
 };
+
+export const useTransactions = (wallet: Wallet, limit: number = 10) => {
+  const { data: network } = useNetwork();
+
+  return useQuery<any>([network, wallet.state.address, QueryType.address], () =>
+    wallet.contract.provider.getTransactions(wallet.state.address, limit)
+  );
+};

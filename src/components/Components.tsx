@@ -62,12 +62,13 @@ export const Badge = styled.div`
 
 export const Icon = styled.span`
   color: ${(props) => props.theme.darkGray};
-  font-size: 250%;
+  font-size: 200%;
   border-radius: 50%;
   width: 1em;
   height: 1em;
   display: inline-block;
   cursor: pointer;
+  padding: 5px;
 
   &:hover {
     background: ${(props) => props.theme.gray};

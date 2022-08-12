@@ -1,8 +1,13 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
 import { ReceiveIcon, SendIcon, TonIcon } from "../components/Icons";
+import { Tabs } from "../components/Tabs";
+import { useCoinPrice } from "../lib/api";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
 import { Header } from "./Header";
+import { Activities } from "./wallet/Activities";
+import { Assets } from "./wallet/Assets";
 import { Fiat } from "./wallet/Fiat";
 import { WalletMenu } from "./wallet/WalletMenu";
 import { WalletName } from "./wallet/WalletName";
@@ -46,8 +51,8 @@ const Amount = styled.span`
 `;
 
 const ActionIcon = styled(Icon)`
-  background: #0088cb;
-  color: white;
+  background: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.background};
 `;
 
 const Row = styled.div`
@@ -67,12 +72,22 @@ const Text = styled.span`
   font-size: larger;
 `;
 
+const NetworkLogo = styled.span`
+  font-size: 3em;
+`;
+
+const tabs = ["Assets", "Activity"];
+
 export const Home = () => {
   const wallet = useWalletContract();
   const { data: balance } = useBalance(wallet);
   const { data: address } = useAddress(wallet);
 
   const friendly = address?.toString(true, true, true) ?? wallet.state.address;
+
+  const [active, setActive] = useState(tabs[0]);
+
+  const { data: price } = useCoinPrice(balance != null);
 
   return (
     <>
@@ -84,9 +99,12 @@ export const Home = () => {
           <WalletMenu address={friendly} />
         </Wallet>
         <Balance>
-          <TonIcon />
+          <NetworkLogo>
+            <TonIcon />
+          </NetworkLogo>
+
           <Amount>{balance ?? "..."} TON</Amount>
-          <Fiat balance={balance} />
+          <Fiat balance={balance} price={price} />
           <Row>
             <Column>
               <ActionIcon>
@@ -102,6 +120,9 @@ export const Home = () => {
             </Column>
           </Row>
         </Balance>
+        <Tabs options={tabs} active={active} onChange={setActive} />
+        {active === "Assets" && <Assets balance={balance} price={price} />}
+        {active === "Activity" && <Activities wallet={wallet} price={price} />}
       </Body>
     </>
   );
