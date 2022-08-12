@@ -3,6 +3,7 @@ import { Badge, Container, Icon } from "../components/Components";
 import { ReceiveIcon, SendIcon, TonIcon } from "../components/Icons";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
 import { Header } from "./Header";
+import { Fiat } from "./wallet/Fiat";
 import { WalletMenu } from "./wallet/WalletMenu";
 import { WalletName } from "./wallet/WalletName";
 
@@ -40,9 +41,8 @@ const Connect = styled(Badge)`
 `;
 
 const Amount = styled.span`
-  margin: ${(props) => props.theme.padding} 0 30px;
+  margin: ${(props) => props.theme.padding} 0 5px;
   font-size: xx-large;
-  font-weight: bold;
 `;
 
 const ActionIcon = styled(Icon)`
@@ -52,7 +52,7 @@ const ActionIcon = styled(Icon)`
 
 const Row = styled.div`
   display: flex;
-  gap: 30px;
+  gap: 20px;
 `;
 
 const Column = styled.div`
@@ -66,6 +66,7 @@ const Column = styled.div`
 const Text = styled.span`
   font-size: larger;
 `;
+
 export const Home = () => {
   const wallet = useWalletContract();
   const { data: balance } = useBalance(wallet);
@@ -85,6 +86,7 @@ export const Home = () => {
         <Balance>
           <TonIcon />
           <Amount>{balance ?? "..."} TON</Amount>
+          <Fiat balance={balance} />
           <Row>
             <Column>
               <ActionIcon>

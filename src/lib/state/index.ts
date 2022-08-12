@@ -3,6 +3,7 @@ import browser from "webextension-polyfill";
 import { checkForError } from "../utils";
 
 export enum QueryType {
+  price = "price",
   network = "network",
   account = "account",
   balance = "balance",
