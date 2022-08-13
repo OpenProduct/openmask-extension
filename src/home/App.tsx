@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { AccountState, useAccountState } from "../lib/state/account";
 import defaultTheme from "../styles/defaultTheme";
+import { Header } from "./Header";
 import { Home } from "./Home";
 import { Initialize } from "./initialize/Initialize";
 import { Loading } from "./Loading";
@@ -50,8 +51,8 @@ const Content: FC<{ account: AccountState | undefined }> = ({ account }) => {
     return (
       <MemoryRouter>
         <Routes>
-          <Route path={AppRoute.home} element={<Home />} />
           <Route path={AppRoute.unlock} element={<Unlock />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </MemoryRouter>
     );
@@ -74,7 +75,14 @@ const App = () => {
 
   return (
     <Container>
-      {isLoading ? <Loading /> : <Content account={data} />}
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <Header />
+          <Content account={data} />
+        </>
+      )}
     </Container>
   );
 };

@@ -108,9 +108,8 @@ export default class ExtensionPlatform {
   }
 
   static openExtensionInBrowser(
-    route = null,
-    queryString = null,
-    keepWindowOpen = false
+    route: string | null = null,
+    queryString: string | null = null
   ) {
     let extensionURL = browser.runtime.getURL("index.html");
 

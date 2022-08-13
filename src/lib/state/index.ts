@@ -8,6 +8,7 @@ export enum QueryType {
   account = "account",
   balance = "balance",
   address = "address",
+  transactions = "transactions",
 }
 
 export const useMutateStore = <T>(query: QueryType) => {

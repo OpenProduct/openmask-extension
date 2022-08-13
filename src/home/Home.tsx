@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useCallback, useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
 import { ReceiveIcon, SendIcon, TonIcon } from "../components/Icons";
 import { Tabs } from "../components/Tabs";
 import { useCoinPrice } from "../lib/api";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
-import { Header } from "./Header";
 import { Activities } from "./wallet/Activities";
 import { Assets } from "./wallet/Assets";
 import { Fiat } from "./wallet/Fiat";
@@ -78,52 +78,83 @@ const NetworkLogo = styled.span`
 
 const tabs = ["Assets", "Activity"];
 
+enum HomeRouters {
+  assets = "/",
+  activities = "/activity",
+}
+
 export const Home = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const wallet = useWalletContract();
   const { data: balance } = useBalance(wallet);
   const { data: address } = useAddress(wallet);
 
   const friendly = address?.toString(true, true, true) ?? wallet.state.address;
 
-  const [active, setActive] = useState(tabs[0]);
-
   const { data: price } = useCoinPrice(balance != null);
 
-  return (
-    <>
-      <Header />
-      <Body>
-        <Wallet>
-          <Connect>Connected</Connect>
-          <WalletName address={friendly} name={wallet.state.name} />
-          <WalletMenu address={friendly} />
-        </Wallet>
-        <Balance>
-          <NetworkLogo>
-            <TonIcon />
-          </NetworkLogo>
+  const hash = window.location.hash;
 
-          <Amount>{balance ?? "..."} TON</Amount>
-          <Fiat balance={balance} price={price} />
-          <Row>
-            <Column>
-              <ActionIcon>
-                <ReceiveIcon />
-              </ActionIcon>
-              <Text>Receive</Text>
-            </Column>
-            <Column>
-              <ActionIcon>
-                <SendIcon />
-              </ActionIcon>
-              <Text>Send</Text>
-            </Column>
-          </Row>
-        </Balance>
-        <Tabs options={tabs} active={active} onChange={setActive} />
-        {active === "Assets" && <Assets balance={balance} price={price} />}
-        {active === "Activity" && <Activities wallet={wallet} price={price} />}
-      </Body>
-    </>
+  useEffect(() => {
+    if (hash) {
+      console.log(String(hash));
+      navigate(hash.substring(1));
+    }
+  }, [hash]);
+
+  const onChange = useCallback(
+    (tab: typeof tabs[number]) => {
+      navigate(tab === "Assets" ? HomeRouters.assets : HomeRouters.activities, {
+        replace: true,
+      });
+    },
+    [navigate]
+  );
+
+  const active =
+    location.pathname === HomeRouters.activities ? tabs[1] : tabs[0];
+
+  return (
+    <Body>
+      <Wallet>
+        <Connect>Connected</Connect>
+        <WalletName address={friendly} name={wallet.state.name} />
+        <WalletMenu address={friendly} />
+      </Wallet>
+      <Balance>
+        <NetworkLogo>
+          <TonIcon />
+        </NetworkLogo>
+
+        <Amount>{balance ?? "..."} TON</Amount>
+        <Fiat balance={balance} price={price} />
+        <Row>
+          <Column>
+            <ActionIcon>
+              <ReceiveIcon />
+            </ActionIcon>
+            <Text>Receive</Text>
+          </Column>
+          <Column>
+            <ActionIcon>
+              <SendIcon />
+            </ActionIcon>
+            <Text>Send</Text>
+          </Column>
+        </Row>
+      </Balance>
+      <Tabs options={tabs} active={active} onChange={onChange} />
+      <Routes>
+        <Route
+          path={HomeRouters.assets}
+          element={<Assets balance={balance} price={price} />}
+        />
+        <Route
+          path={HomeRouters.activities}
+          element={<Activities wallet={wallet} price={price} />}
+        />
+      </Routes>
+    </Body>
   );
 };

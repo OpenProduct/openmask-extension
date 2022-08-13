@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Icon } from "../../components/Components";
 import {
@@ -17,6 +18,7 @@ const Menu = styled.div`
 
 export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
   const config = useNetworkConfig();
+  const location = useLocation();
 
   return (
     <Menu>
@@ -37,7 +39,7 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  ExtensionPlatform.openExtensionInBrowser();
+                  ExtensionPlatform.openExtensionInBrowser(location.pathname);
                 }}
               >
                 Expand view
