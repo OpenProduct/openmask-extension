@@ -14,7 +14,9 @@ declare module "styled-components" {
     lightGray: string;
 
     blueTon: string;
+    darkBlue: string;
     blue: string;
+    lightBlue: string;
 
     padding: string;
   }

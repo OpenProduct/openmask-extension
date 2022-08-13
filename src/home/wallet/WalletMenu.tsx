@@ -7,7 +7,7 @@ import {
   DropDownListPayload,
   ListItem,
 } from "../../components/DropDown";
-import { MoreIcon } from "../../components/Icons";
+import { LinkIcon, MoreIcon } from "../../components/Icons";
 import ExtensionPlatform from "../../lib/extension";
 import { useNetworkConfig } from "../../lib/state/network";
 
@@ -34,7 +34,7 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                   });
                 }}
               >
-                Open Wallet TonScan
+                Open Wallet TonScan <LinkIcon />
               </ListItem>
               <ListItem
                 onClick={() => {
@@ -42,7 +42,7 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                   ExtensionPlatform.openExtensionInBrowser(location.pathname);
                 }}
               >
-                Expand view
+                Expand view <LinkIcon />
               </ListItem>
             </DropDownListPayload>
           );

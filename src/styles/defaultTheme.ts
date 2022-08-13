@@ -2,6 +2,7 @@ import { DefaultTheme } from "styled-components";
 
 const defaultTheme: DefaultTheme = {
   background: "white",
+  blueTon: "#0088cb",
 
   color: "#1a202c",
   lightColor: "#727272",
@@ -10,8 +11,9 @@ const defaultTheme: DefaultTheme = {
   gray: "#dadfe4",
   lightGray: "#f0f0f0",
 
-  blueTon: "#0088cb",
+  darkBlue: "#055a8e",
   blue: "#055a8e",
+  lightBlue: "#b8e8ff",
 
   padding: "15px",
 };
