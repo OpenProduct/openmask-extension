@@ -67,7 +67,7 @@ export const Balance: FC<BalanceProps> = ({ balance, price }) => {
           </ActionIcon>
           <Text>Receive</Text>
         </Column>
-        <Column>
+        <Column onClick={() => navigate(AppRoute.send)}>
           <ActionIcon>
             <SendIcon />
           </ActionIcon>

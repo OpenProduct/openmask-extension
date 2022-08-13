@@ -1,4 +1,10 @@
-import { PropsWithChildren, useState } from "react";
+import React, {
+  FC,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 
 const DropDownContainer = styled.div`
@@ -32,6 +38,31 @@ export const ListItem = styled.div`
   }
 `;
 
+function useOutsideAlerter(ref: React.RefObject<Node>, onClick: () => void) {
+  useEffect(() => {
+    function handleClickOutside(event: Event) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        onClick();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref, onClick]);
+}
+
+const Container: FC<{ onClose: () => void; children: React.ReactNode }> = ({
+  onClose,
+  children,
+}) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOutsideAlerter(wrapperRef, onClose);
+  return (
+    <DropDownListContainer ref={wrapperRef}>{children}</DropDownListContainer>
+  );
+};
+
 export interface DropDownProps extends PropsWithChildren {
   payload: (onClose: () => void) => React.ReactNode;
 }
@@ -46,9 +77,7 @@ export const DropDown = ({ children, payload }: DropDownProps) => {
   return (
     <DropDownContainer>
       <DropDownHeader onClick={toggling}>{children}</DropDownHeader>
-      {isOpen && (
-        <DropDownListContainer>{payload(toggling)}</DropDownListContainer>
-      )}
+      {isOpen && <Container onClose={toggling}>{payload(toggling)}</Container>}
     </DropDownContainer>
   );
 };

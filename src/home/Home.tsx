@@ -3,8 +3,9 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useCoinPrice } from "../lib/api";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
-import { AppRoute } from "./routes";
+import { any, AppRoute } from "./routes";
 import { Receive } from "./wallet/receive/Receive";
+import { Send } from "./wallet/send/Send";
 import { WalletHome, WalletInfo } from "./wallet/Wallet";
 
 const Body = styled.div`
@@ -34,8 +35,9 @@ export const Home = () => {
     <Body>
       <WalletInfo address={friendly} wallet={wallet} />
       <Routes>
+        <Route path={AppRoute.send} element={<Send wallet={wallet} />} />
         <Route
-          path={`${AppRoute.receive}/*`}
+          path={any(AppRoute.receive)}
           element={<Receive address={friendly} />}
         />
         <Route
