@@ -8,6 +8,7 @@ import { Header } from "./Header";
 import { Home } from "./Home";
 import { Initialize } from "./initialize/Initialize";
 import { Loading } from "./Loading";
+import { Receive } from "./receive/Receive";
 import { AppRoute } from "./routes";
 import { Unlock } from "./Unlock";
 
@@ -52,6 +53,7 @@ const Content: FC<{ account: AccountState | undefined }> = ({ account }) => {
       <MemoryRouter>
         <Routes>
           <Route path={AppRoute.unlock} element={<Unlock />} />
+          <Route path={AppRoute.receive} element={<Receive />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </MemoryRouter>

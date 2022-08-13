@@ -6,6 +6,7 @@ import { ReceiveIcon, SendIcon, TonIcon } from "../components/Icons";
 import { Tabs } from "../components/Tabs";
 import { useCoinPrice } from "../lib/api";
 import { useAddress, useBalance, useWalletContract } from "../lib/state/wallet";
+import { AppRoute } from "./routes";
 import { Activities } from "./wallet/Activities";
 import { Assets } from "./wallet/Assets";
 import { Fiat } from "./wallet/Fiat";
@@ -94,14 +95,11 @@ export const Home = () => {
 
   const { data: price } = useCoinPrice(balance != null);
 
-  const hash = window.location.hash;
-
   useEffect(() => {
-    if (hash) {
-      console.log(String(hash));
-      navigate(hash.substring(1));
+    if (window.location.hash) {
+      navigate(window.location.hash.substring(1));
     }
-  }, [hash]);
+  }, [window.location.hash]);
 
   const onChange = useCallback(
     (tab: typeof tabs[number]) => {
@@ -127,10 +125,10 @@ export const Home = () => {
           <TonIcon />
         </NetworkLogo>
 
-        <Amount>{balance ?? "..."} TON</Amount>
+        <Amount>{balance ?? "-"} TON</Amount>
         <Fiat balance={balance} price={price} />
         <Row>
-          <Column>
+          <Column onClick={() => navigate(AppRoute.receive)}>
             <ActionIcon>
               <ReceiveIcon />
             </ActionIcon>
