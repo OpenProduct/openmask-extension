@@ -34,6 +34,11 @@ export const ButtonRow = styled(ButtonGroup)`
   flex-direction: row;
 `;
 
+export const ButtonBottomRow = styled(ButtonRow)`
+  position: sticky;
+  bottom: 0;
+`;
+
 export const ButtonPositive = styled(Button)`
   border: 1px solid ${(props) => props.theme.color};
   background: ${(props) => props.theme.color};

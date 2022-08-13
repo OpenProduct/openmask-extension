@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC } from "react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { AccountState, useAccountState } from "../lib/state/account";
 import defaultTheme from "../styles/defaultTheme";
@@ -9,7 +9,7 @@ import { Home } from "./Home";
 import { Import } from "./import/Import";
 import { Initialize } from "./initialize/Initialize";
 import { Loading } from "./Loading";
-import { AppRoute } from "./routes";
+import { any, AppRoute } from "./routes";
 import { Settings } from "./settings/Settings";
 import { Unlock } from "./Unlock";
 
@@ -42,19 +42,20 @@ const Container = styled.div`
   font-size: 110%;
 `;
 
-const Content: FC<{ account: AccountState | undefined }> = ({ account }) => {
-  if (!account) {
-    return <></>;
-  }
+const Content: FC<{ account: AccountState }> = ({ account }) => {
+  const location = useLocation();
 
-  if (!account.isInitialized) {
+  if (
+    !account.isInitialized &&
+    !location.pathname.startsWith(AppRoute.import)
+  ) {
     return <Initialize />;
   } else {
     return (
       <Routes>
         <Route path={AppRoute.unlock} element={<Unlock />} />
         <Route path={AppRoute.setting} element={<Settings />} />
-        <Route path={AppRoute.import} element={<Import />} />
+        <Route path={any(AppRoute.import)} element={<Import />} />
         <Route path="*" element={<Home />} />
       </Routes>
     );
@@ -79,7 +80,7 @@ const App = () => {
 
   return (
     <Container>
-      {isLoading ? (
+      {isLoading || !data ? (
         <Loading />
       ) : (
         <>

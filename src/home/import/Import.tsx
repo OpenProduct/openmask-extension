@@ -1,10 +1,103 @@
-import { HomeButton } from "../../components/HomeButton";
+import { useState } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import {
+  ButtonBottomRow,
+  ButtonNegative,
+  ButtonPositive,
+  Container,
+} from "../../components/Components";
+import { CheckIcon, CloseIcon } from "../../components/Icons";
+
+const Body = styled(Container)`
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+`;
+
+const Gap = styled.div`
+  flex-grow: 1;
+`;
+
+const Title = styled.div`
+  font-size: x-large;
+  padding-bottom: 25px;
+`;
+
+const Text = styled.div`
+  padding-bottom: 15px;
+  font-size: medium;
+`;
+
+const Textarea = styled.textarea`
+  resize: vertical;
+  padding: 10px;
+`;
+
+enum ImportRoutes {
+  index = "/",
+  mnemonic = "/mnemonic",
+}
+
+const ImportMnemonic = () => {
+  const navigate = useNavigate();
+
+  const [value, setValue] = useState("");
+
+  return (
+    <Body>
+      <Title>Import existing wallet</Title>
+      <Text>To connect wallet, please enter your mnemonic here</Text>
+      <Textarea
+        rows={10}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <Gap />
+      <ButtonBottomRow>
+        <ButtonNegative onClick={() => navigate("/")}>Cancel</ButtonNegative>
+        <ButtonPositive>Connect</ButtonPositive>
+      </ButtonBottomRow>
+    </Body>
+  );
+};
+
+const ImportIndex = () => {
+  const navigate = useNavigate();
+  return (
+    <Body>
+      <Title>Get Started with TonMask</Title>
+      <Text>
+        TonMask is open source software, you may alway check code on a GitHub.
+        Wallet is not profitable, don't charge any commission for transactions
+        and store all user data on a user device.
+      </Text>
+      <Text>
+        <CheckIcon /> TonMask <b>Always</b> connecting you to The Open Network
+        and the decentralized web
+      </Text>
+      <Text>
+        <CloseIcon /> TonMask <b>Never</b> collect keys, addresses,
+        transactions, balances, hashes, or any personal information
+      </Text>
+      <Gap />
+      <ButtonBottomRow>
+        <ButtonNegative onClick={() => navigate("/")}>No Thanks</ButtonNegative>
+        <ButtonPositive onClick={() => navigate(`.${ImportRoutes.mnemonic}`)}>
+          Input Mnemonic
+        </ButtonPositive>
+      </ButtonBottomRow>
+    </Body>
+  );
+};
 
 export const Import = () => {
   return (
-    <div>
-      <HomeButton />
-      <div>Import</div>
-    </div>
+    <Routes>
+      <Route path={ImportRoutes.mnemonic} element={<ImportMnemonic />} />
+      <Route path={ImportRoutes.index} element={<ImportIndex />} />
+    </Routes>
   );
 };
