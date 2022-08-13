@@ -8,6 +8,7 @@ import {
   Container,
 } from "../../components/Components";
 import { CheckIcon, CloseIcon } from "../../components/Icons";
+import { useImportWalletMutation } from "../../lib/state/account";
 
 const Body = styled(Container)`
   width: 100%;
@@ -36,6 +37,15 @@ const Textarea = styled.textarea`
   padding: 10px;
 `;
 
+const ErrorText = styled.div`
+  margin: ${(props) => props.theme.padding} 0;
+  border: 1px solid ${(props) => props.theme.red};
+  background: ${(props) => props.theme.lightRed};
+  font-size: medium;
+  padding: ${(props) => props.theme.padding};
+  border-radius: ${(props) => props.theme.padding};
+`;
+
 enum ImportRoutes {
   index = "/",
   mnemonic = "/mnemonic",
@@ -44,21 +54,30 @@ enum ImportRoutes {
 const ImportMnemonic = () => {
   const navigate = useNavigate();
 
+  const { mutateAsync, isLoading, reset, error } = useImportWalletMutation();
   const [value, setValue] = useState("");
+
+  const onConnect = async () => {
+    reset();
+    await mutateAsync(value);
+    navigate("/");
+  };
 
   return (
     <Body>
       <Title>Import existing wallet</Title>
       <Text>To connect wallet, please enter your mnemonic here</Text>
       <Textarea
+        disabled={isLoading}
         rows={10}
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
+      {error && <ErrorText>{error.message}</ErrorText>}
       <Gap />
       <ButtonBottomRow>
         <ButtonNegative onClick={() => navigate("/")}>Cancel</ButtonNegative>
-        <ButtonPositive>Connect</ButtonPositive>
+        <ButtonPositive onClick={onConnect}>Connect</ButtonPositive>
       </ButtonBottomRow>
     </Body>
   );

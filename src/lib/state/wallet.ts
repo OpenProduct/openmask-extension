@@ -8,12 +8,14 @@ import { QueryType, useNetwork } from ".";
 import { useAccountState } from "./account";
 import { useTonProvider } from "./network";
 
+type WalletVersion = keyof typeof TonWeb.Wallets.all;
+
 export interface WalletState {
   name?: string;
   mnemonic: string;
   address: string;
   publicKey: string;
-  version: keyof typeof TonWeb.Wallets.all;
+  version: WalletVersion;
 }
 
 const lastWalletVersion = "v4R2";
@@ -37,6 +39,48 @@ export const createWallet = async (
     address: address.toString(false),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,
+  };
+};
+
+const findContract = async (
+  ton: TonWeb,
+  keyPair: tonMnemonic.KeyPair
+): Promise<[WalletVersion, Address]> => {
+  for (let [version, WalletClass] of Object.entries(ton.wallet.all)) {
+    const wallet = new WalletClass(ton.provider, {
+      publicKey: keyPair.publicKey,
+      wc: 0,
+    });
+
+    const walletAddress = await wallet.getAddress();
+    const balance = await ton.provider.getBalance(walletAddress.toString());
+    if (balance !== "0") {
+      return [version, walletAddress] as [WalletVersion, Address];
+    }
+  }
+
+  const WalletClass = ton.wallet.all[lastWalletVersion];
+  const walletContract = new WalletClass(ton.provider, {
+    publicKey: keyPair.publicKey,
+    wc: 0,
+  });
+  const address = await walletContract.getAddress();
+  return [lastWalletVersion, address];
+};
+
+export const importWallet = async (
+  ton: TonWeb,
+  mnemonic: string[],
+  index: number
+): Promise<WalletState> => {
+  const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
+  const [version, address] = await findContract(ton, keyPair);
+  return {
+    name: `Account ${index}`,
+    mnemonic: mnemonic.join(" "),
+    address: address.toString(false),
+    publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
+    version,
   };
 };
 

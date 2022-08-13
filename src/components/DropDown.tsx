@@ -23,6 +23,8 @@ const DropDownListContainer = styled.div`
   background-color: ${(props) => props.theme.background};
   border: 1px solid ${(props) => props.theme.lightGray};
   border-radius: 5px;
+  max-height: 70vh;
+  overflow: auto;
 `;
 
 export const DropDownListPayload = styled.div`
