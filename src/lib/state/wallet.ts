@@ -73,18 +73,14 @@ const balanceFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
 });
 
-export const useBalance = (wallet: Wallet) => {
+export const useBalance = (address: string) => {
   const { data: network } = useNetwork();
+  const ton = useTonProvider();
 
-  return useQuery<string>(
-    [network, wallet.state.address, QueryType.balance],
-    async () => {
-      const value = await wallet.contract.provider.getBalance(
-        wallet.state.address
-      );
-      return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
-    }
-  );
+  return useQuery<string>([network, address, QueryType.balance], async () => {
+    const value = await ton.provider.getBalance(address);
+    return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
+  });
 };
 
 export const useAddress = (wallet: Wallet) => {

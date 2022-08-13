@@ -4,6 +4,9 @@ export enum AppRoute {
   receive = "/receive",
   send = "/send",
   activities = "/activities",
+  setting = "/setting",
+  import = "/import",
+  wallet = "/wallet",
 }
 
 export const any = (route: AppRoute): string => {

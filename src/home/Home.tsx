@@ -7,6 +7,7 @@ import { any, AppRoute } from "./routes";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
 import { WalletHome, WalletInfo } from "./wallet/Wallet";
+import { WalletSettings } from "./wallet/WalletSettings";
 
 const Body = styled.div`
   width: 100%;
@@ -18,7 +19,7 @@ const Body = styled.div`
 export const Home = () => {
   const navigate = useNavigate();
   const wallet = useWalletContract();
-  const { data: balance } = useBalance(wallet);
+  const { data: balance } = useBalance(wallet.state.address);
   const { data: address } = useAddress(wallet);
 
   const friendly = address?.toString(true, true, true) ?? wallet.state.address;
@@ -40,6 +41,7 @@ export const Home = () => {
           path={any(AppRoute.receive)}
           element={<Receive address={friendly} />}
         />
+        <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
         <Route
           path="*"
           element={

@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+import { FC, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
 import { DropDown, DropDownList, ListItem } from "../components/DropDown";
@@ -15,6 +16,8 @@ import {
   useCreateWalletMutation,
 } from "../lib/state/account";
 import { networkConfigs } from "../lib/state/network";
+import { useBalance, WalletState } from "../lib/state/wallet";
+import { AppRoute } from "./routes";
 
 const Head = styled(Container)`
   flex-shrink: 0;
@@ -37,7 +40,38 @@ const Divider = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.gray};
 `;
 
+const Balance = styled.span`
+  margin-left: ${(props) => props.theme.padding};
+  color: ${(props) => props.theme.darkGray};
+`;
+
+const AccountItem = styled(ListItem)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Account: FC<{
+  onClick: () => void;
+  wallet: WalletState;
+  active?: string;
+}> = ({ onClick, wallet, active }) => {
+  const { data } = useBalance(wallet.address);
+  return (
+    <AccountItem onClick={onClick}>
+      {wallet.address === active && (
+        <>
+          <CheckIcon />{" "}
+        </>
+      )}
+      {wallet.name}
+      {data && <Balance>{data} TON</Balance>}
+    </AccountItem>
+  );
+};
+
 export const Header = () => {
+  const navigate = useNavigate();
   const { data } = useNetwork();
   const { mutate } = useMutateStore<string>(QueryType.network);
   const { mutateAsync, reset } = useMutateNetworkStore<AccountState>(
@@ -76,15 +110,15 @@ export const Header = () => {
               <Item>Accounts</Item>
               <Divider />
               {account.wallets.map((wallet) => (
-                <ListItem
+                <Account
+                  key={wallet.address}
+                  wallet={wallet}
+                  active={account.activeWallet}
                   onClick={() => {
                     onSelect(wallet.address);
                     onClose();
                   }}
-                >
-                  {wallet.name}{" "}
-                  {wallet.address === account.activeWallet && <CheckIcon />}
-                </ListItem>
+                />
               ))}
               {account.wallets.length !== 0 && <Divider />}
               <ListItem
@@ -95,9 +129,23 @@ export const Header = () => {
               >
                 Create Wallet
               </ListItem>
-              <ListItem>Import Wallet</ListItem>
+              <ListItem
+                onClick={() => {
+                  onClose();
+                  navigate(AppRoute.import);
+                }}
+              >
+                Import Wallet
+              </ListItem>
               <Divider />
-              <ListItem>Settings</ListItem>
+              <ListItem
+                onClick={() => {
+                  onClose();
+                  navigate(AppRoute.setting);
+                }}
+              >
+                Account Settings
+              </ListItem>
             </Menu>
           )}
         >

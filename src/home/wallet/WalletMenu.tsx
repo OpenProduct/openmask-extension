@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Icon } from "../../components/Components";
 import {
@@ -10,6 +10,7 @@ import {
 import { LinkIcon, MoreIcon } from "../../components/Icons";
 import ExtensionPlatform from "../../lib/extension";
 import { useNetworkConfig } from "../../lib/state/network";
+import { AppRoute } from "../routes";
 
 const Menu = styled.div`
   position: absolute;
@@ -17,6 +18,7 @@ const Menu = styled.div`
 `;
 
 export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
+  const navigate = useNavigate();
   const config = useNetworkConfig();
   const location = useLocation();
 
@@ -43,6 +45,14 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                 }}
               >
                 Expand view <LinkIcon />
+              </ListItem>
+              <ListItem
+                onClick={() => {
+                  onClose();
+                  navigate(AppRoute.wallet);
+                }}
+              >
+                Wallet Settings
               </ListItem>
             </DropDownListPayload>
           );
