@@ -48,7 +48,8 @@ export const WalletHome: FC<{
   price?: number;
   balance?: string;
   wallet: Wallet;
-}> = ({ price, balance, wallet }) => {
+  address: string;
+}> = ({ price, balance, wallet, address }) => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -71,7 +72,9 @@ export const WalletHome: FC<{
       <Routes>
         <Route
           path={AppRoute.activities}
-          element={<Activities wallet={wallet} price={price} />}
+          element={
+            <Activities wallet={wallet} price={price} address={address} />
+          }
         />
         <Route path="*" element={<Assets balance={balance} price={price} />} />
       </Routes>

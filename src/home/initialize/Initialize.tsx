@@ -26,7 +26,7 @@ export const Initialize = () => {
   return (
     <Body>
       <LoadingLogo />
-      <H1>New to TON?</H1>
+      <H1>Welcome to TonMask</H1>
       <ButtonColumn>
         <ButtonPositive onClick={onCreate}>Create Wallet</ButtonPositive>
         <ButtonNegative onClick={() => navigate(AppRoute.import)}>

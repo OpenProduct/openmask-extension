@@ -14,6 +14,7 @@ const Body = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 `;
 
 export const Home = () => {
@@ -45,7 +46,12 @@ export const Home = () => {
         <Route
           path="*"
           element={
-            <WalletHome wallet={wallet} price={price} balance={balance} />
+            <WalletHome
+              wallet={wallet}
+              price={price}
+              balance={balance}
+              address={friendly}
+            />
           }
         />
       </Routes>

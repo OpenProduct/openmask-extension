@@ -7,6 +7,7 @@ import { Address } from "tonweb/dist/types/utils/address";
 import { QueryType, useNetwork } from ".";
 import { useAccountState } from "./account";
 import { useTonProvider } from "./network";
+import { TonWebTransaction } from "./transaction";
 
 type WalletVersion = keyof typeof TonWeb.Wallets.all;
 
@@ -117,13 +118,21 @@ const balanceFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
 });
 
+export const formatTonValue = (value: string): string => {
+  return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
+};
+
+export const toShortAddress = (address: string): string => {
+  return address.slice(0, 4) + "...." + address.slice(-4);
+};
+
 export const useBalance = (address: string) => {
   const { data: network } = useNetwork();
   const ton = useTonProvider();
 
   return useQuery<string>([network, address, QueryType.balance], async () => {
     const value = await ton.provider.getBalance(address);
-    return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
+    return formatTonValue(value);
   });
 };
 
@@ -139,7 +148,7 @@ export const useAddress = (wallet: Wallet) => {
 export const useTransactions = (wallet: Wallet, limit: number = 10) => {
   const { data: network } = useNetwork();
 
-  return useQuery<any>(
+  return useQuery<TonWebTransaction[]>(
     [network, wallet.state.address, QueryType.transactions],
     () => wallet.contract.provider.getTransactions(wallet.state.address, limit)
   );

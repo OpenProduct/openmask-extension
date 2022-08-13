@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "styled-components";
 import { CheckIcon, CopyIcon } from "../../components/Icons";
 import { useCopyToClipboard } from "../../lib/hooks/useCopyToClipbpard";
+import { toShortAddress } from "../../lib/state/wallet";
 
 const Block = styled.div`
   cursor: pointer;
@@ -23,13 +24,11 @@ export const WalletName: FC<{ address: string; name?: string }> = React.memo(
   ({ address, name }) => {
     const [copied, handleCopy] = useCopyToClipboard();
 
-    const shortAddress = address.slice(0, 4) + "...." + address.slice(-4);
-
     return (
       <Block onClick={() => handleCopy(address)}>
         <b>{name}</b>
         <div>
-          {shortAddress} {copied ? <CheckIcon /> : <CopyIcon />}
+          {toShortAddress(address)} {copied ? <CheckIcon /> : <CopyIcon />}
         </div>
       </Block>
     );
