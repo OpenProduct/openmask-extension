@@ -18,7 +18,10 @@ export interface WalletState {
 
 const lastWalletVersion = "v4R2";
 
-export const createWallet = async (ton: TonWeb): Promise<WalletState> => {
+export const createWallet = async (
+  ton: TonWeb,
+  index: number
+): Promise<WalletState> => {
   const mnemonic = await tonMnemonic.generateMnemonic();
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
 
@@ -29,7 +32,7 @@ export const createWallet = async (ton: TonWeb): Promise<WalletState> => {
   });
   const address = await walletContract.getAddress();
   return {
-    name: "Account 1",
+    name: `Account ${index}`,
     mnemonic: mnemonic.join(" "),
     address: address.toString(false),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),

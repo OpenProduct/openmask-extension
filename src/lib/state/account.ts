@@ -30,7 +30,7 @@ export const useCreateWalletMutation = () => {
 
   return useCallback(async () => {
     if (!data) return;
-    const wallet = await createWallet(ton);
+    const wallet = await createWallet(ton, data.wallets.length + 1);
     const wallets = data.wallets.concat([wallet]);
     await mutateAsync({
       ...data,
@@ -40,4 +40,23 @@ export const useCreateWalletMutation = () => {
     });
     reset();
   }, [ton, mutateAsync, reset, data]);
+};
+
+export const useSelectWalletMutation = () => {
+  const { data } = useAccountState();
+  const { mutateAsync, reset } = useMutateNetworkStore<AccountState>(
+    QueryType.account
+  );
+  return useCallback(
+    async (address: string) => {
+      if (!data) return;
+
+      await mutateAsync({
+        ...data,
+        activeWallet: address,
+      });
+      reset();
+    },
+    [data, reset, mutateAsync]
+  );
 };
