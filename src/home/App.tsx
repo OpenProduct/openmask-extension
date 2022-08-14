@@ -1,9 +1,19 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+import TonWeb from "tonweb";
+import { useNetwork } from "../lib/state";
 import { AccountState, useAccountState } from "../lib/state/account";
+import { useNetworkConfig } from "../lib/state/network";
 import defaultTheme from "../styles/defaultTheme";
+import {
+  AccountStateContext,
+  NetworkContext,
+  TonProviderContext,
+  WalletContractContext,
+  WalletStateContext,
+} from "./context";
 import { Header } from "./Header";
 import { Home } from "./Home";
 import { Import } from "./import/Import";
@@ -45,6 +55,27 @@ const Container = styled.div`
 const Content: FC<{ account: AccountState }> = ({ account }) => {
   const location = useLocation();
 
+  const config = useNetworkConfig();
+
+  const tonProvider = useMemo(() => {
+    return new TonWeb(
+      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
+    );
+  }, [config]);
+
+  const wallet = account.wallets.find(
+    (w) => w.address === account.activeWallet
+  );
+
+  const walletContract = useMemo(() => {
+    if (!wallet) return undefined;
+    const WalletClass = tonProvider.wallet.all[wallet.version];
+    return new WalletClass(tonProvider.provider, {
+      publicKey: TonWeb.utils.hexToBytes(wallet.publicKey),
+      wc: 0,
+    });
+  }, [wallet, tonProvider]);
+
   if (
     !account.isInitialized &&
     !location.pathname.startsWith(AppRoute.import)
@@ -52,12 +83,18 @@ const Content: FC<{ account: AccountState }> = ({ account }) => {
     return <Initialize />;
   } else {
     return (
-      <Routes>
-        <Route path={AppRoute.unlock} element={<Unlock />} />
-        <Route path={AppRoute.setting} element={<Settings />} />
-        <Route path={any(AppRoute.import)} element={<Import />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
+      <TonProviderContext.Provider value={tonProvider}>
+        <WalletStateContext.Provider value={wallet!}>
+          <WalletContractContext.Provider value={walletContract!}>
+            <Routes>
+              <Route path={AppRoute.unlock} element={<Unlock />} />
+              <Route path={AppRoute.setting} element={<Settings />} />
+              <Route path={any(AppRoute.import)} element={<Import />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </WalletContractContext.Provider>
+        </WalletStateContext.Provider>
+      </TonProviderContext.Provider>
     );
   }
 };
@@ -68,7 +105,9 @@ const Provider: FC = () => {
       <QueryClientProvider client={queryClient}>
         <GlobalStyle />
         <MemoryRouter>
-          <App />
+          <Container>
+            <App />
+          </Container>
         </MemoryRouter>
       </QueryClientProvider>
     </ThemeProvider>
@@ -76,19 +115,20 @@ const Provider: FC = () => {
 };
 
 const App = () => {
+  const { data: network } = useNetwork();
   const { isLoading, data } = useAccountState();
 
+  if (isLoading || !data || !network) {
+    return <Loading />;
+  }
+
   return (
-    <Container>
-      {isLoading || !data ? (
-        <Loading />
-      ) : (
-        <>
-          <Header />
-          <Content account={data} />
-        </>
-      )}
-    </Container>
+    <AccountStateContext.Provider value={data}>
+      <NetworkContext.Provider value={network}>
+        <Header />
+        <Content account={data} />
+      </NetworkContext.Provider>
+    </AccountStateContext.Provider>
   );
 };
 

@@ -1,18 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useContext } from "react";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
-import { WalletContract } from "tonweb/dist/types/contract/wallet/wallet-contract";
 import { Address } from "tonweb/dist/types/utils/address";
-import { QueryType, useNetwork } from ".";
-import { useAccountState } from "./account";
-import { useTonProvider } from "./network";
-import { TonWebTransaction } from "./transaction";
+import { QueryType } from ".";
+import {
+  NetworkContext,
+  TonProviderContext,
+  WalletContractContext,
+  WalletStateContext,
+} from "../../home/context";
 
 type WalletVersion = keyof typeof TonWeb.Wallets.all;
 
 export interface WalletState {
-  name?: string;
+  name: string;
   mnemonic: string;
   address: string;
   publicKey: string;
@@ -85,34 +87,6 @@ export const importWallet = async (
   };
 };
 
-const useActiveWallet = () => {
-  const { data } = useAccountState();
-  return data?.wallets.find((i) => i.address === data.activeWallet)!;
-};
-
-export interface Wallet {
-  state: WalletState;
-  contract: WalletContract;
-}
-
-export const useWalletContract = () => {
-  const ton = useTonProvider();
-  const state = useActiveWallet();
-
-  return useMemo(() => {
-    const WalletClass = ton.wallet.all[state.version];
-    const walletContract = new WalletClass(ton.provider, {
-      publicKey: TonWeb.utils.hexToBytes(state.publicKey),
-      wc: 0,
-    });
-
-    return {
-      state,
-      contract: walletContract,
-    };
-  }, [ton, state]);
-};
-
 const balanceFormat = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 4,
@@ -127,8 +101,8 @@ export const toShortAddress = (address: string): string => {
 };
 
 export const useBalance = (address: string) => {
-  const { data: network } = useNetwork();
-  const ton = useTonProvider();
+  const network = useContext(NetworkContext);
+  const ton = useContext(TonProviderContext);
 
   return useQuery<string>([network, address, QueryType.balance], async () => {
     const value = await ton.provider.getBalance(address);
@@ -136,20 +110,12 @@ export const useBalance = (address: string) => {
   });
 };
 
-export const useAddress = (wallet: Wallet) => {
-  const { data: network } = useNetwork();
+export const useAddress = () => {
+  const network = useContext(NetworkContext);
+  const wallet = useContext(WalletStateContext);
+  const contract = useContext(WalletContractContext);
 
-  return useQuery<Address>(
-    [network, wallet.state.address, QueryType.address],
-    () => wallet.contract.getAddress()
-  );
-};
-
-export const useTransactions = (wallet: Wallet, limit: number = 10) => {
-  const { data: network } = useNetwork();
-
-  return useQuery<TonWebTransaction[]>(
-    [network, wallet.state.address, QueryType.transactions],
-    () => wallet.contract.provider.getTransactions(wallet.state.address, limit)
+  return useQuery<Address>([network, wallet.address, QueryType.address], () =>
+    contract.getAddress()
   );
 };

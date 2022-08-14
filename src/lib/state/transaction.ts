@@ -1,3 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
+import { QueryType } from ".";
+import {
+  NetworkContext,
+  TonProviderContext,
+  WalletStateContext,
+} from "../../home/context";
+
 export interface TonWebTransaction {
   "@type": "raw.transaction";
   data: string;
@@ -46,3 +55,14 @@ export interface TonWebTransactionMessageData {
   body: string;
   init_state: string;
 }
+
+export const useTransactions = (limit: number = 10) => {
+  const network = useContext(NetworkContext);
+  const wallet = useContext(WalletStateContext);
+  const ton = useContext(TonProviderContext);
+
+  return useQuery<TonWebTransaction[], Error>(
+    [network, wallet.address, QueryType.transactions],
+    () => ton.getTransactions(wallet.address, limit)
+  );
+};

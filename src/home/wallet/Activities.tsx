@@ -1,22 +1,15 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import styled from "styled-components";
 import { ButtonNegative } from "../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../components/Icons";
 import ExtensionPlatform from "../../lib/extension";
 import { NetworkConfig, useNetworkConfig } from "../../lib/state/network";
-import { TonWebTransaction } from "../../lib/state/transaction";
 import {
-  formatTonValue,
-  toShortAddress,
+  TonWebTransaction,
   useTransactions,
-  Wallet,
-} from "../../lib/state/wallet";
-
-interface ActivitiesProps {
-  wallet: Wallet;
-  address: string;
-  price?: number;
-}
+} from "../../lib/state/transaction";
+import { formatTonValue, toShortAddress } from "../../lib/state/wallet";
+import { WalletAddressContext } from "../context";
 
 const Row = styled.div`
   padding: ${(props) => props.theme.padding};
@@ -54,9 +47,13 @@ const Line = styled.div`
   justify-content: space-between;
 `;
 
-const toUrlSafe = (value: string) => {
-  return value.replace(/\+/g, "-").replace(/\//g, "_");
-};
+const Loading = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+  border-bottom: 2px solid ${(props) => props.theme.gray};
+`;
 
 const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
   item,
@@ -75,7 +72,7 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
               <span>-{formatTonValue(out.value)} TON</span>
             </Line>
             <Line>
-              <span>{new Date(item.utime * 1000).toLocaleDateString()}</span>
+              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
               <b>{toShortAddress(out.destination)}</b>
             </Line>
           </Text>
@@ -92,7 +89,7 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
               <span>+{formatTonValue(item.in_msg.value)} TON</span>
             </Line>
             <Line>
-              <span>{new Date(item.utime * 1000).toLocaleDateString()}</span>
+              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
               <b>{toShortAddress(item.in_msg.source)}</b>
             </Line>
           </Text>
@@ -102,17 +99,15 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
   );
 };
 
-export const Activities: FC<ActivitiesProps> = ({ wallet, address }) => {
+export const Activities = () => {
   const config = useNetworkConfig();
-  const { data, isLoading } = useTransactions(wallet);
-
-  if (!data || isLoading) {
-    return <div>Loading...</div>;
-  }
+  const address = useContext(WalletAddressContext);
+  const { data, isLoading } = useTransactions();
 
   return (
     <>
-      {data.map((item) => (
+      {isLoading && <Loading>Loading...</Loading>}
+      {data?.map((item) => (
         <Transaction
           key={item.transaction_id.hash}
           item={item}
@@ -127,7 +122,7 @@ export const Activities: FC<ActivitiesProps> = ({ wallet, address }) => {
             })
           }
         >
-          View more on TonScan <LinkIcon />
+          View more on tonscan.org <LinkIcon />
         </ButtonNegative>
       </Row>
     </>

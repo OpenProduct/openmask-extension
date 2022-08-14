@@ -1,22 +1,17 @@
-import { FC, useCallback } from "react";
+import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
 import { DropDown, DropDownList, ListItem } from "../components/DropDown";
-import { CheckIcon, UserIcon } from "../components/Icons";
+import { ArrowDownIcon, CheckIcon, UserIcon } from "../components/Icons";
+import { QueryType, useMutateStore } from "../lib/state";
 import {
-  QueryType,
-  useMutateNetworkStore,
-  useMutateStore,
-  useNetwork,
-} from "../lib/state";
-import {
-  AccountState,
-  useAccountState,
   useCreateWalletMutation,
+  useSelectWalletMutation,
 } from "../lib/state/account";
 import { networkConfigs } from "../lib/state/network";
 import { useBalance, WalletState } from "../lib/state/wallet";
+import { AccountStateContext, NetworkContext } from "./context";
 import { AppRoute } from "./routes";
 
 const Head = styled(Container)`
@@ -72,25 +67,27 @@ const Account: FC<{
 
 export const Header = () => {
   const navigate = useNavigate();
-  const { data } = useNetwork();
-  const { mutate } = useMutateStore<string>(QueryType.network);
-  const { mutateAsync, reset } = useMutateNetworkStore<AccountState>(
-    QueryType.account
-  );
+  const account = useContext(AccountStateContext);
+  const network = useContext(NetworkContext);
 
-  const { data: account } = useAccountState();
-  const onCreate = useCreateWalletMutation();
+  const { mutate } = useMutateStore<string>(QueryType.network);
+
+  const { mutateAsync: mutateSelect, reset: resetSelect } =
+    useSelectWalletMutation();
+  const { mutateAsync: mutateCreate, reset: resetCreate } =
+    useCreateWalletMutation();
+
+  const onCreate = useCallback(() => {
+    resetCreate();
+    mutateCreate();
+  }, [resetCreate, mutateCreate]);
 
   const onSelect = useCallback(
     async (address: string) => {
-      if (!account) return;
-      await mutateAsync({
-        ...account,
-        activeWallet: address,
-      });
-      reset();
+      resetSelect();
+      await mutateSelect(address);
     },
-    [account, reset, mutateAsync]
+    [resetSelect, mutateSelect]
   );
 
   return (
@@ -101,7 +98,9 @@ export const Header = () => {
         renderOption={(c) => c.name}
         onSelect={(c) => mutate(c.name)}
       >
-        <Badge>{data}</Badge>
+        <Badge>
+          {network} <ArrowDownIcon />
+        </Badge>
       </DropDownList>
       {account && (
         <DropDown

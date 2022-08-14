@@ -22,13 +22,13 @@ const Body = styled(Container)`
 
 export const Initialize = () => {
   const navigate = useNavigate();
-  const onCreate = useCreateWalletMutation();
+  const { mutate } = useCreateWalletMutation();
   return (
     <Body>
       <LoadingLogo />
       <H1>Welcome to TonMask</H1>
       <ButtonColumn>
-        <ButtonPositive onClick={onCreate}>Create Wallet</ButtonPositive>
+        <ButtonPositive onClick={() => mutate()}>Create Wallet</ButtonPositive>
         <ButtonNegative onClick={() => navigate(AppRoute.import)}>
           Import Wallet
         </ButtonNegative>

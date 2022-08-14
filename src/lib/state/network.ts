@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import TonWeb from "tonweb";
 import { useNetwork } from ".";
 
 export interface NetworkConfig {
@@ -23,16 +22,6 @@ export const networkConfigs: NetworkConfig[] = [
     scanUrl: "https://testnet.tonscan.org",
   },
 ];
-
-export const useTonProvider = () => {
-  const config = useNetworkConfig();
-
-  return useMemo(() => {
-    return new TonWeb(
-      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
-    );
-  }, [config]);
-};
 
 export const useNetworkConfig = () => {
   const { data } = useNetwork();

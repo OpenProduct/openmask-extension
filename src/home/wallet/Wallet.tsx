@@ -1,9 +1,9 @@
-import { FC, useCallback } from "react";
+import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Badge, Container } from "../../components/Components";
 import { Tabs } from "../../components/Tabs";
-import { Wallet } from "../../lib/state/wallet";
+import { WalletAddressContext, WalletStateContext } from "../context";
 import { AppRoute } from "../routes";
 import { Activities } from "./Activities";
 import { Assets } from "./Assets";
@@ -29,14 +29,13 @@ const Connect = styled(Badge)`
   font-size: smaller;
 `;
 
-export const WalletInfo: FC<{ address: string; wallet: Wallet }> = ({
-  address,
-  wallet,
-}) => {
+export const WalletInfo = () => {
+  const wallet = useContext(WalletStateContext);
+  const address = useContext(WalletAddressContext);
   return (
     <Block>
       <Connect>Connected</Connect>
-      <WalletName address={address} name={wallet.state.name} />
+      <WalletName address={address} name={wallet.name} />
       <WalletMenu address={address} />
     </Block>
   );
@@ -47,9 +46,7 @@ const tabs = ["Assets", "Activity"];
 export const WalletHome: FC<{
   price?: number;
   balance?: string;
-  wallet: Wallet;
-  address: string;
-}> = ({ price, balance, wallet, address }) => {
+}> = ({ price, balance }) => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -70,12 +67,7 @@ export const WalletHome: FC<{
       <Balance balance={balance} price={price} />
       <Tabs options={tabs} active={active} onChange={onChange} />
       <Routes>
-        <Route
-          path={AppRoute.activities}
-          element={
-            <Activities wallet={wallet} price={price} address={address} />
-          }
-        />
+        <Route path={AppRoute.activities} element={<Activities />} />
         <Route path="*" element={<Assets balance={balance} price={price} />} />
       </Routes>
     </>

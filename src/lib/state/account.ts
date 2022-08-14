@@ -1,15 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
-import { checkForError } from "../utils";
 import {
-  QueryType,
-  useMutateNetworkStore,
-  useNetwork,
-  useNetworkStore,
-} from "./";
-import { useTonProvider } from "./network";
+  AccountStateContext,
+  NetworkContext,
+  TonProviderContext,
+} from "../../home/context";
+import { checkForError } from "../utils";
+import { QueryType, useNetworkStore } from "./";
 import { createWallet, importWallet, WalletState } from "./wallet";
 
 export interface AccountState {
@@ -31,36 +30,37 @@ export const useAccountState = () => {
 };
 
 export const useCreateWalletMutation = () => {
-  const ton = useTonProvider();
-  const { data } = useAccountState();
-  const { mutateAsync, reset } = useMutateNetworkStore<AccountState>(
-    QueryType.account
-  );
+  const network = useContext(NetworkContext);
+  const ton = useContext(TonProviderContext);
+  const account = useContext(AccountStateContext);
+  const client = useQueryClient();
 
-  return useCallback(async () => {
-    if (!data) return;
-    const wallet = await createWallet(ton, data.wallets.length + 1);
-    const wallets = data.wallets.concat([wallet]);
-    await mutateAsync({
-      ...data,
+  return useMutation<void, Error>(async () => {
+    const wallet = await createWallet(ton, account.wallets.length + 1);
+    const wallets = account.wallets.concat([wallet]);
+    const value = {
+      ...account,
       isInitialized: true,
       wallets,
       activeWallet: wallet.address,
-    });
-    reset();
-  }, [ton, mutateAsync, reset, data]);
+    };
+    const { local } = browser.storage;
+    await local.set({ [`${network}_${QueryType.account}`]: value });
+    const err = checkForError();
+    if (err) {
+      throw err;
+    }
+    await client.resetQueries([network, QueryType.account]);
+  });
 };
 
 export const useImportWalletMutation = () => {
   const client = useQueryClient();
-  const ton = useTonProvider();
-  const { data: network } = useNetwork();
-  const { data } = useAccountState();
+  const ton = useContext(TonProviderContext);
+  const network = useContext(NetworkContext);
+  const data = useContext(AccountStateContext);
 
-  return useMutation<void, Error, string>(async (value: string) => {
-    if (!data) {
-      throw new Error("Missing data");
-    }
+  return useMutation<void, Error, string>(async (value) => {
     const mnemonic = value.trim().split(" ");
     if (!tonMnemonic.validateMnemonic(mnemonic) || mnemonic.length !== 24) {
       throw new Error("Mnemonic is not valid");
@@ -87,20 +87,20 @@ export const useImportWalletMutation = () => {
 };
 
 export const useSelectWalletMutation = () => {
-  const { data } = useAccountState();
-  const { mutateAsync, reset } = useMutateNetworkStore<AccountState>(
-    QueryType.account
-  );
-  return useCallback(
-    async (address: string) => {
-      if (!data) return;
-
-      await mutateAsync({
-        ...data,
-        activeWallet: address,
-      });
-      reset();
-    },
-    [data, reset, mutateAsync]
-  );
+  const account = useContext(AccountStateContext);
+  const network = useContext(NetworkContext);
+  const client = useQueryClient();
+  return useMutation<void, Error, string>(async (address) => {
+    const value = {
+      ...account,
+      activeWallet: address,
+    };
+    const { local } = browser.storage;
+    await local.set({ [`${network}_${QueryType.account}`]: value });
+    const err = checkForError();
+    if (err) {
+      throw err;
+    }
+    await client.resetQueries([network, QueryType.account]);
+  });
 };
