@@ -11,7 +11,7 @@ import {
   WalletStateContext,
 } from "../../home/context";
 
-type WalletVersion = keyof typeof TonWeb.Wallets.all;
+export type WalletVersion = keyof typeof TonWeb.Wallets.all;
 
 export interface WalletState {
   name: string;
@@ -19,6 +19,7 @@ export interface WalletState {
   address: string;
   publicKey: string;
   version: WalletVersion;
+  isBounceable: boolean;
 }
 
 const lastWalletVersion = "v4R2";
@@ -42,6 +43,7 @@ export const createWallet = async (
     address: address.toString(false),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,
+    isBounceable: true,
   };
 };
 
@@ -84,6 +86,7 @@ export const importWallet = async (
     address: address.toString(false),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version,
+    isBounceable: true,
   };
 };
 
@@ -115,7 +118,8 @@ export const useAddress = () => {
   const wallet = useContext(WalletStateContext);
   const contract = useContext(WalletContractContext);
 
-  return useQuery<Address>([network, wallet.address, QueryType.address], () =>
-    contract.getAddress()
+  return useQuery<Address>(
+    [network, wallet.address, wallet.version, QueryType.address],
+    () => contract.getAddress()
   );
 };

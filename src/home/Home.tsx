@@ -7,8 +7,8 @@ import { WalletAddressContext, WalletStateContext } from "./context";
 import { any, AppRoute } from "./routes";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
+import { WalletSettings } from "./wallet/setttings/Settings";
 import { WalletHome, WalletInfo } from "./wallet/Wallet";
-import { WalletSettings } from "./wallet/WalletSettings";
 
 const Body = styled.div`
   width: 100%;
@@ -23,12 +23,13 @@ export const Home = () => {
 
   const wallet = useContext(WalletStateContext);
 
-  const { data: balance } = useBalance(wallet.address);
-  const { data: price } = useCoinPrice(balance != null);
-
   const { data: address } = useAddress();
 
-  const friendly = address?.toString(true, true, true) ?? wallet.address;
+  const friendly =
+    address?.toString(true, true, wallet.isBounceable) ?? wallet.address;
+
+  const { data: balance } = useBalance(friendly);
+  const { data: price } = useCoinPrice(balance != null);
 
   useEffect(() => {
     if (window.location.hash) {

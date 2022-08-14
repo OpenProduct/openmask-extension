@@ -2,25 +2,15 @@ import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
+  Body,
   ButtonBottomRow,
   ButtonNegative,
   ButtonPositive,
-  Container,
+  ErrorText,
+  Gap,
 } from "../../components/Components";
 import { CheckIcon, CloseIcon } from "../../components/Icons";
 import { useImportWalletMutation } from "../../lib/state/account";
-
-const Body = styled(Container)`
-  width: 100%;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-`;
-
-const Gap = styled.div`
-  flex-grow: 1;
-`;
 
 const Title = styled.div`
   font-size: x-large;
@@ -35,15 +25,6 @@ const Text = styled.div`
 const Textarea = styled.textarea`
   resize: vertical;
   padding: 10px;
-`;
-
-const ErrorText = styled.div`
-  margin: ${(props) => props.theme.padding} 0;
-  border: 1px solid ${(props) => props.theme.red};
-  background: ${(props) => props.theme.lightRed};
-  font-size: medium;
-  padding: ${(props) => props.theme.padding};
-  border-radius: ${(props) => props.theme.padding};
 `;
 
 enum ImportRoutes {

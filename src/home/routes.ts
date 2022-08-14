@@ -12,3 +12,7 @@ export enum AppRoute {
 export const any = (route: AppRoute): string => {
   return `${route}/*`;
 };
+
+export const relative = (path: string): string => {
+  return `.${path}`;
+};

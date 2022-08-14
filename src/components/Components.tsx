@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const Container = styled.div`
   max-width: 600px;
@@ -12,12 +12,18 @@ export const H1 = styled.h1`
   line-height: 130%;
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ disabled?: boolean }>`
   padding: ${(props) => props.theme.padding};
   width: 100%;
   border-radius: ${(props) => props.theme.padding};
   cursor: pointer;
   font-size: medium;
+
+  ${(props) =>
+    props.disabled &&
+    css`
+      opacity: 0.5;
+    `}
 `;
 
 const ButtonGroup = styled.div`
@@ -59,6 +65,16 @@ export const ButtonNegative = styled(Button)`
   }
 `;
 
+export const ButtonDanger = styled(Button)`
+  border: 1px solid ${(props) => props.theme.red};
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.color};
+
+  &:hover {
+    background: ${(props) => props.theme.lightRed};
+  }
+`;
+
 export const Badge = styled.div`
   border: 1px solid ${(props) => props.theme.darkGray};
   padding: 5px 20px;
@@ -79,4 +95,30 @@ export const Icon = styled.span`
     background: ${(props) => props.theme.gray};
     color: ${(props) => props.theme.color};
   }
+`;
+
+export const Body = styled(Container)`
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+`;
+
+export const Gap = styled.div`
+  flex-grow: 1;
+`;
+
+export const ErrorText = styled.div`
+  margin: ${(props) => props.theme.padding} 0;
+  border: 1px solid ${(props) => props.theme.red};
+  background: ${(props) => props.theme.lightRed};
+  font-size: medium;
+  padding: ${(props) => props.theme.padding};
+  border-radius: ${(props) => props.theme.padding};
+`;
+
+export const Input = styled.input`
+  padding: 10px;
+  border-radius: 5px;
 `;

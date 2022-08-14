@@ -52,16 +52,11 @@ const Container = styled.div`
   font-size: 110%;
 `;
 
-const Content: FC<{ account: AccountState }> = ({ account }) => {
+const Content: FC<{ account: AccountState; ton: TonWeb }> = ({
+  account,
+  ton,
+}) => {
   const location = useLocation();
-
-  const config = useNetworkConfig();
-
-  const tonProvider = useMemo(() => {
-    return new TonWeb(
-      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
-    );
-  }, [config]);
 
   const wallet = account.wallets.find(
     (w) => w.address === account.activeWallet
@@ -69,12 +64,12 @@ const Content: FC<{ account: AccountState }> = ({ account }) => {
 
   const walletContract = useMemo(() => {
     if (!wallet) return undefined;
-    const WalletClass = tonProvider.wallet.all[wallet.version];
-    return new WalletClass(tonProvider.provider, {
+    const WalletClass = ton.wallet.all[wallet.version];
+    return new WalletClass(ton.provider, {
       publicKey: TonWeb.utils.hexToBytes(wallet.publicKey),
       wc: 0,
     });
-  }, [wallet, tonProvider]);
+  }, [wallet, wallet?.version, ton]);
 
   if (
     !account.isInitialized &&
@@ -83,18 +78,16 @@ const Content: FC<{ account: AccountState }> = ({ account }) => {
     return <Initialize />;
   } else {
     return (
-      <TonProviderContext.Provider value={tonProvider}>
-        <WalletStateContext.Provider value={wallet!}>
-          <WalletContractContext.Provider value={walletContract!}>
-            <Routes>
-              <Route path={AppRoute.unlock} element={<Unlock />} />
-              <Route path={AppRoute.setting} element={<Settings />} />
-              <Route path={any(AppRoute.import)} element={<Import />} />
-              <Route path="*" element={<Home />} />
-            </Routes>
-          </WalletContractContext.Provider>
-        </WalletStateContext.Provider>
-      </TonProviderContext.Provider>
+      <WalletStateContext.Provider value={wallet!}>
+        <WalletContractContext.Provider value={walletContract!}>
+          <Routes>
+            <Route path={AppRoute.unlock} element={<Unlock />} />
+            <Route path={AppRoute.setting} element={<Settings />} />
+            <Route path={any(AppRoute.import)} element={<Import />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </WalletContractContext.Provider>
+      </WalletStateContext.Provider>
     );
   }
 };
@@ -118,6 +111,14 @@ const App = () => {
   const { data: network } = useNetwork();
   const { isLoading, data } = useAccountState();
 
+  const config = useNetworkConfig();
+
+  const tonProvider = useMemo(() => {
+    return new TonWeb(
+      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
+    );
+  }, [config]);
+
   if (isLoading || !data || !network) {
     return <Loading />;
   }
@@ -125,8 +126,10 @@ const App = () => {
   return (
     <AccountStateContext.Provider value={data}>
       <NetworkContext.Provider value={network}>
-        <Header />
-        <Content account={data} />
+        <TonProviderContext.Provider value={tonProvider}>
+          <Header />
+          <Content account={data} ton={tonProvider} />
+        </TonProviderContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>
   );
