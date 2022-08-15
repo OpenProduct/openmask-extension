@@ -120,5 +120,14 @@ export const ErrorText = styled.div`
 
 export const Input = styled.input`
   padding: 10px;
-  border-radius: 5px;
+  border: none;
+  border-bottom: 1px solid ${(props) => props.theme.darkGray};
+  width: 100%;
+  outline: none;
+  box-sizing: border-box;
+`;
+
+export const Title = styled.div`
+  font-size: x-large;
+  padding-bottom: 25px;
 `;

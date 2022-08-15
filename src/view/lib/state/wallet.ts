@@ -9,7 +9,7 @@ import {
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
-} from "../../home/context";
+} from "../../context";
 
 export type WalletVersion = keyof typeof TonWeb.Wallets.all;
 

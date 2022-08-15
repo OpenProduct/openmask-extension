@@ -10,22 +10,17 @@ import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
-} from "../../home/context";
+} from "../../context";
 import { checkForError } from "../utils";
 import { QueryType, useNetworkStore } from "./";
 import { createWallet, importWallet, WalletState } from "./wallet";
 
 export interface AccountState {
-  isInitialized: boolean;
-  isLock: boolean;
-  password?: string;
   wallets: WalletState[];
   activeWallet?: string;
 }
 
 const defaultAccountState: AccountState = {
-  isInitialized: false,
-  isLock: false,
   wallets: [],
 };
 
@@ -59,12 +54,17 @@ export const useCreateWalletMutation = () => {
     const wallets = account.wallets.concat([wallet]);
     const value = {
       ...account,
-      isInitialized: true,
       wallets,
       activeWallet: wallet.address,
     };
     await saveAccountState(network, client, value);
   });
+};
+
+export const validateMnemonic = (mnemonic: string[]) => {
+  if (!tonMnemonic.validateMnemonic(mnemonic) || mnemonic.length !== 24) {
+    throw new Error("Mnemonic is not valid");
+  }
 };
 
 export const useImportWalletMutation = () => {
@@ -75,9 +75,7 @@ export const useImportWalletMutation = () => {
 
   return useMutation<void, Error, string>(async (value) => {
     const mnemonic = value.trim().split(" ");
-    if (!tonMnemonic.validateMnemonic(mnemonic) || mnemonic.length !== 24) {
-      throw new Error("Mnemonic is not valid");
-    }
+    validateMnemonic(mnemonic);
 
     const wallet = await importWallet(ton, mnemonic, data.wallets.length + 1);
     if (data.wallets.some((w) => w.address === wallet.address)) {

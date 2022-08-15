@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Badge, Container, Icon } from "../components/Components";
 import { DropDown, DropDownList, ListItem } from "../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../components/Icons";
+import { AccountStateContext, NetworkContext } from "../context";
 import { QueryType, useMutateStore } from "../lib/state";
 import {
   useCreateWalletMutation,
@@ -11,8 +12,7 @@ import {
 } from "../lib/state/account";
 import { networkConfigs } from "../lib/state/network";
 import { useBalance, WalletState } from "../lib/state/wallet";
-import { AccountStateContext, NetworkContext } from "./context";
-import { AppRoute } from "./routes";
+import { AppRoute } from "../routes";
 
 const Head = styled(Container)`
   flex-shrink: 0;
@@ -65,7 +65,7 @@ const Account: FC<{
   );
 };
 
-export const Header = () => {
+export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const navigate = useNavigate();
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);
@@ -102,7 +102,7 @@ export const Header = () => {
           {network} <ArrowDownIcon />
         </Badge>
       </DropDownList>
-      {account && (
+      {!lock && account && (
         <DropDown
           payload={(onClose) => (
             <Menu>

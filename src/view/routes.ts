@@ -1,6 +1,5 @@
 export enum AppRoute {
   home = "/",
-  unlock = "/unlock",
   receive = "/receive",
   send = "/send",
   activities = "/activities",

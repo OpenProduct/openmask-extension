@@ -8,9 +8,9 @@ import {
 } from "../../../components/Components";
 import { HomeButton } from "../../../components/HomeButton";
 import { CheckIcon, CopyIcon, LinkIcon } from "../../../components/Icons";
+import { WalletAddressContext } from "../../../context";
 import ExtensionPlatform from "../../../lib/extension";
 import { useCopyToClipboard } from "../../../lib/hooks/useCopyToClipbpard";
-import { WalletAddressContext } from "../../context";
 
 const Body = styled(Container)`
   width: 100%;

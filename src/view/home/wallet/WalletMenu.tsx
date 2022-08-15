@@ -10,7 +10,7 @@ import {
 import { LinkIcon, MoreIcon } from "../../components/Icons";
 import ExtensionPlatform from "../../lib/extension";
 import { useNetworkConfig } from "../../lib/state/network";
-import { AppRoute } from "../routes";
+import { AppRoute } from "../../routes";
 
 const Menu = styled.div`
   position: absolute;

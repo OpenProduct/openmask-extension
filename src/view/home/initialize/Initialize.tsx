@@ -10,7 +10,7 @@ import {
 } from "../../components/Components";
 import { LoadingLogo } from "../../components/Logo";
 import { useCreateWalletMutation } from "../../lib/state/account";
-import { AppRoute } from "../routes";
+import { AppRoute } from "../../routes";
 
 const Body = styled(Container)`
   width: 100%;

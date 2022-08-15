@@ -14,13 +14,13 @@ import {
 import { DropDownList } from "../../../components/DropDown";
 import { HomeButton } from "../../../components/HomeButton";
 import { ArrowDownIcon, DeleteIcon } from "../../../components/Icons";
+import { TonProviderContext, WalletStateContext } from "../../../context";
 import {
   useDeleteWalletMutation,
   useUpdateWalletMutation,
 } from "../../../lib/state/account";
 import { WalletState, WalletVersion } from "../../../lib/state/wallet";
-import { TonProviderContext, WalletStateContext } from "../../context";
-import { AppRoute, relative } from "../../routes";
+import { AppRoute, relative } from "../../../routes";
 
 const Title = styled.div`
   font-size: x-large;

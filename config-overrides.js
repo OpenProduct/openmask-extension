@@ -1,18 +1,11 @@
-const webpack = require("webpack");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const { removeModuleScopePlugin } = require("customize-cra");
 
 module.exports = function override(config, env) {
-  config.resolve.fallback = {
-    ...config.resolve.fallback,
-    buffer: require.resolve("buffer"),
-  };
+  removeModuleScopePlugin()(config);
+
   config.resolve.extensions = [...config.resolve.extensions, ".ts", ".js"];
-  config.plugins = [
-    ...config.plugins,
-    new webpack.ProvidePlugin({
-      process: "process/browser",
-      Buffer: ["buffer", "Buffer"],
-    }),
-  ];
+  config.plugins = [...config.plugins, new NodePolyfillPlugin()];
 
   return config;
 };

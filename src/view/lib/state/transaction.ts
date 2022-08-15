@@ -5,7 +5,7 @@ import {
   NetworkContext,
   TonProviderContext,
   WalletStateContext,
-} from "../../home/context";
+} from "../../context";
 
 export interface TonWebTransaction {
   "@type": "raw.transaction";

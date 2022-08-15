@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Icon } from "../../../components/Components";
 import { ReceiveIcon, SendIcon, TonIcon } from "../../../components/Icons";
-import { AppRoute } from "../../routes";
+import { AppRoute } from "../../../routes";
 import { Fiat } from "./Fiat";
 
 const Block = styled(Container)`

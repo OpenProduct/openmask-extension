@@ -1,12 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FC, useMemo } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import TonWeb from "tonweb";
-import { useNetwork } from "../lib/state";
-import { AccountState, useAccountState } from "../lib/state/account";
-import { useNetworkConfig } from "../lib/state/network";
-import defaultTheme from "../styles/defaultTheme";
 import {
   AccountStateContext,
   NetworkContext,
@@ -14,14 +10,19 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "./context";
-import { Header } from "./Header";
-import { Home } from "./Home";
-import { Import } from "./import/Import";
-import { Initialize } from "./initialize/Initialize";
-import { Loading } from "./Loading";
+import { askBackground, uiStream } from "./event";
+import { Header } from "./home/Header";
+import { Home } from "./home/Home";
+import { Import } from "./home/import/Import";
+import { Initialize } from "./home/initialize/Initialize";
+import { Loading } from "./home/Loading";
+import { Settings } from "./home/settings/Settings";
+import { Unlock } from "./home/Unlock";
+import { useNetwork } from "./lib/state";
+import { AccountState, useAccountState } from "./lib/state/account";
+import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
-import { Settings } from "./settings/Settings";
-import { Unlock } from "./Unlock";
+import defaultTheme from "./styles/defaultTheme";
 
 const queryClient = new QueryClient();
 
@@ -52,10 +53,30 @@ const Container = styled.div`
   font-size: 110%;
 `;
 
-const Content: FC<{ account: AccountState; ton: TonWeb }> = ({
-  account,
-  ton,
-}) => {
+const useLock = () => {
+  const [lock, setLock] = useState(true);
+  useEffect(() => {
+    askBackground<void, boolean>("isLock").then((value) => setLock(value));
+
+    const unlock = () => {
+      setLock(false);
+    };
+    uiStream.on("unlock", unlock);
+
+    return () => {
+      uiStream.off("unlock", unlock);
+    };
+  }, []);
+
+  return lock;
+};
+const Content: FC<{
+  account: AccountState;
+  ton: TonWeb;
+  lock: boolean;
+}> = ({ account, ton, lock }) => {
+  const isInitialized = account.wallets.length > 0;
+
   const location = useLocation();
 
   const wallet = account.wallets.find(
@@ -69,19 +90,18 @@ const Content: FC<{ account: AccountState; ton: TonWeb }> = ({
       publicKey: TonWeb.utils.hexToBytes(wallet.publicKey),
       wc: 0,
     });
-  }, [wallet, wallet?.version, ton]);
+  }, [wallet, ton]);
 
-  if (
-    !account.isInitialized &&
-    !location.pathname.startsWith(AppRoute.import)
-  ) {
+  if (isInitialized && lock) {
+    return <Unlock />;
+  }
+  if (!isInitialized && !location.pathname.startsWith(AppRoute.import)) {
     return <Initialize />;
   } else {
     return (
       <WalletStateContext.Provider value={wallet!}>
         <WalletContractContext.Provider value={walletContract!}>
           <Routes>
-            <Route path={AppRoute.unlock} element={<Unlock />} />
             <Route path={AppRoute.setting} element={<Settings />} />
             <Route path={any(AppRoute.import)} element={<Import />} />
             <Route path="*" element={<Home />} />
@@ -108,6 +128,7 @@ const Provider: FC = () => {
 };
 
 const App = () => {
+  const lock = useLock();
   const { data: network } = useNetwork();
   const { isLoading, data } = useAccountState();
 
@@ -127,8 +148,8 @@ const App = () => {
     <AccountStateContext.Provider value={data}>
       <NetworkContext.Provider value={network}>
         <TonProviderContext.Provider value={tonProvider}>
-          <Header />
-          <Content account={data} ton={tonProvider} />
+          <Header lock={lock} />
+          <Content account={data} ton={tonProvider} lock={lock} />
         </TonProviderContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>

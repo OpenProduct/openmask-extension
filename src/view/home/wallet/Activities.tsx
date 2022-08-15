@@ -2,6 +2,7 @@ import { FC, useContext } from "react";
 import styled from "styled-components";
 import { ButtonNegative } from "../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../components/Icons";
+import { WalletAddressContext } from "../../context";
 import ExtensionPlatform from "../../lib/extension";
 import { NetworkConfig, useNetworkConfig } from "../../lib/state/network";
 import {
@@ -9,7 +10,6 @@ import {
   useTransactions,
 } from "../../lib/state/transaction";
 import { formatTonValue, toShortAddress } from "../../lib/state/wallet";
-import { WalletAddressContext } from "../context";
 
 const Row = styled.div`
   padding: ${(props) => props.theme.padding};
