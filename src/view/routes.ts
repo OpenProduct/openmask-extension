@@ -8,7 +8,7 @@ export enum AppRoute {
   wallet = "/wallet",
 }
 
-export const any = (route: AppRoute): string => {
+export const any = (route: string): string => {
   return `${route}/*`;
 };
 

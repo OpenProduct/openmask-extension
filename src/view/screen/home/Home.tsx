@@ -1,5 +1,5 @@
-import { useContext, useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 import { WalletAddressContext, WalletStateContext } from "../../context";
 import { useCoinPrice } from "../../lib/api";
@@ -19,8 +19,6 @@ const Body = styled.div`
 `;
 
 export const Home = () => {
-  const navigate = useNavigate();
-
   const wallet = useContext(WalletStateContext);
 
   const { data: address } = useAddress();
@@ -30,12 +28,6 @@ export const Home = () => {
 
   const { data: balance } = useBalance(friendly);
   const { data: price } = useCoinPrice(balance != null);
-
-  useEffect(() => {
-    if (window.location.hash) {
-      navigate(window.location.hash.substring(1));
-    }
-  }, [window.location.hash]);
 
   return (
     <WalletAddressContext.Provider value={friendly}>

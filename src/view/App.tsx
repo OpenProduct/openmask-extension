@@ -1,6 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, useEffect, useMemo, useState } from "react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import TonWeb from "tonweb";
 import {
@@ -83,6 +89,13 @@ const Content: FC<{
   const isInitialized = account.wallets.length > 0;
 
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.location.hash) {
+      navigate(window.location.hash.substring(1));
+    }
+  }, []);
 
   const wallet = account.wallets.find(
     (w) => w.address === account.activeWallet

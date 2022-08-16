@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import * as tonMnemonic from "tonweb-mnemonic";
 import {
   Body,
@@ -8,22 +7,12 @@ import {
   ButtonPositive,
   ButtonRow,
   ErrorMessage,
-  Gap,
   H1,
+  Text,
+  Textarea,
 } from "../../components/Components";
 import { useCreateWalletMutation } from "../../lib/state/account";
 import { AppRoute } from "../../routes";
-
-const Text = styled.div`
-  padding-bottom: ${(props) => props.theme.padding};
-  font-size: medium;
-`;
-
-const Textarea = styled.textarea`
-  resize: vertical;
-  padding: 10px;
-  margin-bottom: ${(props) => props.theme.padding};
-`;
 
 export const Create = () => {
   const navigate = useNavigate();
@@ -67,8 +56,6 @@ export const Create = () => {
       </ErrorMessage>
       <Textarea disabled rows={8} value={show ? mnemonic : ""} />
       <Text>TonMask cannot recover your Secret Recovery Phrase.</Text>
-
-      <Gap />
       <ButtonRow>
         <ButtonNegative disabled={disabled} onClick={onCreate}>
           Skip

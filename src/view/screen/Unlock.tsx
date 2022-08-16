@@ -2,7 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import {
   ButtonColumn,
-  ButtonNegative,
+  ButtonPositive,
   ErrorText,
   H1,
   Input,
@@ -26,7 +26,7 @@ const Center = styled.div`
 export const Unlock = () => {
   const [password, setPassword] = useState("");
 
-  const { mutateAsync, reset, error } = useUnlockMutation();
+  const { mutateAsync, reset, error, isLoading } = useUnlockMutation();
 
   const unlock = async () => {
     reset();
@@ -50,7 +50,9 @@ export const Unlock = () => {
           {error && <ErrorText>Invalid Password</ErrorText>}
         </div>
 
-        <ButtonNegative onClick={unlock}>Unlock</ButtonNegative>
+        <ButtonPositive onClick={unlock} disabled={isLoading}>
+          Unlock
+        </ButtonPositive>
       </ButtonColumn>
     </Body>
   );

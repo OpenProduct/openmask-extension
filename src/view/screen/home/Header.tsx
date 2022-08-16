@@ -6,6 +6,7 @@ import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
 import { AccountStateContext, NetworkContext } from "../../context";
 import { messageBackground } from "../../event";
+import ExtensionPlatform from "../../lib/extension";
 import { QueryType, useMutateStore } from "../../lib/state";
 import { useSelectWalletMutation } from "../../lib/state/account";
 import { networkConfigs } from "../../lib/state/network";
@@ -125,7 +126,9 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  navigate(AppRoute.connect + ConnectRoutes.create);
+                  ExtensionPlatform.openExtensionInBrowser(
+                    AppRoute.connect + ConnectRoutes.create
+                  );
                 }}
               >
                 Create Wallet
@@ -133,7 +136,9 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  navigate(AppRoute.connect + ConnectRoutes.import);
+                  ExtensionPlatform.openExtensionInBrowser(
+                    AppRoute.connect + ConnectRoutes.import
+                  );
                 }}
               >
                 Import Wallet

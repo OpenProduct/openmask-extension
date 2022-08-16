@@ -106,6 +106,10 @@ export const Body = styled(Container)`
   overflow: auto;
 `;
 
+export const BodyCenter = styled(Body)`
+  align-items: center;
+`;
+
 export const Gap = styled.div`
   flex-grow: 1;
 `;
@@ -137,4 +141,16 @@ export const Input = styled.input`
 export const Title = styled.div`
   font-size: x-large;
   padding-bottom: 25px;
+`;
+
+export const Textarea = styled.textarea`
+  resize: vertical;
+  padding: 10px;
+  margin-bottom: ${(props) => props.theme.padding};
+`;
+
+
+export const Text = styled.div`
+  padding-bottom: ${(props) => props.theme.padding};
+  font-size: medium;
 `;
