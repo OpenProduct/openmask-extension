@@ -1,15 +1,15 @@
 import { FC, useContext } from "react";
 import styled from "styled-components";
-import { ButtonNegative } from "../../components/Components";
-import { LinkIcon, ReceiveIcon, SendIcon } from "../../components/Icons";
-import { WalletAddressContext } from "../../context";
-import ExtensionPlatform from "../../lib/extension";
-import { NetworkConfig, useNetworkConfig } from "../../lib/state/network";
+import { ButtonNegative } from "../../../components/Components";
+import { LinkIcon, ReceiveIcon, SendIcon } from "../../../components/Icons";
+import { WalletAddressContext } from "../../../context";
+import ExtensionPlatform from "../../../lib/extension";
+import { NetworkConfig, useNetworkConfig } from "../../../lib/state/network";
 import {
   TonWebTransaction,
   useTransactions,
-} from "../../lib/state/transaction";
-import { formatTonValue, toShortAddress } from "../../lib/state/wallet";
+} from "../../../lib/state/transaction";
+import { formatTonValue, toShortAddress } from "../../../lib/state/wallet";
 
 const Row = styled.div`
   padding: ${(props) => props.theme.padding};

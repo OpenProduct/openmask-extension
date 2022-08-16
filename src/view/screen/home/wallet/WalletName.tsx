@@ -1,8 +1,8 @@
 import React, { FC } from "react";
 import styled from "styled-components";
-import { CheckIcon, CopyIcon } from "../../components/Icons";
-import { useCopyToClipboard } from "../../lib/hooks/useCopyToClipbpard";
-import { toShortAddress } from "../../lib/state/wallet";
+import { CheckIcon, CopyIcon } from "../../../components/Icons";
+import { useCopyToClipboard } from "../../../lib/hooks/useCopyToClipbpard";
+import { toShortAddress } from "../../../lib/state/wallet";
 
 const Block = styled.div`
   cursor: pointer;

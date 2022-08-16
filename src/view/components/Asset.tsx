@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { useTonFiat } from "../home/wallet/balance/Fiat";
+import { useTonFiat } from "../screen/home/wallet/balance/Fiat";
 import { BaseLogoIcon } from "./Icons";
 
 export interface AssetProps {

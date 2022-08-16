@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { HomeButton } from "../../../components/HomeButton";
+import { HomeButton } from "../../../../components/HomeButton";
 
 export const Send: FC = () => {
   return (

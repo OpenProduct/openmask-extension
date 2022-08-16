@@ -1,16 +1,16 @@
 import React, { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Icon } from "../../components/Components";
+import { Icon } from "../../../components/Components";
 import {
   DropDown,
   DropDownListPayload,
   ListItem,
-} from "../../components/DropDown";
-import { LinkIcon, MoreIcon } from "../../components/Icons";
-import ExtensionPlatform from "../../lib/extension";
-import { useNetworkConfig } from "../../lib/state/network";
-import { AppRoute } from "../../routes";
+} from "../../../components/DropDown";
+import { LinkIcon, MoreIcon } from "../../../components/Icons";
+import ExtensionPlatform from "../../../lib/extension";
+import { useNetworkConfig } from "../../../lib/state/network";
+import { AppRoute } from "../../../routes";
 
 const Menu = styled.div`
   position: absolute;

@@ -10,17 +10,17 @@ import {
   ErrorMessage,
   Gap,
   Input,
-} from "../../../components/Components";
-import { DropDownList } from "../../../components/DropDown";
-import { HomeButton } from "../../../components/HomeButton";
-import { ArrowDownIcon, DeleteIcon } from "../../../components/Icons";
-import { TonProviderContext, WalletStateContext } from "../../../context";
+} from "../../../../components/Components";
+import { DropDownList } from "../../../../components/DropDown";
+import { HomeButton } from "../../../../components/HomeButton";
+import { ArrowDownIcon, DeleteIcon } from "../../../../components/Icons";
+import { TonProviderContext, WalletStateContext } from "../../../../context";
 import {
   useDeleteWalletMutation,
   useUpdateWalletMutation,
-} from "../../../lib/state/account";
-import { WalletState, WalletVersion } from "../../../lib/state/wallet";
-import { AppRoute, relative } from "../../../routes";
+} from "../../../../lib/state/account";
+import { WalletState, WalletVersion } from "../../../../lib/state/wallet";
+import { AppRoute, relative } from "../../../../routes";
 
 const Title = styled.div`
   font-size: x-large;

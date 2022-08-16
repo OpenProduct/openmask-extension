@@ -1,10 +1,10 @@
 import { useContext, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { WalletAddressContext, WalletStateContext } from "../context";
-import { useCoinPrice } from "../lib/api";
-import { useAddress, useBalance } from "../lib/state/wallet";
-import { any, AppRoute } from "../routes";
+import { WalletAddressContext, WalletStateContext } from "../../context";
+import { useCoinPrice } from "../../lib/api";
+import { useAddress, useBalance } from "../../lib/state/wallet";
+import { any, AppRoute } from "../../routes";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";

@@ -1,10 +1,10 @@
 import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Badge, Container } from "../../components/Components";
-import { Tabs } from "../../components/Tabs";
-import { WalletAddressContext, WalletStateContext } from "../../context";
-import { AppRoute } from "../../routes";
+import { Badge, Container } from "../../../components/Components";
+import { Tabs } from "../../../components/Tabs";
+import { WalletAddressContext, WalletStateContext } from "../../../context";
+import { AppRoute } from "../../../routes";
 import { Activities } from "./Activities";
 import { Assets } from "./Assets";
 import { Balance } from "./balance/Balance";

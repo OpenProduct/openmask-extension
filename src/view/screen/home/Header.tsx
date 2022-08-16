@@ -1,17 +1,17 @@
 import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Badge, Container, Icon } from "../components/Components";
-import { DropDown, DropDownList, ListItem } from "../components/DropDown";
-import { ArrowDownIcon, CheckIcon, UserIcon } from "../components/Icons";
-import { AccountStateContext, NetworkContext } from "../context";
-import { messageBackground } from "../event";
-import { QueryType, useMutateStore } from "../lib/state";
-import { useSelectWalletMutation } from "../lib/state/account";
-import { networkConfigs } from "../lib/state/network";
-import { useBalance, WalletState } from "../lib/state/wallet";
-import { AppRoute } from "../routes";
-import { ConnectRoutes } from "../screen/connect/ConnectWallet";
+import { Badge, Container, Icon } from "../../components/Components";
+import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
+import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
+import { AccountStateContext, NetworkContext } from "../../context";
+import { messageBackground } from "../../event";
+import { QueryType, useMutateStore } from "../../lib/state";
+import { useSelectWalletMutation } from "../../lib/state/account";
+import { networkConfigs } from "../../lib/state/network";
+import { useBalance, WalletState } from "../../lib/state/wallet";
+import { AppRoute } from "../../routes";
+import { ConnectRoutes } from "../connect/ConnectWallet";
 
 const Head = styled(Container)`
   flex-shrink: 0;

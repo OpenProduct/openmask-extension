@@ -79,6 +79,7 @@ export const Badge = styled.div`
   border: 1px solid ${(props) => props.theme.darkGray};
   padding: 5px 20px;
   border-radius: 20px;
+  cursor: pointer;
 `;
 
 export const Icon = styled.span`

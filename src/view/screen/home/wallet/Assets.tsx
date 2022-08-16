@@ -1,6 +1,6 @@
 import { FC } from "react";
-import { Asset } from "../../components/Asset";
-import { TonIcon } from "../../components/Icons";
+import { Asset } from "../../../components/Asset";
+import { TonIcon } from "../../../components/Icons";
 
 export const Assets: FC<{ balance?: string; price?: number }> = ({
   balance,

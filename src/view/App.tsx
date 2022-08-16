@@ -11,14 +11,14 @@ import {
   WalletStateContext,
 } from "./context";
 import { askBackground, uiStream } from "./event";
-import { Header } from "./home/Header";
-import { Home } from "./home/Home";
-import { Settings } from "./home/settings/Settings";
 import { useNetwork } from "./lib/state";
 import { AccountState, useAccountState } from "./lib/state/account";
 import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
 import { ConnectWallet } from "./screen/connect/ConnectWallet";
+import { Header } from "./screen/home/Header";
+import { Home } from "./screen/home/Home";
+import { Settings } from "./screen/home/settings/Settings";
 import { CreatePassword, Initialize } from "./screen/Initialize";
 import { Loading } from "./screen/Loading";
 import { Unlock } from "./screen/Unlock";
@@ -61,10 +61,15 @@ const useLock = () => {
     const unlock = () => {
       setLock(false);
     };
+    const locked = () => {
+      setLock(true);
+    };
     uiStream.on("unlock", unlock);
+    uiStream.on("locked", locked);
 
     return () => {
       uiStream.off("unlock", unlock);
+      uiStream.off("locked", locked);
     };
   }, []);
 

@@ -5,12 +5,12 @@ import {
   ButtonColumn,
   ButtonNegative,
   Container,
-} from "../../../components/Components";
-import { HomeButton } from "../../../components/HomeButton";
-import { CheckIcon, CopyIcon, LinkIcon } from "../../../components/Icons";
-import { WalletAddressContext } from "../../../context";
-import ExtensionPlatform from "../../../lib/extension";
-import { useCopyToClipboard } from "../../../lib/hooks/useCopyToClipbpard";
+} from "../../../../components/Components";
+import { HomeButton } from "../../../../components/HomeButton";
+import { CheckIcon, CopyIcon, LinkIcon } from "../../../../components/Icons";
+import { WalletAddressContext } from "../../../../context";
+import ExtensionPlatform from "../../../../lib/extension";
+import { useCopyToClipboard } from "../../../../lib/hooks/useCopyToClipbpard";
 
 const Body = styled(Container)`
   width: 100%;
