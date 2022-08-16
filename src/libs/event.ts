@@ -17,7 +17,8 @@ export type EventMessage =
   | Event<"unlock">
   | Event<"lock">
   | Event<"locked">
-  | Event<"getPassword">;
+  | Event<"getPassword">
+  | Event<"setPassword", string>;
 
 export type ResponseMessage<Payload = void> = {
   method: "Response";

@@ -5,14 +5,13 @@ import { Badge, Container, Icon } from "../components/Components";
 import { DropDown, DropDownList, ListItem } from "../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../components/Icons";
 import { AccountStateContext, NetworkContext } from "../context";
+import { messageBackground } from "../event";
 import { QueryType, useMutateStore } from "../lib/state";
-import {
-  useCreateWalletMutation,
-  useSelectWalletMutation,
-} from "../lib/state/account";
+import { useSelectWalletMutation } from "../lib/state/account";
 import { networkConfigs } from "../lib/state/network";
 import { useBalance, WalletState } from "../lib/state/wallet";
 import { AppRoute } from "../routes";
+import { ConnectRoutes } from "../screen/connect/ConnectWallet";
 
 const Head = styled(Container)`
   flex-shrink: 0;
@@ -29,6 +28,9 @@ const Menu = styled.div`
 
 const Item = styled.div`
   padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const Divider = styled.div`
@@ -74,13 +76,10 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
 
   const { mutateAsync: mutateSelect, reset: resetSelect } =
     useSelectWalletMutation();
-  const { mutateAsync: mutateCreate, reset: resetCreate } =
-    useCreateWalletMutation();
 
-  const onCreate = useCallback(() => {
-    resetCreate();
-    mutateCreate();
-  }, [resetCreate, mutateCreate]);
+  const onLock = useCallback(() => {
+    messageBackground({ method: "lock" });
+  }, []);
 
   const onSelect = useCallback(
     async (address: string) => {
@@ -106,7 +105,10 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
         <DropDown
           payload={(onClose) => (
             <Menu>
-              <Item>Accounts</Item>
+              <Item>
+                <span>Accounts</span>
+                <Badge onClick={onLock}>Lock</Badge>
+              </Item>
               <Divider />
               {account.wallets.map((wallet) => (
                 <Account
@@ -122,8 +124,8 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               {account.wallets.length !== 0 && <Divider />}
               <ListItem
                 onClick={() => {
-                  onCreate();
                   onClose();
+                  navigate(AppRoute.connect + ConnectRoutes.create);
                 }}
               >
                 Create Wallet
@@ -131,7 +133,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  navigate(AppRoute.import);
+                  navigate(AppRoute.connect + ConnectRoutes.import);
                 }}
               >
                 Import Wallet

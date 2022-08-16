@@ -109,13 +109,19 @@ export const Gap = styled.div`
   flex-grow: 1;
 `;
 
-export const ErrorText = styled.div`
+export const ErrorMessage = styled.div`
   margin: ${(props) => props.theme.padding} 0;
   border: 1px solid ${(props) => props.theme.red};
   background: ${(props) => props.theme.lightRed};
   font-size: medium;
   padding: ${(props) => props.theme.padding};
   border-radius: ${(props) => props.theme.padding};
+`;
+
+export const ErrorText = styled.div`
+  color: ${(props) => props.theme.red};
+  font-size: medium;
+  padding-top: 3px;
 `;
 
 export const Input = styled.input`

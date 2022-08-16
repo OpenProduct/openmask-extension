@@ -1,10 +1,10 @@
 export enum AppRoute {
+  setting = "/setting",
+  connect = "/connect",
   home = "/",
   receive = "/receive",
   send = "/send",
   activities = "/activities",
-  setting = "/setting",
-  import = "/import",
   wallet = "/wallet",
 }
 

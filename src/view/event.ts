@@ -22,7 +22,7 @@ export const useEvent = (name: string) => {
 
 const RESPONSE = "Response";
 
-export const messageBackground = (message: EventMessage) => {
+export const messageBackground = (message: Partial<EventMessage>) => {
   port.postMessage(message);
 };
 

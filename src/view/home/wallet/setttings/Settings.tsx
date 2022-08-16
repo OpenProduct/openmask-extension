@@ -7,7 +7,7 @@ import {
   ButtonNegative,
   ButtonPositive,
   ButtonRow,
-  ErrorText,
+  ErrorMessage,
   Gap,
   Input,
 } from "../../../components/Components";
@@ -129,11 +129,11 @@ const SettingsMnemonic = () => {
         Recovery Phrase to access your wallet. Save them somewhere safe and
         secret.
       </Text>
-      <ErrorText>
+      <ErrorMessage>
         DO NOT share this phrase with anyone!
         <br />
         These words can be used to steal your wallet.
-      </ErrorText>
+      </ErrorMessage>
       <Text>Enter password to continue</Text>
       <Input value={value} onChange={(e) => setValue(e.target.value)} />
 

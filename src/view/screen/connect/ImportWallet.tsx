@@ -6,7 +6,7 @@ import {
   ButtonBottomRow,
   ButtonNegative,
   ButtonPositive,
-  ErrorText,
+  ErrorMessage,
   Gap,
 } from "../../components/Components";
 import { CheckIcon, CloseIcon } from "../../components/Icons";
@@ -54,7 +54,7 @@ const ImportMnemonic = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      {error && <ErrorText>{error.message}</ErrorText>}
+      {error && <ErrorMessage>{error.message}</ErrorMessage>}
       <Gap />
       <ButtonBottomRow>
         <ButtonNegative onClick={() => navigate("/")}>Cancel</ButtonNegative>

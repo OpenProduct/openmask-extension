@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountStateContext } from "../../context";
-import { messageBackground } from "../../event";
+import { askBackground, messageBackground } from "../../event";
 import { validateMnemonic } from "./account";
 
 /**
@@ -9,7 +9,7 @@ import { validateMnemonic } from "./account";
  * @param password {string}
  * @return {Promise<string>}
  */
-async function encrypt(plaintext: string, password: string) {
+export async function encrypt(plaintext: string, password: string) {
   const pwUtf8 = new TextEncoder().encode(password); // encode password as UTF-8
   const pwHash = await crypto.subtle.digest("SHA-256", pwUtf8); // hash the password
 
@@ -40,7 +40,7 @@ async function encrypt(plaintext: string, password: string) {
  * @param password {string}
  * @return {Promise<string>}
  */
-async function decrypt(ciphertext: string, password: string) {
+export async function decrypt(ciphertext: string, password: string) {
   const pwUtf8 = new TextEncoder().encode(password); // encode password as UTF-8
   const pwHash = await crypto.subtle.digest("SHA-256", pwUtf8); // hash the password
 
@@ -75,4 +75,15 @@ export const useUnlockMutation = () => {
     validateMnemonic(mnemonic.split(" "));
     messageBackground({ method: "tryToUnlock", params: value });
   });
+};
+
+export const useCreatePasswordMutation = () => {
+  return useMutation<void, Error, [string, string]>(
+    async ([password, confirm]) => {
+      if (password !== confirm) {
+        throw new Error("Confirm password incorrect");
+      }
+      await askBackground<string, void>("setPassword", password);
+    }
+  );
 };

@@ -11,6 +11,7 @@ import {
   NetworkContext,
   TonProviderContext,
 } from "../../context";
+import { askBackground } from "../../event";
 import { checkForError } from "../utils";
 import { QueryType, useNetworkStore } from "./";
 import { createWallet, importWallet, WalletState } from "./wallet";
@@ -49,12 +50,24 @@ export const useCreateWalletMutation = () => {
   const account = useContext(AccountStateContext);
   const client = useQueryClient();
 
-  return useMutation<void, Error>(async () => {
-    const wallet = await createWallet(ton, account.wallets.length + 1);
-    const wallets = account.wallets.concat([wallet]);
+  return useMutation<void, Error, string>(async (mnemonic) => {
+    console.log({ mnemonic });
+    const password = await askBackground<void, string | null>("getPassword");
+    console.log({ password });
+    if (password == null || password === "") {
+      throw new Error("Unexpected password");
+    }
+
+    const wallet = await createWallet(
+      ton,
+      mnemonic,
+      password,
+      account.wallets.length + 1
+    );
+
     const value = {
       ...account,
-      wallets,
+      wallets: [...account.wallets, wallet],
       activeWallet: wallet.address,
     };
     await saveAccountState(network, client, value);

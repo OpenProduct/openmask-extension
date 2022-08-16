@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   ButtonColumn,
   ButtonNegative,
+  ErrorText,
   H1,
   Input,
 } from "../components/Components";
@@ -20,13 +21,6 @@ const Body = styled.header`
 
 const Center = styled.div`
   text-align: center;
-`;
-
-const Label = styled.label``;
-const Error = styled.div`
-  color: ${(props) => props.theme.red};
-  font-size: medium;
-  padding-top: 3px;
 `;
 
 export const Unlock = () => {
@@ -47,13 +41,13 @@ export const Unlock = () => {
           <H1>Welcome Back!</H1>
         </Center>
         <div>
-          <Label>Password</Label>
+          <label>Password</label>
           <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <Error>Invalid Password</Error>}
+          {error && <ErrorText>Invalid Password</ErrorText>}
         </div>
 
         <ButtonNegative onClick={unlock}>Unlock</ButtonNegative>

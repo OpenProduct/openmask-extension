@@ -10,6 +10,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../context";
+import { encrypt } from "./password";
 
 export type WalletVersion = keyof typeof TonWeb.Wallets.all;
 
@@ -26,10 +27,12 @@ const lastWalletVersion = "v4R2";
 
 export const createWallet = async (
   ton: TonWeb,
+  mnemonic: string,
+  password: string,
   index: number
 ): Promise<WalletState> => {
-  const mnemonic = await tonMnemonic.generateMnemonic();
-  const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
+  const encryptedMnemonic = await encrypt(mnemonic, password);
+  const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
 
   const WalletClass = ton.wallet.all[lastWalletVersion];
   const walletContract = new WalletClass(ton.provider, {
@@ -37,9 +40,10 @@ export const createWallet = async (
     wc: 0,
   });
   const address = await walletContract.getAddress();
+
   return {
     name: `Account ${index}`,
-    mnemonic: mnemonic.join(" "),
+    mnemonic: encryptedMnemonic,
     address: address.toString(false),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,

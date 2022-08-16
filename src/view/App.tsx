@@ -13,15 +13,15 @@ import {
 import { askBackground, uiStream } from "./event";
 import { Header } from "./home/Header";
 import { Home } from "./home/Home";
-import { Import } from "./home/import/Import";
-import { Initialize } from "./home/initialize/Initialize";
-import { Loading } from "./home/Loading";
 import { Settings } from "./home/settings/Settings";
-import { Unlock } from "./home/Unlock";
 import { useNetwork } from "./lib/state";
 import { AccountState, useAccountState } from "./lib/state/account";
 import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
+import { ConnectWallet } from "./screen/connect/ConnectWallet";
+import { CreatePassword, Initialize } from "./screen/Initialize";
+import { Loading } from "./screen/Loading";
+import { Unlock } from "./screen/Unlock";
 import defaultTheme from "./styles/defaultTheme";
 
 const queryClient = new QueryClient();
@@ -95,21 +95,24 @@ const Content: FC<{
   if (isInitialized && lock) {
     return <Unlock />;
   }
-  if (!isInitialized && !location.pathname.startsWith(AppRoute.import)) {
+  if (!isInitialized && !location.pathname.startsWith(AppRoute.connect)) {
     return <Initialize />;
-  } else {
-    return (
-      <WalletStateContext.Provider value={wallet!}>
-        <WalletContractContext.Provider value={walletContract!}>
-          <Routes>
-            <Route path={AppRoute.setting} element={<Settings />} />
-            <Route path={any(AppRoute.import)} element={<Import />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </WalletContractContext.Provider>
-      </WalletStateContext.Provider>
-    );
   }
+  if (lock) {
+    return <CreatePassword />;
+  }
+
+  return (
+    <WalletStateContext.Provider value={wallet!}>
+      <WalletContractContext.Provider value={walletContract!}>
+        <Routes>
+          <Route path={any(AppRoute.connect)} element={<ConnectWallet />} />
+          <Route path={AppRoute.setting} element={<Settings />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </WalletContractContext.Provider>
+    </WalletStateContext.Provider>
+  );
 };
 
 const Provider: FC = () => {

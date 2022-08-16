@@ -25,6 +25,10 @@ const sendResponse = <Payload>(id?: number, params?: Payload) => {
         return sendResponse(message.id, inMemoryStore.isLock());
       case "getPassword":
         return sendResponse(message.id, inMemoryStore.getPassword());
+      case "setPassword": {
+        sendResponse(message.id, inMemoryStore.setPassword(message.params));
+        return popupPort.postMessage({ method: "unlock" });
+      }
       case "tryToUnlock": {
         inMemoryStore.setPassword(message.params);
         return popupPort.postMessage({ method: "unlock" });
