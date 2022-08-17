@@ -82,10 +82,17 @@ export const useImportWalletMutation = () => {
   const data = useContext(AccountStateContext);
 
   return useMutation<void, Error, string>(async (value) => {
+    const password = await askBackgroundPassword();
+
     const mnemonic = value.trim().split(" ");
     validateMnemonic(mnemonic);
 
-    const wallet = await importWallet(ton, mnemonic, data.wallets.length + 1);
+    const wallet = await importWallet(
+      ton,
+      mnemonic,
+      password,
+      data.wallets.length + 1
+    );
     if (data.wallets.some((w) => w.address === wallet.address)) {
       throw new Error("Wallet already connect");
     }
@@ -134,6 +141,7 @@ export const useUpdateWalletMutation = () => {
     await saveAccountState(network, client, value);
   });
 };
+
 export const useDeleteWalletMutation = () => {
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);

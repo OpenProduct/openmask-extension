@@ -76,12 +76,17 @@ export const askBackgroundPassword = async () => {
   return password;
 };
 
+export const decryptMnemonic = async (mnemonic: string, password: string) => {
+  const worlds = await decrypt(mnemonic, password);
+  validateMnemonic(worlds.split(" "));
+  return worlds;
+};
+
 export const useUnlockMutation = () => {
   const data = useContext(AccountStateContext);
   return useMutation<void, Error, string>(async (value) => {
     const [wallet] = data.wallets;
-    const mnemonic = await decrypt(wallet.mnemonic, value);
-    validateMnemonic(mnemonic.split(" "));
+    await decryptMnemonic(wallet.mnemonic, value);
     sendBackground.message("tryToUnlock", value);
   });
 };

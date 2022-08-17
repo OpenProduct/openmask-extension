@@ -44,7 +44,7 @@ export const createWallet = async (
   return {
     name: `Account ${index}`,
     mnemonic: encryptedMnemonic,
-    address: address.toString(false),
+    address: address.toString(true, true, true),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,
     isBounceable: true,
@@ -80,14 +80,17 @@ const findContract = async (
 export const importWallet = async (
   ton: TonWeb,
   mnemonic: string[],
+  password: string,
   index: number
 ): Promise<WalletState> => {
+  const encryptedMnemonic = await encrypt(mnemonic.join(" "), password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
   const [version, address] = await findContract(ton, keyPair);
+
   return {
     name: `Account ${index}`,
-    mnemonic: mnemonic.join(" "),
-    address: address.toString(false),
+    mnemonic: encryptedMnemonic,
+    address: address.toString(true, true, true),
     publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
     version,
     isBounceable: true,

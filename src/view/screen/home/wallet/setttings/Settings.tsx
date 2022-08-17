@@ -8,8 +8,10 @@ import {
   ButtonPositive,
   ButtonRow,
   ErrorMessage,
+  ErrorText,
   Gap,
   Input,
+  Textarea,
 } from "../../../../components/Components";
 import { DropDownList } from "../../../../components/DropDown";
 import { HomeButton } from "../../../../components/HomeButton";
@@ -19,6 +21,7 @@ import {
   useDeleteWalletMutation,
   useUpdateWalletMutation,
 } from "../../../../lib/state/account";
+import { decryptMnemonic } from "../../../../lib/state/password";
 import { WalletState, WalletVersion } from "../../../../lib/state/wallet";
 import { AppRoute, relative } from "../../../../routes";
 
@@ -48,6 +51,7 @@ const Select = styled.div`
 const Button = styled(ButtonDanger)`
   width: 100%;
 `;
+
 const bounceableOptions = ["Bounceable", "Non Bounceable"];
 
 enum WalletRoutes {
@@ -61,6 +65,8 @@ const SettingsIndex = () => {
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
 
+  const [name, setName] = useState(wallet.name);
+
   const { mutateAsync, reset } = useUpdateWalletMutation();
   const onChange = async (fields: Partial<WalletState>) => {
     reset();
@@ -72,6 +78,15 @@ const SettingsIndex = () => {
       <HomeButton />
       <Body>
         <Title>Wallet Settings</Title>
+
+        <Label>Wallet Name</Label>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={() => {
+            onChange({ name });
+          }}
+        />
 
         <Label>Address</Label>
         <DropDownList
@@ -114,12 +129,26 @@ const SettingsIndex = () => {
   );
 };
 
-// Your private Secret Recovery Phrase
-
 const SettingsMnemonic = () => {
   const navigate = useNavigate();
 
+  const wallet = useContext(WalletStateContext);
+
   const [value, setValue] = useState("");
+  const [mnemonic, setMnemonic] = useState("");
+  const [error, setError] = useState(false);
+
+  const isShow = mnemonic !== "";
+
+  const onNext = async () => {
+    if (isShow) return;
+
+    try {
+      setMnemonic(await decryptMnemonic(wallet.mnemonic, value));
+    } catch (e) {
+      setError(true);
+    }
+  };
 
   return (
     <Body>
@@ -130,19 +159,31 @@ const SettingsMnemonic = () => {
         secret.
       </Text>
       <ErrorMessage>
-        DO NOT share this phrase with anyone!
-        <br />
-        These words can be used to steal your wallet.
+        DO NOT share this phrase with anyone! These words can be used to steal
+        your wallet.
       </ErrorMessage>
-      <Text>Enter password to continue</Text>
-      <Input value={value} onChange={(e) => setValue(e.target.value)} />
+      {isShow ? (
+        <Textarea disabled rows={9} value={mnemonic} />
+      ) : (
+        <div>
+          <label>Enter password to continue</label>
+          <Input
+            type="password"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          {error && <ErrorText>Invalid Password</ErrorText>}
+        </div>
+      )}
 
       <Gap />
       <ButtonRow>
         <ButtonNegative onClick={() => navigate(AppRoute.wallet)}>
           Cancel
         </ButtonNegative>
-        <ButtonPositive>Next</ButtonPositive>
+        <ButtonPositive onClick={onNext} disabled={isShow}>
+          Show
+        </ButtonPositive>
       </ButtonRow>
     </Body>
   );
