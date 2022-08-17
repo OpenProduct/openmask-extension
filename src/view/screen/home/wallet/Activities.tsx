@@ -72,8 +72,8 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
               <span>-{formatTonValue(out.value)} TON</span>
             </Line>
             <Line>
-              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
               <b>{toShortAddress(out.destination)}</b>
+              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
           </Text>
         </Block>
@@ -89,8 +89,8 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
               <span>+{formatTonValue(item.in_msg.value)} TON</span>
             </Line>
             <Line>
-              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
               <b>{toShortAddress(item.in_msg.source)}</b>
+              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
           </Text>
         </Block>
