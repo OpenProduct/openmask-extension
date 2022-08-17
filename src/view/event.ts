@@ -1,59 +1,51 @@
-import { EventEmitter } from "events";
-import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
-import { EventMessage } from "../libs/event";
+import {
+  AppEvent,
+  AppEventEmitter,
+  AskProcessor,
+  RESPONSE,
+} from "../libs/event";
+import { EventEmitter } from "../libs/eventEmitter";
 
 let port: browser.Runtime.Port;
 
-export const uiStream = new EventEmitter();
+export const uiEventEmitter: AppEventEmitter = new EventEmitter();
 
-export const useEvent = (name: string) => {
-  const [event, setEvent] = useState<any>(undefined);
-
-  useEffect(() => {
-    uiStream.on(name, setEvent);
-    return () => {
-      uiStream.off(name, setEvent);
-    };
-  }, []);
-
-  return event;
+export const sendBackground: AskProcessor<void> = {
+  message: (method, params) => {
+    port.postMessage({ method, params });
+  },
 };
 
-const RESPONSE = "Response";
+export const askBackground = <R>(): AskProcessor<Promise<R>> => {
+  return {
+    message: (method, params) => {
+      const id = Date.now();
+      port.postMessage({ method, id, params: params });
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          port.onMessage.removeListener(handler);
+          reject("Timeout");
+        }, 5000);
 
-export const messageBackground = (message: Partial<EventMessage>) => {
-  port.postMessage(message);
-};
+        const handler = (message: AppEvent<string, R>) => {
+          if (message.method === RESPONSE && message.id === id) {
+            clearTimeout(timer);
+            resolve(message.params);
+          }
+        };
 
-export const askBackground = <T, R>(
-  method: EventMessage["method"],
-  params?: T
-): Promise<R> => {
-  const id = Date.now();
-  messageBackground({ method, id, params: params as any });
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      port.onMessage.removeListener(handler);
-      reject("Timeout");
-    }, 5000);
-
-    const handler = (message: EventMessage) => {
-      if (message.method === RESPONSE && message.id === id) {
-        clearTimeout(timer);
-        resolve(message.params as any as R);
-      }
-    };
-
-    port.onMessage.addListener(handler);
-  });
+        port.onMessage.addListener(handler);
+      });
+    },
+  };
 };
 
 export const connectToBackground = () => {
   port = browser.runtime.connect({ name: "TonMaskUI" });
 
   port.onMessage.addListener((data) => {
-    uiStream.emit(data.method, data.params);
+    uiEventEmitter.emit<any>(data.method, data);
   });
 
   port.onDisconnect.addListener(() => {

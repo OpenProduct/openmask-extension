@@ -16,7 +16,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "./context";
-import { askBackground, uiStream } from "./event";
+import { askBackground, uiEventEmitter } from "./event";
 import { useNetwork } from "./lib/state";
 import { AccountState, useAccountState } from "./lib/state/account";
 import { useNetworkConfig } from "./lib/state/network";
@@ -62,7 +62,9 @@ const Container = styled.div`
 const useLock = () => {
   const [lock, setLock] = useState(true);
   useEffect(() => {
-    askBackground<void, boolean>("isLock").then((value) => setLock(value));
+    askBackground<boolean>()
+      .message("isLock")
+      .then((value) => setLock(value));
 
     const unlock = () => {
       setLock(false);
@@ -70,12 +72,12 @@ const useLock = () => {
     const locked = () => {
       setLock(true);
     };
-    uiStream.on("unlock", unlock);
-    uiStream.on("locked", locked);
+    uiEventEmitter.on("unlock", unlock);
+    uiEventEmitter.on("locked", locked);
 
     return () => {
-      uiStream.off("unlock", unlock);
-      uiStream.off("locked", locked);
+      uiEventEmitter.off("unlock", unlock);
+      uiEventEmitter.off("locked", locked);
     };
   }, []);
 

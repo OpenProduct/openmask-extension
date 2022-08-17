@@ -5,7 +5,7 @@ import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
 import { AccountStateContext, NetworkContext } from "../../context";
-import { messageBackground } from "../../event";
+import { sendBackground } from "../../event";
 import ExtensionPlatform from "../../lib/extension";
 import { QueryType, useMutateStore } from "../../lib/state";
 import { useSelectWalletMutation } from "../../lib/state/account";
@@ -79,7 +79,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
     useSelectWalletMutation();
 
   const onLock = useCallback(() => {
-    messageBackground({ method: "lock" });
+    sendBackground.message("lock");
   }, []);
 
   const onSelect = useCallback(

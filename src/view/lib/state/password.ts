@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountStateContext } from "../../context";
-import { askBackground, messageBackground } from "../../event";
+import { askBackground, sendBackground } from "../../event";
 import { validateMnemonic } from "./account";
 
 /**
@@ -67,13 +67,22 @@ export async function decrypt(ciphertext: string, password: string) {
   return plaintext; // return the plaintext
 }
 
+export const askBackgroundPassword = async () => {
+  const password = await askBackground<void>().message("getPassword");
+  console.log({ password });
+  if (password == null || password === "") {
+    throw new Error("Unexpected password");
+  }
+  return password;
+};
+
 export const useUnlockMutation = () => {
   const data = useContext(AccountStateContext);
   return useMutation<void, Error, string>(async (value) => {
     const [wallet] = data.wallets;
     const mnemonic = await decrypt(wallet.mnemonic, value);
     validateMnemonic(mnemonic.split(" "));
-    messageBackground({ method: "tryToUnlock", params: value });
+    sendBackground.message("tryToUnlock", value);
   });
 };
 
@@ -83,7 +92,7 @@ export const useCreatePasswordMutation = () => {
       if (password !== confirm) {
         throw new Error("Confirm password incorrect");
       }
-      await askBackground<string, void>("setPassword", password);
+      await askBackground<void>().message("setPassword", password);
     }
   );
 };

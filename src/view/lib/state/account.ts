@@ -11,9 +11,9 @@ import {
   NetworkContext,
   TonProviderContext,
 } from "../../context";
-import { askBackground } from "../../event";
 import { checkForError } from "../utils";
 import { QueryType, useNetworkStore } from "./";
+import { askBackgroundPassword } from "./password";
 import { createWallet, importWallet, WalletState } from "./wallet";
 
 export interface AccountState {
@@ -51,12 +51,7 @@ export const useCreateWalletMutation = () => {
   const client = useQueryClient();
 
   return useMutation<void, Error, string>(async (mnemonic) => {
-    console.log({ mnemonic });
-    const password = await askBackground<void, string | null>("getPassword");
-    console.log({ password });
-    if (password == null || password === "") {
-      throw new Error("Unexpected password");
-    }
+    const password = await askBackgroundPassword();
 
     const wallet = await createWallet(
       ton,
