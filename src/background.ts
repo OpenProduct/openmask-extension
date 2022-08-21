@@ -4,6 +4,7 @@ import { EventEmitter } from "./libs/eventEmitter";
 import { memoryStore } from "./libs/memory";
 
 let popupPort: browser.Runtime.Port;
+let contentScriptPorts = new Set<browser.Runtime.Port>();
 
 export const sendResponse = <Payload>(id?: number, params?: Payload) => {
   popupPort.postMessage({
@@ -50,6 +51,38 @@ browser.runtime.onConnect.addListener((port) => {
 
     popupPort.onDisconnect.addListener(() => {
       popupPort = null!;
+    });
+  }
+  if (port.name === "gramWalletContentScript") {
+    contentScriptPorts.add(port);
+    port.onMessage.addListener(async (msg, port) => {
+      console.log(msg);
+
+      if (msg.type === "gramWalletAPI_ton_provider_connect") {
+      }
+
+      if (!msg.message) return;
+
+      // const result = await controller.onDappMessage(
+      //   msg.message.method,
+      //   msg.message.params
+      // );
+      if (port) {
+        port.postMessage(
+          JSON.stringify({
+            type: "gramWalletAPI",
+            message: {
+              jsonrpc: "2.0",
+              id: msg.message.id,
+              method: msg.message.method,
+              result: undefined,
+            },
+          })
+        );
+      }
+    });
+    port.onDisconnect.addListener((port) => {
+      contentScriptPorts.delete(port);
     });
   }
 });
