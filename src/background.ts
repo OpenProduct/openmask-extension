@@ -40,6 +40,17 @@ backgroundEventEmitter.on("lock", () => {
   popupPort.postMessage({ method: "locked" });
 });
 
+const handleDAppMessage = async (method: string, params: any) => {
+  switch (method) {
+    case "connect": {
+      return true;
+    }
+    case "ton_requestAccounts": {
+      return ["account"];
+    }
+  }
+};
+
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "TonMaskUI") {
     popupPort = port;
@@ -53,32 +64,30 @@ browser.runtime.onConnect.addListener((port) => {
       popupPort = null!;
     });
   }
+
   if (port.name === "TonMaskContentScript") {
     contentScriptPorts.add(port);
-    port.onMessage.addListener(async (msg, port) => {
-      console.log(msg);
-
-      if (msg.type === "TonMask_ton_provider_connect") {
+    port.onMessage.addListener(async (msg, contentPort) => {
+      if (msg.type !== "TonMaskProvider" || !msg.message) {
+        return;
       }
 
-      if (!msg.message) return;
+      const result = await handleDAppMessage(
+        msg.message.method,
+        msg.message.params
+      );
 
-      // const result = await controller.onDappMessage(
-      //   msg.message.method,
-      //   msg.message.params
-      // );
-      if (port) {
-        port.postMessage(
-          JSON.stringify({
-            type: "gramWalletAPI",
-            message: {
-              jsonrpc: "2.0",
-              id: msg.message.id,
-              method: msg.message.method,
-              result: undefined,
-            },
-          })
-        );
+      console.log({ msg, result });
+      if (contentPort) {
+        contentPort.postMessage({
+          type: "TonMaskAPI",
+          message: {
+            jsonrpc: "2.0",
+            id: msg.message.id,
+            method: msg.message.method,
+            result: result,
+          },
+        });
       }
     });
     port.onDisconnect.addListener((port) => {

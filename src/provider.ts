@@ -54,10 +54,10 @@ class TonProvider extends EventEmitter {
       };
     });
 
-    // Send jsonrpc request to TON Wallet
+    // Send jsonrpc request to TonMask
     window.postMessage(
       {
-        type: "TonMask_ton_provider_write",
+        type: "TonMaskProvider",
         message: payload,
       },
       this.targetOrigin
@@ -71,16 +71,11 @@ class TonProvider extends EventEmitter {
     if (!event || !event.data) {
       return;
     }
-
-    let data;
-    try {
-      data = JSON.parse(event.data);
-    } catch (error) {
-      // Return if we can't parse a valid object
-      return;
-    }
+    const data = event.data;
 
     if (data.type !== "TonMaskAPI") return;
+
+    console.log(event.data);
 
     // Return if not a jsonrpc response
     if (!data || !data.message || !data.message.jsonrpc) {
@@ -120,10 +115,7 @@ class TonProvider extends EventEmitter {
   removeListener = this.off;
 
   connect() {
-    window.postMessage(
-      { type: "TonMask_ton_provider_connect" },
-      this.targetOrigin
-    );
+    return this.send("connect", []);
   }
 
   destroy() {

@@ -35,15 +35,6 @@ interface PageMessage {
   data?: PageMessagePayload;
 }
 
-function isValidMethod(type: string) {
-  switch (type) {
-    case "TonMask_ton_provider_write":
-    case "TonMask_ton_provider_connect":
-      return true;
-    default:
-      return false;
-  }
-}
 /**
  * the transport-specific streams for communication between provider and background
  */
@@ -63,7 +54,7 @@ async function setupStream() {
 
   const onPageMessage = (e: PageMessage) => {
     if (!e.data) return;
-    if (!isValidMethod(e.data.type)) return;
+    if (e.data.type !== "TonMaskProvider") return;
 
     sendMessageToActivePort(e.data);
   };
