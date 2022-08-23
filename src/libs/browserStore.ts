@@ -25,12 +25,26 @@ export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
   });
 };
 
+export const setStoreValue = async <T>(query: QueryType, value: T) => {
+  const { local } = browser.storage;
+  await local.set({ [query]: value });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+  return value;
+};
+
 export const getNetwork = () => {
   return getStoreValue(QueryType.network, "Mainnet");
 };
 
 export const getConnections = () => {
   return getStoreValue<Connections>(QueryType.connection, defaultConnections);
+};
+
+export const setConnections = (value: Connections) => {
+  return setStoreValue(QueryType.connection, value);
 };
 
 export const getNetworkStoreValue = async <T>(

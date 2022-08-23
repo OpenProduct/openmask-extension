@@ -1,8 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { useContext } from "react";
-import { AccountStateContext } from "../../context";
-import { askBackground, sendBackground } from "../../event";
-import { validateMnemonic } from "./account";
+import { askBackground } from "../event";
+import { validateMnemonic } from "./state/account";
 
 /**
  * @param plaintext {string}
@@ -80,24 +77,4 @@ export const decryptMnemonic = async (mnemonic: string, password: string) => {
   const worlds = await decrypt(mnemonic, password);
   validateMnemonic(worlds.split(" "));
   return worlds;
-};
-
-export const useUnlockMutation = () => {
-  const data = useContext(AccountStateContext);
-  return useMutation<void, Error, string>(async (value) => {
-    const [wallet] = data.wallets;
-    await decryptMnemonic(wallet.mnemonic, value);
-    sendBackground.message("tryToUnlock", value);
-  });
-};
-
-export const useCreatePasswordMutation = () => {
-  return useMutation<void, Error, [string, string]>(
-    async ([password, confirm]) => {
-      if (password !== confirm) {
-        throw new Error("Confirm password incorrect");
-      }
-      await askBackground<void>().message("setPassword", password);
-    }
-  );
 };

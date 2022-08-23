@@ -18,12 +18,9 @@ import { DropDownList } from "../../../../components/DropDown";
 import { HomeButton } from "../../../../components/HomeButton";
 import { ArrowDownIcon, DeleteIcon } from "../../../../components/Icons";
 import { TonProviderContext, WalletStateContext } from "../../../../context";
-import {
-  useDeleteWalletMutation,
-  useUpdateWalletMutation,
-} from "../../../../lib/state/account";
-import { decryptMnemonic } from "../../../../lib/state/password";
+import { decryptMnemonic } from "../../../../lib/password";
 import { AppRoute, relative } from "../../../../routes";
+import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 
 const Title = styled.div`
   font-size: x-large;

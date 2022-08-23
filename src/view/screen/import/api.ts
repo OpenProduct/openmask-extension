@@ -1,21 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { Address } from "tonweb/dist/types/utils/address";
-import { QueryType } from "../../../libs/browserStore";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import {
+  AccountStateContext,
   NetworkContext,
   TonProviderContext,
-  WalletContractContext,
-  WalletStateContext,
 } from "../../context";
-import { encrypt } from "./password";
+import { askBackgroundPassword, encrypt } from "../../lib/password";
+import { saveAccountState, validateMnemonic } from "../../lib/state/account";
 
 const lastWalletVersion = "v4R2";
 
-export const createWallet = async (
+const createWallet = async (
   ton: TonWeb,
   mnemonic: string,
   password: string,
@@ -39,6 +38,31 @@ export const createWallet = async (
     version: lastWalletVersion,
     isBounceable: true,
   };
+};
+
+export const useCreateWalletMutation = () => {
+  const network = useContext(NetworkContext);
+  const ton = useContext(TonProviderContext);
+  const account = useContext(AccountStateContext);
+  const client = useQueryClient();
+
+  return useMutation<void, Error, string>(async (mnemonic) => {
+    const password = await askBackgroundPassword();
+
+    const wallet = await createWallet(
+      ton,
+      mnemonic,
+      password,
+      account.wallets.length + 1
+    );
+
+    const value = {
+      ...account,
+      wallets: [...account.wallets, wallet],
+      activeWallet: wallet.address,
+    };
+    await saveAccountState(network, client, value);
+  });
 };
 
 const findContract = async (
@@ -87,36 +111,33 @@ export const importWallet = async (
   };
 };
 
-const balanceFormat = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 4,
-});
-
-export const formatTonValue = (value: string): string => {
-  return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
-};
-
-export const toShortAddress = (address: string): string => {
-  return address.slice(0, 4) + "...." + address.slice(-4);
-};
-
-export const useBalance = (address: string) => {
-  const network = useContext(NetworkContext);
+export const useImportWalletMutation = () => {
+  const client = useQueryClient();
   const ton = useContext(TonProviderContext);
-
-  return useQuery<string>([network, address, QueryType.balance], async () => {
-    const value = await ton.provider.getBalance(address);
-    return formatTonValue(value);
-  });
-};
-
-export const useAddress = () => {
   const network = useContext(NetworkContext);
-  const wallet = useContext(WalletStateContext);
-  const contract = useContext(WalletContractContext);
+  const data = useContext(AccountStateContext);
 
-  return useQuery<Address>(
-    [network, wallet.address, wallet.version, QueryType.address],
-    () => contract.getAddress()
-  );
+  return useMutation<void, Error, string>(async (value) => {
+    const password = await askBackgroundPassword();
+
+    const mnemonic = value.trim().split(" ");
+    validateMnemonic(mnemonic);
+
+    const wallet = await importWallet(
+      ton,
+      mnemonic,
+      password,
+      data.wallets.length + 1
+    );
+    if (data.wallets.some((w) => w.address === wallet.address)) {
+      throw new Error("Wallet already connect");
+    }
+    const wallets = data.wallets.concat([wallet]);
+    const state = {
+      ...data,
+      wallets,
+      activeWallet: wallet.address,
+    };
+    await saveAccountState(network, client, state);
+  });
 };

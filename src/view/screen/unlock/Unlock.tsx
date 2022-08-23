@@ -7,9 +7,9 @@ import {
   ErrorText,
   H1,
   Input,
-} from "../components/Components";
-import { LoadingLogo } from "../components/Logo";
-import { useUnlockMutation } from "../lib/state/password";
+} from "../../components/Components";
+import { LoadingLogo } from "../../components/Logo";
+import { useUnlockMutation } from "./api";
 
 const Body = styled.header`
   min-height: 100vh;

@@ -33,14 +33,23 @@ const waitUnlock = () => {
 };
 
 const waitApprove = (id: number) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const approve = (options: { params: number }) => {
       if (options.params === id) {
         backgroundEventsEmitter.off("approveRequest", approve);
+        backgroundEventsEmitter.on("rejectRequest", cancel);
         resolve(undefined);
       }
     };
+    const cancel = (options: { params: number }) => {
+      if (options.params === id) {
+        backgroundEventsEmitter.off("approveRequest", approve);
+        backgroundEventsEmitter.on("rejectRequest", cancel);
+        reject("Reject request");
+      }
+    };
     backgroundEventsEmitter.on("approveRequest", approve);
+    backgroundEventsEmitter.on("rejectRequest", cancel);
   });
 };
 
@@ -54,8 +63,11 @@ const connectDApp = async (id: number, origin: string) => {
     }
   } else {
     const popupId = await openConnectDAppPopUp(id, origin);
-    await waitApprove(id);
-    await closeCurrentPopUp(popupId);
+    try {
+      await waitApprove(id);
+    } finally {
+      await closeCurrentPopUp(popupId);
+    }
   }
   return await getConnectedWallets(origin);
 };
@@ -69,6 +81,9 @@ export const handleDAppMessage = async (message: DAppMessage) => {
     }
     case "ton_requestAccounts": {
       return connectDApp(message.id, origin);
+    }
+    case "ton_askAccounts": {
+      return getConnectedWallets(origin);
     }
     default:
       throw new Error(`Method "${message.method}" not implemented`);

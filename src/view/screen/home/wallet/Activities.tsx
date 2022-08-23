@@ -4,12 +4,12 @@ import ExtensionPlatform from "../../../../libs/extension";
 import { ButtonNegative } from "../../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../../components/Icons";
 import { WalletAddressContext } from "../../../context";
-import { NetworkConfig, useNetworkConfig } from "../../../lib/state/network";
+import { NetworkConfig, useNetworkConfig } from "../../../lib/network";
 import {
   TonWebTransaction,
   useTransactions,
 } from "../../../lib/state/transaction";
-import { formatTonValue, toShortAddress } from "../../../lib/state/wallet";
+import { formatTonValue, toShortAddress } from "../../../lib/wallet";
 
 const Row = styled.div`
   padding: ${(props) => props.theme.padding};

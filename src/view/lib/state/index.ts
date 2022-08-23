@@ -5,18 +5,14 @@ import {
   getNetworkStoreValue,
   getStoreValue,
   QueryType,
+  setStoreValue,
 } from "../../../libs/browserStore";
 import { checkForError } from "../../../libs/utils";
 
 export const useMutateStore = <T>(query: QueryType) => {
   const client = useQueryClient();
   return useMutation<void, Error, T>(async (value) => {
-    const { local } = browser.storage;
-    await local.set({ [query]: value });
-    const err = checkForError();
-    if (err) {
-      throw err;
-    }
+    await setStoreValue(query, value);
     client.setQueryData([query], value);
   });
 };

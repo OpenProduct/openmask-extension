@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import ExtensionPlatform from "../../libs/extension";
+import ExtensionPlatform from "../../../libs/extension";
 import {
   ButtonColumn,
   ButtonNegative,
@@ -9,11 +9,11 @@ import {
   ErrorText,
   H1,
   Input,
-} from "../components/Components";
-import { LoadingLogo } from "../components/Logo";
-import { useCreatePasswordMutation } from "../lib/state/password";
-import { AppRoute } from "../routes";
-import { ConnectRoutes } from "./import/ConnectWallet";
+} from "../../components/Components";
+import { LoadingLogo } from "../../components/Logo";
+import { AppRoute } from "../../routes";
+import { ConnectRoutes } from "../import/ConnectWallet";
+import { useCreatePasswordMutation } from "./api";
 
 const Body = styled(Container)`
   width: 100%;

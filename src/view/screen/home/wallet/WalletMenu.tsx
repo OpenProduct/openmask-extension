@@ -9,7 +9,7 @@ import {
   ListItem,
 } from "../../../components/DropDown";
 import { LinkIcon, MoreIcon } from "../../../components/Icons";
-import { useNetworkConfig } from "../../../lib/state/network";
+import { useNetworkConfig } from "../../../lib/network";
 import { AppRoute } from "../../../routes";
 
 const Menu = styled.div`

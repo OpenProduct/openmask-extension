@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useNetwork } from ".";
+import { useNetwork } from "./state";
 
 export interface NetworkConfig {
   name: string;

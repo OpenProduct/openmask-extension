@@ -1,4 +1,4 @@
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { WalletState } from "../../../libs/entries/wallet";
@@ -13,7 +13,9 @@ import {
   Text,
 } from "../../components/Components";
 import { AccountStateContext } from "../../context";
-import { useBalance } from "../../lib/state/wallet";
+import { sendBackground } from "../../event";
+import { useBalance } from "../home/api";
+import { useAddConnectionMutation } from "./api";
 
 const Badge = styled.div`
   border: 1px solid ${(props) => props.theme.darkGray};
@@ -78,13 +80,28 @@ const Wallet: FC<{
 export const ConnectDApp = () => {
   const [searchParams] = useSearchParams();
   const origin = searchParams.get("origin");
-  const id = searchParams.get("id");
+  const id = parseInt(searchParams.get("id") ?? "0", 10);
+
+  useEffect(() => {
+    if (!origin) {
+      sendBackground.message("rejectRequest", id);
+    }
+  }, []);
 
   const account = useContext(AccountStateContext);
 
+  const { mutate, isLoading } = useAddConnectionMutation();
   const [selected, setSelected] = useState(
     account.wallets.map((w) => w.address)
   );
+
+  const onCancel = () => {
+    sendBackground.message("rejectRequest", id);
+  };
+
+  const onConnect = () => {
+    mutate({ id, origin: origin!, wallets: selected });
+  };
 
   return (
     <Body>
@@ -115,8 +132,12 @@ export const ConnectDApp = () => {
       </Scroll>
       <Gap />
       <ButtonBottomRow>
-        <ButtonNegative>Cancel</ButtonNegative>
-        <ButtonPositive>Connect</ButtonPositive>
+        <ButtonNegative onClick={onCancel} disabled={isLoading}>
+          Cancel
+        </ButtonNegative>
+        <ButtonPositive onClick={onConnect} disabled={isLoading}>
+          Connect
+        </ButtonPositive>
       </ButtonBottomRow>
     </Body>
   );

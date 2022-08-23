@@ -65,6 +65,10 @@ popUpEventEmitter.on("approveRequest", (message) => {
   backgroundEventsEmitter.emit("approveRequest", message);
 });
 
+popUpEventEmitter.on("rejectRequest", (message) => {
+  backgroundEventsEmitter.emit("rejectRequest", message);
+});
+
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "TonMaskUI") {
     popupPort = port;

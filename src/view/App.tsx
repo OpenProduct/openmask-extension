@@ -18,18 +18,18 @@ import {
   WalletStateContext,
 } from "./context";
 import { askBackground, uiEventEmitter } from "./event";
+import { useNetworkConfig } from "./lib/network";
 import { useNetwork } from "./lib/state";
 import { useAccountState } from "./lib/state/account";
-import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
 import { ConnectDApp } from "./screen/connect/ConnectDApp";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
 import { Settings } from "./screen/home/settings/Settings";
 import { ConnectWallet } from "./screen/import/ConnectWallet";
-import { CreatePassword, Initialize } from "./screen/Initialize";
+import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
-import { Unlock } from "./screen/Unlock";
+import { Unlock } from "./screen/unlock/Unlock";
 import defaultTheme from "./styles/defaultTheme";
 
 const queryClient = new QueryClient();

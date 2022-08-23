@@ -11,8 +11,8 @@ import {
   Text,
   Textarea,
 } from "../../components/Components";
-import { useCreateWalletMutation } from "../../lib/state/account";
 import { AppRoute } from "../../routes";
+import { useCreateWalletMutation } from "./api";
 
 export const Create = () => {
   const navigate = useNavigate();

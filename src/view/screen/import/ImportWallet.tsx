@@ -11,8 +11,8 @@ import {
   Textarea,
 } from "../../components/Components";
 import { CheckIcon, CloseIcon } from "../../components/Icons";
-import { useImportWalletMutation } from "../../lib/state/account";
 import { AppRoute, relative } from "../../routes";
+import { useImportWalletMutation } from "./api";
 
 enum ImportRoutes {
   index = "/",

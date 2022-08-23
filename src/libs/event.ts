@@ -42,12 +42,14 @@ export interface PupUpEvents {
   getPassword: void;
   setPassword: string;
   approveRequest: number;
+  rejectRequest: number;
 }
 
 export interface BackgroundEvents {
   unlock: void;
   locked: void;
   approveRequest: number;
+  rejectRequest: number;
 }
 
 export const RESPONSE = "Response";
