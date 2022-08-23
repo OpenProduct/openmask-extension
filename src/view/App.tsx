@@ -22,6 +22,7 @@ import { useNetwork } from "./lib/state";
 import { useAccountState } from "./lib/state/account";
 import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
+import { ConnectDApp } from "./screen/connect/ConnectDApp";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
 import { Settings } from "./screen/home/settings/Settings";
@@ -97,6 +98,7 @@ const Content: FC<{
 
   useEffect(() => {
     if (window.location.hash) {
+      console.log(window.location.hash);
       navigate(window.location.hash.substring(1));
     }
   }, []);
@@ -129,7 +131,7 @@ const Content: FC<{
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-          <Route path={any(AppRoute.connect)} element={<div>Connect</div>} />
+          <Route path={any(AppRoute.connect)} element={<ConnectDApp />} />
           <Route path={AppRoute.setting} element={<Settings />} />
           <Route path="*" element={<Home />} />
         </Routes>

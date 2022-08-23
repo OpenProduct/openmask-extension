@@ -28,6 +28,7 @@ interface PageMessagePayload {
     id: number;
     method: string;
     params: any;
+    origin: string;
   };
 }
 

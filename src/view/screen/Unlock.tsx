@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   ButtonColumn,
   ButtonPositive,
+  Center,
   ErrorText,
   H1,
   Input,
@@ -17,10 +18,6 @@ const Body = styled.header`
   align-items: center;
   justify-content: center;
   padding: 0 ${(props) => props.theme.padding};
-`;
-
-const Center = styled.div`
-  text-align: center;
 `;
 
 export const Unlock = () => {

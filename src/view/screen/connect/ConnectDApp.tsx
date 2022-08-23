@@ -1,0 +1,123 @@
+import { FC, useContext, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import styled from "styled-components";
+import { WalletState } from "../../../libs/entries/wallet";
+import {
+  Body,
+  ButtonBottomRow,
+  ButtonNegative,
+  ButtonPositive,
+  Center,
+  Gap,
+  H1,
+  Text,
+} from "../../components/Components";
+import { AccountStateContext } from "../../context";
+import { useBalance } from "../../lib/state/wallet";
+
+const Badge = styled.div`
+  border: 1px solid ${(props) => props.theme.darkGray};
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: larger;
+`;
+
+const Label = styled.label`
+  display: flex;
+  gap: ${(props) => props.theme.padding};
+  margin: ${(props) => props.theme.padding};
+  border-bottom: 1px solid ${(props) => props.theme.darkGray};
+`;
+
+const Column = styled.div`
+  overflow: hidden;
+  flex-grow: 1;
+  padding: 5px;
+`;
+
+const Row = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Balance = styled(Row)`
+  color: ${(props) => props.theme.darkGray};
+`;
+
+const Scroll = styled.div`
+  overflow: auto;
+`;
+
+const Wallet: FC<{
+  wallet: WalletState;
+  selected: boolean;
+  onSelect: (value: boolean) => void;
+}> = ({ wallet, selected, onSelect }) => {
+  const { data } = useBalance(wallet.address);
+
+  return (
+    <Label key={wallet.address}>
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={() => onSelect(!selected)}
+      />
+      <Column>
+        <Row>
+          <b>{wallet.name}</b>
+        </Row>
+        <Row>{wallet.address}</Row>
+        <Balance>{data ?? "-"} TON</Balance>
+      </Column>
+    </Label>
+  );
+};
+
+export const ConnectDApp = () => {
+  const [searchParams] = useSearchParams();
+  const origin = searchParams.get("origin");
+  const id = searchParams.get("id");
+
+  const account = useContext(AccountStateContext);
+
+  const [selected, setSelected] = useState(
+    account.wallets.map((w) => w.address)
+  );
+
+  return (
+    <Body>
+      <Center>
+        <Badge>{origin}</Badge>
+        <H1>Connect With TonMask</H1>
+        <Text>Select the account(s) to use on this site</Text>
+      </Center>
+      <Scroll>
+        {account.wallets.map((wallet) => {
+          return (
+            <Wallet
+              key={wallet.address}
+              wallet={wallet}
+              selected={selected.includes(wallet.address)}
+              onSelect={(value) => {
+                if (value) {
+                  setSelected((items) => items.concat([wallet.address]));
+                } else {
+                  setSelected((items) =>
+                    items.filter((item) => item !== wallet.address)
+                  );
+                }
+              }}
+            />
+          );
+        })}
+      </Scroll>
+      <Gap />
+      <ButtonBottomRow>
+        <ButtonNegative>Cancel</ButtonNegative>
+        <ButtonPositive>Connect</ButtonPositive>
+      </ButtonBottomRow>
+    </Body>
+  );
+};

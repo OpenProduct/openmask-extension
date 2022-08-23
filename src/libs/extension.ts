@@ -67,10 +67,14 @@ export default class ExtensionPlatform {
     });
   }
 
-  closeCurrentWindow() {
+  static closeCurrentWindow() {
     return browser.windows.getCurrent().then((windowDetails) => {
       return browser.windows.remove(windowDetails.id!);
     });
+  }
+
+  static closeWindow(windowId: number) {
+    return browser.windows.remove(windowId);
   }
 
   getVersion() {

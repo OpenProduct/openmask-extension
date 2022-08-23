@@ -110,6 +110,10 @@ export const BodyCenter = styled(Body)`
   align-items: center;
 `;
 
+export const Center = styled.div`
+  text-align: center;
+`;
+
 export const Gap = styled.div`
   flex-grow: 1;
 `;
@@ -148,7 +152,6 @@ export const Textarea = styled.textarea`
   padding: 10px;
   margin-bottom: ${(props) => props.theme.padding};
 `;
-
 
 export const Text = styled.div`
   padding-bottom: ${(props) => props.theme.padding};

@@ -1,9 +1,13 @@
 import browser from "webextension-polyfill";
+import { Connections, defaultConnections } from "./entries/connection";
 import { checkForError } from "./utils";
 
 export enum QueryType {
   price = "price",
+
   network = "network",
+  connection = "connection",
+
   account = "account",
   balance = "balance",
   address = "address",
@@ -23,6 +27,10 @@ export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
 
 export const getNetwork = () => {
   return getStoreValue(QueryType.network, "Mainnet");
+};
+
+export const getConnections = () => {
+  return getStoreValue<Connections>(QueryType.connection, defaultConnections);
 };
 
 export const getNetworkStoreValue = async <T>(

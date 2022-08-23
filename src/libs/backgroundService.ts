@@ -1,67 +1,76 @@
-import { getNetworkStoreValue, QueryType } from "./browserStore";
-import { defaultAccountState } from "./entries/account";
-import ExtensionPlatform from "./extension";
-import { MemoryStore } from "./memoryStore";
+import { getConnections } from "./browserStore";
+import { DAppMessage } from "./entries/message";
+import { backgroundEventsEmitter } from "./event";
+import memoryStore from "./memoryStore";
+import {
+  closeCurrentPopUp,
+  openConnectDAppPopUp,
+  openConnectUnlockPopUp,
+} from "./notificationService";
 
-const NOTIFICATION_HEIGHT = 620;
-const NOTIFICATION_WIDTH = 380;
+const getConnectedWallets = async (origin: string) => {
+  if (memoryStore.isLock()) {
+    throw new Error("Application locked");
+  }
 
-export const backgroundService = (options: { memStore: MemoryStore }) => {
-  const { memStore } = options;
+  const whitelist = await getConnections();
+  const account = whitelist[origin];
+  if (account == null) {
+    throw new Error(`Origin "${origin}" is not in whitelist`);
+  }
 
-  let popupId: number | undefined = undefined;
+  return account.wallets;
+};
 
-  const getPopup = async () => {
-    const windows = await ExtensionPlatform.getAllWindows();
-    return windows
-      ? windows.find((win) => {
-          return win && win.type === "popup" && win.id === popupId;
-        })
-      : null;
-  };
+const waitUnlock = () => {
+  return new Promise((resolve) => {
+    const unlock = () => {
+      backgroundEventsEmitter.off("unlock", unlock);
+      resolve(undefined);
+    };
+    backgroundEventsEmitter.on("unlock", unlock);
+  });
+};
 
-  return {
-    getActiveWallet: async () => {
-      if (memStore.isLock()) {
-        throw new Error("Application locked");
+const waitApprove = (id: number) => {
+  return new Promise((resolve) => {
+    const approve = (options: { params: number }) => {
+      if (options.params === id) {
+        backgroundEventsEmitter.off("approveRequest", approve);
+        resolve(undefined);
       }
+    };
+    backgroundEventsEmitter.on("approveRequest", approve);
+  });
+};
 
-      const account = await getNetworkStoreValue(
-        QueryType.account,
-        defaultAccountState
-      );
+const connectDApp = async (id: number, origin: string) => {
+  const whitelist = await getConnections();
+  if (whitelist[origin] != null) {
+    if (memoryStore.isLock()) {
+      const popupId = await openConnectUnlockPopUp();
+      await waitUnlock();
+      await closeCurrentPopUp(popupId);
+    }
+  } else {
+    const popupId = await openConnectDAppPopUp(id, origin);
+    await waitApprove(id);
+    await closeCurrentPopUp(popupId);
+  }
+  return await getConnectedWallets(origin);
+};
 
-      if (!account.activeWallet) {
-        throw new Error("Active wallet is not define");
-      }
+export const handleDAppMessage = async (message: DAppMessage) => {
+  const origin = decodeURIComponent(message.origin);
 
-      return [account.activeWallet];
-    },
-    connectDApp: async () => {
-      const popup = await getPopup();
-      if (popup && popup.id) {
-        return await ExtensionPlatform.focusWindow(popup.id);
-      } else {
-        const lastFocused = await ExtensionPlatform.getLastFocusedWindow();
-        // Position window in top right corner of lastFocused window.
-        const top = lastFocused.top!;
-        const left =
-          lastFocused.left! + (lastFocused.width! - NOTIFICATION_WIDTH);
-
-        // create new notification popup
-        const popupWindow = await ExtensionPlatform.openWindow({
-          url: "index.html#/connect",
-          type: "popup",
-          width: NOTIFICATION_WIDTH,
-          height: NOTIFICATION_HEIGHT,
-          left,
-          top,
-        });
-
-        popupId = popupWindow.id;
-
-        return ["popup-account"];
-      }
-    },
-  };
+  switch (message.method) {
+    case "ping": {
+      return "pong";
+    }
+    case "ton_requestAccounts": {
+      return connectDApp(message.id, origin);
+    }
+    default:
+      throw new Error(`Method "${message.method}" not implemented`);
+  }
 };

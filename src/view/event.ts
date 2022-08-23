@@ -1,15 +1,15 @@
 import browser from "webextension-polyfill";
 import {
   AppEvent,
-  AppEventEmitter,
   AskProcessor,
+  PopUpEventEmitter,
   RESPONSE,
 } from "../libs/event";
 import { EventEmitter } from "../libs/eventEmitter";
 
 let port: browser.Runtime.Port;
 
-export const uiEventEmitter: AppEventEmitter = new EventEmitter();
+export const uiEventEmitter: PopUpEventEmitter = new EventEmitter();
 
 export const sendBackground: AskProcessor<void> = {
   message: (method, params) => {

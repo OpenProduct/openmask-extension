@@ -39,12 +39,12 @@ class TonProvider extends EventEmitter {
     }
 
     const id = this.nextJsonRpcId++;
-    const jsonrpc = "2.0";
     const payload = {
-      jsonrpc,
+      jsonrpc: "2.0",
       id,
       method,
       params,
+      origin: window.origin,
     };
 
     const promise = new Promise((resolve, reject) => {
@@ -115,7 +115,7 @@ class TonProvider extends EventEmitter {
   removeListener = this.off;
 
   connect = async () => {
-    return this.send("connect", []);
+    return this.send("ping", []);
   };
 
   destroy() {

@@ -1,4 +1,4 @@
-export const memoryStore = () => {
+const memoryStore = () => {
   let password: string | null = null;
 
   return {
@@ -10,4 +10,6 @@ export const memoryStore = () => {
   };
 };
 
-export type MemoryStore = ReturnType<typeof memoryStore>;
+const instance = memoryStore();
+
+export default instance;
