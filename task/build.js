@@ -11,7 +11,7 @@ exec("npx react-app-rewired build", {
   },
 });
 
-notify(`Build TonMask background.js`);
+notify(`Build TonMask background.js, provider.js`);
 
 exec("npx webpack -c task/webpack.config.js", {
   stdio: "inherit",
@@ -21,6 +21,5 @@ exec("npx webpack -c task/webpack.config.js", {
 notify(`Copy TonMask content.js and provider.js`);
 
 fs.copyFileSync("src/content.js", "build/content.js");
-fs.copyFileSync("src/provider.js", "build/provider.js");
 
 notify(`Happy End! 🚀🚀🚀`);

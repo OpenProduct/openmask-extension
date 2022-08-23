@@ -1,4 +1,5 @@
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#sample-class-implementation
+
 (() => {
   class TonProvider {
     isTonMask = true;

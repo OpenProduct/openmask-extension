@@ -1,14 +1,22 @@
 export {};
 
-interface Ton {
-  listeners: Record<string, any>;
-  _promises: Record<string, any>;
-  _nextJsonRpcId: number;
-  _destroy: () => void;
+interface ITonProvider {
+  nextJsonRpcId;
+  callbacks: Record<string, any>;
+  promises: Record<
+    string,
+    {
+      resolve: (value: unknown) => void;
+      reject: (reason?: any) => void;
+    }
+  >;
+  nextJsonRpcId: number;
+  destroy: () => void;
 }
 
 declare global {
   interface Window {
-    ton: Ton;
+    ton: ITonProvider;
+    tonProtocolVersion: number;
   }
 }
