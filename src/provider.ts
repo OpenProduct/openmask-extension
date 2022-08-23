@@ -20,7 +20,7 @@ class TonProvider extends EventEmitter {
       this.callbacks = ton.callbacks;
     }
 
-    this.connect();
+    this.connect().catch((e) => console.error(e));
 
     if (ton) {
       ton.destroy();
@@ -114,9 +114,9 @@ class TonProvider extends EventEmitter {
   addListener = this.on;
   removeListener = this.off;
 
-  connect() {
+  connect = async () => {
     return this.send("connect", []);
-  }
+  };
 
   destroy() {
     window.removeEventListener("message", this.onMessage);

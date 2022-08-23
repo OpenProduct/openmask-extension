@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import ExtensionPlatform from "../../libs/extension";
 import {
   ButtonColumn,
   ButtonNegative,
@@ -10,10 +11,9 @@ import {
   Input,
 } from "../components/Components";
 import { LoadingLogo } from "../components/Logo";
-import ExtensionPlatform from "../lib/extension";
 import { useCreatePasswordMutation } from "../lib/state/password";
 import { AppRoute } from "../routes";
-import { ConnectRoutes } from "./connect/ConnectWallet";
+import { ConnectRoutes } from "./import/ConnectWallet";
 
 const Body = styled(Container)`
   width: 100%;
@@ -33,7 +33,7 @@ export const Initialize = () => {
         <ButtonPositive
           onClick={() =>
             ExtensionPlatform.openExtensionInBrowser(
-              AppRoute.connect + ConnectRoutes.create
+              AppRoute.import + ConnectRoutes.create
             )
           }
         >
@@ -42,7 +42,7 @@ export const Initialize = () => {
         <ButtonNegative
           onClick={() =>
             ExtensionPlatform.openExtensionInBrowser(
-              AppRoute.connect + ConnectRoutes.import
+              AppRoute.import + ConnectRoutes.import
             )
           }
         >

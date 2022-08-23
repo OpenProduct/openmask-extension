@@ -3,7 +3,8 @@ import { useContext } from "react";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { Address } from "tonweb/dist/types/utils/address";
-import { QueryType } from ".";
+import { QueryType } from "../../../libs/browserStore";
+import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import {
   NetworkContext,
   TonProviderContext,
@@ -11,17 +12,6 @@ import {
   WalletStateContext,
 } from "../../context";
 import { encrypt } from "./password";
-
-export type WalletVersion = keyof typeof TonWeb.Wallets.all;
-
-export interface WalletState {
-  name: string;
-  mnemonic: string;
-  address: string;
-  publicKey: string;
-  version: WalletVersion;
-  isBounceable: boolean;
-}
 
 const lastWalletVersion = "v4R2";
 

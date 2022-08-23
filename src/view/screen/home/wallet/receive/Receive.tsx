@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ExtensionPlatform from "../../../../../libs/extension";
 import {
   ButtonColumn,
   ButtonNegative,
@@ -9,7 +10,6 @@ import {
 import { HomeButton } from "../../../../components/HomeButton";
 import { CheckIcon, CopyIcon, LinkIcon } from "../../../../components/Icons";
 import { WalletAddressContext } from "../../../../context";
-import ExtensionPlatform from "../../../../lib/extension";
 import { useCopyToClipboard } from "../../../../lib/hooks/useCopyToClipbpard";
 
 const Body = styled(Container)`

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { QueryType } from "./state";
+import { QueryType } from "../../libs/browserStore";
 
 const tonId = "the-open-network";
 const currency = "usd";

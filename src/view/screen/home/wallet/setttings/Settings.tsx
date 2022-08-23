@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { WalletState, WalletVersion } from "../../../../../libs/entries/wallet";
 import {
   Body,
   ButtonDanger,
@@ -22,7 +23,6 @@ import {
   useUpdateWalletMutation,
 } from "../../../../lib/state/account";
 import { decryptMnemonic } from "../../../../lib/state/password";
-import { WalletState, WalletVersion } from "../../../../lib/state/wallet";
 import { AppRoute, relative } from "../../../../routes";
 
 const Title = styled.div`
@@ -41,7 +41,7 @@ const Label = styled.div`
 
 const Select = styled.div`
   font-size: medium;
-  padding: 5px 0;
+  padding: 5px;
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
   width: 100%;
   display: flex;

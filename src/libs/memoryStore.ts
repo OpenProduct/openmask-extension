@@ -9,3 +9,5 @@ export const memoryStore = () => {
     isLock: () => password === null,
   };
 };
+
+export type MemoryStore = ReturnType<typeof memoryStore>;

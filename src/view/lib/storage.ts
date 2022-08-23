@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { checkForError } from "./utils";
+import { checkForError } from "../../libs/utils";
 
 type AppState = any;
 

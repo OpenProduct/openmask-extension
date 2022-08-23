@@ -1,8 +1,8 @@
 import React from "react";
 import TonWeb from "tonweb";
 import { WalletContract } from "tonweb/dist/types/contract/wallet/wallet-contract";
-import { AccountState } from "./lib/state/account";
-import { WalletState } from "./lib/state/wallet";
+import { AccountState } from "../libs/entries/account";
+import { WalletState } from "../libs/entries/wallet";
 
 export const AccountStateContext = React.createContext<AccountState>(
   undefined!

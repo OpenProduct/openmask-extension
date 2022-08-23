@@ -1,12 +1,31 @@
 import browser from "webextension-polyfill";
+import { backgroundService } from "./libs/backgroundService";
 import { AppEventEmitter, RESPONSE } from "./libs/event";
 import { EventEmitter } from "./libs/eventEmitter";
-import { memoryStore } from "./libs/memory";
+import { memoryStore } from "./libs/memoryStore";
 
 let popupPort: browser.Runtime.Port;
 let contentScriptPorts = new Set<browser.Runtime.Port>();
 
-export const sendResponse = <Payload>(id?: number, params?: Payload) => {
+const providerResponse = (
+  id: number,
+  method: string,
+  result: undefined | unknown,
+  error?: string
+) => {
+  return {
+    type: "TonMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      id,
+      method,
+      result,
+      error,
+    },
+  };
+};
+
+export const sendUIResponse = <Payload>(id?: number, params?: Payload) => {
   popupPort.postMessage({
     method: RESPONSE,
     id,
@@ -15,28 +34,30 @@ export const sendResponse = <Payload>(id?: number, params?: Payload) => {
 };
 
 const backgroundEventEmitter: AppEventEmitter = new EventEmitter();
-const inMemoryStore = memoryStore();
+const memStore = memoryStore();
+
+const service = backgroundService({ memStore });
 
 backgroundEventEmitter.on("isLock", (message) => {
-  sendResponse(message.id, inMemoryStore.isLock());
+  sendUIResponse(message.id, memStore.isLock());
 });
 
 backgroundEventEmitter.on("getPassword", (message) => {
-  sendResponse(message.id, inMemoryStore.getPassword());
+  sendUIResponse(message.id, memStore.getPassword());
 });
 
 backgroundEventEmitter.on("setPassword", (message) => {
-  sendResponse(message.id, inMemoryStore.setPassword(message.params));
+  sendUIResponse(message.id, memStore.setPassword(message.params));
   popupPort.postMessage({ method: "unlock" });
 });
 
 backgroundEventEmitter.on("tryToUnlock", (message) => {
-  inMemoryStore.setPassword(message.params);
+  memStore.setPassword(message.params);
   popupPort.postMessage({ method: "unlock" });
 });
 
 backgroundEventEmitter.on("lock", () => {
-  inMemoryStore.setPassword(null);
+  memStore.setPassword(null);
   popupPort.postMessage({ method: "locked" });
 });
 
@@ -46,8 +67,13 @@ const handleDAppMessage = async (method: string, params: any) => {
       return true;
     }
     case "ton_requestAccounts": {
-      return ["account"];
+      return service.getActiveWallet();
     }
+    case "ton_askConnection": {
+      return service.connectDApp();
+    }
+    default:
+      throw new Error(`Method "${method}" not implemented`);
   }
 };
 
@@ -72,22 +98,18 @@ browser.runtime.onConnect.addListener((port) => {
         return;
       }
 
-      const result = await handleDAppMessage(
+      const [result, error] = await handleDAppMessage(
         msg.message.method,
         msg.message.params
-      );
+      )
+        .then((result) => [result, undefined] as const)
+        .catch((e: Error) => [undefined, e.message] as const);
 
       console.log({ msg, result });
       if (contentPort) {
-        contentPort.postMessage({
-          type: "TonMaskAPI",
-          message: {
-            jsonrpc: "2.0",
-            id: msg.message.id,
-            method: msg.message.method,
-            result: result,
-          },
-        });
+        contentPort.postMessage(
+          providerResponse(msg.message.id, msg.message.method, result, error)
+        );
       }
     });
     port.onDisconnect.addListener((port) => {

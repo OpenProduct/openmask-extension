@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ExtensionPlatform from "../../../../libs/extension";
 import { Icon } from "../../../components/Components";
 import {
   DropDown,
@@ -8,7 +9,6 @@ import {
   ListItem,
 } from "../../../components/DropDown";
 import { LinkIcon, MoreIcon } from "../../../components/Icons";
-import ExtensionPlatform from "../../../lib/extension";
 import { useNetworkConfig } from "../../../lib/state/network";
 import { AppRoute } from "../../../routes";
 

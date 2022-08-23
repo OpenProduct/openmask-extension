@@ -19,8 +19,8 @@ export default class ExtensionPlatform {
     });
   }
 
-  openWindow(options?: browser.Windows.CreateCreateDataType) {
-    return new Promise((resolve, reject) => {
+  static openWindow(options?: browser.Windows.CreateCreateDataType) {
+    return new Promise<browser.Windows.Window>((resolve, reject) => {
       browser.windows.create(options).then((newWindow) => {
         const error = checkForError();
         if (error) {
@@ -31,7 +31,7 @@ export default class ExtensionPlatform {
     });
   }
 
-  focusWindow(windowId: number) {
+  static focusWindow(windowId: number) {
     return new Promise((resolve, reject) => {
       browser.windows.update(windowId, { focused: true }).then(() => {
         const error = checkForError();
@@ -55,8 +55,8 @@ export default class ExtensionPlatform {
     });
   }
 
-  getLastFocusedWindow() {
-    return new Promise((resolve, reject) => {
+  static getLastFocusedWindow() {
+    return new Promise<browser.Windows.Window>((resolve, reject) => {
       browser.windows.getLastFocused().then((windowObject) => {
         const error = checkForError();
         if (error) {
@@ -126,12 +126,12 @@ export default class ExtensionPlatform {
     window.close();
   }
 
-  addOnRemovedListener(listener: (windowId: number) => void) {
+  static addOnRemovedListener(listener: (windowId: number) => void) {
     browser.windows.onRemoved.addListener(listener);
   }
 
-  getAllWindows() {
-    return new Promise((resolve, reject) => {
+  static getAllWindows() {
+    return new Promise<browser.Windows.Window[]>((resolve, reject) => {
       browser.windows.getAll().then((windows) => {
         const error = checkForError();
         if (error) {

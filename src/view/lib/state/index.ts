@@ -1,15 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import browser from "webextension-polyfill";
-import { checkForError } from "../utils";
-
-export enum QueryType {
-  price = "price",
-  network = "network",
-  account = "account",
-  balance = "balance",
-  address = "address",
-  transactions = "transactions",
-}
+import {
+  getNetwork,
+  getNetworkStoreValue,
+  getStoreValue,
+  QueryType,
+} from "../../../libs/browserStore";
+import { checkForError } from "../../../libs/utils";
 
 export const useMutateStore = <T>(query: QueryType) => {
   const client = useQueryClient();
@@ -26,35 +23,19 @@ export const useMutateStore = <T>(query: QueryType) => {
 
 export const useStore = <T>(query: QueryType, defaultValue: T) => {
   return useQuery<T>([query], () => {
-    const { local } = browser.storage;
-    return local.get(query).then<T>((result) => {
-      const err = checkForError();
-      if (err) {
-        throw err;
-      }
-      return result[query] ?? defaultValue;
-    });
+    return getStoreValue(query, defaultValue);
   });
 };
 
 export const useNetwork = () => {
-  return useStore<string>(QueryType.network, "Mainnet");
+  return useQuery([QueryType.network], () => getNetwork());
 };
 
 export const useNetworkStore = <T>(query: QueryType, defaultValue: T) => {
   const { data: network } = useNetwork();
   return useQuery<T>(
     [network, query],
-    () => {
-      const { local } = browser.storage;
-      return local.get(`${network}_${query}`).then<T>((result) => {
-        const err = checkForError();
-        if (err) {
-          throw err;
-        }
-        return result[`${network}_${query}`] ?? defaultValue;
-      });
-    },
+    () => getNetworkStoreValue(query, defaultValue, network),
     {
       enabled: network != null,
     }

@@ -1,9 +1,9 @@
 import { FC, useContext } from "react";
 import styled from "styled-components";
+import ExtensionPlatform from "../../../../libs/extension";
 import { ButtonNegative } from "../../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../../components/Icons";
 import { WalletAddressContext } from "../../../context";
-import ExtensionPlatform from "../../../lib/extension";
 import { NetworkConfig, useNetworkConfig } from "../../../lib/state/network";
 import {
   TonWebTransaction,

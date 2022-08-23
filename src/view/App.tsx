@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import TonWeb from "tonweb";
+import { AccountState } from "../libs/entries/account";
 import {
   AccountStateContext,
   NetworkContext,
@@ -18,13 +19,13 @@ import {
 } from "./context";
 import { askBackground, uiEventEmitter } from "./event";
 import { useNetwork } from "./lib/state";
-import { AccountState, useAccountState } from "./lib/state/account";
+import { useAccountState } from "./lib/state/account";
 import { useNetworkConfig } from "./lib/state/network";
 import { any, AppRoute } from "./routes";
-import { ConnectWallet } from "./screen/connect/ConnectWallet";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
 import { Settings } from "./screen/home/settings/Settings";
+import { ConnectWallet } from "./screen/import/ConnectWallet";
 import { CreatePassword, Initialize } from "./screen/Initialize";
 import { Loading } from "./screen/Loading";
 import { Unlock } from "./screen/Unlock";
@@ -116,7 +117,7 @@ const Content: FC<{
   if (isInitialized && lock) {
     return <Unlock />;
   }
-  if (!isInitialized && !location.pathname.startsWith(AppRoute.connect)) {
+  if (!isInitialized && !location.pathname.startsWith(AppRoute.import)) {
     return <Initialize />;
   }
   if (lock) {
@@ -127,7 +128,8 @@ const Content: FC<{
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
-          <Route path={any(AppRoute.connect)} element={<ConnectWallet />} />
+          <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
+          <Route path={any(AppRoute.connect)} element={<div>Connect</div>} />
           <Route path={AppRoute.setting} element={<Settings />} />
           <Route path="*" element={<Home />} />
         </Routes>

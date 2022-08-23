@@ -1,18 +1,20 @@
 import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { QueryType } from "../../../libs/browserStore";
+import { WalletState } from "../../../libs/entries/wallet";
+import ExtensionPlatform from "../../../libs/extension";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
 import { AccountStateContext, NetworkContext } from "../../context";
 import { sendBackground } from "../../event";
-import ExtensionPlatform from "../../lib/extension";
-import { QueryType, useMutateStore } from "../../lib/state";
+import { useMutateStore } from "../../lib/state";
 import { useSelectWalletMutation } from "../../lib/state/account";
 import { networkConfigs } from "../../lib/state/network";
-import { useBalance, WalletState } from "../../lib/state/wallet";
+import { useBalance } from "../../lib/state/wallet";
 import { AppRoute } from "../../routes";
-import { ConnectRoutes } from "../connect/ConnectWallet";
+import { ConnectRoutes } from "../import/ConnectWallet";
 
 const Head = styled(Container)`
   flex-shrink: 0;
@@ -127,7 +129,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
                 onClick={() => {
                   onClose();
                   ExtensionPlatform.openExtensionInBrowser(
-                    AppRoute.connect + ConnectRoutes.create
+                    AppRoute.import + ConnectRoutes.create
                   );
                 }}
               >
@@ -137,7 +139,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
                 onClick={() => {
                   onClose();
                   ExtensionPlatform.openExtensionInBrowser(
-                    AppRoute.connect + ConnectRoutes.import
+                    AppRoute.import + ConnectRoutes.import
                   );
                 }}
               >

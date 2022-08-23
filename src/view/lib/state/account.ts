@@ -6,24 +6,21 @@ import {
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
+import { QueryType } from "../../../libs/browserStore";
+import {
+  AccountState,
+  defaultAccountState,
+} from "../../../libs/entries/account";
+import { WalletState } from "../../../libs/entries/wallet";
+import { checkForError } from "../../../libs/utils";
 import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
 } from "../../context";
-import { checkForError } from "../utils";
-import { QueryType, useNetworkStore } from "./";
+import { useNetworkStore } from "./";
 import { askBackgroundPassword } from "./password";
-import { createWallet, importWallet, WalletState } from "./wallet";
-
-export interface AccountState {
-  wallets: WalletState[];
-  activeWallet?: string;
-}
-
-const defaultAccountState: AccountState = {
-  wallets: [],
-};
+import { createWallet, importWallet } from "./wallet";
 
 export const useAccountState = () => {
   return useNetworkStore<AccountState>(QueryType.account, defaultAccountState);
