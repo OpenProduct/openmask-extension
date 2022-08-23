@@ -80,7 +80,7 @@ class TonProvider extends EventEmitter {
       return;
     }
 
-    if (data.type !== "gramWalletAPI") return;
+    if (data.type !== "TonMaskAPI") return;
 
     // Return if not a jsonrpc response
     if (!data || !data.message || !data.message.jsonrpc) {

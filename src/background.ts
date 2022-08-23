@@ -53,12 +53,12 @@ browser.runtime.onConnect.addListener((port) => {
       popupPort = null!;
     });
   }
-  if (port.name === "gramWalletContentScript") {
+  if (port.name === "TonMaskContentScript") {
     contentScriptPorts.add(port);
     port.onMessage.addListener(async (msg, port) => {
       console.log(msg);
 
-      if (msg.type === "gramWalletAPI_ton_provider_connect") {
+      if (msg.type === "TonMask_ton_provider_connect") {
       }
 
       if (!msg.message) return;
