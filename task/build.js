@@ -1,4 +1,5 @@
 const { notify, exec } = require("./utils");
+require("dotenv").config();
 
 notify(`Build TonMask UI`);
 

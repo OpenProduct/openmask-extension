@@ -94,7 +94,7 @@ browser.runtime.onConnect.addListener((port) => {
         .then((result) => [result, undefined] as const)
         .catch((e: Error) => [undefined, e.message] as const);
 
-      console.log({ msg, result });
+      console.log({ msg, result, error });
       if (contentPort) {
         contentPort.postMessage(
           providerResponse(msg.message.id, msg.message.method, result, error)

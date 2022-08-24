@@ -1,5 +1,7 @@
-import { getConnections } from "./browserStore";
+import { HttpProvider } from "./backgroundTonProvider";
+import { getConnections, getNetwork } from "./browserStore";
 import { DAppMessage } from "./entries/message";
+import { getNetworkConfig } from "./entries/network";
 import { backgroundEventsEmitter } from "./event";
 import memoryStore from "./memoryStore";
 import {
@@ -8,11 +10,7 @@ import {
   openConnectUnlockPopUp,
 } from "./notificationService";
 
-const getConnectedWallets = async (origin: string) => {
-  if (memoryStore.isLock()) {
-    throw new Error("Application locked");
-  }
-
+const getWalletsByOrigin = async (origin: string) => {
   const whitelist = await getConnections();
   const account = whitelist[origin];
   if (account == null) {
@@ -20,6 +18,32 @@ const getConnectedWallets = async (origin: string) => {
   }
 
   return account.wallets;
+};
+const getBalance = async (origin: string, wallet: [string | undefined]) => {
+  const config = getNetworkConfig(await getNetwork());
+
+  const provider = new HttpProvider(config.rpcUrl, {
+    apiKey: config.apiKey,
+  });
+
+  if (wallet[0]) {
+    const result = await provider.getBalance(wallet[0]);
+    console.log({ result });
+    return result;
+  }
+
+  const [first] = await getWalletsByOrigin(origin);
+  const result = await provider.getBalance(first);
+  console.log({ result });
+  return result;
+};
+
+const getConnectedWallets = async (origin: string) => {
+  if (memoryStore.isLock()) {
+    throw new Error("Application locked");
+  }
+
+  return await getWalletsByOrigin(origin);
 };
 
 const waitUnlock = () => {
@@ -82,8 +106,11 @@ export const handleDAppMessage = async (message: DAppMessage) => {
     case "ton_requestAccounts": {
       return connectDApp(message.id, origin);
     }
-    case "ton_askAccounts": {
+    case "ton_getAccounts": {
       return getConnectedWallets(origin);
+    }
+    case "ton_getBalance": {
+      return getBalance(origin, message.params);
     }
     default:
       throw new Error(`Method "${message.method}" not implemented`);
