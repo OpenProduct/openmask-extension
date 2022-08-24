@@ -7,6 +7,7 @@ export enum QueryType {
 
   network = "network",
   connection = "connection",
+  tabs = "tabs",
 
   account = "account",
   balance = "balance",

@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { HttpProvider } from "./backgroundTonProvider";
 import { getConnections, getNetwork } from "./browserStore";
 import { DAppMessage } from "./entries/message";
@@ -86,7 +87,8 @@ const connectDApp = async (id: number, origin: string) => {
       await closeCurrentPopUp(popupId);
     }
   } else {
-    const popupId = await openConnectDAppPopUp(id, origin);
+    const [tab] = await browser.tabs.query({ active: true });
+    const popupId = await openConnectDAppPopUp(id, origin, tab.favIconUrl);
     try {
       await waitApprove(id);
     } finally {

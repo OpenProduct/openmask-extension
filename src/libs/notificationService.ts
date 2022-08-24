@@ -38,9 +38,15 @@ const openPopUp = async (page: string) => {
   }
 };
 
-export const openConnectDAppPopUp = async (id: number, origin: string) => {
+export const openConnectDAppPopUp = async (
+  id: number,
+  origin: string,
+  logo?: string
+) => {
   await openPopUp(
-    `/connect/dapp?origin=${encodeURIComponent(origin)}&id=${id}`
+    `/connect/dapp?origin=${encodeURIComponent(
+      origin
+    )}&id=${id}&logo=${encodeURIComponent(logo ?? "")}`
   );
   return popupId;
 };

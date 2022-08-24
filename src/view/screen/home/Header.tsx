@@ -91,6 +91,15 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
     [resetSelect, mutateSelect]
   );
 
+  if (lock) {
+    return (
+      <Head>
+        <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
+        <Badge>{network}</Badge>
+      </Head>
+    );
+  }
+
   return (
     <Head>
       <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
@@ -103,7 +112,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
           {network} <ArrowDownIcon />
         </Badge>
       </DropDownList>
-      {!lock && account && (
+      {account && (
         <DropDown
           payload={(onClose) => (
             <Menu>

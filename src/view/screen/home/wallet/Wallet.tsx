@@ -1,10 +1,12 @@
-import { FC, useCallback, useContext } from "react";
+import { FC, useCallback, useContext, useMemo } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Badge, Container } from "../../../components/Components";
 import { Tabs } from "../../../components/Tabs";
 import { WalletAddressContext, WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
+import { useActiveTabs } from "../../connect/api";
+import { useConnections } from "../../connections/api";
 import { Activities } from "./Activities";
 import { Assets } from "./Assets";
 import { Balance } from "./balance/Balance";
@@ -27,14 +29,52 @@ const Connect = styled(Badge)`
   left: ${(props) => props.theme.padding};
   padding: 5px 8px;
   font-size: smaller;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Dot = styled.div<{ isConnected: boolean }>`
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  
+  ${(props) =>
+    props.isConnected
+      ? css`
+          background: green;
+        `
+      : css`
+          background: red;
+        `}}
 `;
 
 export const WalletInfo = () => {
+  const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
   const address = useContext(WalletAddressContext);
+
+  const { data: connections } = useConnections();
+  const { data: tab } = useActiveTabs();
+
+  const isConnected = useMemo(() => {
+    if (!connections || !tab || !tab.url) return false;
+    const url = new URL(tab.url);
+    return connections[url.origin] != null;
+  }, [connections, tab]);
+
   return (
     <Block>
-      <Connect>Connected</Connect>
+      <Connect onClick={() => navigate(AppRoute.connections)}>
+        {isConnected ? (
+          <>
+            <Dot isConnected />
+            <span>Connected</span>
+          </>
+        ) : (
+          <>Not Connected</>
+        )}
+      </Connect>
       <WalletName address={address} name={wallet.name} />
       <WalletMenu address={address} />
     </Block>

@@ -81,6 +81,7 @@ export const ConnectDApp = () => {
   const [searchParams] = useSearchParams();
   const origin = searchParams.get("origin");
   const id = parseInt(searchParams.get("id") ?? "0", 10);
+  const logo = searchParams.get("logo");
 
   useEffect(() => {
     if (!origin) {
@@ -100,13 +101,21 @@ export const ConnectDApp = () => {
   };
 
   const onConnect = () => {
-    mutate({ id, origin: origin!, wallets: selected });
+    mutate({ id, origin: origin!, wallets: selected, logo });
   };
 
   return (
     <Body>
       <Center>
-        <Badge>{origin}</Badge>
+        <Badge>
+          <img
+            src={logo ?? undefined}
+            alt="Origin Logo"
+            width="30"
+            height="30"
+          />{" "}
+          {origin}
+        </Badge>
         <H1>Connect With TonMask</H1>
         <Text>Select the account(s) to use on this site</Text>
       </Center>

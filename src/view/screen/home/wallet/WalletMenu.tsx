@@ -46,6 +46,15 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
               >
                 Expand view <LinkIcon />
               </ListItem>
+
+              <ListItem
+                onClick={() => {
+                  onClose();
+                  navigate(AppRoute.connections);
+                }}
+              >
+                Connected sites
+              </ListItem>
               <ListItem
                 onClick={() => {
                   onClose();

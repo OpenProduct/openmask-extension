@@ -2,6 +2,7 @@ export enum AppRoute {
   setting = "/setting",
   import = "/import",
   connect = "/connect",
+  connections = "/connections",
   home = "/",
   receive = "/receive",
   send = "/send",

@@ -1,4 +1,4 @@
-import { HomeButton } from "../../../components/HomeButton";
+import { HomeButton } from "../../components/HomeButton";
 
 export const Settings = () => {
   return (
