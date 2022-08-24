@@ -38,11 +38,12 @@ const Label = styled.div`
 
 const Select = styled.div`
   font-size: medium;
-  padding: 5px;
+  padding: 5px 10px;
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
   width: 100%;
   display: flex;
   justify-content: space-between;
+  box-sizing: border-box;
 `;
 
 const Button = styled(ButtonDanger)`
@@ -87,6 +88,7 @@ const SettingsIndex = () => {
 
         <Label>Address</Label>
         <DropDownList
+          isLeft
           options={bounceableOptions}
           renderOption={(value) => value}
           onSelect={(value) =>
@@ -94,13 +96,14 @@ const SettingsIndex = () => {
           }
         >
           <Select>
-            {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}{" "}
+            {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}
             <ArrowDownIcon />
           </Select>
         </DropDownList>
 
         <Label>Version</Label>
         <DropDownList
+          isLeft
           options={Object.keys(ton.wallet.all)}
           renderOption={(value) => value}
           onSelect={(version) =>

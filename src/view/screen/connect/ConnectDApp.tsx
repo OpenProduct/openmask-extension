@@ -10,6 +10,7 @@ import {
   Center,
   Gap,
   H1,
+  Logo,
   Text,
 } from "../../components/Components";
 import { AccountStateContext } from "../../context";
@@ -23,6 +24,9 @@ const Badge = styled.div`
   border-radius: 20px;
   display: inline-block;
   font-size: larger;
+  display: flex;
+  gap: ${(props) => props.theme.padding};
+  align-items: center;
 `;
 
 const Label = styled.label`
@@ -32,6 +36,10 @@ const Label = styled.label`
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
 `;
 
+const Origin = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 const Column = styled.div`
   overflow: hidden;
   flex-grow: 1;
@@ -108,13 +116,8 @@ export const ConnectDApp = () => {
     <Body>
       <Center>
         <Badge>
-          <img
-            src={logo ?? undefined}
-            alt="Origin Logo"
-            width="30"
-            height="30"
-          />{" "}
-          {origin}
+          {logo && <Logo src={logo} alt="Logo" />}
+          <Origin>{origin}</Origin>
         </Badge>
         <H1>Connect With TonMask</H1>
         <Text>Select the account(s) to use on this site</Text>

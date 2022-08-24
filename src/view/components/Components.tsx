@@ -157,3 +157,12 @@ export const Text = styled.div`
   padding-bottom: ${(props) => props.theme.padding};
   font-size: medium;
 `;
+
+export const Logo = styled.img`
+  width: 35px;
+  height: 35px;
+  background: #ebebeb;
+  border: 1px solid ${(props) => props.theme.darkGray};
+  border-radius: 50%;
+  padding: 5px;
+`;

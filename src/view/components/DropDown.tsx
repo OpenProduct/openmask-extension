@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const DropDownContainer = styled.div`
   position: relative;
@@ -15,10 +15,19 @@ const DropDownHeader = styled.div`
   cursor: pointer;
 `;
 
-const DropDownListContainer = styled.div`
+const DropDownListContainer = styled.div<{ isLeft?: boolean }>`
   position: absolute;
   top: 100%;
-  right: 0;
+  
+  ${(props) =>
+    props.isLeft
+      ? css`
+          left: 0;
+        `
+      : css`
+          right: 0;
+        `}}
+
   z-index: 1;
   background-color: ${(props) => props.theme.background};
   border: 1px solid ${(props) => props.theme.lightGray};
@@ -54,22 +63,26 @@ function useOutsideAlerter(ref: React.RefObject<Node>, onClick: () => void) {
   }, [ref, onClick]);
 }
 
-const Container: FC<{ onClose: () => void; children: React.ReactNode }> = ({
-  onClose,
-  children,
-}) => {
+const Container: FC<{
+  onClose: () => void;
+  children: React.ReactNode;
+  isLeft?: boolean;
+}> = ({ onClose, children, isLeft }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   useOutsideAlerter(wrapperRef, onClose);
   return (
-    <DropDownListContainer ref={wrapperRef}>{children}</DropDownListContainer>
+    <DropDownListContainer ref={wrapperRef} isLeft={isLeft}>
+      {children}
+    </DropDownListContainer>
   );
 };
 
 export interface DropDownProps extends PropsWithChildren {
   payload: (onClose: () => void) => React.ReactNode;
+  isLeft?: boolean;
 }
 
-export const DropDown = ({ children, payload }: DropDownProps) => {
+export const DropDown = ({ children, payload, isLeft }: DropDownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggling = () => {
@@ -79,7 +92,11 @@ export const DropDown = ({ children, payload }: DropDownProps) => {
   return (
     <DropDownContainer>
       <DropDownHeader onClick={toggling}>{children}</DropDownHeader>
-      {isOpen && <Container onClose={toggling}>{payload(toggling)}</Container>}
+      {isOpen && (
+        <Container onClose={toggling} isLeft={isLeft}>
+          {payload(toggling)}
+        </Container>
+      )}
     </DropDownContainer>
   );
 };
@@ -88,6 +105,7 @@ export interface DropDownListProps<T> extends PropsWithChildren {
   options: T[];
   renderOption: (option: T) => React.ReactNode;
   onSelect: (option: T) => void;
+  isLeft?: boolean;
 }
 
 export const DropDownList = <T extends any>({
@@ -95,9 +113,11 @@ export const DropDownList = <T extends any>({
   options,
   renderOption,
   onSelect,
+  isLeft,
 }: DropDownListProps<T>) => {
   return (
     <DropDown
+      isLeft={isLeft}
       payload={(onClose) => (
         <DropDownListPayload>
           {options.map((option, index) => (

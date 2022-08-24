@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getStoreValue,
-  QueryType,
-  setConnections,
+    getStoreValue,
+    QueryType,
+    setConnections
 } from "../../../libs/browserStore";
 import {
-  Connections,
-  defaultConnections,
+    Connections,
+    defaultConnections
 } from "../../../libs/entries/connection";
 
 export const useConnections = () => {
@@ -22,7 +22,7 @@ export const useDisconnectMutation = (connections: Connections | undefined) => {
 
     delete connections[origin];
 
-    const updated = await setConnections(connections);
-    client.setQueryData([QueryType.connection], { ...updated });
+    await setConnections(connections);
+    client.invalidateQueries([QueryType.connection]);
   });
 };

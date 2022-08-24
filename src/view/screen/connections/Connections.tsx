@@ -1,6 +1,13 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Badge, Body, Center, H1, Text } from "../../components/Components";
+import {
+  Badge,
+  Body,
+  Center,
+  H1,
+  Logo,
+  Text,
+} from "../../components/Components";
 import {
   DropDown,
   DropDownListPayload,
@@ -16,16 +23,11 @@ const Scroll = styled.div`
 
 const Item = styled.div`
   display: flex;
-  flex-gap: ${(props) => props.theme.padding};
+  gap: ${(props) => props.theme.padding};
   margin: ${(props) => props.theme.padding} 0;
   padding: ${(props) => props.theme.padding} 0;
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
   align-items: center;
-`;
-
-const Logo = styled.img`
-    width: 30px
-    height: 30px
 `;
 
 const Origin = styled.span`
@@ -50,7 +52,7 @@ export const Connections = () => {
   const items = useMemo(() => {
     if (!data) return [];
     return Object.entries(data).map(([origin, { logo }]) => ({ origin, logo }));
-  }, [data]);
+  }, [data, isFetching]);
 
   return (
     <>
@@ -69,13 +71,13 @@ export const Connections = () => {
           )}
           {!isFetching && items.length === 0 && (
             <Center>
-              <Text>Empty...</Text>
+              <Text>Empty</Text>
             </Center>
           )}
           {items.map((item) => {
             return (
               <Item key={item.origin}>
-                {item.logo && <Logo src={item.logo} alt="Origin logo" />}
+                {item.logo && <Logo src={item.logo} alt="Logo" />}
                 <Origin>{item.origin}</Origin>
                 <DropDown
                   payload={() => (
