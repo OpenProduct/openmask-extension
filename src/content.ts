@@ -1,4 +1,5 @@
 import browser from "webextension-polyfill";
+import { DAppMessage } from "./libs/entries/message";
 
 const PORT_NAME = "TonMaskContentScript";
 
@@ -24,12 +25,7 @@ function injectScript() {
 
 interface PageMessagePayload {
   type: string;
-  message: {
-    id: number;
-    method: string;
-    params: any;
-    origin: string;
-  };
+  message: DAppMessage;
 }
 
 interface PageMessage {

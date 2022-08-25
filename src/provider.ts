@@ -45,6 +45,7 @@ class TonProvider extends EventEmitter {
       method,
       params,
       origin: window.origin,
+      event: window.event !== undefined,
     };
 
     const promise = new Promise((resolve, reject) => {

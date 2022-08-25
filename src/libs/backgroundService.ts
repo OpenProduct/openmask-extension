@@ -20,6 +20,7 @@ const getWalletsByOrigin = async (origin: string) => {
 
   return account.wallets;
 };
+
 const getBalance = async (origin: string, wallet: [string | undefined]) => {
   const config = getNetworkConfig(await getNetwork());
 
@@ -106,13 +107,19 @@ export const handleDAppMessage = async (message: DAppMessage) => {
       return "pong";
     }
     case "ton_requestAccounts": {
-      return connectDApp(message.id, origin);
-    }
-    case "ton_getAccounts": {
-      return getConnectedWallets(origin);
+      return message.event
+        ? connectDApp(message.id, origin)
+        : getConnectedWallets(origin);
     }
     case "ton_getBalance": {
       return getBalance(origin, message.params);
+    }
+    case "ton_getNetwork": {
+      return getNetwork();
+    }
+
+    case "ton_getAccounts": {
+      return getConnectedWallets(origin);
     }
     default:
       throw new Error(`Method "${message.method}" not implemented`);

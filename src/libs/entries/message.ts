@@ -3,4 +3,5 @@ export interface DAppMessage {
   method: string;
   params: any;
   origin: string;
+  event: boolean;
 }
