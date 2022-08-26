@@ -122,7 +122,7 @@ export default class ExtensionPlatform {
     }
 
     if (queryString) {
-      extensionURL += `?${queryString}`;
+      extensionURL += `${queryString}`;
     }
 
     this.openTab({ url: extensionURL });

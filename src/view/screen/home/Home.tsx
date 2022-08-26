@@ -33,7 +33,10 @@ export const Home = () => {
       <Body>
         <WalletInfo />
         <Routes>
-          <Route path={AppRoute.send} element={<Send />} />
+          <Route
+            path={any(AppRoute.send)}
+            element={<Send price={price} balance={balance} />}
+          />
           <Route path={any(AppRoute.receive)} element={<Receive />} />
           <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
           <Route

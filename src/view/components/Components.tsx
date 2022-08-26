@@ -12,6 +12,11 @@ export const H1 = styled.h1`
   line-height: 130%;
 `;
 
+export const H3 = styled.h3`
+  font-size: 1.2rem;
+  line-height: 110%;
+`;
+
 const Button = styled.button<{ disabled?: boolean }>`
   padding: ${(props) => props.theme.padding};
   width: 100%;

@@ -41,7 +41,10 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  ExtensionPlatform.openExtensionInBrowser(location.pathname);
+                  ExtensionPlatform.openExtensionInBrowser(
+                    location.pathname,
+                    location.search
+                  );
                 }}
               >
                 Expand view <LinkIcon />
