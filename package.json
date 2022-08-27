@@ -13,7 +13,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
     "styled-components": "^5.3.5",
-    "tonweb": "^0.0.54",
+    "tonweb": "github:TonMask/tonmaskWeb",
     "tonweb-mnemonic": "^1.0.1",
     "web-vitals": "^2.1.4",
     "webextension-polyfill": "^0.9.0"

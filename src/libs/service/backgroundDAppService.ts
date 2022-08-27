@@ -1,8 +1,8 @@
+import TonWeb from "tonweb";
 import browser from "webextension-polyfill";
 import { DAppMessage } from "../entries/message";
 import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
-import { HttpProvider } from "../provider/backgroundTonProvider";
 import { getConnections, getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import {
@@ -24,7 +24,7 @@ const getWalletsByOrigin = async (origin: string) => {
 const getBalance = async (origin: string, wallet: [string | undefined]) => {
   const config = getNetworkConfig(await getNetwork());
 
-  const provider = new HttpProvider(config.rpcUrl, {
+  const provider = new TonWeb.HttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
   });
 

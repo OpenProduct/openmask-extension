@@ -1,3 +1,4 @@
+import TonWeb from "tonweb";
 import browser from "webextension-polyfill";
 import { getNetworkConfig } from "../entries/network";
 import {
@@ -6,7 +7,6 @@ import {
   popUpEventEmitter,
   RESPONSE,
 } from "../event";
-import { HttpProvider } from "../provider/backgroundTonProvider";
 import { getAccountState, getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 
@@ -72,9 +72,10 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
     const network = await getNetwork();
     const config = getNetworkConfig(network);
 
-    const provider = new HttpProvider(config.rpcUrl, {
+    const provider = new TonWeb.HttpProvider(config.rpcUrl, {
       apiKey: config.apiKey,
     });
+
     const { activeWallet } = await getAccountState(network);
 
     if (!activeWallet) {
@@ -84,7 +85,9 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
     do {
       await new Promise((resolve) => setTimeout(resolve, 4000));
 
-      currentSeqNo = await provider.getSeqNo(activeWallet);
+      currentSeqNo = (await provider.call2(activeWallet, "seqno"))
+        .words[0] as number;
+
       console.log(currentSeqNo, message.params);
     } while (currentSeqNo <= message.params);
 
