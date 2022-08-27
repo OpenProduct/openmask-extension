@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { QueryType } from "../../../../../libs/browserStore";
 import { TonWebTransaction } from "../../../../../libs/entries/transaction";
+import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   NetworkContext,
   TonProviderContext,

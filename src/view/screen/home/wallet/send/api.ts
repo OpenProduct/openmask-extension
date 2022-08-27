@@ -9,8 +9,8 @@ import {
   WalletContractMethods,
   WalletContractOptions,
 } from "tonweb/dist/types/contract/wallet/wallet-contract";
-import { QueryType } from "../../../../../libs/browserStore";
 import { WalletState } from "../../../../../libs/entries/wallet";
+import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
   WalletContractContext,
@@ -130,9 +130,9 @@ export const useSendMutation = () => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
-  return useMutation<void, Error, State>(async (state) => {
-    const { method } = await getMethod(ton, wallet, contract, state);
-
+  return useMutation<number, Error, State>(async (state) => {
+    const { method, seqno } = await getMethod(ton, wallet, contract, state);
     await method.send();
+    return seqno;
   });
 };

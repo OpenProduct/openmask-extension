@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
 import { Address } from "tonweb/dist/types/utils/address";
-import { QueryType } from "../../../libs/browserStore";
 import { getNetworkConfig } from "../../../libs/entries/network";
+import { QueryType } from "../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,

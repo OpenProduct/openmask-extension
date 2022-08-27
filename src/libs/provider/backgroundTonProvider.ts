@@ -1,3 +1,5 @@
+import { HttpProviderUtils } from "./providerUtils";
+
 export class HttpProvider {
   /**
    * @param host? {string}
@@ -105,5 +107,16 @@ export class HttpProvider {
    */
   async getBalance(address: string) {
     return this.send("getAddressBalance", { address: address });
+  }
+
+  async getSeqNo(address: string) {
+    const result = await this.send("runGetMethod", {
+      address: address,
+      method: "seqno",
+      stack: [],
+    });
+
+    const something = HttpProviderUtils.parseResponse(result);
+    return something.words[0] as number;
   }
 }

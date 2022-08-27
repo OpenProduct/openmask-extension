@@ -5,7 +5,7 @@ import {
   TonWebTransaction,
   TonWebTransactionMessage,
 } from "../../../../../libs/entries/transaction";
-import ExtensionPlatform from "../../../../../libs/extension";
+import ExtensionPlatform from "../../../../../libs/service/extension";
 import { ButtonLink } from "../../../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../../../components/Icons";
 import { WalletAddressContext } from "../../../../context";

@@ -1,10 +1,10 @@
 import browser from "webextension-polyfill";
-import { HttpProvider } from "./backgroundTonProvider";
-import { getConnections, getNetwork } from "./browserStore";
-import { DAppMessage } from "./entries/message";
-import { getNetworkConfig } from "./entries/network";
-import { backgroundEventsEmitter } from "./event";
-import memoryStore from "./memoryStore";
+import { DAppMessage } from "../entries/message";
+import { getNetworkConfig } from "../entries/network";
+import { backgroundEventsEmitter } from "../event";
+import { HttpProvider } from "../provider/backgroundTonProvider";
+import { getConnections, getNetwork } from "../store/browserStore";
+import memoryStore from "../store/memoryStore";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,

@@ -43,6 +43,7 @@ export interface PupUpEvents {
   setPassword: string;
   approveRequest: number;
   rejectRequest: number;
+  confirmSeqNo: number;
 }
 
 export interface BackgroundEvents {

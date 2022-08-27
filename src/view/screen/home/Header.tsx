@@ -1,10 +1,10 @@
 import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { QueryType } from "../../../libs/browserStore";
 import { networkConfigs } from "../../../libs/entries/network";
 import { WalletState } from "../../../libs/entries/wallet";
-import ExtensionPlatform from "../../../libs/extension";
+import ExtensionPlatform from "../../../libs/service/extension";
+import { QueryType } from "../../../libs/store/browserStore";
 import { useMutateStore } from "../../api";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";

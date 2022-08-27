@@ -1,13 +1,8 @@
 import browser from "webextension-polyfill";
-import { handleDAppMessage } from "./libs/backgroundService";
-import {
-  backgroundEventsEmitter,
-  popUpEventEmitter,
-  RESPONSE,
-} from "./libs/event";
-import memoryStore from "./libs/memoryStore";
+import { popUpEventEmitter } from "./libs/event";
+import { handleDAppMessage } from "./libs/service/backgroundDAppService";
+import { setPopUpPort } from "./libs/service/backgroundPopUpService";
 
-let popupPort: browser.Runtime.Port;
 let contentScriptPorts = new Set<browser.Runtime.Port>();
 
 const providerResponse = (
@@ -28,58 +23,17 @@ const providerResponse = (
   };
 };
 
-export const sendUIResponse = <Payload>(id?: number, params?: Payload) => {
-  popupPort.postMessage({
-    method: RESPONSE,
-    id,
-    params,
-  });
-};
-
-popUpEventEmitter.on("isLock", (message) => {
-  sendUIResponse(message.id, memoryStore.isLock());
-});
-
-popUpEventEmitter.on("getPassword", (message) => {
-  sendUIResponse(message.id, memoryStore.getPassword());
-});
-
-popUpEventEmitter.on("setPassword", (message) => {
-  sendUIResponse(message.id, memoryStore.setPassword(message.params));
-  popupPort.postMessage({ method: "unlock" });
-});
-
-popUpEventEmitter.on("tryToUnlock", (message) => {
-  memoryStore.setPassword(message.params);
-  backgroundEventsEmitter.emit("unlock");
-  popupPort.postMessage({ method: "unlock" });
-});
-
-popUpEventEmitter.on("lock", () => {
-  memoryStore.setPassword(null);
-  backgroundEventsEmitter.emit("locked");
-  popupPort.postMessage({ method: "locked" });
-});
-
-popUpEventEmitter.on("approveRequest", (message) => {
-  backgroundEventsEmitter.emit("approveRequest", message);
-});
-
-popUpEventEmitter.on("rejectRequest", (message) => {
-  backgroundEventsEmitter.emit("rejectRequest", message);
-});
-
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "TonMaskUI") {
-    popupPort = port;
+    setPopUpPort(port);
 
-    popupPort.onMessage.addListener((message) => {
+    port.onMessage.addListener((message) => {
       console.log(message);
       popUpEventEmitter.emit<any>(message.method, message);
     });
 
-    popupPort.onDisconnect.addListener(() => {
-      popupPort = null!;
+    port.onDisconnect.addListener(() => {
+      setPopUpPort(null!);
     });
   }
 

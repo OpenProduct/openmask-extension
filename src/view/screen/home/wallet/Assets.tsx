@@ -18,8 +18,8 @@ export const Assets: FC<{ balance?: string; price?: number }> = ({
       <Gap />
       <Center>
         <Text>
-          Don't see your token?{" "}
-          <InlineButtonLink>Import Jettons</InlineButtonLink>
+          Don't see your tokens?{" "}
+          <InlineButtonLink>Import Jetton</InlineButtonLink>
         </Text>
       </Center>
     </>

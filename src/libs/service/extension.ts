@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 
-import { checkForError } from "./utils";
+import { checkForError } from "../utils";
 
 export default class ExtensionPlatform {
   reload() {

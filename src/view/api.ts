@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { AccountState, defaultAccountState } from "../libs/entries/account";
 import {
   getNetwork,
   getNetworkStoreValue,
   QueryType,
   setStoreValue,
-} from "../libs/browserStore";
-import { AccountState, defaultAccountState } from "../libs/entries/account";
+} from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
 import { askBackground, uiEventEmitter } from "./event";
 

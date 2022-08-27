@@ -1,4 +1,4 @@
-import { decrypt } from "../../libs/cryptoService";
+import { decrypt } from "../../libs/service/cryptoService";
 import { validateMnemonic } from "./state/account";
 
 export const decryptMnemonic = async (mnemonic: string, password: string) => {

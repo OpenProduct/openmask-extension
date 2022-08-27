@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import ExtensionPlatform from "../../../../libs/extension";
+import ExtensionPlatform from "../../../../libs/service/extension";
 import { Icon } from "../../../components/Components";
 import {
   DropDown,

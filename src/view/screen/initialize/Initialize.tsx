@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import ExtensionPlatform from "../../../libs/extension";
+import ExtensionPlatform from "../../../libs/service/extension";
 import {
   ButtonColumn,
   ButtonNegative,

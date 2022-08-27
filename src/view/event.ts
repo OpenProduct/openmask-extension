@@ -17,7 +17,7 @@ export const sendBackground: AskProcessor<void> = {
   },
 };
 
-export const askBackground = <R>(): AskProcessor<Promise<R>> => {
+export const askBackground = <R>(timeout = 5000): AskProcessor<Promise<R>> => {
   return {
     message: (method, params) => {
       const id = Date.now();
@@ -26,9 +26,10 @@ export const askBackground = <R>(): AskProcessor<Promise<R>> => {
         const timer = setTimeout(() => {
           port.onMessage.removeListener(handler);
           reject("Timeout");
-        }, 5000);
+        }, timeout);
 
         const handler = (message: AppEvent<string, R>) => {
+          console.log("PopUp", message);
           if (message.method === RESPONSE && message.id === id) {
             clearTimeout(timer);
             resolve(message.params);

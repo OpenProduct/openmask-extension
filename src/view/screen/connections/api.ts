@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    getStoreValue,
-    QueryType,
-    setConnections
-} from "../../../libs/browserStore";
-import {
-    Connections,
-    defaultConnections
+  Connections,
+  defaultConnections,
 } from "../../../libs/entries/connection";
+import {
+  getStoreValue,
+  QueryType,
+  setConnections,
+} from "../../../libs/store/browserStore";
 
 export const useConnections = () => {
   return useQuery([QueryType.connection], () =>

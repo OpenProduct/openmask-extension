@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
+    "bn.js": "^5.2.1",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
@@ -21,6 +22,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/bn.js": "^5.1.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.47",
     "@types/react": "^18.0.15",

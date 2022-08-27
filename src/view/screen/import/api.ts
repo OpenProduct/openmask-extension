@@ -3,8 +3,8 @@ import { useContext } from "react";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { Address } from "tonweb/dist/types/utils/address";
-import { encrypt } from "../../../libs/cryptoService";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
+import { encrypt } from "../../../libs/service/cryptoService";
 import {
   AccountStateContext,
   NetworkContext,

@@ -1,11 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
-import { QueryType } from "../../../libs/browserStore";
 import {
   AccountState,
   defaultAccountState,
 } from "../../../libs/entries/account";
+import { QueryType } from "../../../libs/store/browserStore";
 import { checkForError } from "../../../libs/utils";
 import { useNetworkStore } from "../../api";
 

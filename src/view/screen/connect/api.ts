@@ -4,7 +4,7 @@ import {
   getConnections,
   QueryType,
   setConnections,
-} from "../../../libs/browserStore";
+} from "../../../libs/store/browserStore";
 import { sendBackground } from "../../event";
 
 export const useAddConnectionMutation = () => {

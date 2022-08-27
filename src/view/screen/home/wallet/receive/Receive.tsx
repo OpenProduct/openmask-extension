@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import ExtensionPlatform from "../../../../../libs/extension";
+import ExtensionPlatform from "../../../../../libs/service/extension";
 import {
   ButtonColumn,
   ButtonNegative,
