@@ -17,7 +17,7 @@ import {
 import { BackIcon } from "../../../../components/Icons";
 import { LoadingLogo } from "../../../../components/Logo";
 import { AppRoute } from "../../../../routes";
-import { State } from "./api";
+import { State, useEstimateFee } from "./api";
 
 const Block = styled(Container)`
   width: 100%;
@@ -135,17 +135,47 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
 const Address = styled.span`
   word-break: break-all;
 `;
+
+const Fiat = styled.span`
+  color: ${(props) => props.theme.darkGray};
+`;
 interface ConfirmProps {
   state: State;
+  price?: number;
   onConfirm: () => void;
 }
 
-const ConfirmView: FC<ConfirmProps> = ({ state, onConfirm }) => {
+const fiatFees = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 3,
+});
+
+const ConfirmView: FC<ConfirmProps> = ({ state, price, onConfirm }) => {
+  const { data } = useEstimateFee(state);
+
+  const Fees = useCallback(() => {
+    if (!data) {
+      return <Text>Loading...</Text>;
+    }
+    const totalTon =
+      (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
+      1000000000;
+
+    const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
+
+    return (
+      <Text>
+        Total fee: ~{fiatFees.format(totalTon)} TON
+        <br />
+        <Fiat>{fiat}</Fiat>
+      </Text>
+    );
+  }, [data, price]);
+
   return (
     <>
       <EditButton />
       <Body>
-        <H3>Send TON</H3>
         <Text>
           Send <b>{state.amount}</b> TON to
         </Text>
@@ -155,6 +185,7 @@ const ConfirmView: FC<ConfirmProps> = ({ state, onConfirm }) => {
         {state.comment && <Text>Comment: "{state.comment}"</Text>}
 
         <H3>Network fee estimation</H3>
+        <Fees />
         <Gap />
 
         <ButtonBottomRow>
@@ -211,5 +242,5 @@ export const Send: FC<Props> = ({ price, balance }) => {
     );
   }
 
-  return <ConfirmView state={state} onConfirm={onConfirm} />;
+  return <ConfirmView state={state} price={price} onConfirm={onConfirm} />;
 };

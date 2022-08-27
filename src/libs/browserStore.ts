@@ -13,6 +13,8 @@ export enum QueryType {
   balance = "balance",
   address = "address",
   transactions = "transactions",
+
+  estimation = "estimation",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
