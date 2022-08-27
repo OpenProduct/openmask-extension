@@ -3,14 +3,23 @@ import { useContext } from "react";
 import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { Address } from "tonweb/dist/types/utils/address";
+import { encrypt } from "../../../libs/cryptoService";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
 } from "../../context";
-import { askBackgroundPassword, encrypt } from "../../lib/password";
+import { askBackground } from "../../event";
 import { saveAccountState, validateMnemonic } from "../../lib/state/account";
+
+export const askBackgroundPassword = async () => {
+  const password = await askBackground<string | null>().message("getPassword");
+  if (password == null || password === "") {
+    throw new Error("Unexpected password");
+  }
+  return password;
+};
 
 const lastWalletVersion = "v4R2";
 

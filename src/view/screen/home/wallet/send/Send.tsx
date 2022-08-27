@@ -17,6 +17,7 @@ import {
 import { BackIcon } from "../../../../components/Icons";
 import { LoadingLogo } from "../../../../components/Logo";
 import { AppRoute } from "../../../../routes";
+import { State } from "./api";
 
 const Block = styled(Container)`
   width: 100%;
@@ -83,13 +84,6 @@ const MaxButton = styled.button`
 interface Props {
   price?: number;
   balance?: string;
-}
-
-interface State {
-  address: string;
-  amount: string;
-  max: string;
-  comment: string;
 }
 
 interface InputProps {

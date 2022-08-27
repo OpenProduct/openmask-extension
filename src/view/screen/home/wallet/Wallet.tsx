@@ -7,7 +7,7 @@ import { WalletAddressContext, WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
 import { useActiveTabs } from "../../connect/api";
 import { useConnections } from "../../connections/api";
-import { Activities } from "./Activities";
+import { Activities } from "./activities/Activities";
 import { Assets } from "./Assets";
 import { Balance } from "./balance/Balance";
 import { WalletMenu } from "./WalletMenu";

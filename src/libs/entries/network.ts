@@ -20,7 +20,7 @@ export const networkConfigs: NetworkConfig[] = [
   },
 ];
 
-export const getNetworkConfig = (network: string) => {
+export const getNetworkConfig = (network?: string) => {
   const result = networkConfigs.find((item) => item.name === network);
   return result ?? networkConfigs[0];
 };

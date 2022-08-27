@@ -1,15 +1,17 @@
-import { FC, useContext } from "react";
+import React, { FC, useContext } from "react";
 import styled from "styled-components";
-import ExtensionPlatform from "../../../../libs/extension";
-import { ButtonNegative } from "../../../components/Components";
-import { LinkIcon, ReceiveIcon, SendIcon } from "../../../components/Icons";
-import { WalletAddressContext } from "../../../context";
-import { NetworkConfig, useNetworkConfig } from "../../../lib/network";
+import TonWeb from "tonweb";
 import {
   TonWebTransaction,
-  useTransactions,
-} from "../../../lib/state/transaction";
-import { formatTonValue, toShortAddress } from "../../../lib/wallet";
+  TonWebTransactionMessage,
+} from "../../../../../libs/entries/transaction";
+import ExtensionPlatform from "../../../../../libs/extension";
+import { ButtonLink } from "../../../../components/Components";
+import { LinkIcon, ReceiveIcon, SendIcon } from "../../../../components/Icons";
+import { WalletAddressContext } from "../../../../context";
+import { formatTonValue, toShortAddress } from "../../../../lib/wallet";
+import { useNetworkConfig } from "../../api";
+import { useTransactions } from "./api";
 
 const Row = styled.div`
   padding: ${(props) => props.theme.padding};
@@ -55,10 +57,22 @@ const Loading = styled.div`
   border-bottom: 2px solid ${(props) => props.theme.gray};
 `;
 
-const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
-  item,
-  config,
-}) => {
+const Comment = styled.div`
+  margin-top: ${(props) => props.theme.padding};
+  padding: 5px 10px;
+  background: ${(props) => props.theme.lightGray};
+  font-size: medium;
+  border-radius: 20xp;
+`;
+
+const getComment = (msg: TonWebTransactionMessage) => {
+  if (!msg.msg_data) return "";
+  if (msg.msg_data["@type"] !== "msg.dataText") return "";
+  const base64 = msg.msg_data.text;
+  return new TextDecoder().decode(TonWeb.utils.base64ToBytes(base64));
+};
+
+const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
   return (
     <>
       {item.out_msgs.map((out) => (
@@ -68,13 +82,14 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
           </First>
           <Text>
             <Line>
-              <span>Send</span>
+              <b>Send</b>
               <span>-{formatTonValue(out.value)} TON</span>
             </Line>
             <Line>
-              <b>{toShortAddress(out.destination)}</b>
+              <span>{toShortAddress(out.destination)}</span>
               <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
+            {getComment(out) && <Comment>{getComment(out)}</Comment>}
           </Text>
         </Block>
       ))}
@@ -85,19 +100,22 @@ const Transaction: FC<{ item: TonWebTransaction; config: NetworkConfig }> = ({
           </First>
           <Text>
             <Line>
-              <span>Receive</span>
+              <b>Receive</b>
               <span>+{formatTonValue(item.in_msg.value)} TON</span>
             </Line>
             <Line>
-              <b>{toShortAddress(item.in_msg.source)}</b>
+              <span>{toShortAddress(item.in_msg.source)}</span>
               <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
+            {getComment(item.in_msg) && (
+              <Comment>{getComment(item.in_msg)}</Comment>
+            )}
           </Text>
         </Block>
       )}
     </>
   );
-};
+});
 
 export const Activities = () => {
   const config = useNetworkConfig();
@@ -108,14 +126,10 @@ export const Activities = () => {
     <>
       {isLoading && <Loading>Loading...</Loading>}
       {data?.map((item) => (
-        <Transaction
-          key={item.transaction_id.hash}
-          item={item}
-          config={config}
-        />
+        <Transaction key={item.transaction_id.hash} item={item} />
       ))}
       <Row>
-        <ButtonNegative
+        <ButtonLink
           onClick={() =>
             ExtensionPlatform.openTab({
               url: `${config.scanUrl}/address/${address}`,
@@ -123,7 +137,7 @@ export const Activities = () => {
           }
         >
           View more on tonscan.org <LinkIcon />
-        </ButtonNegative>
+        </ButtonLink>
       </Row>
     </>
   );

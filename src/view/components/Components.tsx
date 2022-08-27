@@ -70,6 +70,25 @@ export const ButtonNegative = styled(Button)`
   }
 `;
 
+export const ButtonLink = styled.button`
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.darkBlue};
+  text-decoration: underline;
+  cursor: pointer;
+  margin: ${(props) => props.theme.padding} 0;
+`;
+
+export const InlineButtonLink = styled(ButtonLink)`
+  display: inline;
+  margin: 0;
+  width: auto;
+  font-size: inherit;
+`;
+
 export const ButtonDanger = styled(Button)`
   border: 1px solid ${(props) => props.theme.red};
   background: ${(props) => props.theme.background};

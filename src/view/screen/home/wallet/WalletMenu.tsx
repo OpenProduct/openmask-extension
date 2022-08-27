@@ -9,8 +9,8 @@ import {
   ListItem,
 } from "../../../components/DropDown";
 import { LinkIcon, MoreIcon } from "../../../components/Icons";
-import { useNetworkConfig } from "../../../lib/network";
 import { AppRoute } from "../../../routes";
+import { useNetworkConfig } from "../api";
 
 const Menu = styled.div`
   position: absolute;

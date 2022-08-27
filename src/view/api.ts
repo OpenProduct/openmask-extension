@@ -1,13 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import {
   getNetwork,
   getNetworkStoreValue,
-  getStoreValue,
   QueryType,
   setStoreValue,
-} from "../../../libs/browserStore";
-import { checkForError } from "../../../libs/utils";
+} from "../libs/browserStore";
+import { AccountState, defaultAccountState } from "../libs/entries/account";
+import { checkForError } from "../libs/utils";
+import { askBackground, uiEventEmitter } from "./event";
+
+export const useNetwork = () => {
+  return useQuery([QueryType.network], () => getNetwork());
+};
 
 export const useMutateStore = <T>(query: QueryType) => {
   const client = useQueryClient();
@@ -15,16 +21,6 @@ export const useMutateStore = <T>(query: QueryType) => {
     await setStoreValue(query, value);
     client.setQueryData([query], value);
   });
-};
-
-export const useStore = <T>(query: QueryType, defaultValue: T) => {
-  return useQuery<T>([query], () => {
-    return getStoreValue(query, defaultValue);
-  });
-};
-
-export const useNetwork = () => {
-  return useQuery([QueryType.network], () => getNetwork());
 };
 
 export const useNetworkStore = <T>(query: QueryType, defaultValue: T) => {
@@ -50,4 +46,33 @@ export const useMutateNetworkStore = <T>(query: QueryType) => {
     }
     await client.resetQueries([network, query]);
   });
+};
+
+export const useAccountState = () => {
+  return useNetworkStore<AccountState>(QueryType.account, defaultAccountState);
+};
+
+export const useLock = () => {
+  const [lock, setLock] = useState(true);
+  useEffect(() => {
+    askBackground<boolean>()
+      .message("isLock")
+      .then((value) => setLock(value));
+
+    const unlock = () => {
+      setLock(false);
+    };
+    const locked = () => {
+      setLock(true);
+    };
+    uiEventEmitter.on("unlock", unlock);
+    uiEventEmitter.on("locked", locked);
+
+    return () => {
+      uiEventEmitter.off("unlock", unlock);
+      uiEventEmitter.off("locked", locked);
+    };
+  }, []);
+
+  return lock;
 };

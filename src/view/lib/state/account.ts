@@ -7,7 +7,7 @@ import {
   defaultAccountState,
 } from "../../../libs/entries/account";
 import { checkForError } from "../../../libs/utils";
-import { useNetworkStore } from "./";
+import { useNetworkStore } from "../../api";
 
 export const useAccountState = () => {
   return useNetworkStore<AccountState>(QueryType.account, defaultAccountState);

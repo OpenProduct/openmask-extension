@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { Address } from "tonweb/dist/types/utils/address";
 import { QueryType } from "../../../libs/browserStore";
+import { getNetworkConfig } from "../../../libs/entries/network";
 import {
   AccountStateContext,
   NetworkContext,
@@ -62,4 +63,11 @@ export const useCoinPrice = (enabled: boolean) => {
     },
     { enabled }
   );
+};
+
+export const useNetworkConfig = () => {
+  const network = useContext(NetworkContext);
+  return useMemo(() => {
+    return getNetworkConfig(network);
+  }, [network]);
 };
