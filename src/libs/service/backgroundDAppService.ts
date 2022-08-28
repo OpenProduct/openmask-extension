@@ -79,7 +79,10 @@ const waitApprove = (id: number) => {
   });
 };
 
-const connectDApp = async (id: number, origin: string) => {
+const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
+  if (!isEvent) {
+    return await getConnectedWallets(origin);
+  }
   const whitelist = await getConnections();
   if (whitelist[origin] != null) {
     if (memoryStore.isLock()) {
@@ -106,10 +109,14 @@ export const handleDAppMessage = async (message: DAppMessage) => {
     case "ping": {
       return "pong";
     }
+    case "ton_getLocked": {
+      return memoryStore.isLock();
+    }
+    case "ton_getChain": {
+      return getNetwork();
+    }
     case "ton_requestAccounts": {
-      return message.event
-        ? connectDApp(message.id, origin)
-        : getConnectedWallets(origin);
+      return connectDApp(message.id, origin, message.event);
     }
     case "ton_getBalance": {
       return getBalance(origin, message.params);

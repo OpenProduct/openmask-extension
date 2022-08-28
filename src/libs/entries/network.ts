@@ -7,13 +7,13 @@ export interface NetworkConfig {
 
 export const networkConfigs: NetworkConfig[] = [
   {
-    name: "Mainnet",
+    name: "Mainnet", // aka chainId
     rpcUrl: "https://toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_API_KEY,
     scanUrl: "https://tonscan.org",
   },
   {
-    name: "Testnet",
+    name: "Testnet", // aka chainId
     rpcUrl: "https://testnet.toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_TESTNET_API_KEY,
     scanUrl: "https://testnet.tonscan.org",

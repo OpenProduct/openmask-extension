@@ -2,6 +2,7 @@ import { EventEmitter } from "./libs/eventEmitter";
 
 class TonProvider extends EventEmitter {
   isTonMask = true;
+
   targetOrigin = "*";
   nextJsonRpcId = 0;
   promises: Record<
@@ -20,7 +21,7 @@ class TonProvider extends EventEmitter {
       this.callbacks = ton.callbacks;
     }
 
-    this.connect().catch((e) => console.error(e));
+    this.isConnected().catch((e) => console.error(e));
 
     if (ton) {
       ton.destroy();
@@ -29,13 +30,21 @@ class TonProvider extends EventEmitter {
     window.addEventListener("message", this.onMessage);
   }
 
-  send(method: string, params: any[] = []) {
+  isConnected = () => {
+    return this.send("ping", []).then(() => true);
+  };
+
+  isLocked = () => {
+    return this.send<boolean>("ton_getLocked", []);
+  };
+
+  send<Result>(method: string, params: any[] = []) {
     if (!method || typeof method !== "string") {
-      return new Error("Method is not a valid string.");
+      return Promise.reject("Method is not a valid string.");
     }
 
     if (!(params instanceof Array)) {
-      return new Error("Params is not a valid array.");
+      return Promise.reject("Params is not a valid array.");
     }
 
     const id = this.nextJsonRpcId++;
@@ -64,7 +73,7 @@ class TonProvider extends EventEmitter {
       this.targetOrigin
     );
 
-    return promise;
+    return promise as Promise<Result>;
   }
 
   onMessage = async (event: any) => {
@@ -101,12 +110,10 @@ class TonProvider extends EventEmitter {
       }
     } else {
       if (method) {
-        if (method.indexOf("_subscription") > -1) {
-          // Emit subscription notification
-          this.emit("notification", message.params);
-        } else if (method === "ton_accounts") {
-          // todo
+        if (method === "ton_accounts") {
           this.emit("accountsChanged", message.params);
+        } else if (method === "ton_network") {
+          this.emit("chainChanged", message.params);
         }
       }
     }
@@ -114,10 +121,6 @@ class TonProvider extends EventEmitter {
 
   addListener = this.on;
   removeListener = this.off;
-
-  connect = async () => {
-    return this.send("ping", []);
-  };
 
   destroy() {
     window.removeEventListener("message", this.onMessage);
