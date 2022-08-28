@@ -1,9 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo } from "react";
+import React, { FC, useCallback, useContext, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import ExtensionPlatform from "../../../../../libs/service/extension";
 import {
   Body,
   ButtonBottomRow,
+  ButtonColumn,
   ButtonNegative,
   ButtonPositive,
   Center,
@@ -15,10 +17,12 @@ import {
   Text,
 } from "../../../../components/Components";
 import { HomeButton } from "../../../../components/HomeButton";
-import { BackIcon } from "../../../../components/Icons";
+import { BackIcon, LinkIcon } from "../../../../components/Icons";
 import { LoadingLogo } from "../../../../components/Logo";
-import { askBackground } from "../../../../event";
+import { WalletAddressContext } from "../../../../context";
+import { askBackground, sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
+import { useNetworkConfig } from "../../api";
 import { State, useEstimateFee, useSendMutation } from "./api";
 
 const Block = styled(Container)`
@@ -32,11 +36,18 @@ const Button = styled.div`
 
 const toState = (searchParams: URLSearchParams): State => {
   return {
-    address: searchParams.get("address") ?? "",
-    amount: searchParams.get("amount") ?? "",
+    address: decodeURIComponent(searchParams.get("address") ?? ""),
+    amount: decodeURIComponent(searchParams.get("amount") ?? ""),
     max: searchParams.get("max") ?? "",
-    comment: searchParams.get("comment") ?? "",
+    comment: decodeURIComponent(searchParams.get("comment") ?? ""),
   };
+};
+
+const stateToSearch = (state: State) => {
+  return Object.entries(state).reduce((acc, [key, value]) => {
+    acc[key] = encodeURIComponent(value);
+    return acc;
+  }, {} as Record<string, string>);
 };
 
 const EditButton = React.memo(() => {
@@ -233,6 +244,9 @@ const LoadingView: FC<{ seqNo: string; onConfirm: () => void }> = React.memo(
 
 const SuccessView = () => {
   const navigate = useNavigate();
+  const config = useNetworkConfig();
+  const address = useContext(WalletAddressContext);
+
   return (
     <>
       <HomeButton />
@@ -243,9 +257,21 @@ const SuccessView = () => {
           <H1>Success</H1>
           <Text>Transaction confirmed</Text>
         </Center>
-        <ButtonPositive onClick={() => navigate(AppRoute.home)}>
-          Close
-        </ButtonPositive>
+        <ButtonColumn>
+          <ButtonNegative
+            onClick={() => {
+              ExtensionPlatform.openTab({
+                url: `${config.scanUrl}/address/${address}`,
+              });
+            }}
+          >
+            View on tonscan.org <LinkIcon />
+          </ButtonNegative>
+          <ButtonPositive onClick={() => navigate(AppRoute.home)}>
+            Close
+          </ButtonPositive>
+        </ButtonColumn>
+
         <Gap />
       </Body>
     </>
@@ -255,7 +281,7 @@ const SuccessView = () => {
 export const Send: FC<Props> = ({ price, balance }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const seqNo = searchParams.get("seqno");
+  const seqNo = searchParams.get("seqNo");
   const confirm = searchParams.get("confirm");
 
   const submit = searchParams.get("submit") === "1";
@@ -265,26 +291,49 @@ export const Send: FC<Props> = ({ price, balance }) => {
   }, [searchParams]);
 
   const onSubmit = useCallback(() => {
-    setSearchParams({ ...state, submit: "1" });
+    const params = { ...stateToSearch(state), submit: "1" };
+
+    sendBackground.message("storeOperation", {
+      kind: "send",
+      value: JSON.stringify(params),
+    });
+
+    setSearchParams(params);
   }, [setSearchParams, state]);
 
   const onChange = useCallback(
     (field: Partial<State>) => {
-      setSearchParams({ ...state, ...field });
+      const params = stateToSearch({ ...state, ...field });
+
+      sendBackground.message("storeOperation", {
+        kind: "send",
+        value: JSON.stringify(params),
+      });
+
+      setSearchParams(params);
     },
     [setSearchParams, state]
   );
 
   const onSend = useCallback(
-    (seqno: number) => {
-      setSearchParams({ seqno: String(seqno) });
+    (seqNo: number) => {
+      const params = { seqNo: String(seqNo) };
+
+      sendBackground.message("storeOperation", {
+        kind: "send",
+        value: JSON.stringify(params),
+      });
+
+      setSearchParams(params);
     },
     [setSearchParams]
   );
 
   const onConfirm = useCallback(() => {
+    sendBackground.message("storeOperation", null);
+
     setSearchParams({ confirm: String(seqNo) });
-  }, [setSearchParams]);
+  }, [setSearchParams, seqNo]);
 
   if (confirm !== null) {
     return <SuccessView />;

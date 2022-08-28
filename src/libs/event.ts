@@ -33,6 +33,8 @@ export type AskProcessor<R> = {
   ): R;
 };
 
+export type UnfinishedOperation = { kind: "send"; value: string } | null;
+
 export interface PupUpEvents {
   isLock: void;
   tryToUnlock: string;
@@ -44,6 +46,8 @@ export interface PupUpEvents {
   approveRequest: number;
   rejectRequest: number;
   confirmSeqNo: number;
+  storeOperation: UnfinishedOperation;
+  getOperation: void;
 }
 
 export interface BackgroundEvents {

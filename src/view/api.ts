@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../libs/entries/account";
+import { UnfinishedOperation } from "../libs/event";
 import {
   getNetwork,
   getNetworkStoreValue,
@@ -10,6 +12,7 @@ import {
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
 import { askBackground, uiEventEmitter } from "./event";
+import { AppRoute } from "./routes";
 
 export const useNetwork = () => {
   return useQuery([QueryType.network], () => getNetwork());
@@ -75,4 +78,30 @@ export const useLock = () => {
   }, []);
 
   return lock;
+};
+
+export const useInitialRedirect = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.location.hash) {
+      console.log(window.location.hash);
+      navigate(window.location.hash.substring(1));
+    }
+  }, []);
+
+  useEffect(() => {
+    askBackground<UnfinishedOperation>()
+      .message("getOperation")
+      .then((operation) => {
+        if (operation !== null) {
+          console.log(operation);
+          navigate(
+            `${AppRoute.send}?${new URLSearchParams(
+              JSON.parse(operation.value)
+            ).toString()}`
+          );
+        }
+      });
+  }, []);
 };

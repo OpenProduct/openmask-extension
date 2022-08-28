@@ -1,3 +1,4 @@
+import BN from "bn.js";
 import TonWeb from "tonweb";
 import browser from "webextension-polyfill";
 import { getNetworkConfig } from "../entries/network";
@@ -67,6 +68,14 @@ popUpEventEmitter.on("rejectRequest", (message) => {
   backgroundEventsEmitter.emit("rejectRequest", message);
 });
 
+popUpEventEmitter.on("storeOperation", (message) => {
+  memoryStore.setOperation(message.params);
+});
+
+popUpEventEmitter.on("getOperation", (message) => {
+  sendResponseToPopUp(message.id, memoryStore.getOperation());
+});
+
 popUpEventEmitter.on("confirmSeqNo", async (message) => {
   try {
     const network = await getNetwork();
@@ -85,10 +94,12 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
     do {
       await new Promise((resolve) => setTimeout(resolve, 4000));
 
-      currentSeqNo = (await provider.call2(activeWallet, "seqno"))
-        .words[0] as number;
-
-      console.log(currentSeqNo, message.params);
+      try {
+        const bn: BN = await provider.call2(activeWallet, "seqno");
+        currentSeqNo = bn.toNumber();
+      } catch (e) {
+        console.error(e);
+      }
     } while (currentSeqNo <= message.params);
 
     sendResponseToPopUp(message.id);

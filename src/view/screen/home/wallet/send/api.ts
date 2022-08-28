@@ -75,7 +75,6 @@ const getMethod = async (
   const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
   const seqno = await getSeqno(contract);
-  console.log({ seqno });
 
   const sendMode =
     state.max === "1"

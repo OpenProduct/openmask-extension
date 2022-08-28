@@ -1,17 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FC, useEffect, useMemo } from "react";
-import {
-  MemoryRouter,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { FC, useMemo } from "react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import TonWeb from "tonweb";
 import { AccountState } from "../libs/entries/account";
 import { getNetworkConfig } from "../libs/entries/network";
-import { useAccountState, useLock, useNetwork } from "./api";
+import {
+  useAccountState,
+  useInitialRedirect,
+  useLock,
+  useNetwork,
+} from "./api";
 import {
   AccountStateContext,
   NetworkContext,
@@ -39,14 +38,8 @@ const ContentRouter: FC<{
   const isInitialized = account.wallets.length > 0;
 
   const location = useLocation();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (window.location.hash) {
-      console.log(window.location.hash);
-      navigate(window.location.hash.substring(1));
-    }
-  }, []);
+  useInitialRedirect();
 
   const wallet = account.wallets.find(
     (w) => w.address === account.activeWallet
