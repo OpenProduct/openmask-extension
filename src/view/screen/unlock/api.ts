@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountStateContext } from "../../context";
 import { sendBackground } from "../../event";
-import { decryptMnemonic } from "../../lib/password";
+import { decryptMnemonic } from "../api";
 
 export const useUnlockMutation = () => {
   const data = useContext(AccountStateContext);

@@ -9,7 +9,7 @@ import ExtensionPlatform from "../../../../../libs/service/extension";
 import { ButtonLink } from "../../../../components/Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "../../../../components/Icons";
 import { WalletAddressContext } from "../../../../context";
-import { formatTonValue, toShortAddress } from "../../../../lib/wallet";
+import { formatTonValue, toShortAddress } from "../../../api";
 import { useNetworkConfig } from "../../api";
 import { useTransactions } from "./api";
 

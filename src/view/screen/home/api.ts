@@ -10,8 +10,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../context";
-import { saveAccountState } from "../../lib/state/account";
-import { formatTonValue } from "../../lib/wallet";
+import { formatTonValue, saveAccountState } from "../api";
 
 export const useSelectWalletMutation = () => {
   const account = useContext(AccountStateContext);

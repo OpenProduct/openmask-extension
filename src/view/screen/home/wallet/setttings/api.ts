@@ -8,7 +8,7 @@ import {
   NetworkContext,
   TonProviderContext,
 } from "../../../../context";
-import { saveAccountState } from "../../../../lib/state/account";
+import { saveAccountState } from "../../../api";
 
 export const useDeleteWalletMutation = () => {
   const account = useContext(AccountStateContext);

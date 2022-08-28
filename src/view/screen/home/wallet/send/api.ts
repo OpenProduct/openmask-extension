@@ -16,7 +16,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../../../context";
-import { decryptMnemonic } from "../../../../lib/password";
+import { decryptMnemonic } from "../../../api";
 import { askBackgroundPassword } from "../../../import/api";
 
 export interface State {
@@ -72,9 +72,7 @@ const getMethod = async (
 ) => {
   const toAddress = await getToAddress(ton, state.address);
   const password = await askBackgroundPassword();
-  console.log({ password });
   const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
-  console.log({ mnemonic });
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
   const seqno = await getSeqno(contract);
   console.log({ seqno });

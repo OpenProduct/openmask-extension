@@ -11,7 +11,7 @@ import {
   TonProviderContext,
 } from "../../context";
 import { askBackground } from "../../event";
-import { saveAccountState, validateMnemonic } from "../../lib/state/account";
+import { saveAccountState, validateMnemonic } from "../api";
 
 export const askBackgroundPassword = async () => {
   const password = await askBackground<string | null>().message("getPassword");
