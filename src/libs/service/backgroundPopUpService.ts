@@ -1,15 +1,12 @@
-import BN from "bn.js";
-import TonWeb from "tonweb";
 import browser from "webextension-polyfill";
-import { getNetworkConfig } from "../entries/network";
 import {
   BackgroundEvents,
   backgroundEventsEmitter,
   popUpEventEmitter,
   RESPONSE,
 } from "../event";
-import { getAccountState, getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
+import { confirmWalletSeqNo } from "./walletService";
 
 let popUpPort: browser.Runtime.Port;
 
@@ -68,6 +65,10 @@ popUpEventEmitter.on("rejectRequest", (message) => {
   backgroundEventsEmitter.emit("rejectRequest", message);
 });
 
+popUpEventEmitter.on("approveTransaction", (message) => {
+  backgroundEventsEmitter.emit("approveTransaction", message);
+});
+
 popUpEventEmitter.on("storeOperation", (message) => {
   memoryStore.setOperation(message.params);
 });
@@ -78,30 +79,7 @@ popUpEventEmitter.on("getOperation", (message) => {
 
 popUpEventEmitter.on("confirmSeqNo", async (message) => {
   try {
-    const network = await getNetwork();
-    const config = getNetworkConfig(network);
-
-    const provider = new TonWeb.HttpProvider(config.rpcUrl, {
-      apiKey: config.apiKey,
-    });
-
-    const { activeWallet } = await getAccountState(network);
-
-    if (!activeWallet) {
-      throw new Error("Unexpected active wallet");
-    }
-    let currentSeqNo = 0;
-    do {
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-
-      try {
-        const bn: BN = await provider.call2(activeWallet, "seqno");
-        currentSeqNo = bn.toNumber();
-      } catch (e) {
-        console.error(e);
-      }
-    } while (currentSeqNo <= message.params);
-
+    await confirmWalletSeqNo(message.params);
     sendResponseToPopUp(message.id);
   } catch (e) {
     console.error(e);

@@ -1,9 +1,22 @@
+import TonWeb from "tonweb";
+import { TransactionParams } from "../entries/transaction";
+import { backgroundEventsEmitter } from "../event";
 import ExtensionPlatform from "./extension";
 
 const NOTIFICATION_HEIGHT = 620;
 const NOTIFICATION_WIDTH = 380;
 
 let popupId: number | undefined = undefined;
+
+ExtensionPlatform.addOnRemovedListener((windowId) => {
+  if (windowId === popupId) {
+    backgroundEventsEmitter.emit("closedPopUp", {
+      method: "closedPopUp",
+      params: windowId,
+    });
+    popupId = undefined;
+  }
+});
 
 const getPopup = async () => {
   const windows = await ExtensionPlatform.getAllWindows();
@@ -60,4 +73,20 @@ export const closeCurrentPopUp = async (popupId: number | undefined) => {
   if (popupId) {
     await ExtensionPlatform.closeWindow(popupId);
   }
+};
+
+export const openSendTransactionPopUp = async (
+  id: number,
+  props: TransactionParams
+) => {
+  const params = new URLSearchParams({
+    address: encodeURIComponent(props.to),
+    amount: encodeURIComponent(TonWeb.utils.fromNano(props.value).toString()),
+    comment: props.data ? encodeURIComponent(props.data) : "",
+    submit: "1",
+    id: String(id),
+  });
+  await openPopUp(`/send?${params.toString()}`);
+
+  return popupId;
 };

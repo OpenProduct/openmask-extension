@@ -24,6 +24,8 @@ export interface State {
   amount: string;
   max: string;
   comment: string;
+  // Transaction id. Define if transaction init from dApp,
+  id?: string;
 }
 
 const getToAddress = async (ton: TonWeb, toAddress: string) => {

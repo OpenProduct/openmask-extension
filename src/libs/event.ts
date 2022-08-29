@@ -45,9 +45,15 @@ export interface PupUpEvents {
   setPassword: string;
   approveRequest: number;
   rejectRequest: number;
+  approveTransaction: ApproveTransaction;
   confirmSeqNo: number;
   storeOperation: UnfinishedOperation;
   getOperation: void;
+}
+
+export interface ApproveTransaction {
+  id: number;
+  seqNo: number;
 }
 
 export interface BackgroundEvents {
@@ -55,6 +61,8 @@ export interface BackgroundEvents {
   locked: void;
   approveRequest: number;
   rejectRequest: number;
+  approveTransaction: ApproveTransaction;
+  closedPopUp: number;
 }
 
 export const RESPONSE = "Response";

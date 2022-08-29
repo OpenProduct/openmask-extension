@@ -40,6 +40,7 @@ const toState = (searchParams: URLSearchParams): State => {
     amount: decodeURIComponent(searchParams.get("amount") ?? ""),
     max: searchParams.get("max") ?? "",
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
+    id: searchParams.get("id") ?? undefined,
   };
 };
 
@@ -65,10 +66,19 @@ const EditButton = React.memo(() => {
   );
 });
 
-const CancelButton: FC<{ disabled?: boolean }> = ({ disabled }) => {
+const CancelButton: FC<{ disabled?: boolean; transactionId?: string }> = ({
+  disabled,
+  transactionId,
+}) => {
   const navigate = useNavigate();
+  const onCancel = () => {
+    if (transactionId) {
+      sendBackground.message("rejectRequest", Number(transactionId));
+    }
+    navigate(AppRoute.home);
+  };
   return (
-    <ButtonNegative onClick={() => navigate(AppRoute.home)} disabled={disabled}>
+    <ButtonNegative onClick={onCancel} disabled={disabled}>
       Cancel
     </ButtonNegative>
   );
@@ -138,7 +148,7 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
       <Gap />
 
       <ButtonBottomRow>
-        <CancelButton />
+        <CancelButton transactionId={state.id} />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
@@ -156,7 +166,7 @@ const Fiat = styled.span`
 interface ConfirmProps {
   state: State;
   price?: number;
-  onSend: (seqno: number) => void;
+  onSend: (seqNo: number, transactionId?: string) => void;
 }
 
 const fiatFees = new Intl.NumberFormat("en-US", {
@@ -170,8 +180,8 @@ const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
   const { mutateAsync, isLoading } = useSendMutation();
 
   const onConfirm = async () => {
-    const seqno = await mutateAsync(state);
-    onSend(seqno);
+    const seqNo = await mutateAsync(state);
+    onSend(seqNo, state.id);
   };
 
   const Fees = useCallback(() => {
@@ -206,7 +216,7 @@ const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
         <Gap />
 
         <ButtonBottomRow>
-          <CancelButton disabled={isLoading} />
+          <CancelButton disabled={isLoading} transactionId={state.id} />
           <ButtonPositive disabled={isLoading} onClick={onConfirm}>
             Confirm
           </ButtonPositive>
@@ -234,7 +244,7 @@ const LoadingView: FC<{ seqNo: string; onConfirm: () => void }> = React.memo(
         <LoadingLogo />
         <Center>
           <H1>Await confirmation</H1>
-          <Text>~10 sec</Text>
+          <Text>~15 sec</Text>
         </Center>
         <Gap />
       </Body>
@@ -316,13 +326,21 @@ export const Send: FC<Props> = ({ price, balance }) => {
   );
 
   const onSend = useCallback(
-    (seqNo: number) => {
+    (seqNo: number, transactionId?: string) => {
       const params = { seqNo: String(seqNo) };
 
-      sendBackground.message("storeOperation", {
-        kind: "send",
-        value: JSON.stringify(params),
-      });
+      if (transactionId) {
+        // if transaction init from dApp, return approve
+        sendBackground.message("approveTransaction", {
+          id: Number(transactionId),
+          seqNo,
+        });
+      } else {
+        sendBackground.message("storeOperation", {
+          kind: "send",
+          value: JSON.stringify(params),
+        });
+      }
 
       setSearchParams(params);
     },

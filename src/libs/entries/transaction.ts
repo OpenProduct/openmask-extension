@@ -60,3 +60,10 @@ export interface TonWebTransactionMessageText {
   "@type": "msg.dataText";
   text: string;
 }
+
+export interface TransactionParams {
+  value: string;
+  from?: string;
+  to: string;
+  data: string;
+}

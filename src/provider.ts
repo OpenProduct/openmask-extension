@@ -31,20 +31,16 @@ class TonProvider extends EventEmitter {
   }
 
   isConnected = () => {
-    return this.send("ping", []).then(() => true);
+    return this.send("ping").then(() => true);
   };
 
   isLocked = () => {
-    return this.send<boolean>("ton_getLocked", []);
+    return this.send<boolean>("ton_getLocked");
   };
 
-  send<Result>(method: string, params: any[] = []) {
+  send<Result>(method: string, ...params: any[]) {
     if (!method || typeof method !== "string") {
       return Promise.reject("Method is not a valid string.");
-    }
-
-    if (!(params instanceof Array)) {
-      return Promise.reject("Params is not a valid array.");
     }
 
     const id = this.nextJsonRpcId++;
@@ -121,6 +117,9 @@ class TonProvider extends EventEmitter {
 
   addListener = this.on;
   removeListener = this.off;
+
+  addEventListener = this.on;
+  removeEventListener = this.off;
 
   destroy() {
     window.removeEventListener("message", this.onMessage);

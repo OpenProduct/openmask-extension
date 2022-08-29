@@ -55,6 +55,10 @@ export const getAccountState = (network?: string) => {
   );
 };
 
+export const setAccountState = (value: AccountState, network?: string) => {
+  return setNetworkStoreValue<AccountState>(QueryType.account, value, network);
+};
+
 export const setConnections = (value: Connections) => {
   return setStoreValue(QueryType.connection, value);
 };
@@ -73,4 +77,17 @@ export const getNetworkStoreValue = async <T>(
     }
     return result[`${network}_${query}`] ?? defaultValue;
   });
+};
+
+export const setNetworkStoreValue = async <T>(
+  query: QueryType,
+  value: T,
+  network?: string
+) => {
+  const { local } = browser.storage;
+  await local.set({ [`${network}_${query}`]: value });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
 };
