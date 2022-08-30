@@ -48,6 +48,7 @@ export const ButtonRow = styled(ButtonGroup)`
 export const ButtonBottomRow = styled(ButtonRow)`
   position: sticky;
   bottom: 0;
+  background: ${(props) => props.theme.background};
 `;
 
 export const ButtonPositive = styled(Button)`

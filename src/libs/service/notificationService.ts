@@ -77,6 +77,7 @@ export const closeCurrentPopUp = async (popupId: number | undefined) => {
 
 export const openSendTransactionPopUp = async (
   id: number,
+  origin: string,
   props: TransactionParams
 ) => {
   const params = new URLSearchParams({
@@ -85,6 +86,7 @@ export const openSendTransactionPopUp = async (
     comment: props.data ? encodeURIComponent(props.data) : "",
     submit: "1",
     id: String(id),
+    origin: encodeURIComponent(origin),
   });
   await openPopUp(`/send?${params.toString()}`);
 

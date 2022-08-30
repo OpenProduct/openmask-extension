@@ -9,80 +9,20 @@ import {
   ButtonNegative,
   ButtonPositive,
   Center,
-  Container,
   Gap,
   H1,
-  H3,
   Input,
   Text,
 } from "../../../../components/Components";
 import { HomeButton } from "../../../../components/HomeButton";
-import { BackIcon, LinkIcon } from "../../../../components/Icons";
+import { LinkIcon } from "../../../../components/Icons";
 import { LoadingLogo } from "../../../../components/Logo";
 import { WalletAddressContext } from "../../../../context";
 import { askBackground, sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
 import { useNetworkConfig } from "../../api";
-import { State, useEstimateFee, useSendMutation } from "./api";
-
-const Block = styled(Container)`
-  width: 100%;
-  padding-bottom: 0;
-`;
-
-const Button = styled.div`
-  cursor: pointer;
-`;
-
-const toState = (searchParams: URLSearchParams): State => {
-  return {
-    address: decodeURIComponent(searchParams.get("address") ?? ""),
-    amount: decodeURIComponent(searchParams.get("amount") ?? ""),
-    max: searchParams.get("max") ?? "",
-    comment: decodeURIComponent(searchParams.get("comment") ?? ""),
-    id: searchParams.get("id") ?? undefined,
-  };
-};
-
-const stateToSearch = (state: State) => {
-  return Object.entries(state).reduce((acc, [key, value]) => {
-    acc[key] = encodeURIComponent(value);
-    return acc;
-  }, {} as Record<string, string>);
-};
-
-const EditButton = React.memo(() => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const state = toState(searchParams);
-  const onEdit = () => {
-    setSearchParams({ ...state });
-  };
-  return (
-    <Block>
-      <Button onClick={onEdit}>
-        <BackIcon /> Edit
-      </Button>
-    </Block>
-  );
-});
-
-const CancelButton: FC<{ disabled?: boolean; transactionId?: string }> = ({
-  disabled,
-  transactionId,
-}) => {
-  const navigate = useNavigate();
-  const onCancel = () => {
-    if (transactionId) {
-      sendBackground.message("rejectRequest", Number(transactionId));
-    }
-    navigate(AppRoute.home);
-  };
-  return (
-    <ButtonNegative onClick={onCancel} disabled={disabled}>
-      Cancel
-    </ButtonNegative>
-  );
-};
+import { State, stateToSearch, toState } from "./api";
+import { CancelButton, ConfirmView } from "./ConfirmView";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -152,77 +92,6 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
-  );
-};
-
-const Address = styled.span`
-  word-break: break-all;
-  padding-bottom: ${(props) => props.theme.padding};
-`;
-
-const Fiat = styled.span`
-  color: ${(props) => props.theme.darkGray};
-`;
-interface ConfirmProps {
-  state: State;
-  price?: number;
-  onSend: (seqNo: number, transactionId?: string) => void;
-}
-
-const fiatFees = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 4,
-});
-
-const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
-  const { data } = useEstimateFee(state);
-
-  const { mutateAsync, isLoading } = useSendMutation();
-
-  const onConfirm = async () => {
-    const seqNo = await mutateAsync(state);
-    onSend(seqNo, state.id);
-  };
-
-  const Fees = useCallback(() => {
-    if (!data) {
-      return <Text>Loading...</Text>;
-    }
-    const totalTon =
-      (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
-      1000000000;
-
-    const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
-
-    return (
-      <Text>
-        Total fee: ~{fiatFees.format(totalTon)} TON <Fiat>{fiat}</Fiat>
-      </Text>
-    );
-  }, [data, price]);
-
-  return (
-    <>
-      <EditButton />
-      <Body>
-        <Text>
-          Send <b>{state.amount}</b> TON to
-        </Text>
-        <Address>{state.address}</Address>
-        {state.comment && <Text>Comment: "{state.comment}"</Text>}
-
-        <H3>Network fee estimation</H3>
-        <Fees />
-        <Gap />
-
-        <ButtonBottomRow>
-          <CancelButton disabled={isLoading} transactionId={state.id} />
-          <ButtonPositive disabled={isLoading} onClick={onConfirm}>
-            Confirm
-          </ButtonPositive>
-        </ButtonBottomRow>
-      </Body>
-    </>
   );
 };
 

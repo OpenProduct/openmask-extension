@@ -26,7 +26,26 @@ export interface State {
   comment: string;
   // Transaction id. Define if transaction init from dApp,
   id?: string;
+  origin?: string;
 }
+
+export const toState = (searchParams: URLSearchParams): State => {
+  return {
+    address: decodeURIComponent(searchParams.get("address") ?? ""),
+    amount: decodeURIComponent(searchParams.get("amount") ?? ""),
+    max: searchParams.get("max") ?? "",
+    comment: decodeURIComponent(searchParams.get("comment") ?? ""),
+    id: searchParams.get("id") ?? undefined,
+    origin: decodeURIComponent(searchParams.get("origin") ?? ""),
+  };
+};
+
+export const stateToSearch = (state: State) => {
+  return Object.entries(state).reduce((acc, [key, value]) => {
+    acc[key] = encodeURIComponent(value);
+    return acc;
+  }, {} as Record<string, string>);
+};
 
 const getToAddress = async (ton: TonWeb, toAddress: string) => {
   if (!TonWeb.utils.Address.isValid(toAddress)) {

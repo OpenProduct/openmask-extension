@@ -213,7 +213,7 @@ const sendTransaction = async (
 
   await switchActiveAddress(origin, params.from);
 
-  const popupId = await openSendTransactionPopUp(id, params);
+  const popupId = await openSendTransactionPopUp(id, origin, params);
   try {
     const seqNo = await waitTransaction(id, popupId);
     memoryStore.setOperation(null);

@@ -35,6 +35,13 @@ export const toShortAddress = (address: string): string => {
   return address.slice(0, 4) + "...." + address.slice(-4);
 };
 
+export const toShortName = (name: string): string => {
+  if (name.length > 15) {
+    return name.slice(0, 15) + "...";
+  }
+  return name;
+};
+
 export const validateMnemonic = (mnemonic: string[]) => {
   if (!tonMnemonic.validateMnemonic(mnemonic) || mnemonic.length !== 24) {
     throw new Error("Mnemonic is not valid");
