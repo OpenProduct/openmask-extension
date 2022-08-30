@@ -245,7 +245,7 @@ export const handleDAppMessage = async (message: DAppMessage) => {
     case "ton_sendTransaction": {
       return sendTransaction(message.id, origin, message.params[0]);
     }
-    case "ton_confirmTransaction": {
+    case "ton_confirmWalletSeqNo": {
       return confirmWalletSeqNo(message.params[0]);
     }
 

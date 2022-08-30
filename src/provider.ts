@@ -38,9 +38,12 @@ class TonProvider extends EventEmitter {
     return this.send<boolean>("ton_getLocked");
   };
 
-  send<Result>(method: string, ...params: any[]) {
+  send<Result>(method: string, params: any[] = []) {
     if (!method || typeof method !== "string") {
       return Promise.reject("Method is not a valid string.");
+    }
+    if (!(params instanceof Array)) {
+      return Promise.reject("Params is not a valid array.");
     }
 
     const id = this.nextJsonRpcId++;
