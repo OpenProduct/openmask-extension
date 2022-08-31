@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Address,
   Cell,
+  Dns,
   HttpProvider,
   toNano,
   TransferParams,
@@ -9,6 +10,7 @@ import {
 } from "@tonmask/web-sdk";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
+import { NetworkConfig } from "../../../../../libs/entries/network";
 import { WalletState } from "../../../../../libs/entries/wallet";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
@@ -18,6 +20,7 @@ import {
 } from "../../../../context";
 import { decryptMnemonic } from "../../../api";
 import { askBackgroundPassword } from "../../../import/api";
+import { useNetworkConfig } from "../../api";
 
 export interface State {
   address: string;
@@ -47,31 +50,29 @@ export const stateToSearch = (state: State) => {
   }, {} as Record<string, string>);
 };
 
-const getToAddress = async (ton: HttpProvider, toAddress: string) => {
-  if (!Address.isValid(toAddress)) {
-    toAddress = toAddress.toLowerCase();
-    // if (toAddress.endsWith(".ton")) {
-    //   const address: AddressType = await (ton as any).dns.getWalletAddress(
-    //     toAddress
-    //   );
-    //   if (!address) {
-    //     throw new Error("Invalid address");
-    //   }
-    //   if (!Address.isValid(address)) {
-    //     throw new Error("Invalid address");
-    //   }
-    //   toAddress = address.toString(true, true, true);
-    // } else {
-    throw new Error("Invalid address");
-    //}
+const getToAddress = async (
+  ton: HttpProvider,
+  config: NetworkConfig,
+  toAddress: string
+) => {
+  if (Address.isValid(toAddress)) {
+    return toAddress;
   }
-  return toAddress;
-};
+  toAddress = toAddress.toLowerCase();
 
-const getSeqno = async (contract: WalletContract) => {
-  let seqno = await contract.methods.seqno().call();
-  if (!seqno) seqno = 0;
-  return seqno;
+  if (toAddress.endsWith(".ton")) {
+    const dns = new Dns(ton, { rootDnsAddress: config.rootDnsAddress });
+    const address = await dns.getWalletAddress(toAddress);
+    if (!address) {
+      throw new Error("Invalid address");
+    }
+    if (!Address.isValid(address)) {
+      throw new Error("Invalid address");
+    }
+    return new Address(address).toString(true, true, true);
+  } else {
+    throw new Error("Invalid address");
+  }
 };
 
 export enum SendMode {
@@ -87,9 +88,10 @@ const getMethod = async (
   wallet: WalletState,
   contract: WalletContract,
   state: State,
+  config: NetworkConfig,
   stateInit?: Cell
 ) => {
-  const toAddress = await getToAddress(ton, state.address);
+  const toAddress = await getToAddress(ton, config, state.address);
   const mnemonic = await decryptMnemonic(
     wallet.mnemonic,
     await askBackgroundPassword()
@@ -128,8 +130,9 @@ export const useEstimateFee = (state: State) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
+  const config = useNetworkConfig();
   return useQuery<Estimation>([QueryType.estimation], async () => {
-    const { method } = await getMethod(ton, wallet, contract, state);
+    const { method } = await getMethod(ton, wallet, contract, state, config);
     const all_fees = await method.estimateFee();
     console.log(all_fees);
     return all_fees.source_fees;
@@ -140,8 +143,15 @@ export const useSendMutation = () => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
+  const config = useNetworkConfig();
   return useMutation<number, Error, State>(async (state) => {
-    const { method, seqno } = await getMethod(ton, wallet, contract, state);
+    const { method, seqno } = await getMethod(
+      ton,
+      wallet,
+      contract,
+      state,
+      config
+    );
     await method.send();
     return seqno;
   });
