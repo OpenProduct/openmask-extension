@@ -1,14 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useContext } from "react";
-import TonWeb, { AddressType } from "tonweb";
-import * as tonMnemonic from "tonweb-mnemonic";
-import { Cell } from "tonweb/dist/types/boc/cell";
 import {
-  TransferMethodParams,
+  Address,
+  Cell,
+  HttpProvider,
+  toNano,
+  TransferParams,
   WalletContract,
-  WalletContractMethods,
-  WalletContractOptions,
-} from "tonweb/dist/types/contract/wallet/wallet-contract";
+} from "@tonmask/web-sdk";
+import { useContext } from "react";
+import * as tonMnemonic from "tonweb-mnemonic";
 import { WalletState } from "../../../../../libs/entries/wallet";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
@@ -47,30 +47,28 @@ export const stateToSearch = (state: State) => {
   }, {} as Record<string, string>);
 };
 
-const getToAddress = async (ton: TonWeb, toAddress: string) => {
-  if (!TonWeb.utils.Address.isValid(toAddress)) {
+const getToAddress = async (ton: HttpProvider, toAddress: string) => {
+  if (!Address.isValid(toAddress)) {
     toAddress = toAddress.toLowerCase();
-    if (toAddress.endsWith(".ton")) {
-      const address: AddressType = await (ton as any).dns.getWalletAddress(
-        toAddress
-      );
-      if (!address) {
-        throw new Error("Invalid address");
-      }
-      if (!TonWeb.utils.Address.isValid(address)) {
-        throw new Error("Invalid address");
-      }
-      toAddress = address.toString(true, true, true);
-    } else {
-      throw new Error("Invalid address");
-    }
+    // if (toAddress.endsWith(".ton")) {
+    //   const address: AddressType = await (ton as any).dns.getWalletAddress(
+    //     toAddress
+    //   );
+    //   if (!address) {
+    //     throw new Error("Invalid address");
+    //   }
+    //   if (!Address.isValid(address)) {
+    //     throw new Error("Invalid address");
+    //   }
+    //   toAddress = address.toString(true, true, true);
+    // } else {
+    throw new Error("Invalid address");
+    //}
   }
   return toAddress;
 };
 
-const getSeqno = async (
-  contract: WalletContract<WalletContractOptions, WalletContractMethods>
-) => {
+const getSeqno = async (contract: WalletContract) => {
   let seqno = await contract.methods.seqno().call();
   if (!seqno) seqno = 0;
   return seqno;
@@ -85,36 +83,36 @@ export enum SendMode {
 }
 
 const getMethod = async (
-  ton: TonWeb,
+  ton: HttpProvider,
   wallet: WalletState,
-  contract: WalletContract<WalletContractOptions, WalletContractMethods>,
+  contract: WalletContract,
   state: State,
   stateInit?: Cell
 ) => {
   const toAddress = await getToAddress(ton, state.address);
-  const password = await askBackgroundPassword();
-  const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
+  const mnemonic = await decryptMnemonic(
+    wallet.mnemonic,
+    await askBackgroundPassword()
+  );
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-  const seqno = await getSeqno(contract);
+  const seqno = await ton.getSeqno(wallet.address);
 
   const sendMode =
     state.max === "1"
       ? SendMode.CARRRY_ALL_REMAINING_BALANCE
       : SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS;
 
-  const params: TransferMethodParams = {
+  const params: TransferParams = {
     secretKey: keyPair.secretKey,
     toAddress,
-    amount: TonWeb.utils.toNano(state.amount),
+    amount: toNano(state.amount),
     seqno: seqno,
     payload: state.comment,
     sendMode,
     stateInit,
   };
 
-  console.log("params");
-  const method = contract.methods.transfer(params);
-  console.log("method");
+  const method = contract.transfer(params);
 
   return { method, seqno };
 };
@@ -134,13 +132,7 @@ export const useEstimateFee = (state: State) => {
     const { method } = await getMethod(ton, wallet, contract, state);
     const all_fees = await method.estimateFee();
     console.log(all_fees);
-    const fees = all_fees.source_fees;
-    return {
-      in_fwd_fee: fees.in_fwd_fee,
-      storage_fee: fees.storage_fee,
-      gas_fee: fees.gas_fee,
-      fwd_fee: fees.fwd_fee,
-    };
+    return all_fees.source_fees;
   });
 };
 

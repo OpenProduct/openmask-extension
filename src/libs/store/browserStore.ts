@@ -40,7 +40,7 @@ export const setStoreValue = async <T>(query: QueryType, value: T) => {
 };
 
 export const getNetwork = () => {
-  return getStoreValue(QueryType.network, "Mainnet");
+  return getStoreValue(QueryType.network, "Testnet");
 };
 
 export const getConnections = () => {

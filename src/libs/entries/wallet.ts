@@ -1,6 +1,6 @@
-import TonWeb from "tonweb";
+import { ALL } from "@tonmask/web-sdk";
 
-export type WalletVersion = keyof typeof TonWeb.Wallets.all;
+export type WalletVersion = keyof typeof ALL;
 
 export interface WalletState {
   name: string;

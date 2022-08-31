@@ -1,10 +1,11 @@
 {
-  "name": "tonmask-extension",
+  "name": "@TonMask/extension",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
-    "bn.js": "^5.2.1",
+    "@tonmask/web-sdk": "github:TonMask/tonmask-websdk#master",
+    "bn.js": "4.11.6",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
@@ -13,7 +14,6 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
     "styled-components": "^5.3.5",
-    "tonweb": "github:TonMask/tonmaskWeb",
     "tonweb-mnemonic": "^1.0.1",
     "web-vitals": "^2.1.4",
     "webextension-polyfill": "^0.9.0"

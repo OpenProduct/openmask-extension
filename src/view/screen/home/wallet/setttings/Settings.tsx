@@ -1,3 +1,4 @@
+import { ALL } from "@tonmask/web-sdk";
 import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -104,7 +105,7 @@ const SettingsIndex = () => {
         <Label>Version</Label>
         <DropDownList
           isLeft
-          options={Object.keys(ton.wallet.all)}
+          options={Object.keys(ALL)}
           renderOption={(value) => value}
           onSelect={(version) =>
             onChange({ version: version as WalletVersion })

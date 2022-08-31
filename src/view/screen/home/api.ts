@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Address } from "@tonmask/web-sdk";
 import { useContext, useMemo } from "react";
-import { Address } from "tonweb/dist/types/utils/address";
 import { getNetworkConfig } from "../../../libs/entries/network";
 import { QueryType } from "../../../libs/store/browserStore";
 import {
@@ -30,7 +30,7 @@ export const useBalance = (address: string) => {
   const ton = useContext(TonProviderContext);
 
   return useQuery<string>([network, address, QueryType.balance], async () => {
-    const value = await ton.provider.getBalance(address);
+    const value = await ton.getBalance(address);
     return formatTonValue(value);
   });
 };

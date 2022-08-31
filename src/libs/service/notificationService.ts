@@ -1,4 +1,4 @@
-import TonWeb from "tonweb";
+import { fromNano } from "@tonmask/web-sdk";
 import { TransactionParams } from "../entries/transaction";
 import { backgroundEventsEmitter } from "../event";
 import ExtensionPlatform from "./extension";
@@ -82,7 +82,7 @@ export const openSendTransactionPopUp = async (
 ) => {
   const params = new URLSearchParams({
     address: encodeURIComponent(props.to),
-    amount: encodeURIComponent(TonWeb.utils.fromNano(props.value).toString()),
+    amount: encodeURIComponent(fromNano(props.value).toString()),
     comment: props.data ? encodeURIComponent(props.data) : "",
     submit: "1",
     id: String(id),

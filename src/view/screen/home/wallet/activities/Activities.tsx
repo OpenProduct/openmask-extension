@@ -1,6 +1,6 @@
+import { base64ToBytes } from "@tonmask/web-sdk";
 import React, { FC, useContext } from "react";
 import styled from "styled-components";
-import TonWeb from "tonweb";
 import {
   TonWebTransaction,
   TonWebTransactionMessage,
@@ -68,7 +68,7 @@ const getComment = (msg: TonWebTransactionMessage) => {
   if (!msg.msg_data) return "";
   if (msg.msg_data["@type"] !== "msg.dataText") return "";
   const base64 = msg.msg_data.text;
-  return new TextDecoder().decode(TonWeb.utils.base64ToBytes(base64));
+  return new TextDecoder().decode(base64ToBytes(base64));
 };
 
 const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {

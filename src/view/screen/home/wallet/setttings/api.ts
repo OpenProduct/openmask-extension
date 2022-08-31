@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ALL, hexToBytes } from "@tonmask/web-sdk";
 import { useContext } from "react";
-import TonWeb from "tonweb";
 import { AccountState } from "../../../../../libs/entries/account";
 import { WalletState } from "../../../../../libs/entries/wallet";
 import {
@@ -44,9 +44,9 @@ export const useUpdateWalletMutation = () => {
       ...newFields,
     };
 
-    const WalletClass = ton.wallet.all[updatedWallet.version!];
-    const walletContract = new WalletClass(ton.provider, {
-      publicKey: TonWeb.utils.hexToBytes(updatedWallet.publicKey),
+    const WalletClass = ALL[updatedWallet.version!];
+    const walletContract = new WalletClass(ton, {
+      publicKey: hexToBytes(updatedWallet.publicKey),
       wc: 0,
     });
     const address = await walletContract.getAddress();

@@ -1,4 +1,4 @@
-import TonWeb from "tonweb";
+import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { DAppMessage } from "../entries/message";
 import { getNetworkConfig } from "../entries/network";
@@ -36,7 +36,7 @@ const getWalletsByOrigin = async (origin: string) => {
 const getBalance = async (origin: string, wallet: string | undefined) => {
   const config = getNetworkConfig(await getNetwork());
 
-  const provider = new TonWeb.HttpProvider(config.rpcUrl, {
+  const provider = new HttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
   });
 

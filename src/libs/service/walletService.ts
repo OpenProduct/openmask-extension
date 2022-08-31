@@ -1,5 +1,5 @@
+import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import BN from "bn.js";
-import TonWeb from "tonweb";
 import { getNetworkConfig } from "../entries/network";
 import { ErrorCode, RuntimeError } from "../exception";
 import { getAccountState, getNetwork } from "../store/browserStore";
@@ -8,7 +8,7 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
   const network = await getNetwork();
   const config = getNetworkConfig(network);
 
-  const provider = new TonWeb.HttpProvider(config.rpcUrl, {
+  const provider = new HttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
   });
 

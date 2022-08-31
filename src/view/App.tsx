@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ALL, hexToBytes, HttpProvider } from "@tonmask/web-sdk";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
-import TonWeb from "tonweb";
 import { AccountState } from "../libs/entries/account";
 import { getNetworkConfig } from "../libs/entries/network";
 import {
@@ -32,7 +32,7 @@ import defaultTheme from "./styles/defaultTheme";
 
 const ContentRouter: FC<{
   account: AccountState;
-  ton: TonWeb;
+  ton: HttpProvider;
   lock: boolean;
 }> = ({ account, ton, lock }) => {
   const isInitialized = account.wallets.length > 0;
@@ -47,9 +47,9 @@ const ContentRouter: FC<{
 
   const walletContract = useMemo(() => {
     if (!wallet) return undefined;
-    const WalletClass = ton.wallet.all[wallet.version];
-    return new WalletClass(ton.provider, {
-      publicKey: TonWeb.utils.hexToBytes(wallet.publicKey),
+    const WalletClass = ALL[wallet.version];
+    return new WalletClass(ton, {
+      publicKey: hexToBytes(wallet.publicKey),
       wc: 0,
     });
   }, [wallet, ton]);
@@ -87,9 +87,7 @@ const App = () => {
   const config = getNetworkConfig(network);
 
   const tonProvider = useMemo(() => {
-    return new TonWeb(
-      new TonWeb.HttpProvider(config.rpcUrl, { apiKey: config.apiKey })
-    );
+    return new HttpProvider(config.rpcUrl, { apiKey: config.apiKey });
   }, [config]);
 
   if (isLoading || !data || !network) {

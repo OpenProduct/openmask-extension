@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Address, ALL, bytesToHex, HttpProvider } from "@tonmask/web-sdk";
 import { useContext } from "react";
-import TonWeb from "tonweb";
 import * as tonMnemonic from "tonweb-mnemonic";
-import { Address } from "tonweb/dist/types/utils/address";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import { encrypt } from "../../../libs/service/cryptoService";
 import {
@@ -24,7 +23,7 @@ export const askBackgroundPassword = async () => {
 const lastWalletVersion = "v4R2";
 
 const createWallet = async (
-  ton: TonWeb,
+  ton: HttpProvider,
   mnemonic: string,
   password: string,
   index: number
@@ -32,8 +31,8 @@ const createWallet = async (
   const encryptedMnemonic = await encrypt(mnemonic, password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
 
-  const WalletClass = ton.wallet.all[lastWalletVersion];
-  const walletContract = new WalletClass(ton.provider, {
+  const WalletClass = ALL[lastWalletVersion];
+  const walletContract = new WalletClass(ton, {
     publicKey: keyPair.publicKey,
     wc: 0,
   });
@@ -43,7 +42,7 @@ const createWallet = async (
     name: `Account ${index}`,
     mnemonic: encryptedMnemonic,
     address: address.toString(true, true, true),
-    publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
+    publicKey: bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,
     isBounceable: true,
   };
@@ -75,24 +74,24 @@ export const useCreateWalletMutation = () => {
 };
 
 const findContract = async (
-  ton: TonWeb,
+  ton: HttpProvider,
   keyPair: tonMnemonic.KeyPair
 ): Promise<[WalletVersion, Address]> => {
-  for (let [version, WalletClass] of Object.entries(ton.wallet.all)) {
-    const wallet = new WalletClass(ton.provider, {
+  for (let [version, WalletClass] of Object.entries(ALL)) {
+    const wallet = new WalletClass(ton, {
       publicKey: keyPair.publicKey,
       wc: 0,
     });
 
     const walletAddress = await wallet.getAddress();
-    const balance = await ton.provider.getBalance(walletAddress.toString());
+    const balance = await ton.getBalance(walletAddress.toString());
     if (balance !== "0") {
       return [version, walletAddress] as [WalletVersion, Address];
     }
   }
 
-  const WalletClass = ton.wallet.all[lastWalletVersion];
-  const walletContract = new WalletClass(ton.provider, {
+  const WalletClass = ALL[lastWalletVersion];
+  const walletContract = new WalletClass(ton, {
     publicKey: keyPair.publicKey,
     wc: 0,
   });
@@ -101,7 +100,7 @@ const findContract = async (
 };
 
 export const importWallet = async (
-  ton: TonWeb,
+  ton: HttpProvider,
   mnemonic: string[],
   password: string,
   index: number
@@ -114,7 +113,7 @@ export const importWallet = async (
     name: `Account ${index}`,
     mnemonic: encryptedMnemonic,
     address: address.toString(true, true, true),
-    publicKey: TonWeb.utils.bytesToHex(keyPair.publicKey),
+    publicKey: bytesToHex(keyPair.publicKey),
     version,
     isBounceable: true,
   };

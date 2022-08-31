@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import TonWeb from "tonweb";
+import { fromNano } from "@tonmask/web-sdk/build/utils/utils";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
 import { AccountState } from "../../libs/entries/account";
@@ -28,7 +28,7 @@ const balanceFormat = new Intl.NumberFormat("en-US", {
 });
 
 export const formatTonValue = (value: string): string => {
-  return balanceFormat.format(parseFloat(TonWeb.utils.fromNano(value)));
+  return balanceFormat.format(parseFloat(fromNano(value)));
 };
 
 export const toShortAddress = (address: string): string => {
