@@ -149,6 +149,7 @@ export const ErrorMessage = styled.div`
   font-size: medium;
   padding: ${(props) => props.theme.padding};
   border-radius: ${(props) => props.theme.padding};
+  word-break: break-all;
 `;
 
 export const ErrorText = styled.div`

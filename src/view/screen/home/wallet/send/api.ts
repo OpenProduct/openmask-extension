@@ -4,6 +4,7 @@ import {
   Cell,
   Dns,
   HttpProvider,
+  Method,
   toNano,
   TransferParams,
   WalletContract,
@@ -83,6 +84,21 @@ export enum SendMode {
   IGNORE_ERRORS = 2,
 }
 
+interface WrapperMethod {
+  method: Method;
+  seqno: number;
+}
+export const useMethod = (state: State) => {
+  const contract = useContext(WalletContractContext);
+  const wallet = useContext(WalletStateContext);
+  const ton = useContext(TonProviderContext);
+  const config = useNetworkConfig();
+
+  return useQuery<WrapperMethod, Error>([QueryType.method, state], () => {
+    return getMethod(ton, wallet, contract, state, config);
+  });
+};
+
 const getMethod = async (
   ton: HttpProvider,
   wallet: WalletState,
@@ -126,33 +142,23 @@ interface Estimation {
   fwd_fee: number;
 }
 
-export const useEstimateFee = (state: State) => {
-  const contract = useContext(WalletContractContext);
-  const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
-  const config = useNetworkConfig();
-  return useQuery<Estimation>([QueryType.estimation], async () => {
-    const { method } = await getMethod(ton, wallet, contract, state, config);
-    const all_fees = await method.estimateFee();
-    console.log(all_fees);
-    return all_fees.source_fees;
-  });
+export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
+  return useQuery<Estimation>(
+    [QueryType.estimation],
+    async () => {
+      const all_fees = await wmethod!.method.estimateFee();
+      console.log(all_fees);
+      return all_fees.source_fees;
+    },
+    { enabled: wmethod != null }
+  );
 };
 
 export const useSendMutation = () => {
-  const contract = useContext(WalletContractContext);
-  const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
-  const config = useNetworkConfig();
-  return useMutation<number, Error, State>(async (state) => {
-    const { method, seqno } = await getMethod(
-      ton,
-      wallet,
-      contract,
-      state,
-      config
-    );
-    await method.send();
-    return seqno;
-  });
+  return useMutation<number, Error, WrapperMethod>(
+    async (wmethod: WrapperMethod) => {
+      await wmethod.method.send();
+      return wmethod.seqno;
+    }
+  );
 };

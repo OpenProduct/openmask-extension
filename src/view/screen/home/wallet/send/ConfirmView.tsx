@@ -7,6 +7,7 @@ import {
   ButtonPositive,
   ButtonRow,
   Container,
+  ErrorMessage,
   Gap,
   Text,
 } from "../../../../components/Components";
@@ -15,7 +16,13 @@ import { WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
 import { toShortAddress, toShortName } from "../../../api";
-import { State, toState, useEstimateFee, useSendMutation } from "./api";
+import {
+  State,
+  toState,
+  useEstimateFee,
+  useMethod,
+  useSendMutation,
+} from "./api";
 
 const Block = styled(Container)`
   width: 100%;
@@ -100,12 +107,14 @@ const fiatFees = new Intl.NumberFormat("en-US", {
 });
 
 export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
-  const { data } = useEstimateFee(state);
+  const { data: method, error, isFetching } = useMethod(state);
+  const { data } = useEstimateFee(method);
 
   const { mutateAsync, isLoading } = useSendMutation();
 
   const onConfirm = async () => {
-    const seqNo = await mutateAsync(state);
+    if (!method) return;
+    const seqNo = await mutateAsync(method);
     onSend(seqNo, state.id);
   };
 
@@ -131,6 +140,9 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
     : "";
 
   const wallet = useContext(WalletStateContext);
+
+  const disabled = isLoading || isFetching || error != null;
+
   return (
     <>
       <EditButton />
@@ -156,11 +168,12 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
 
         <TextLine>Network fee estimation:</TextLine>
         <Fees />
+        {error && <ErrorMessage>{error.message}</ErrorMessage>}
         <Gap />
 
         <ButtonRow>
           <CancelButton disabled={isLoading} transactionId={state.id} />
-          <ButtonPositive disabled={isLoading} onClick={onConfirm}>
+          <ButtonPositive disabled={disabled} onClick={onConfirm}>
             Confirm
           </ButtonPositive>
         </ButtonRow>

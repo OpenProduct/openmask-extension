@@ -16,6 +16,8 @@ export enum QueryType {
   transactions = "transactions",
 
   estimation = "estimation",
+
+  method = "method",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React, { FC, useCallback, useContext, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
@@ -17,7 +18,7 @@ import {
 import { HomeButton } from "../../../../components/HomeButton";
 import { LinkIcon } from "../../../../components/Icons";
 import { LoadingLogo } from "../../../../components/Logo";
-import { WalletAddressContext } from "../../../../context";
+import { NetworkContext, WalletAddressContext } from "../../../../context";
 import { askBackground, sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
 import { useNetworkConfig } from "../../api";
@@ -99,13 +100,18 @@ const timeout = 60 * 1000; // 60 sec
 
 const LoadingView: FC<{ seqNo: string; onConfirm: () => void }> = React.memo(
   ({ seqNo, onConfirm }) => {
+    const client = useQueryClient();
+    const network = useContext(NetworkContext);
+    const address = useContext(WalletAddressContext);
+
     useEffect(() => {
       askBackground<void>(timeout)
         .message("confirmSeqNo", parseInt(seqNo))
         .then(() => {
+          client.invalidateQueries([network, address]);
           onConfirm();
         });
-    }, [seqNo, onConfirm]);
+    }, [seqNo, onConfirm, client, network, address]);
 
     return (
       <Body>
