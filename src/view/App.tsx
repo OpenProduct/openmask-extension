@@ -54,7 +54,6 @@ const ContentRouter: FC<{
     });
   }, [wallet, ton]);
 
-
   if (script != null && lock) {
     return <Unlock />;
   }
@@ -72,7 +71,7 @@ const ContentRouter: FC<{
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
-          <Route path={AppRoute.setting} element={<Settings />} />
+          <Route path={any(AppRoute.settings)} element={<Settings />} />
           <Route path={AppRoute.connections} element={<Connections />} />
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
           <Route path={any(AppRoute.connect)} element={<ConnectDApp />} />

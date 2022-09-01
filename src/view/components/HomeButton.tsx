@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Container } from "./Components";
@@ -10,12 +11,15 @@ const Button = styled.div`
   cursor: pointer;
 `;
 
-export const HomeButton = () => {
+export const HomeButton: FC<{ path?: string; text?: string }> = ({
+  path = "/",
+  text = "Back to Home",
+}) => {
   const navigate = useNavigate();
   return (
     <Block>
-      <Button onClick={() => navigate("/")}>
-        <BackIcon /> Back to Home
+      <Button onClick={() => navigate(path)}>
+        <BackIcon /> {text}
       </Button>
     </Block>
   );

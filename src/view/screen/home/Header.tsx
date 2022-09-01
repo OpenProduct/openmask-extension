@@ -157,7 +157,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               <ListItem
                 onClick={() => {
                   onClose();
-                  navigate(AppRoute.setting);
+                  navigate(AppRoute.settings);
                 }}
               >
                 Account Settings
