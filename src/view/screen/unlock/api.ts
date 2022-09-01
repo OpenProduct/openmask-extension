@@ -1,14 +1,19 @@
 import { useMutation } from "@tanstack/react-query";
-import { useContext } from "react";
-import { AccountStateContext } from "../../context";
+import { decrypt } from "../../../libs/service/cryptoService";
+import { getScript } from "../../../libs/store/browserStore";
 import { sendBackground } from "../../event";
-import { decryptMnemonic } from "../api";
 
 export const useUnlockMutation = () => {
-  const data = useContext(AccountStateContext);
   return useMutation<void, Error, string>(async (value) => {
-    const [wallet] = data.wallets;
-    await decryptMnemonic(wallet.mnemonic, value);
+    const script = await getScript();
+    if (script == null) {
+      throw new Error("Password not set");
+    }
+
+    const password = await decrypt(script, value);
+    if (password !== value) {
+      throw new Error("Invalid password");
+    }
     sendBackground.message("tryToUnlock", value);
   });
 };

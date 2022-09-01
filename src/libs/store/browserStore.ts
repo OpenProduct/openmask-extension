@@ -6,6 +6,7 @@ import { checkForError } from "../utils";
 export enum QueryType {
   price = "price",
 
+  script = "script",
   network = "network",
   connection = "connection",
   tabs = "tabs",
@@ -39,6 +40,10 @@ export const setStoreValue = async <T>(query: QueryType, value: T) => {
     throw err;
   }
   return value;
+};
+
+export const getScript = () => {
+  return getStoreValue<string | null>(QueryType.script, null);
 };
 
 export const getNetwork = () => {

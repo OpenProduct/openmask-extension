@@ -7,6 +7,7 @@ import { UnfinishedOperation } from "../libs/event";
 import {
   getNetwork,
   getNetworkStoreValue,
+  getScript,
   QueryType,
   setStoreValue,
 } from "../libs/store/browserStore";
@@ -16,6 +17,10 @@ import { AppRoute } from "./routes";
 
 export const useNetwork = () => {
   return useQuery([QueryType.network], () => getNetwork());
+};
+
+export const useScript = () => {
+  return useQuery([QueryType.script], () => getScript());
 };
 
 export const useMutateStore = <T>(query: QueryType) => {

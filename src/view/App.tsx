@@ -10,6 +10,7 @@ import {
   useInitialRedirect,
   useLock,
   useNetwork,
+  useScript,
 } from "./api";
 import {
   AccountStateContext,
@@ -34,9 +35,8 @@ const ContentRouter: FC<{
   account: AccountState;
   ton: HttpProvider;
   lock: boolean;
-}> = ({ account, ton, lock }) => {
-  const isInitialized = account.wallets.length > 0;
-
+  script: string | null;
+}> = ({ account, ton, lock, script }) => {
   const location = useLocation();
 
   useInitialRedirect();
@@ -54,10 +54,14 @@ const ContentRouter: FC<{
     });
   }, [wallet, ton]);
 
-  if (isInitialized && lock) {
+
+  if (script != null && lock) {
     return <Unlock />;
   }
-  if (!isInitialized && !location.pathname.startsWith(AppRoute.import)) {
+  if (
+    account.wallets.length === 0 &&
+    !location.pathname.startsWith(AppRoute.import)
+  ) {
     return <Initialize />;
   }
   if (lock) {
@@ -81,6 +85,7 @@ const ContentRouter: FC<{
 
 const App = () => {
   const lock = useLock();
+  const { data: script } = useScript();
   const { data: network } = useNetwork();
   const { isLoading, data } = useAccountState();
 
@@ -90,7 +95,7 @@ const App = () => {
     return new HttpProvider(config.rpcUrl, { apiKey: config.apiKey });
   }, [config]);
 
-  if (isLoading || !data || !network) {
+  if (isLoading || !data || !network || script === undefined) {
     return <Loading />;
   }
 
@@ -99,7 +104,12 @@ const App = () => {
       <NetworkContext.Provider value={network}>
         <TonProviderContext.Provider value={tonProvider}>
           <Header lock={lock} />
-          <ContentRouter account={data} ton={tonProvider} lock={lock} />
+          <ContentRouter
+            account={data}
+            ton={tonProvider}
+            lock={lock}
+            script={script}
+          />
         </TonProviderContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>
