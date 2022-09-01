@@ -11,6 +11,7 @@ import {
   Gap,
   Text,
 } from "../../../../components/Components";
+import { Dots } from "../../../../components/Dots";
 import { ArrowRightIcon, BackIcon } from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
@@ -120,7 +121,12 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
 
   const Fees = useCallback(() => {
     if (!data) {
-      return <TextLine>Loading...</TextLine>;
+      return (
+        <TextLine>
+          Loading
+          <Dots />
+        </TextLine>
+      );
     }
     const totalTon =
       (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
@@ -174,7 +180,14 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
         <ButtonRow>
           <CancelButton disabled={isLoading} transactionId={state.id} />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
-            Confirm
+            {isFetching ? (
+              <>
+                Validating
+                <Dots />
+              </>
+            ) : (
+              "Confirm"
+            )}
           </ButtonPositive>
         </ButtonRow>
       </Body>
