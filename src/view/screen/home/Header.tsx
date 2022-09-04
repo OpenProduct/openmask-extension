@@ -104,7 +104,12 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   if (lock) {
     return (
       <Head>
-        <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
+        <img
+          src="tonmask-logo.svg"
+          width="38"
+          height="38"
+          alt="OpenMask Logo"
+        />
         <Badge>{network}</Badge>
       </Head>
     );
@@ -112,7 +117,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
 
   return (
     <Head>
-      <img src="tonmask-logo.svg" width="38" height="38" alt="TonMask Logo" />
+      <img src="tonmask-logo.svg" width="38" height="38" alt="OpenMask Logo" />
       <DropDownList
         options={networkConfigs}
         renderOption={(c) => c.name}

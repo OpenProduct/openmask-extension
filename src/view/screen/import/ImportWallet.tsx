@@ -56,18 +56,18 @@ const ImportIndex = () => {
   const navigate = useNavigate();
   return (
     <Body>
-      <H1>Get Started with TonMask</H1>
+      <H1>Get Started with OpenMask</H1>
       <Text>
-        TonMask is open source software, you may alway check code on a GitHub.
+        OpenMask is open source software, you may alway check code on a GitHub.
         Wallet is not profitable, don't charge any commission for transactions
         and store all user data on a user device.
       </Text>
       <Text>
-        <CheckIcon /> TonMask <b>Always</b> connecting you to The Open Network
+        <CheckIcon /> OpenMask <b>Always</b> connecting you to The Open Network
         and the decentralized web
       </Text>
       <Text>
-        <CloseIcon /> TonMask <b>Never</b> collect keys, addresses,
+        <CloseIcon /> OpenMask <b>Never</b> collect keys, addresses,
         transactions, balances, hashes, or any personal information
       </Text>
       <ButtonBottomRow>

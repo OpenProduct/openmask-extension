@@ -73,10 +73,10 @@ class TonProvider extends EventEmitter {
       };
     });
 
-    // Send jsonrpc request to TonMask
+    // Send jsonrpc request to OpenMask
     window.postMessage(
       {
-        type: "TonMaskProvider",
+        type: "OpenMaskProvider",
         message: payload,
       },
       this.targetOrigin
@@ -91,7 +91,7 @@ class TonProvider extends EventEmitter {
       return;
     }
 
-    if (event.data.type !== "TonMaskAPI") return;
+    if (event.data.type !== "OpenMaskAPI") return;
 
     const data: OpenMaskApiMessage = event.data;
 

@@ -1,7 +1,7 @@
 const { notify, exec } = require("./utils");
 require("dotenv").config();
 
-notify(`Build TonMask UI`);
+notify(`Build OpenMask UI`);
 
 exec("npx react-app-rewired build", {
   stdio: "inherit",
@@ -11,7 +11,7 @@ exec("npx react-app-rewired build", {
   },
 });
 
-notify(`Build TonMask background.js, provider.js, content.js`);
+notify(`Build OpenMask background.js, provider.js, content.js`);
 
 exec("npx webpack -c task/webpack.config.js", {
   stdio: "inherit",

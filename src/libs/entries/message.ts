@@ -14,7 +14,7 @@ export interface OpenMaskError {
   description?: string;
 }
 export interface OpenMaskApiResponse {
-  type: "TonMaskAPI";
+  type: "OpenMaskAPI";
   message: {
     jsonrpc: "2.0";
     id: number;
@@ -25,7 +25,7 @@ export interface OpenMaskApiResponse {
 }
 
 export interface OpenMaskApiEvent {
-  type: "TonMaskAPI";
+  type: "OpenMaskAPI";
   message: {
     jsonrpc: "2.0";
     id?: undefined;

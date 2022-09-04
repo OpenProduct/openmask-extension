@@ -57,10 +57,10 @@ const About = () => {
             src="tonmask-logo.svg"
             width="68"
             height="68"
-            alt="TonMask Logo"
+            alt="OpenMask Logo"
           />
         </Text>
-        <Text>TonMask version {packageJson.version}</Text>
+        <Text>OpenMask version {packageJson.version}</Text>
         <Text>Non-custodial web extension wallet for The Open Network</Text>
         <Text>Links:</Text>
         <Link

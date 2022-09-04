@@ -119,7 +119,7 @@ export const ConnectDApp = () => {
           {logo && <Logo src={logo} alt="Logo" />}
           <Origin>{origin}</Origin>
         </Badge>
-        <H1>Connect With TonMask</H1>
+        <H1>Connect With OpenMask</H1>
         <Text>Select the account(s) to use on this site</Text>
       </Center>
       <Scroll>

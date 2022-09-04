@@ -55,7 +55,7 @@ export const Create = () => {
         phrase can take your crypto forever.
       </ErrorMessage>
       <Textarea disabled rows={8} value={show ? mnemonic : ""} />
-      <Text>TonMask cannot recover your Secret Recovery Phrase.</Text>
+      <Text>OpenMask cannot recover your Secret Recovery Phrase.</Text>
       <ButtonRow>
         <ButtonNegative disabled={disabled} onClick={onCreate}>
           Skip

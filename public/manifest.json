@@ -1,6 +1,6 @@
 {
-  "name": "TonMask",
-  "short_name": "TonMask",
+  "name": "OpenMask",
+  "short_name": "OpenMask",
   "description": "A TON Wallet in your Browser",
   "version": "0.0.1",
   "manifest_version": 3,

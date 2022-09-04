@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import { DAppMessage } from "./libs/entries/message";
 
-const PORT_NAME = "TonMaskContentScript";
+const PORT_NAME = "OpenMaskContentScript";
 
 injectScript();
 setupStream();
@@ -19,7 +19,7 @@ function injectScript() {
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
   } catch (error) {
-    console.error("TonMask: Provider injection failed.", error);
+    console.error("OpenMask: Provider injection failed.", error);
   }
 }
 
@@ -51,7 +51,7 @@ async function setupStream() {
 
   const onPageMessage = (e: PageMessage) => {
     if (!e.data) return;
-    if (e.data.type !== "TonMaskProvider") return;
+    if (e.data.type !== "OpenMaskProvider") return;
 
     sendMessageToActivePort(e.data);
   };
@@ -83,7 +83,7 @@ async function setupStream() {
         sendMessageToActivePort(payload, true);
       } else {
         onPortMessage({
-          type: "TonMaskAPI",
+          type: "OpenMaskAPI",
           message: {
             id: payload?.message?.id,
             method: payload?.message?.method,

@@ -1,5 +1,5 @@
 {
-  "name": "@TonMask/extension",
+  "name": "@OpenMask/extension",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

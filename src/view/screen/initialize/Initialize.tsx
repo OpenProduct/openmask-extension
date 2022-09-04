@@ -28,7 +28,7 @@ export const Initialize = () => {
   return (
     <Body>
       <LoadingLogo />
-      <H1>Welcome to TonMask</H1>
+      <H1>Welcome to OpenMask</H1>
       <ButtonColumn>
         <ButtonPositive
           onClick={() =>

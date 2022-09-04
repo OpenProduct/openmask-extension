@@ -14,7 +14,7 @@ const providerResponse = (
   error?: RuntimeError
 ): OpenMaskApiResponse => {
   return {
-    type: "TonMaskAPI",
+    type: "OpenMaskAPI",
     message: {
       jsonrpc: "2.0",
       id,
@@ -36,7 +36,7 @@ const providerEvent = (
   result: undefined | unknown
 ): OpenMaskApiEvent => {
   return {
-    type: "TonMaskAPI",
+    type: "OpenMaskAPI",
     message: {
       jsonrpc: "2.0",
       method,
@@ -46,7 +46,7 @@ const providerEvent = (
 };
 
 browser.runtime.onConnect.addListener((port) => {
-  if (port.name === "TonMaskUI") {
+  if (port.name === "OpenMaskUI") {
     setPopUpPort(port);
 
     port.onMessage.addListener((message) => {
@@ -59,10 +59,10 @@ browser.runtime.onConnect.addListener((port) => {
     });
   }
 
-  if (port.name === "TonMaskContentScript") {
+  if (port.name === "OpenMaskContentScript") {
     contentScriptPorts.add(port);
     port.onMessage.addListener(async (msg, contentPort) => {
-      if (msg.type !== "TonMaskProvider" || !msg.message) {
+      if (msg.type !== "OpenMaskProvider" || !msg.message) {
         return;
       }
 

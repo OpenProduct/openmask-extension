@@ -14,14 +14,14 @@ const mainnetRootDnsAddress =
 
 export const networkConfigs: NetworkConfig[] = [
   {
-    name: "Mainnet", // aka chainId
+    name: "mainnet", // aka chainId
     rpcUrl: "https://toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_API_KEY,
     scanUrl: "https://tonscan.org",
     rootDnsAddress: mainnetRootDnsAddress,
   },
   {
-    name: "Testnet", // aka chainId
+    name: "testnet", // aka chainId
     rpcUrl: "https://testnet.toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_TESTNET_API_KEY,
     scanUrl: "https://testnet.tonscan.org",

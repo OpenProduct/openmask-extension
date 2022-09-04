@@ -1,6 +1,6 @@
 <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
  <g>
-  <title>TonMask Logo</title>
+  <title>OpenMask Logo</title>
   <path d="M 85,0 150,250 215,0 z" fill="#a0ddfe" stroke="#a0ddfe"/>
   <path d="M 215,0 150,250 300,85 z" fill="#88d3ff" stroke="#88d3ff"/>
   <path d="M 300,85 150,250 300,215 z" fill="#73cbff" stroke="#73cbff"/>
