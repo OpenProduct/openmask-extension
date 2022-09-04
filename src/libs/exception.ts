@@ -7,9 +7,12 @@ export enum ErrorCode {
 
 export class RuntimeError extends Error {
   code: ErrorCode;
-  constructor(code: ErrorCode, message: string) {
+  description?: string;
+
+  constructor(code: ErrorCode, message: string, description?: string) {
     super(message);
     this.code = code;
+    this.description = description;
   }
 }
 

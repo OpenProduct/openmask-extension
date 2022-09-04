@@ -1,7 +1,7 @@
 import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { networkConfigs } from "../../../libs/entries/network";
+import { NetworkConfig, networkConfigs } from "../../../libs/entries/network";
 import { WalletState } from "../../../libs/entries/wallet";
 import ExtensionPlatform from "../../../libs/service/extension";
 import { QueryType } from "../../../libs/store/browserStore";
@@ -74,7 +74,9 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);
 
-  const { mutate } = useMutateStore<string>(QueryType.network);
+  const { mutateAsync: mutateNetwork } = useMutateStore<string>(
+    QueryType.network
+  );
 
   const { mutateAsync: mutateSelect, reset: resetSelect } =
     useSelectWalletMutation();
@@ -82,6 +84,14 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const onLock = useCallback(() => {
     sendBackground.message("lock");
   }, []);
+
+  const onChain = useCallback(
+    async (config: NetworkConfig) => {
+      await mutateNetwork(config.name);
+      sendBackground.message("chainChanged", config.name);
+    },
+    [mutateNetwork]
+  );
 
   const onSelect = useCallback(
     async (address: string) => {
@@ -106,7 +116,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
       <DropDownList
         options={networkConfigs}
         renderOption={(c) => c.name}
-        onSelect={(c) => mutate(c.name)}
+        onSelect={onChain}
       >
         <Badge>
           {network} <ArrowDownIcon />

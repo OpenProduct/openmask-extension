@@ -223,7 +223,9 @@ const sendTransaction = async (
   }
 };
 
-export const handleDAppMessage = async (message: DAppMessage) => {
+export const handleDAppMessage = async (
+  message: DAppMessage
+): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
 
   switch (message.method) {

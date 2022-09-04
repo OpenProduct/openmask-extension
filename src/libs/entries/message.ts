@@ -5,3 +5,32 @@ export interface DAppMessage {
   origin: string;
   event: boolean;
 }
+
+export type OpenMaskApiMessage = OpenMaskApiResponse | OpenMaskApiEvent;
+
+export interface OpenMaskError {
+  message: string;
+  code: number;
+  description?: string;
+}
+export interface OpenMaskApiResponse {
+  type: "TonMaskAPI";
+  message: {
+    jsonrpc: "2.0";
+    id: number;
+    method: string;
+    result: undefined | unknown;
+    error?: OpenMaskError;
+  };
+}
+
+export interface OpenMaskApiEvent {
+  type: "TonMaskAPI";
+  message: {
+    jsonrpc: "2.0";
+    id?: undefined;
+    method: "accountsChanged" | "chainChanged";
+    result: undefined | unknown;
+    error?: OpenMaskError;
+  };
+}

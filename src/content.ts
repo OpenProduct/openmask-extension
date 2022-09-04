@@ -63,15 +63,18 @@ async function setupStream() {
     try {
       port.postMessage(payload);
     } catch (err) {
-      const isInvalidated = (err as Error).message
+      const errorMessage = (err as Error).message;
+
+      const isInvalidated = errorMessage
         .toString()
         .includes("Extension context invalidated");
+
       if (isInvalidated) {
         window.removeEventListener("message", onPageMessage);
         return;
       }
 
-      const isDisconnected = (err as Error).message
+      const isDisconnected = errorMessage
         .toString()
         .includes("disconnected port");
 
@@ -79,17 +82,15 @@ async function setupStream() {
         connectBackground();
         sendMessageToActivePort(payload, true);
       } else {
-        onPortMessage(
-          JSON.stringify({
-            type: "TonMaskAPI",
-            message: {
-              id: payload?.message?.id,
-              method: payload?.message?.method,
-              error: { message: (err as Error).message },
-              jsonrpc: true,
-            },
-          })
-        );
+        onPortMessage({
+          type: "TonMaskAPI",
+          message: {
+            id: payload?.message?.id,
+            method: payload?.message?.method,
+            error: { message: errorMessage },
+            jsonrpc: true,
+          },
+        });
       }
     }
   };

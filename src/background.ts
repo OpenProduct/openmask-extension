@@ -1,5 +1,7 @@
 import browser from "webextension-polyfill";
-import { popUpEventEmitter } from "./libs/event";
+import { OpenMaskApiEvent, OpenMaskApiResponse } from "./libs/entries/message";
+import { backgroundEventsEmitter, popUpEventEmitter } from "./libs/event";
+import { RuntimeError } from "./libs/exception";
 import { handleDAppMessage } from "./libs/service/backgroundDAppService";
 import { setPopUpPort } from "./libs/service/backgroundPopUpService";
 
@@ -9,8 +11,8 @@ const providerResponse = (
   id: number,
   method: string,
   result: undefined | unknown,
-  error?: string
-) => {
+  error?: RuntimeError
+): OpenMaskApiResponse => {
   return {
     type: "TonMaskAPI",
     message: {
@@ -18,7 +20,27 @@ const providerResponse = (
       id,
       method,
       result,
-      error,
+      error: error
+        ? {
+            message: error.message,
+            code: error.code,
+            description: error.description,
+          }
+        : undefined,
+    },
+  };
+};
+
+const providerEvent = (
+  method: "accountsChanged" | "chainChanged",
+  result: undefined | unknown
+): OpenMaskApiEvent => {
+  return {
+    type: "TonMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      method,
+      result,
     },
   };
 };
@@ -46,7 +68,7 @@ browser.runtime.onConnect.addListener((port) => {
 
       const [result, error] = await handleDAppMessage(msg.message)
         .then((result) => [result, undefined] as const)
-        .catch((e: Error) => [undefined, e.message] as const);
+        .catch((e: RuntimeError) => [undefined, e] as const);
 
       console.log({ msg, result, error });
       if (contentPort) {
@@ -59,4 +81,17 @@ browser.runtime.onConnect.addListener((port) => {
       contentScriptPorts.delete(port);
     });
   }
+});
+
+backgroundEventsEmitter.on("chainChanged", (message) => {
+  contentScriptPorts.forEach((port) => {
+    port.postMessage(providerEvent("chainChanged", message.params));
+  });
+});
+
+backgroundEventsEmitter.on("accountsChanged", (message) => {
+  contentScriptPorts.forEach((port) => {
+    console.log(port.sender);
+    port.postMessage(providerEvent("accountsChanged", message.params));
+  });
 });

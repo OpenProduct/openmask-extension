@@ -1,7 +1,17 @@
+import { OpenMaskApiMessage } from "./libs/entries/message";
 import { EventEmitter } from "./libs/eventEmitter";
 
+const seeIsEvent = (method: string) => {
+  switch (method) {
+    case "accountsChanged":
+    case "chainChanged":
+      return true;
+    default:
+      return false;
+  }
+};
 class TonProvider extends EventEmitter {
-  isTonMask = true;
+  isOpenMask = true;
 
   targetOrigin = "*";
   nextJsonRpcId = 0;
@@ -80,9 +90,10 @@ class TonProvider extends EventEmitter {
     if (!event || !event.data) {
       return;
     }
-    const data = event.data;
 
-    if (data.type !== "TonMaskAPI") return;
+    if (event.data.type !== "TonMaskAPI") return;
+
+    const data: OpenMaskApiMessage = event.data;
 
     console.log(event.data);
 
@@ -97,10 +108,7 @@ class TonProvider extends EventEmitter {
     if (typeof id !== "undefined") {
       const promise = this.promises[id];
       if (promise) {
-        // Handle pending promise
-        if (data.type === "error") {
-          promise.reject(message);
-        } else if (message.error) {
+        if (message.error) {
           promise.reject(error);
         } else {
           promise.resolve(result);
@@ -108,12 +116,8 @@ class TonProvider extends EventEmitter {
         delete this.promises[id];
       }
     } else {
-      if (method) {
-        if (method === "ton_accounts") {
-          this.emit("accountsChanged", message.params);
-        } else if (method === "ton_network") {
-          this.emit("chainChanged", message.params);
-        }
+      if (method && seeIsEvent(method)) {
+        this.emit(method, result);
       }
     }
   };

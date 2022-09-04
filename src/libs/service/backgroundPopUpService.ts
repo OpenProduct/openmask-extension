@@ -8,6 +8,13 @@ import {
 import memoryStore from "../store/memoryStore";
 import { confirmWalletSeqNo } from "./walletService";
 
+/**
+ * Service methods and subscription to handle PopUp events
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
 let popUpPort: browser.Runtime.Port;
 
 export const setPopUpPort = (port: browser.Runtime.Port) => {
@@ -57,18 +64,6 @@ popUpEventEmitter.on("lock", () => {
   sendMessageToPopUp("locked");
 });
 
-popUpEventEmitter.on("approveRequest", (message) => {
-  backgroundEventsEmitter.emit("approveRequest", message);
-});
-
-popUpEventEmitter.on("rejectRequest", (message) => {
-  backgroundEventsEmitter.emit("rejectRequest", message);
-});
-
-popUpEventEmitter.on("approveTransaction", (message) => {
-  backgroundEventsEmitter.emit("approveTransaction", message);
-});
-
 popUpEventEmitter.on("storeOperation", (message) => {
   memoryStore.setOperation(message.params);
 });
@@ -86,3 +81,21 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
     sendResponseToPopUp(message.id);
   }
 });
+
+// Just Proxy messages to background service
+popUpEventEmitter.on("approveRequest", (message) => {
+  backgroundEventsEmitter.emit("approveRequest", message);
+});
+
+popUpEventEmitter.on("rejectRequest", (message) => {
+  backgroundEventsEmitter.emit("rejectRequest", message);
+});
+
+popUpEventEmitter.on("approveTransaction", (message) => {
+  backgroundEventsEmitter.emit("approveTransaction", message);
+});
+
+popUpEventEmitter.on("chainChanged", (message) => {
+  backgroundEventsEmitter.emit("chainChanged", message);
+});
+// End of proxy messages

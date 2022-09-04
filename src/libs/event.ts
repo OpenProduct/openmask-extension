@@ -49,6 +49,8 @@ export interface PupUpEvents {
   confirmSeqNo: number;
   storeOperation: UnfinishedOperation;
   getOperation: void;
+
+  chainChanged: string;
 }
 
 export interface ApproveTransaction {
@@ -63,6 +65,9 @@ export interface BackgroundEvents {
   rejectRequest: number;
   approveTransaction: ApproveTransaction;
   closedPopUp: number;
+
+  chainChanged: string;
+  accountsChanged: string[];
 }
 
 export const RESPONSE = "Response";
