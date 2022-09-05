@@ -99,6 +99,7 @@ const Comment = styled.div`
 interface ConfirmProps {
   state: State;
   price?: number;
+  balance?: string;
   onSend: (seqNo: number, transactionId?: string) => void;
 }
 
@@ -107,8 +108,13 @@ const fiatFees = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
 });
 
-export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
-  const { data: method, error, isFetching } = useMethod(state);
+export const ConfirmView: FC<ConfirmProps> = ({
+  state,
+  balance,
+  price,
+  onSend,
+}) => {
+  const { data: method, error, isFetching } = useMethod(state, balance);
   const { data } = useEstimateFee(method);
 
   const { mutateAsync, isLoading } = useSendMutation();

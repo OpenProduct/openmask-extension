@@ -1,5 +1,6 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import styled from "styled-components";
+import { formatTonValue } from "../screen/api";
 import { useTonFiat } from "../screen/home/wallet/balance/Fiat";
 import { BaseLogoIcon } from "./Icons";
 
@@ -55,6 +56,10 @@ export const Asset: FC<AssetProps> = ({
 }) => {
   const fiat = useTonFiat(balance, price);
 
+  const formatted = useMemo(() => {
+    return balance ? formatTonValue(balance) : undefined;
+  }, [balance]);
+
   return (
     <Block>
       <Image>
@@ -68,7 +73,7 @@ export const Asset: FC<AssetProps> = ({
       </Image>
       <Text>
         <Balance>
-          {balance} {name}
+          {formatted} {name}
         </Balance>
         {fiat && <Fiat>{fiat}$</Fiat>}
       </Text>

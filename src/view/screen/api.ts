@@ -27,8 +27,12 @@ const balanceFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
 });
 
+export const numberTonValue = (value: string): number => {
+  return parseFloat(fromNano(value));
+};
+
 export const formatTonValue = (value: string): string => {
-  return balanceFormat.format(parseFloat(fromNano(value)));
+  return balanceFormat.format(numberTonValue(value));
 };
 
 export const toShortAddress = (address: string): string => {

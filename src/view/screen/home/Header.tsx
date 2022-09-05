@@ -12,6 +12,7 @@ import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
 import { AccountStateContext, NetworkContext } from "../../context";
 import { sendBackground } from "../../event";
 import { AppRoute } from "../../routes";
+import { formatTonValue } from "../api";
 import { ConnectRoutes } from "../import/ConnectWallet";
 import { useBalance, useSelectWalletMutation } from "./api";
 
@@ -64,7 +65,7 @@ const Account: FC<{
         </>
       )}
       {wallet.name}
-      {data && <Balance>{data} TON</Balance>}
+      {data && <Balance>{formatTonValue(data)} TON</Balance>}
     </AccountItem>
   );
 };

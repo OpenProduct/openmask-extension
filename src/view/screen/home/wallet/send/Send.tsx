@@ -21,6 +21,7 @@ import { LoadingLogo } from "../../../../components/Logo";
 import { NetworkContext, WalletAddressContext } from "../../../../context";
 import { askBackground, sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
+import { formatTonValue } from "../../../api";
 import { useNetworkConfig } from "../../api";
 import { State, stateToSearch, toState } from "./api";
 import { CancelButton, ConfirmView } from "./ConfirmView";
@@ -58,6 +59,10 @@ interface InputProps {
 }
 
 const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
+  const formatted = useMemo(() => {
+    return balance ? formatTonValue(balance) : "-";
+  }, [balance]);
+
   return (
     <Body>
       <H1>Send TON</H1>
@@ -74,10 +79,17 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         onChange={(e) => onChange({ amount: e.target.value, max: "0" })}
       />
       <MaxRow>
-        <MaxButton onClick={() => onChange({ amount: balance, max: "1" })}>
+        <MaxButton
+          onClick={() =>
+            onChange({
+              amount: balance ? formatTonValue(balance) : "0",
+              max: "1",
+            })
+          }
+        >
           Max
         </MaxButton>
-        {balance} TON
+        {formatted} TON
       </MaxRow>
 
       <Label>Comment (optional)</Label>
@@ -247,5 +259,12 @@ export const Send: FC<Props> = ({ price, balance }) => {
     );
   }
 
-  return <ConfirmView state={state} price={price} onSend={onSend} />;
+  return (
+    <ConfirmView
+      state={state}
+      balance={balance}
+      price={price}
+      onSend={onSend}
+    />
+  );
 };

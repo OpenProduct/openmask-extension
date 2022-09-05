@@ -10,7 +10,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../context";
-import { formatTonValue, saveAccountState } from "../api";
+import { saveAccountState } from "../api";
 
 export const useSelectWalletMutation = () => {
   const account = useContext(AccountStateContext);
@@ -29,10 +29,9 @@ export const useBalance = (address: string) => {
   const network = useContext(NetworkContext);
   const ton = useContext(TonProviderContext);
 
-  return useQuery<string>([network, address, QueryType.balance], async () => {
-    const value = await ton.getBalance(address);
-    return formatTonValue(value);
-  });
+  return useQuery<string>([network, address, QueryType.balance], async () =>
+    ton.getBalance(address)
+  );
 };
 
 export const useAddress = () => {

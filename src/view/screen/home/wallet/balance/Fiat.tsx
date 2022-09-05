@@ -1,5 +1,6 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
+import { numberTonValue } from "../../../api";
 
 const Price = styled.span`
   margin: 0 0 20px;
@@ -16,7 +17,7 @@ const fiatFormat = new Intl.NumberFormat("en-US", {
 export const useTonFiat = (balance?: string, price?: number) => {
   return useMemo(() => {
     if (price && balance) {
-      return `${fiatFormat.format(parseFloat(balance) * price)}`;
+      return `${fiatFormat.format(numberTonValue(balance) * price)}`;
     } else {
       return undefined;
     }
@@ -28,5 +29,5 @@ export const Fiat: FC<{ balance?: string; price?: number }> = ({
   price,
 }) => {
   const value = useTonFiat(balance, price);
-  return <Price>{value ?? "-"}$</Price>;
+  return <Price>USD {value ?? "-"}$</Price>;
 };

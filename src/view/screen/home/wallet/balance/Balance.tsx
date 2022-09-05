@@ -1,9 +1,10 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Icon } from "../../../../components/Components";
 import { ReceiveIcon, SendIcon, TonIcon } from "../../../../components/Icons";
 import { AppRoute } from "../../../../routes";
+import { formatTonValue } from "../../../api";
 import { Fiat } from "./Fiat";
 
 const Block = styled(Container)`
@@ -53,12 +54,16 @@ export interface BalanceProps {
 export const Balance: FC<BalanceProps> = ({ balance, price }) => {
   const navigate = useNavigate();
 
+  const formatted = useMemo(() => {
+    return balance ? formatTonValue(balance) : "-";
+  }, [balance]);
+
   return (
     <Block>
       <NetworkLogo>
         <TonIcon />
       </NetworkLogo>
-      <Amount>{balance ?? "-"} TON</Amount>
+      <Amount>{formatted} TON</Amount>
       <Fiat balance={balance} price={price} />
       <Row>
         <Column onClick={() => navigate(AppRoute.receive)}>

@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 import { WalletAddressContext, WalletStateContext } from "../../context";
 import { any, AppRoute } from "../../routes";
-import { useAddress, useBalance, useCoinPrice } from "./api";
+import { useBalance, useCoinPrice } from "./api";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";
@@ -20,16 +20,11 @@ const Body = styled.div`
 export const Home = () => {
   const wallet = useContext(WalletStateContext);
 
-  const { data: address } = useAddress();
-
-  const friendly =
-    address?.toString(true, true, wallet.isBounceable) ?? wallet.address;
-
-  const { data: balance } = useBalance(friendly);
+  const { data: balance } = useBalance(wallet.address);
   const { data: price } = useCoinPrice(balance != null);
 
   return (
-    <WalletAddressContext.Provider value={friendly}>
+    <WalletAddressContext.Provider value={wallet.address}>
       <Body>
         <WalletInfo />
         <Routes>
