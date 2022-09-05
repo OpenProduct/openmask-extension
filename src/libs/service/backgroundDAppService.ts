@@ -20,8 +20,8 @@ import {
 } from "./notificationService";
 import { confirmWalletSeqNo } from "./walletService";
 
-const getWalletsByOrigin = async (origin: string) => {
-  const whitelist = await getConnections();
+const getWalletsByOrigin = async (origin: string, network: string) => {
+  const whitelist = await getConnections(network);
   const account = whitelist[origin];
   if (account == null) {
     throw new RuntimeError(
@@ -30,11 +30,19 @@ const getWalletsByOrigin = async (origin: string) => {
     );
   }
 
-  return account.wallets;
+  const wallets = Object.keys(account.connect);
+  if (wallets.length === 0) {
+    throw new RuntimeError(
+      ErrorCode.unauthorizeOperation,
+      `Origin "${origin}" don't have access to wallets for "${network}"`
+    );
+  }
+  return wallets;
 };
 
 const getBalance = async (origin: string, wallet: string | undefined) => {
-  const config = getNetworkConfig(await getNetwork());
+  const network = await getNetwork();
+  const config = getNetworkConfig(network);
 
   const provider = new HttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
@@ -46,21 +54,21 @@ const getBalance = async (origin: string, wallet: string | undefined) => {
     return result;
   }
 
-  const [first] = await getWalletsByOrigin(origin);
+  const [first] = await getWalletsByOrigin(origin, network);
   const result = await provider.getBalance(first);
   console.log({ result });
   return result;
 };
 
-const getConnectedWallets = async (origin: string) => {
-  if (memoryStore.isLock()) {
-    throw new RuntimeError(
-      ErrorCode.unauthorizeOperation,
-      `Application locked`
-    );
-  }
+const getConnectedWallets = async (origin: string, network: string) => {
+  // if (memoryStore.isLock()) {
+  //   throw new RuntimeError(
+  //     ErrorCode.unauthorizeOperation,
+  //     `Application locked`
+  //   );
+  // }
 
-  return await getWalletsByOrigin(origin);
+  return await getWalletsByOrigin(origin, network);
 };
 
 const waitUnlock = (popupId?: number) => {
@@ -116,15 +124,19 @@ const waitApprove = (id: number, popupId?: number) => {
 };
 
 const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
+  const network = await getNetwork();
   if (!isEvent) {
-    return await getConnectedWallets(origin);
+    return await getConnectedWallets(origin, network);
   }
   const whitelist = await getConnections();
   if (whitelist[origin] != null) {
     if (memoryStore.isLock()) {
       const popupId = await openConnectUnlockPopUp();
-      await waitUnlock(popupId);
-      await closeCurrentPopUp(popupId);
+      try {
+        await waitUnlock(popupId);
+      } finally {
+        await closeCurrentPopUp(popupId);
+      }
     }
   } else {
     const [tab] = await browser.tabs.query({ active: true });
@@ -135,12 +147,12 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
       await closeCurrentPopUp(popupId);
     }
   }
-  return await getConnectedWallets(origin);
+  return await getConnectedWallets(origin, network);
 };
 
 const switchActiveAddress = async (origin: string, from?: string) => {
-  const wallets = await getWalletsByOrigin(origin);
   const network = await getNetwork();
+  const wallets = await getWalletsByOrigin(origin, network);
   const account = await getAccountState(network);
 
   if (!from) {
@@ -251,11 +263,8 @@ export const handleDAppMessage = async (
       return confirmWalletSeqNo(message.params[0]);
     }
 
-    case "ton_getNetwork": {
-      return getNetwork();
-    }
     case "ton_getAccounts": {
-      return getConnectedWallets(origin);
+      return getConnectedWallets(origin, await getNetwork());
     }
     default:
       throw new RuntimeError(

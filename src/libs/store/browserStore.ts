@@ -51,8 +51,12 @@ export const getNetwork = () => {
   return getStoreValue(QueryType.network, networkConfigs[0].name);
 };
 
-export const getConnections = () => {
-  return getStoreValue<Connections>(QueryType.connection, defaultConnections);
+export const getConnections = (network?: string) => {
+  return getNetworkStoreValue<Connections>(
+    QueryType.connection,
+    defaultConnections,
+    network
+  );
 };
 
 export const getAccountState = (network?: string) => {
@@ -67,8 +71,8 @@ export const setAccountState = (value: AccountState, network?: string) => {
   return setNetworkStoreValue<AccountState>(QueryType.account, value, network);
 };
 
-export const setConnections = (value: Connections) => {
-  return setStoreValue(QueryType.connection, value);
+export const setConnections = (value: Connections, network?: string) => {
+  return setNetworkStoreValue(QueryType.connection, value, network);
 };
 
 export const getNetworkStoreValue = async <T>(
@@ -90,8 +94,9 @@ export const getNetworkStoreValue = async <T>(
 export const setNetworkStoreValue = async <T>(
   query: QueryType,
   value: T,
-  network?: string
+  networkValue?: string
 ) => {
+  const network = networkValue ?? (await getNetwork());
   const { local } = browser.storage;
   await local.set({ [`${network}_${query}`]: value });
   const err = checkForError();

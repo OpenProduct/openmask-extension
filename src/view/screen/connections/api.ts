@@ -1,17 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useContext } from "react";
 import {
   Connections,
   defaultConnections,
 } from "../../../libs/entries/connection";
 import {
-  getStoreValue,
+  getNetworkStoreValue,
   QueryType,
   setConnections,
 } from "../../../libs/store/browserStore";
+import { NetworkContext } from "../../context";
 
 export const useConnections = () => {
-  return useQuery([QueryType.connection], () =>
-    getStoreValue<Connections>(QueryType.connection, defaultConnections)
+  const network = useContext(NetworkContext);
+  return useQuery([network, QueryType.connection], () =>
+    getNetworkStoreValue<Connections>(
+      QueryType.connection,
+      defaultConnections,
+      network
+    )
   );
 };
 

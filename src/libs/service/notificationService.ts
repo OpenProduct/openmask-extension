@@ -71,7 +71,11 @@ export const openConnectUnlockPopUp = async () => {
 
 export const closeCurrentPopUp = async (popupId: number | undefined) => {
   if (popupId) {
-    await ExtensionPlatform.closeWindow(popupId);
+    try {
+      await ExtensionPlatform.closeWindow(popupId);
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 

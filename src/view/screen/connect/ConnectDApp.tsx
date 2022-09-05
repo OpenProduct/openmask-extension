@@ -1,6 +1,7 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { Permission, PermissionList } from "../../../libs/entries/permission";
 import { WalletState } from "../../../libs/entries/wallet";
 import {
   Body,
@@ -15,6 +16,7 @@ import {
 } from "../../components/Components";
 import { AccountStateContext } from "../../context";
 import { sendBackground } from "../../event";
+import { toShortAddress } from "../api";
 import { useBalance } from "../home/api";
 import { useAddConnectionMutation } from "./api";
 
@@ -88,8 +90,11 @@ const Wallet: FC<{
 export const ConnectDApp = () => {
   const [searchParams] = useSearchParams();
   const origin = searchParams.get("origin");
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
   const logo = searchParams.get("logo");
+
+  const id = parseInt(searchParams.get("id") ?? "0", 10);
+
+  const [permission, setPermission] = useState(false);
 
   useEffect(() => {
     if (!origin) {
@@ -99,7 +104,6 @@ export const ConnectDApp = () => {
 
   const account = useContext(AccountStateContext);
 
-  const { mutate, isLoading } = useAddConnectionMutation();
   const [selected, setSelected] = useState(
     account.wallets.map((w) => w.address)
   );
@@ -108,9 +112,21 @@ export const ConnectDApp = () => {
     sendBackground.message("rejectRequest", id);
   };
 
-  const onConnect = () => {
-    mutate({ id, origin: origin!, wallets: selected, logo });
+  const onNext = () => {
+    setPermission(true);
   };
+
+  if (permission) {
+    return (
+      <ConfirmPermission
+        origin={origin}
+        addresses={selected}
+        logo={logo}
+        id={id}
+        onBack={() => setPermission(false)}
+      />
+    );
+  }
 
   return (
     <Body>
@@ -144,8 +160,101 @@ export const ConnectDApp = () => {
       </Scroll>
       <Gap />
       <ButtonBottomRow>
-        <ButtonNegative onClick={onCancel} disabled={isLoading}>
-          Cancel
+        <ButtonNegative onClick={onCancel}>Cancel</ButtonNegative>
+        <ButtonPositive onClick={onNext}>Next</ButtonPositive>
+      </ButtonBottomRow>
+    </Body>
+  );
+};
+
+const toPermissionDescription = (permission: Permission) => {
+  switch (permission) {
+    case Permission.base:
+      return "See address, account balance, activity and suggest transactions to approve";
+    case Permission.switchNetwork:
+      return "Allow to switch networks";
+  }
+};
+
+const PermissionView: FC<{
+  permission: Permission;
+  selected: boolean;
+  onSelect: (value: boolean) => void;
+  disabled: boolean;
+}> = ({ permission, selected, onSelect, disabled }) => {
+  return (
+    <Label key={permission}>
+      <input
+        type="checkbox"
+        checked={selected}
+        disabled={disabled}
+        onChange={() => onSelect(!selected)}
+      />
+      <Column>
+        <div>{toPermissionDescription(permission)}</div>
+      </Column>
+    </Label>
+  );
+};
+
+interface ConfirmProps {
+  id: number;
+  logo: string | null;
+  origin: string | null;
+  addresses: string[];
+  onBack: () => void;
+}
+
+export const ConfirmPermission: FC<ConfirmProps> = ({
+  id,
+  logo,
+  origin,
+  addresses,
+  onBack,
+}) => {
+  const { mutate, isLoading } = useAddConnectionMutation();
+
+  const [permissions, setPermissions] = useState<Permission[]>([
+    Permission.base,
+  ]);
+
+  const onConnect = () => {
+    mutate({ id, origin: origin!, wallets: addresses, logo, permissions });
+  };
+  return (
+    <Body>
+      <Center>
+        <Badge>
+          {logo && <Logo src={logo} alt="Logo" />}
+          <Origin>{origin}</Origin>
+        </Badge>
+        <H1>Connect With OpenMask</H1>
+        <Text>Address: {addresses.map(toShortAddress).join(", ")}</Text>
+        <Text>Allow this site to:</Text>
+      </Center>
+      {PermissionList.map((item) => {
+        return (
+          <PermissionView
+            key={item}
+            permission={item}
+            disabled={item === Permission.base}
+            selected={permissions.includes(item)}
+            onSelect={(value) => {
+              if (value) {
+                setPermissions((permissions) => permissions.concat([item]));
+              } else {
+                setPermissions((permissions) =>
+                  permissions.filter((permission) => permission !== item)
+                );
+              }
+            }}
+          />
+        );
+      })}
+      <Gap />
+      <ButtonBottomRow>
+        <ButtonNegative onClick={onBack} disabled={isLoading}>
+          Back
         </ButtonNegative>
         <ButtonPositive onClick={onConnect} disabled={isLoading}>
           Connect

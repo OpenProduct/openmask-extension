@@ -1,26 +1,46 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
 import browser from "webextension-polyfill";
+import { Permission } from "../../../libs/entries/permission";
 import {
   getConnections,
   QueryType,
   setConnections,
 } from "../../../libs/store/browserStore";
+import { NetworkContext } from "../../context";
 import { sendBackground } from "../../event";
 
+interface ConnectParams {
+  origin: string;
+  wallets: string[];
+  id: number;
+  logo: string | null;
+  permissions: Permission[];
+}
+
 export const useAddConnectionMutation = () => {
-  return useMutation<
-    void,
-    Error,
-    { origin: string; wallets: string[]; id: number; logo: string | null }
-  >(async ({ origin, wallets, id, logo }) => {
-    const connections = await getConnections();
+  const network = useContext(NetworkContext);
+  return useMutation<void, Error, ConnectParams>(
+    async ({ origin, wallets, id, logo, permissions }) => {
+      const connections = await getConnections(network);
 
-    connections[origin] = { wallets, logo };
+      const connection = connections[origin] ?? { logo, connect: {} };
 
-    await setConnections(connections);
+      wallets.forEach((wallet) => {
+        if (connection.connect[wallet]) {
+          connection.connect[wallet].push(...permissions);
+        } else {
+          connection.connect[wallet] = permissions;
+        }
+      });
 
-    sendBackground.message("approveRequest", id);
-  });
+      connections[origin] = connection;
+
+      await setConnections(connections, network);
+
+      sendBackground.message("approveRequest", id);
+    }
+  );
 };
 
 export const useActiveTabs = () => {
