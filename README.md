@@ -13,7 +13,7 @@ To learn how to develop OpenMask-compatible applications, visit our [Developer D
 ## Building locally
 
 - Install [Node.js](https://nodejs.org) version 16
-- Install dependencies: `npm install` (not the usual install command)
+- Install dependencies: `npm install`
 - Create `.env` file with variables
 
 ```
