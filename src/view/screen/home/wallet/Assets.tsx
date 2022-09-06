@@ -11,6 +11,7 @@ import {
 } from "../../../components/Components";
 import { LinkIcon, TonIcon } from "../../../components/Icons";
 import { AppRoute } from "../../../routes";
+import packageJson from "/package.json";
 
 const Line = styled(Text)`
   padding-bottom: 5px;
@@ -37,7 +38,7 @@ export const Assets: FC<{ balance?: string; price?: number }> = ({
           <InlineButtonLink
             onClick={() => {
               ExtensionPlatform.openTab({
-                url: `https://github.com/TonMask/tonmask-extension/issues`,
+                url: `${packageJson.repository}/issues`,
               });
             }}
           >

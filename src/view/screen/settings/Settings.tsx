@@ -54,7 +54,7 @@ const About = () => {
             alt="OpenMask Logo"
           />
         </Text>
-        <Text>OpenMask version {packageJson.version}</Text>
+        <Text>OpenMask Beta version {packageJson.version}</Text>
         <Text>Non-custodial web extension wallet for The Open Network</Text>
         <Text>Links:</Text>
         <TextLink
@@ -69,7 +69,7 @@ const About = () => {
         <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `https://github.com/TonMask`,
+              url: `https://github.com/OpenProduct`,
             });
           }}
         >
@@ -78,7 +78,7 @@ const About = () => {
         <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `https://github.com/TonMask/tonmask-extension/issues`,
+              url: `${packageJson.repository}/issues`,
             });
           }}
         >
