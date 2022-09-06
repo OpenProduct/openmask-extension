@@ -1,6 +1,7 @@
 import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import BN from "bn.js";
 import { getNetworkConfig } from "../entries/network";
+import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { getAccountState, getNetwork } from "../store/browserStore";
 
@@ -40,4 +41,9 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
       console.error(e);
     }
   } while (currentSeqNo <= walletSeqNo);
+
+  backgroundEventsEmitter.emit("accountsChanged", {
+    method: "accountsChanged",
+    params: [activeWallet],
+  });
 };

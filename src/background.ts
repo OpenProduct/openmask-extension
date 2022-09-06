@@ -1,9 +1,13 @@
 import browser from "webextension-polyfill";
 import { OpenMaskApiEvent, OpenMaskApiResponse } from "./libs/entries/message";
-import { backgroundEventsEmitter, popUpEventEmitter } from "./libs/event";
+import { backgroundEventsEmitter } from "./libs/event";
 import { RuntimeError } from "./libs/exception";
-import { handleDAppMessage } from "./libs/service/backgroundDAppService";
-import { setPopUpPort } from "./libs/service/backgroundPopUpService";
+import {
+  handleDAppMessage,
+  seeIfTabHaveAccess,
+} from "./libs/service/backgroundDAppService";
+import { handlePopUpConnection } from "./libs/service/backgroundPopUpService";
+import { getConnections } from "./libs/store/browserStore";
 
 let contentScriptPorts = new Set<browser.Runtime.Port>();
 
@@ -47,16 +51,7 @@ const providerEvent = (
 
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "OpenMaskUI") {
-    setPopUpPort(port);
-
-    port.onMessage.addListener((message) => {
-      console.log(message);
-      popUpEventEmitter.emit<any>(message.method, message);
-    });
-
-    port.onDisconnect.addListener(() => {
-      setPopUpPort(null!);
-    });
+    handlePopUpConnection(port);
   }
 
   if (port.name === "OpenMaskContentScript") {
@@ -89,9 +84,17 @@ backgroundEventsEmitter.on("chainChanged", (message) => {
   });
 });
 
-backgroundEventsEmitter.on("accountsChanged", (message) => {
-  contentScriptPorts.forEach((port) => {
-    console.log(port.sender);
-    port.postMessage(providerEvent("accountsChanged", message.params));
-  });
+backgroundEventsEmitter.on("accountsChanged", async (message) => {
+  try {
+    const connections = await getConnections();
+    contentScriptPorts.forEach((port) => {
+      console.log(port.sender);
+      const access = seeIfTabHaveAccess(port, connections, message.params);
+      if (access) {
+        port.postMessage(providerEvent("accountsChanged", message.params));
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
 });

@@ -1,5 +1,6 @@
 import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
+import { Connections } from "../entries/connection";
 import { DAppMessage } from "../entries/message";
 import { getNetworkConfig, networkConfigs } from "../entries/network";
 import { Permission } from "../entries/permission";
@@ -346,4 +347,20 @@ export const handleDAppMessage = async (
         `Method "${message.method}" not implemented`
       );
   }
+};
+
+export const seeIfTabHaveAccess = (
+  port: browser.Runtime.Port,
+  connections: Connections,
+  accounts: string[]
+) => {
+  if (!port.sender || !port.sender.url) {
+    return false;
+  }
+  const url = new URL(port.sender.url);
+  if (!connections[url.origin]) {
+    return false;
+  }
+  const wallets = Object.keys(connections[url.origin].connect);
+  return wallets.includes(accounts[0]);
 };

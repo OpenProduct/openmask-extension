@@ -1,3 +1,10 @@
+/**
+ * Service methods and subscription to handle PopUp events
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
 import browser from "webextension-polyfill";
 import {
   BackgroundEvents,
@@ -8,17 +15,19 @@ import {
 import memoryStore from "../store/memoryStore";
 import { confirmWalletSeqNo } from "./walletService";
 
-/**
- * Service methods and subscription to handle PopUp events
- *
- * @author: KuznetsovNikita
- * @since: 0.1.0
- */
-
 let popUpPort: browser.Runtime.Port;
 
-export const setPopUpPort = (port: browser.Runtime.Port) => {
+export const handlePopUpConnection = (port: browser.Runtime.Port) => {
   popUpPort = port;
+
+  port.onMessage.addListener((message) => {
+    console.log(message);
+    popUpEventEmitter.emit<any>(message.method, message);
+  });
+
+  port.onDisconnect.addListener(() => {
+    popUpPort = null!;
+  });
 };
 
 export const sendMessageToPopUp = <Payload>(
@@ -97,5 +106,9 @@ popUpEventEmitter.on("approveTransaction", (message) => {
 
 popUpEventEmitter.on("chainChanged", (message) => {
   backgroundEventsEmitter.emit("chainChanged", message);
+});
+
+popUpEventEmitter.on("accountsChanged", (message) => {
+  backgroundEventsEmitter.emit("accountsChanged", message);
 });
 // End of proxy messages

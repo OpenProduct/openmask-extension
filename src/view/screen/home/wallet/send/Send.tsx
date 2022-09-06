@@ -120,6 +120,7 @@ const LoadingView: FC<{ seqNo: string; onConfirm: () => void }> = React.memo(
       askBackground<void>(timeout)
         .message("confirmSeqNo", parseInt(seqNo))
         .then(() => {
+          sendBackground.message("accountsChanged", [address]);
           client.invalidateQueries([network, address]);
           onConfirm();
         });
