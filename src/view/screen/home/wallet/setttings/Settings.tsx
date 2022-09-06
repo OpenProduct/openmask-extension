@@ -18,7 +18,7 @@ import {
 import { DropDownList } from "../../../../components/DropDown";
 import { HomeButton } from "../../../../components/HomeButton";
 import { ArrowDownIcon, DeleteIcon } from "../../../../components/Icons";
-import { TonProviderContext, WalletStateContext } from "../../../../context";
+import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
 import { decryptMnemonic } from "../../../api";
 import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
@@ -62,7 +62,6 @@ enum WalletRoutes {
 const SettingsIndex = () => {
   const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
 
   const [name, setName] = useState(wallet.name);
 

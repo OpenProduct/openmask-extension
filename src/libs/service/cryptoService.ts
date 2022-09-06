@@ -1,4 +1,12 @@
 /**
+ * Service methods to decrypt and encrypt values
+ * Original code: https://github.com/toncenter/ton-wallet/blob/82d8a66736d25e5a37b45654b17caf9755252792/src/js/Controller.js#L68
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
+/**
  * @param plaintext {string}
  * @param password {string}
  * @return {Promise<string>}

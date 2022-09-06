@@ -3,6 +3,13 @@ import { TransactionParams } from "../entries/transaction";
 import { backgroundEventsEmitter } from "../event";
 import ExtensionPlatform from "./extension";
 
+/**
+ * Service methods to manage notification PopUp
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
 const NOTIFICATION_HEIGHT = 620;
 const NOTIFICATION_WIDTH = 380;
 

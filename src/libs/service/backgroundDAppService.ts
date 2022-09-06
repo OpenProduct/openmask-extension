@@ -20,6 +20,13 @@ import {
 } from "./notificationService";
 import { confirmWalletSeqNo } from "./walletService";
 
+/**
+ * Service methods and subscription to handle DApp events
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
 const getWalletsByOrigin = async (origin: string, network: string) => {
   const whitelist = await getConnections(network);
   const account = whitelist[origin];
