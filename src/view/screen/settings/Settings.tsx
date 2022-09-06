@@ -1,7 +1,7 @@
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ExtensionPlatform from "../../../libs/service/extension";
-import { Body, H1, Text } from "../../components/Components";
+import { Body, H1, Text, TextLink } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
@@ -40,12 +40,6 @@ const SettingsIndex = () => {
   );
 };
 
-const Link = styled(Text)`
-  font-size: large;
-  color: ${(props) => props.theme.darkBlue};
-  cursor: pointer;
-`;
-
 const About = () => {
   return (
     <>
@@ -63,7 +57,7 @@ const About = () => {
         <Text>OpenMask version {packageJson.version}</Text>
         <Text>Non-custodial web extension wallet for The Open Network</Text>
         <Text>Links:</Text>
-        <Link
+        <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
               url: `https://tonmask.vercel.app/`,
@@ -71,8 +65,8 @@ const About = () => {
           }}
         >
           Visit our website <LinkIcon />
-        </Link>
-        <Link
+        </TextLink>
+        <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
               url: `https://github.com/TonMask`,
@@ -80,8 +74,8 @@ const About = () => {
           }}
         >
           GitHub <LinkIcon />
-        </Link>
-        <Link
+        </TextLink>
+        <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
               url: `https://github.com/TonMask/tonmask-extension/issues`,
@@ -89,7 +83,7 @@ const About = () => {
           }}
         >
           Issue Tracker <LinkIcon />
-        </Link>
+        </TextLink>
       </Body>
     </>
   );

@@ -183,6 +183,12 @@ export const Text = styled.div`
   font-size: medium;
 `;
 
+export const TextLink = styled(Text)`
+  font-size: large;
+  color: ${(props) => props.theme.darkBlue};
+  cursor: pointer;
+`;
+
 export const Logo = styled.img`
   width: 35px;
   height: 35px;
