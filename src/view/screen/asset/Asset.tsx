@@ -21,11 +21,11 @@ export const Asset = () => {
           <TextLink
             onClick={() => {
               ExtensionPlatform.openTab({
-                url: `https://tonmask.vercel.app/`,
+                url: `https://t.me/openproduct`,
               });
             }}
           >
-            Telegram url <LinkIcon />
+            https://t.me/openproduct <LinkIcon />
           </TextLink>
         </Center>
       </Body>
