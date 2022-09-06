@@ -3,6 +3,7 @@ import BN from "bn.js";
 import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
+import { Logger } from "../logger";
 import { getAccountState, getNetwork } from "../store/browserStore";
 
 export const confirmWalletSeqNo = async (walletSeqNo: number) => {
@@ -38,7 +39,7 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
       const bn: BN = await provider.call2(activeWallet, "seqno");
       currentSeqNo = bn.toNumber();
     } catch (e) {
-      console.error(e);
+      Logger.error(e);
     }
   } while (currentSeqNo <= walletSeqNo);
 

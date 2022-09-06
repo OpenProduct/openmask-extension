@@ -96,8 +96,6 @@ class TonProvider extends EventEmitter {
 
     const data: OpenMaskApiMessage = event.data;
 
-    console.log(event.data);
-
     // Return if not a jsonrpc response
     if (!data || !data.message || !data.message.jsonrpc) {
       return;

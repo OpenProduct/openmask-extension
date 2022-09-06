@@ -6,6 +6,7 @@ import {
   RESPONSE,
 } from "../libs/event";
 import { EventEmitter } from "../libs/eventEmitter";
+import { Logger } from "../libs/logger";
 
 let port: browser.Runtime.Port;
 
@@ -29,7 +30,7 @@ export const askBackground = <R>(timeout = 5000): AskProcessor<Promise<R>> => {
         }, timeout);
 
         const handler = (message: AppEvent<string, R>) => {
-          console.log("PopUp", message);
+          Logger.log("PopUp", message);
           if (message.method === RESPONSE && message.id === id) {
             clearTimeout(timer);
             resolve(message.params);

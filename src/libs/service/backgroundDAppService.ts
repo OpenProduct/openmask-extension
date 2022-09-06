@@ -7,20 +7,21 @@ import { Permission } from "../entries/permission";
 import { TransactionParams } from "../entries/transaction";
 import { ApproveTransaction, backgroundEventsEmitter } from "../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../exception";
+import { Logger } from "../logger";
 import {
   getAccountState,
   getConnections,
   getNetwork,
   QueryType,
   setAccountState,
-  setStoreValue,
+  setStoreValue
 } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
   openSendTransactionPopUp,
-  openSwitchChainPopUp,
+  openSwitchChainPopUp
 } from "./notificationService";
 import { confirmWalletSeqNo } from "./walletService";
 
@@ -61,13 +62,13 @@ const getBalance = async (origin: string, wallet: string | undefined) => {
 
   if (wallet) {
     const result = await provider.getBalance(wallet);
-    console.log({ result });
+    Logger.log({ result });
     return result;
   }
 
   const [first] = await getWalletsByOrigin(origin, network);
   const result = await provider.getBalance(first);
-  console.log({ result });
+  Logger.log({ result });
   return result;
 };
 

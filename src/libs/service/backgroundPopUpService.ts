@@ -12,6 +12,7 @@ import {
   popUpEventEmitter,
   RESPONSE,
 } from "../event";
+import { Logger } from "../logger";
 import memoryStore from "../store/memoryStore";
 import { confirmWalletSeqNo } from "./walletService";
 
@@ -21,7 +22,7 @@ export const handlePopUpConnection = (port: browser.Runtime.Port) => {
   popUpPort = port;
 
   port.onMessage.addListener((message) => {
-    console.log(message);
+    Logger.log(message);
     popUpEventEmitter.emit<any>(message.method, message);
   });
 
@@ -40,7 +41,7 @@ export const sendMessageToPopUp = <Payload>(
     id,
     params,
   };
-  console.log("background", message);
+  Logger.log("background", message);
   popUpPort.postMessage(message);
 };
 
@@ -86,7 +87,7 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
     await confirmWalletSeqNo(message.params);
     sendResponseToPopUp(message.id);
   } catch (e) {
-    console.error(e);
+    Logger.error(e);
     sendResponseToPopUp(message.id);
   }
 });

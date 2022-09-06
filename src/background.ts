@@ -2,6 +2,7 @@ import browser from "webextension-polyfill";
 import { OpenMaskApiEvent, OpenMaskApiResponse } from "./libs/entries/message";
 import { backgroundEventsEmitter } from "./libs/event";
 import { RuntimeError } from "./libs/exception";
+import { Logger } from "./libs/logger";
 import {
   handleDAppMessage,
   seeIfTabHaveAccess,
@@ -65,7 +66,7 @@ browser.runtime.onConnect.addListener((port) => {
         .then((result) => [result, undefined] as const)
         .catch((e: RuntimeError) => [undefined, e] as const);
 
-      console.log({ msg, result, error });
+      Logger.log({ msg, result, error });
       if (contentPort) {
         contentPort.postMessage(
           providerResponse(msg.message.id, msg.message.method, result, error)
@@ -88,13 +89,12 @@ backgroundEventsEmitter.on("accountsChanged", async (message) => {
   try {
     const connections = await getConnections();
     contentScriptPorts.forEach((port) => {
-      console.log(port.sender);
       const access = seeIfTabHaveAccess(port, connections, message.params);
       if (access) {
         port.postMessage(providerEvent("accountsChanged", message.params));
       }
     });
   } catch (e) {
-    console.error(e);
+    Logger.error(e);
   }
 });

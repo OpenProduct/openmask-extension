@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../libs/entries/account";
 import { UnfinishedOperation } from "../libs/event";
+import { Logger } from "../libs/logger";
 import {
   getNetwork,
   getNetworkStoreValue,
@@ -90,7 +91,7 @@ export const useInitialRedirect = () => {
 
   useEffect(() => {
     if (window.location.hash) {
-      console.log(window.location.hash);
+      Logger.log(window.location.hash);
       navigate(window.location.hash.substring(1));
     }
   }, []);
@@ -100,7 +101,7 @@ export const useInitialRedirect = () => {
       .message("getOperation")
       .then((operation) => {
         if (operation !== null) {
-          console.log(operation);
+          Logger.log(operation);
           navigate(
             `${AppRoute.send}?${new URLSearchParams(
               JSON.parse(operation.value)

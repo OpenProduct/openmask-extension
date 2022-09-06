@@ -151,7 +151,6 @@ export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
     [QueryType.estimation],
     async () => {
       const all_fees = await wmethod!.method.estimateFee();
-      console.log(all_fees);
       return all_fees.source_fees;
     },
     { enabled: wmethod != null }

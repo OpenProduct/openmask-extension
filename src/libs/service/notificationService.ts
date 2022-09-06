@@ -1,6 +1,7 @@
 import { fromNano } from "@tonmask/web-sdk";
 import { TransactionParams } from "../entries/transaction";
 import { backgroundEventsEmitter } from "../event";
+import { Logger } from "../logger";
 import ExtensionPlatform from "./extension";
 
 /**
@@ -100,7 +101,7 @@ export const closeCurrentPopUp = async (popupId: number | undefined) => {
     try {
       await ExtensionPlatform.closeWindow(popupId);
     } catch (e) {
-      console.error(e);
+      Logger.error(e);
     }
   }
 };

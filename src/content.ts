@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { DAppMessage } from "./libs/entries/message";
+import { Logger } from "./libs/logger";
 
 const PORT_NAME = "OpenMaskContentScript";
 
@@ -19,7 +20,7 @@ function injectScript() {
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
   } catch (error) {
-    console.error("OpenMask: Provider injection failed.", error);
+    Logger.error("OpenMask: Provider injection failed.", error);
   }
 }
 
