@@ -1,5 +1,7 @@
 # OpenMask Browser Extension
 
+MetaMask analog for TON (The Open Network)
+
 You can find the latest version of OpenMask on [our official website](https://tonmask.vercel.app/).
 
 For [general questions](https://github.com/OpenProduct/openmask-extension/discussions), [feature requests or developer questions](https://github.com/OpenProduct/openmask-extension/issues)
