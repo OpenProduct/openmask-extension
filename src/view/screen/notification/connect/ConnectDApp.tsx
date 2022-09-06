@@ -157,7 +157,7 @@ const toPermissionDescription = (permission: Permission) => {
     case Permission.base:
       return "See address, account balance, activity and suggest transactions to approve";
     case Permission.switchNetwork:
-      return "Allow to switch networks";
+      return "Allow to switch networks without notification pop-up";
   }
 };
 

@@ -2,6 +2,7 @@ import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { DAppMessage } from "../entries/message";
 import { getNetworkConfig, networkConfigs } from "../entries/network";
+import { Permission } from "../entries/permission";
 import { TransactionParams } from "../entries/transaction";
 import { ApproveTransaction, backgroundEventsEmitter } from "../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../exception";
@@ -9,7 +10,9 @@ import {
   getAccountState,
   getConnections,
   getNetwork,
+  QueryType,
   setAccountState,
+  setStoreValue,
 } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import {
@@ -233,9 +236,22 @@ export const waitApprove = (id: number, popupId?: number) => {
   });
 };
 
+const getDAppPermissions = async (
+  network: string,
+  origin: string
+): Promise<Permission[]> => {
+  const connections = await getConnections(network);
+  if (!connections[origin]) return [];
+
+  const [first] = await getWalletsByOrigin(origin, network);
+
+  return connections[origin].connect[first] ?? [];
+};
+
 export const switchChain = async (
   id: number,
   origin: string,
+  isEvent: boolean,
   network: string
 ) => {
   const current = await getNetwork();
@@ -249,6 +265,26 @@ export const switchChain = async (
     throw new RuntimeError(
       ErrorCode.unexpectedParams,
       `Wallet don't have configuration for "${network}" network`
+    );
+  }
+
+  const permissions = await getDAppPermissions(current, origin);
+
+  // DApp have permission to change network
+  if (permissions.includes(Permission.switchNetwork)) {
+    await setStoreValue(QueryType.network, network);
+    backgroundEventsEmitter.emit("chainChanged", {
+      method: "chainChanged",
+      params: network,
+    });
+    return;
+  }
+
+  // Show PopUp to ask confirmation to change network
+  if (!isEvent) {
+    throw new RuntimeError(
+      ErrorCode.unexpectedParams,
+      `The method have to call with user event, for example when user click to button, calling event by script is restricted.`
     );
   }
 
@@ -276,15 +312,11 @@ export const handleDAppMessage = async (
     case "ping": {
       return "pong";
     }
-    case "ton_getLocked": {
-      return memoryStore.isLock();
-    }
-    case "ton_getChain": {
-      return getNetwork();
-    }
+
     case "ton_getBalance": {
       return getBalance(origin, message.params[0]);
     }
+    case "wallet_requestAccounts":
     case "ton_requestAccounts": {
       return connectDApp(message.id, origin, message.event);
     }
@@ -295,8 +327,14 @@ export const handleDAppMessage = async (
       return confirmWalletSeqNo(message.params[0]);
     }
 
+    case "wallet_getLocked": {
+      return memoryStore.isLock();
+    }
+    case "wallet_getChain": {
+      return getNetwork();
+    }
     case "wallet_switchChain": {
-      return switchChain(message.id, origin, message.params[0]);
+      return switchChain(message.id, origin, message.event, message.params[0]);
     }
 
     case "ton_getAccounts": {
