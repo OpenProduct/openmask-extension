@@ -1,6 +1,6 @@
 # OpenMask Browser Extension
 
-MetaMask analog for TON (The Open Network)
+[MetaMask](https://github.com/MetaMask/metamask-extension) analog for TON (The Open Network)
 
 You can find the latest version of OpenMask on [our official website](https://tonmask.vercel.app/).
 
