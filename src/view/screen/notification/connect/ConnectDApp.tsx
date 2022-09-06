@@ -1,8 +1,11 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { Permission, PermissionList } from "../../../libs/entries/permission";
-import { WalletState } from "../../../libs/entries/wallet";
+import {
+  Permission,
+  PermissionList,
+} from "../../../../libs/entries/permission";
+import { WalletState } from "../../../../libs/entries/wallet";
 import {
   Body,
   ButtonBottomRow,
@@ -11,25 +14,14 @@ import {
   Center,
   Gap,
   H1,
-  Logo,
   Text,
-} from "../../components/Components";
-import { AccountStateContext } from "../../context";
-import { sendBackground } from "../../event";
-import { toShortAddress } from "../api";
-import { useBalance } from "../home/api";
+} from "../../../components/Components";
+import { DAppBadge } from "../../../components/DAppBadge";
+import { AccountStateContext } from "../../../context";
+import { sendBackground } from "../../../event";
+import { toShortAddress } from "../../api";
+import { useBalance } from "../../home/api";
 import { useAddConnectionMutation } from "./api";
-
-const Badge = styled.div`
-  border: 1px solid ${(props) => props.theme.darkGray};
-  padding: 10px 20px;
-  border-radius: 20px;
-  display: inline-block;
-  font-size: larger;
-  display: flex;
-  gap: ${(props) => props.theme.padding};
-  align-items: center;
-`;
 
 const Label = styled.label`
   display: flex;
@@ -38,10 +30,6 @@ const Label = styled.label`
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
 `;
 
-const Origin = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
 const Column = styled.div`
   overflow: hidden;
   flex-grow: 1;
@@ -89,8 +77,8 @@ const Wallet: FC<{
 
 export const ConnectDApp = () => {
   const [searchParams] = useSearchParams();
-  const origin = searchParams.get("origin");
-  const logo = searchParams.get("logo");
+  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
+  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
 
   const id = parseInt(searchParams.get("id") ?? "0", 10);
 
@@ -131,10 +119,7 @@ export const ConnectDApp = () => {
   return (
     <Body>
       <Center>
-        <Badge>
-          {logo && <Logo src={logo} alt="Logo" />}
-          <Origin>{origin}</Origin>
-        </Badge>
+        <DAppBadge logo={logo} origin={origin} />
         <H1>Connect With OpenMask</H1>
         <Text>Select the account(s) to use on this site</Text>
       </Center>
@@ -199,8 +184,8 @@ const PermissionView: FC<{
 
 interface ConfirmProps {
   id: number;
-  logo: string | null;
-  origin: string | null;
+  logo: string;
+  origin: string;
   addresses: string[];
   onBack: () => void;
 }
@@ -224,10 +209,7 @@ export const ConfirmPermission: FC<ConfirmProps> = ({
   return (
     <Body>
       <Center>
-        <Badge>
-          {logo && <Logo src={logo} alt="Logo" />}
-          <Origin>{origin}</Origin>
-        </Badge>
+        <DAppBadge logo={logo} origin={origin} />
         <H1>Connect With OpenMask</H1>
         <Text>Address: {addresses.map(toShortAddress).join(", ")}</Text>
         <Text>Allow this site to:</Text>

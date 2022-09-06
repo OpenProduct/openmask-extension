@@ -1,5 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import styled from "styled-components";
+import {
+  getWalletConnections,
+  WalletConnection,
+} from "../../../libs/service/connectionSerivce";
 import {
   Badge,
   Body,
@@ -14,6 +18,7 @@ import {
   ListItem,
 } from "../../components/DropDown";
 import { HomeButton } from "../../components/HomeButton";
+import { AccountStateContext } from "../../context";
 import { useConnections, useDisconnectMutation } from "./api";
 
 const Scroll = styled.div`
@@ -42,17 +47,18 @@ export const ListTitle = styled.div`
 `;
 
 export const Connections = () => {
+  const account = useContext(AccountStateContext);
   const { data, isFetching } = useConnections();
   const { mutate: onDelete, isLoading, reset } = useDisconnectMutation(data);
 
   useEffect(() => {
     reset();
-  }, [data]);
+  }, [isFetching]);
 
-  const items = useMemo(() => {
-    if (!data) return [];
-    return Object.entries(data).map(([origin, { logo }]) => ({ origin, logo }));
-  }, [data, isFetching]);
+  const items = useMemo<WalletConnection[]>(() => {
+    if (!data || !account.activeWallet) return [];
+    return getWalletConnections(data, account.activeWallet);
+  }, [data, isFetching, account]);
 
   return (
     <>
@@ -87,7 +93,10 @@ export const Connections = () => {
                       </ListTitle>
                       <ListItem
                         onClick={() => {
-                          onDelete(item.origin);
+                          onDelete({
+                            origin: item.origin,
+                            wallet: account.activeWallet!,
+                          });
                         }}
                       >
                         {isLoading ? "Deleting..." : "Disconnect"}

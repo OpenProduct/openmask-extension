@@ -56,16 +56,35 @@ export const openConnectDAppPopUp = async (
   origin: string,
   logo?: string
 ) => {
-  await openPopUp(
-    `/connect/dapp?origin=${encodeURIComponent(
-      origin
-    )}&id=${id}&logo=${encodeURIComponent(logo ?? "")}`
-  );
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: encodeURIComponent(logo ?? ""),
+  });
+
+  await openPopUp(`/notification/dapp?${params.toString()}`);
   return popupId;
 };
 
 export const openConnectUnlockPopUp = async () => {
-  await openPopUp(`/connect/unlock`);
+  await openPopUp(`/notification/unlock`);
+  return popupId;
+};
+
+export const openSwitchChainPopUp = async (
+  id: number,
+  origin: string,
+  network: string,
+  logo?: string
+) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: encodeURIComponent(logo ?? ""),
+    network: network,
+  });
+
+  await openPopUp(`/notification/network?${params.toString()}`);
   return popupId;
 };
 

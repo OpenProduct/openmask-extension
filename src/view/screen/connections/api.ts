@@ -4,6 +4,7 @@ import {
   Connections,
   defaultConnections,
 } from "../../../libs/entries/connection";
+import { revokeDAppAccess } from "../../../libs/service/connectionSerivce";
 import {
   getNetworkStoreValue,
   QueryType,
@@ -22,14 +23,19 @@ export const useConnections = () => {
   );
 };
 
+type Params = {
+  origin: string;
+  wallet: string;
+};
 export const useDisconnectMutation = (connections: Connections | undefined) => {
+  const network = useContext(NetworkContext);
   const client = useQueryClient();
-  return useMutation<void, Error, string>(async (origin) => {
+  return useMutation<void, Error, Params>(async ({ origin, wallet }) => {
     if (!connections) return;
 
-    delete connections[origin];
+    connections = revokeDAppAccess(connections, origin, wallet);
 
-    await setConnections(connections);
-    client.invalidateQueries([QueryType.connection]);
+    await setConnections(connections, network);
+    client.invalidateQueries([network, QueryType.connection]);
   });
 };

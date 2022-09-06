@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { Address } from "../../../../components/Address";
 import {
   Body,
   ButtonNegative,
@@ -12,7 +13,7 @@ import {
   Text,
 } from "../../../../components/Components";
 import { Dots } from "../../../../components/Dots";
-import { ArrowRightIcon, BackIcon } from "../../../../components/Icons";
+import { BackIcon } from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
@@ -68,20 +69,6 @@ export const CancelButton: FC<{
 
 const TextLine = styled(Text)`
   word-break: break-all;
-`;
-
-const Address = styled.div`
-  padding: 5px 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${(props) => props.theme.padding};
-  font-size: medium;
-  border: 1px solid ${(props) => props.theme.darkGray};
-`;
-
-const Icon = styled.span`
-  font-size: large;
 `;
 
 const Fiat = styled.span`
@@ -159,14 +146,10 @@ export const ConfirmView: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <Address>
-          {toShortName(wallet.name)}
-          <Icon>
-            <ArrowRightIcon />
-          </Icon>
-
-          {toShortAddress(state.address)}
-        </Address>
+        <Address
+          left={toShortName(wallet.name)}
+          right={toShortAddress(state.address)}
+        />
         <TextLine>SENDING:{state.origin ? ` (${state.origin})` : ""}</TextLine>
         <TextLine>
           <b>{state.amount} TON</b> <Fiat>{inFiat}</Fiat>

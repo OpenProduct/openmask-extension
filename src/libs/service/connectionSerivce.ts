@@ -1,0 +1,77 @@
+import { Connections } from "../entries/connection";
+import { Permission } from "../entries/permission";
+
+export const addDAppAccess = (
+  connections: Connections,
+  logo: string | null,
+  origin: string,
+  wallets: string[],
+  permissions: Permission[]
+) => {
+  const connection = connections[origin] ?? { logo, connect: {} };
+
+  wallets.forEach((wallet) => {
+    if (connection.connect[wallet]) {
+      connection.connect[wallet].push(...permissions);
+    } else {
+      connection.connect[wallet] = permissions;
+    }
+  });
+
+  connections[origin] = connection;
+
+  return connections;
+};
+
+export interface WalletConnection {
+  origin: string;
+  logo: string | null;
+}
+
+export const getWalletConnections = (
+  connections: Connections,
+  wallet: string
+) => {
+  return Object.entries(connections).reduce(
+    (acc, [origin, { logo, connect }]) => {
+      if (Object.keys(connect).includes(wallet)) {
+        acc.push({ origin, logo });
+      }
+      return acc;
+    },
+    [] as WalletConnection[]
+  );
+};
+
+export const revokeDAppAccess = (
+  connections: Connections,
+  origin: string,
+  wallet: string
+): Connections => {
+  if (!connections[origin]) {
+    return connections;
+  }
+
+  delete connections[origin].connect[wallet];
+
+  if (Object.keys(connections[origin].connect).length === 0) {
+    delete connections[origin];
+  }
+
+  return connections;
+};
+
+export const updateWalletAddress = (
+  connections: Connections,
+  oldAddress: string,
+  address: string
+): Connections => {
+  Object.values(connections).forEach((item) => {
+    const permission = item.connect[oldAddress];
+    if (permission) {
+      item.connect[address] = permission;
+      delete item.connect[oldAddress];
+    }
+  });
+  return connections;
+};

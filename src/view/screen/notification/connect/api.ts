@@ -1,14 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import browser from "webextension-polyfill";
-import { Permission } from "../../../libs/entries/permission";
+import { Permission } from "../../../../libs/entries/permission";
+import { addDAppAccess } from "../../../../libs/service/connectionSerivce";
 import {
   getConnections,
   QueryType,
   setConnections,
-} from "../../../libs/store/browserStore";
-import { NetworkContext } from "../../context";
-import { sendBackground } from "../../event";
+} from "../../../../libs/store/browserStore";
+import { NetworkContext } from "../../../context";
+import { sendBackground } from "../../../event";
 
 interface ConnectParams {
   origin: string;
@@ -24,17 +25,7 @@ export const useAddConnectionMutation = () => {
     async ({ origin, wallets, id, logo, permissions }) => {
       const connections = await getConnections(network);
 
-      const connection = connections[origin] ?? { logo, connect: {} };
-
-      wallets.forEach((wallet) => {
-        if (connection.connect[wallet]) {
-          connection.connect[wallet].push(...permissions);
-        } else {
-          connection.connect[wallet] = permissions;
-        }
-      });
-
-      connections[origin] = connection;
+      addDAppAccess(connections, logo, origin, wallets, permissions);
 
       await setConnections(connections, network);
 

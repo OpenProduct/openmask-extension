@@ -20,13 +20,13 @@ import {
   WalletStateContext,
 } from "./context";
 import { any, AppRoute } from "./routes";
-import { ConnectDApp } from "./screen/connect/ConnectDApp";
 import { Connections } from "./screen/connections/Connections";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
 import { ConnectWallet } from "./screen/import/ConnectWallet";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
+import { Notification } from "./screen/notification/Notification";
 import { Settings } from "./screen/settings/Settings";
 import { Unlock } from "./screen/unlock/Unlock";
 import defaultTheme from "./styles/defaultTheme";
@@ -71,10 +71,10 @@ const ContentRouter: FC<{
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
+          <Route path={any(AppRoute.notification)} element={<Notification />} />
           <Route path={any(AppRoute.settings)} element={<Settings />} />
           <Route path={AppRoute.connections} element={<Connections />} />
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-          <Route path={any(AppRoute.connect)} element={<ConnectDApp />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </WalletContractContext.Provider>

@@ -1,7 +1,7 @@
 import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { DAppMessage } from "../entries/message";
-import { getNetworkConfig } from "../entries/network";
+import { getNetworkConfig, networkConfigs } from "../entries/network";
 import { TransactionParams } from "../entries/transaction";
 import { ApproveTransaction, backgroundEventsEmitter } from "../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../exception";
@@ -15,8 +15,8 @@ import memoryStore from "../store/memoryStore";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
-  openConnectUnlockPopUp,
   openSendTransactionPopUp,
+  openSwitchChainPopUp,
 } from "./notificationService";
 import { confirmWalletSeqNo } from "./walletService";
 
@@ -71,57 +71,25 @@ const getConnectedWallets = async (origin: string, network: string) => {
   return await getWalletsByOrigin(origin, network);
 };
 
-const waitUnlock = (popupId?: number) => {
-  return new Promise((resolve, reject) => {
-    const close = (options: { params: number }) => {
-      if (popupId === options.params) {
-        backgroundEventsEmitter.off("closedPopUp", close);
-        backgroundEventsEmitter.off("unlock", unlock);
-        reject(new ClosePopUpError());
-      }
-    };
+// const waitUnlock = (popupId?: number) => {
+//   return new Promise((resolve, reject) => {
+//     const close = (options: { params: number }) => {
+//       if (popupId === options.params) {
+//         backgroundEventsEmitter.off("closedPopUp", close);
+//         backgroundEventsEmitter.off("unlock", unlock);
+//         reject(new ClosePopUpError());
+//       }
+//     };
 
-    const unlock = () => {
-      backgroundEventsEmitter.off("unlock", unlock);
-      resolve(undefined);
-    };
+//     const unlock = () => {
+//       backgroundEventsEmitter.off("unlock", unlock);
+//       resolve(undefined);
+//     };
 
-    backgroundEventsEmitter.on("unlock", unlock);
-    backgroundEventsEmitter.on("closedPopUp", close);
-  });
-};
-
-const waitApprove = (id: number, popupId?: number) => {
-  return new Promise((resolve, reject) => {
-    const approve = (options: { params: number }) => {
-      if (options.params === id) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        resolve(undefined);
-      }
-    };
-    const close = (options: { params: number }) => {
-      if (popupId === options.params) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(new ClosePopUpError());
-      }
-    };
-    const cancel = (options: { params: number }) => {
-      if (options.params === id) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(new RuntimeError(ErrorCode.rejectOperation, "Reject request"));
-      }
-    };
-    backgroundEventsEmitter.on("approveRequest", approve);
-    backgroundEventsEmitter.on("rejectRequest", cancel);
-    backgroundEventsEmitter.on("closedPopUp", close);
-  });
-};
+//     backgroundEventsEmitter.on("unlock", unlock);
+//     backgroundEventsEmitter.on("closedPopUp", close);
+//   });
+// };
 
 const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
   const network = await getNetwork();
@@ -129,18 +97,9 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
     return await getConnectedWallets(origin, network);
   }
   const whitelist = await getConnections();
-  if (whitelist[origin] != null) {
-    if (memoryStore.isLock()) {
-      const popupId = await openConnectUnlockPopUp();
-      try {
-        await waitUnlock(popupId);
-      } finally {
-        await closeCurrentPopUp(popupId);
-      }
-    }
-  } else {
+  if (whitelist[origin] == null) {
     const [tab] = await browser.tabs.query({ active: true });
-    const popupId = await openConnectDAppPopUp(id, origin, tab.favIconUrl);
+    const popupId = await openConnectDAppPopUp(id, origin, tab?.favIconUrl);
     try {
       await waitApprove(id, popupId);
     } finally {
@@ -235,6 +194,72 @@ const sendTransaction = async (
   }
 };
 
+export const waitApprove = (id: number, popupId?: number) => {
+  return new Promise((resolve, reject) => {
+    const approve = (options: { params: number }) => {
+      if (options.params === id) {
+        backgroundEventsEmitter.off("approveRequest", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        resolve(undefined);
+      }
+    };
+    const close = (options: { params: number }) => {
+      if (popupId === options.params) {
+        backgroundEventsEmitter.off("approveRequest", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        reject(new ClosePopUpError());
+      }
+    };
+    const cancel = (options: { params: number }) => {
+      if (options.params === id) {
+        backgroundEventsEmitter.off("approveRequest", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        reject(new RuntimeError(ErrorCode.rejectOperation, "Reject request"));
+      }
+    };
+    backgroundEventsEmitter.on("approveRequest", approve);
+    backgroundEventsEmitter.on("rejectRequest", cancel);
+    backgroundEventsEmitter.on("closedPopUp", close);
+  });
+};
+
+export const switchChain = async (
+  id: number,
+  origin: string,
+  network: string
+) => {
+  const current = await getNetwork();
+  if (current === network) {
+    throw new RuntimeError(
+      ErrorCode.unexpectedParams,
+      `Wallet already use "${network}" network`
+    );
+  }
+  if (networkConfigs.find((item) => item.name === network) == null) {
+    throw new RuntimeError(
+      ErrorCode.unexpectedParams,
+      `Wallet don't have configuration for "${network}" network`
+    );
+  }
+
+  const [tab] = await browser.tabs.query({ active: true });
+
+  const popupId = await openSwitchChainPopUp(
+    id,
+    origin,
+    network,
+    tab?.favIconUrl
+  );
+  try {
+    await waitApprove(id, popupId);
+  } finally {
+    await closeCurrentPopUp(popupId);
+  }
+};
+
 export const handleDAppMessage = async (
   message: DAppMessage
 ): Promise<unknown> => {
@@ -261,6 +286,10 @@ export const handleDAppMessage = async (
     }
     case "ton_confirmWalletSeqNo": {
       return confirmWalletSeqNo(message.params[0]);
+    }
+
+    case "wallet_switchChain": {
+      return switchChain(message.id, origin, message.params[0]);
     }
 
     case "ton_getAccounts": {

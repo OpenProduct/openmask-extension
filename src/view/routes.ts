@@ -1,5 +1,6 @@
 export enum AppRoute {
   settings = "/settings",
+  notification = "/notification",
   import = "/import",
   connect = "/connect",
   connections = "/connections",

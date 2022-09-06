@@ -3,6 +3,11 @@ import { ALL, hexToBytes } from "@tonmask/web-sdk";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
 import { WalletState } from "../../../../../libs/entries/wallet";
+import { updateWalletAddress } from "../../../../../libs/service/connectionSerivce";
+import {
+  getConnections,
+  setConnections,
+} from "../../../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,
@@ -56,6 +61,16 @@ export const useUpdateWalletMutation = () => {
       updatedWallet.isBounceable
     );
 
+    let connections = await getConnections(network);
+
+    if (account.activeWallet) {
+      connections = updateWalletAddress(
+        connections,
+        account.activeWallet,
+        updatedWallet.address
+      );
+    }
+
     const wallets = account.wallets.map((w) => {
       if (w.address === account.activeWallet) {
         return updatedWallet;
@@ -70,5 +85,6 @@ export const useUpdateWalletMutation = () => {
     };
 
     await saveAccountState(network, client, value);
+    await setConnections(connections, network);
   });
 };
