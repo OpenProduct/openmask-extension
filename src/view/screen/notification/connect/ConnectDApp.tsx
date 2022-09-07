@@ -6,6 +6,7 @@ import {
   PermissionList,
 } from "../../../../libs/entries/permission";
 import { WalletState } from "../../../../libs/entries/wallet";
+import ExtensionPlatform from "../../../../libs/service/extension";
 import {
   Body,
   ButtonBottomRow,
@@ -14,19 +15,21 @@ import {
   Center,
   Gap,
   H1,
+  InlineLink,
   Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
+import { LinkIcon } from "../../../components/Icons";
 import { AccountStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { toShortAddress } from "../../api";
+import { formatTonValue, toShortAddress } from "../../api";
 import { useBalance } from "../../home/api";
 import { useAddConnectionMutation } from "./api";
 
 const Label = styled.label`
   display: flex;
   gap: ${(props) => props.theme.padding};
-  margin: ${(props) => props.theme.padding};
+  margin: 5px ${(props) => props.theme.padding};
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
 `;
 
@@ -69,7 +72,7 @@ const Wallet: FC<{
           <b>{wallet.name}</b>
         </Row>
         <Row>{wallet.address}</Row>
-        <Balance>{data ?? "-"} TON</Balance>
+        <Balance>{data ? formatTonValue(data) : "-"} TON</Balance>
       </Column>
     </Label>
   );
@@ -152,12 +155,46 @@ export const ConnectDApp = () => {
   );
 };
 
-const toPermissionDescription = (permission: Permission) => {
+const PermissionDescription: FC<{ permission: Permission }> = ({
+  permission,
+}) => {
   switch (permission) {
     case Permission.base:
-      return "See address, account balance, activity and suggest transactions to approve";
+      return (
+        <>
+          Allow to read address, account balance, activity from unlocked wallet.
+          Every time to connect OpenMask to dApp you have to put wallet
+          password.
+        </>
+      );
+    case Permission.locked:
+      return (
+        <>
+          Allow to read address, account balance, activity from locked wallet.{" "}
+          <InlineLink
+            onClick={() =>
+              ExtensionPlatform.openTab({
+                url: "https://tonmask.vercel.app/docs/permission",
+              })
+            }
+          >
+            Read more <LinkIcon />
+          </InlineLink>
+        </>
+      );
     case Permission.switchNetwork:
-      return "Allow to switch networks without notification pop-up";
+      return <>Allow to switch networks without notification pop-up</>;
+  }
+};
+
+const toPermissionName = (permission: Permission): string => {
+  switch (permission) {
+    case Permission.base:
+      return "Base Permission";
+    case Permission.locked:
+      return "Locked Permission";
+    case Permission.switchNetwork:
+      return "Network Permission";
   }
 };
 
@@ -176,7 +213,12 @@ const PermissionView: FC<{
         onChange={() => onSelect(!selected)}
       />
       <Column>
-        <div>{toPermissionDescription(permission)}</div>
+        <Row>
+          <b>{toPermissionName(permission)}</b>
+        </Row>
+        <div>
+          <PermissionDescription permission={permission} />
+        </div>
       </Column>
     </Label>
   );
@@ -214,25 +256,27 @@ export const ConfirmPermission: FC<ConfirmProps> = ({
         <Text>Address: {addresses.map(toShortAddress).join(", ")}</Text>
         <Text>Allow this site to:</Text>
       </Center>
-      {PermissionList.map((item) => {
-        return (
-          <PermissionView
-            key={item}
-            permission={item}
-            disabled={item === Permission.base}
-            selected={permissions.includes(item)}
-            onSelect={(value) => {
-              if (value) {
-                setPermissions((permissions) => permissions.concat([item]));
-              } else {
-                setPermissions((permissions) =>
-                  permissions.filter((permission) => permission !== item)
-                );
-              }
-            }}
-          />
-        );
-      })}
+      <Scroll>
+        {PermissionList.map((item) => {
+          return (
+            <PermissionView
+              key={item}
+              permission={item}
+              disabled={item === Permission.base}
+              selected={permissions.includes(item)}
+              onSelect={(value) => {
+                if (value) {
+                  setPermissions((permissions) => permissions.concat([item]));
+                } else {
+                  setPermissions((permissions) =>
+                    permissions.filter((permission) => permission !== item)
+                  );
+                }
+              }}
+            />
+          );
+        })}
+      </Scroll>
       <Gap />
       <ButtonBottomRow>
         <ButtonNegative onClick={onBack} disabled={isLoading}>

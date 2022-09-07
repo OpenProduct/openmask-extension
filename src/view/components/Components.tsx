@@ -189,6 +189,11 @@ export const TextLink = styled(Text)`
   cursor: pointer;
 `;
 
+export const InlineLink = styled.span`
+  color: ${(props) => props.theme.darkBlue};
+  cursor: pointer;
+`;
+
 export const Logo = styled.img`
   width: 35px;
   height: 35px;

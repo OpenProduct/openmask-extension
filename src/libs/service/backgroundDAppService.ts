@@ -14,14 +14,15 @@ import {
   getNetwork,
   QueryType,
   setAccountState,
-  setStoreValue
+  setStoreValue,
 } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
+  openConnectUnlockPopUp,
   openSendTransactionPopUp,
-  openSwitchChainPopUp
+  openSwitchChainPopUp,
 } from "./notificationService";
 import { confirmWalletSeqNo } from "./walletService";
 
@@ -73,35 +74,39 @@ const getBalance = async (origin: string, wallet: string | undefined) => {
 };
 
 const getConnectedWallets = async (origin: string, network: string) => {
-  // if (memoryStore.isLock()) {
-  //   throw new RuntimeError(
-  //     ErrorCode.unauthorizeOperation,
-  //     `Application locked`
-  //   );
-  // }
+  if (memoryStore.isLock()) {
+    const permissions = await getDAppPermissions(network, origin);
+
+    if (!permissions.includes(Permission.locked)) {
+      throw new RuntimeError(
+        ErrorCode.unauthorizeOperation,
+        `Application locked`
+      );
+    }
+  }
 
   return await getWalletsByOrigin(origin, network);
 };
 
-// const waitUnlock = (popupId?: number) => {
-//   return new Promise((resolve, reject) => {
-//     const close = (options: { params: number }) => {
-//       if (popupId === options.params) {
-//         backgroundEventsEmitter.off("closedPopUp", close);
-//         backgroundEventsEmitter.off("unlock", unlock);
-//         reject(new ClosePopUpError());
-//       }
-//     };
+const waitUnlock = (popupId?: number) => {
+  return new Promise((resolve, reject) => {
+    const close = (options: { params: number }) => {
+      if (popupId === options.params) {
+        backgroundEventsEmitter.off("closedPopUp", close);
+        backgroundEventsEmitter.off("unlock", unlock);
+        reject(new ClosePopUpError());
+      }
+    };
 
-//     const unlock = () => {
-//       backgroundEventsEmitter.off("unlock", unlock);
-//       resolve(undefined);
-//     };
+    const unlock = () => {
+      backgroundEventsEmitter.off("unlock", unlock);
+      resolve(undefined);
+    };
 
-//     backgroundEventsEmitter.on("unlock", unlock);
-//     backgroundEventsEmitter.on("closedPopUp", close);
-//   });
-// };
+    backgroundEventsEmitter.on("unlock", unlock);
+    backgroundEventsEmitter.on("closedPopUp", close);
+  });
+};
 
 const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
   const network = await getNetwork();
@@ -116,6 +121,17 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
       await waitApprove(id, popupId);
     } finally {
       await closeCurrentPopUp(popupId);
+    }
+  }
+  if (memoryStore.isLock()) {
+    const permissions = await getDAppPermissions(network, origin);
+    if (!permissions.includes(Permission.locked)) {
+      const popupId = await openConnectUnlockPopUp();
+      try {
+        await waitUnlock(popupId);
+      } finally {
+        await closeCurrentPopUp(popupId);
+      }
     }
   }
   return await getConnectedWallets(origin, network);

@@ -1,8 +1,14 @@
 export enum Permission {
-  // See address, account balance, activity and suggest transactions to approve
+  // Read address, account balance, activity from unlocked wallet
   base = "base",
-  // Allow to switch networks
+  // Read address, account balance, activity from locked wallet
+  locked = "locked",
+  // Allow to switch networks with notification
   switchNetwork = "switchNetwork",
 }
 
-export const PermissionList = [Permission.base, Permission.switchNetwork];
+export const PermissionList = [
+  Permission.base,
+  Permission.locked,
+  Permission.switchNetwork,
+];
