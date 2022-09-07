@@ -62,6 +62,7 @@ const Comment = styled.div`
   padding: 5px 10px;
   background: ${(props) => props.theme.lightGray};
   font-size: medium;
+  word-break: break-all;
 `;
 
 const getComment = (msg: TonWebTransactionMessage) => {
