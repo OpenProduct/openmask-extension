@@ -174,7 +174,7 @@ const PermissionDescription: FC<{ permission: Permission }> = ({
           <InlineLink
             onClick={() =>
               ExtensionPlatform.openTab({
-                url: "https://tonmask.vercel.app/docs/permission",
+                url: "https://tonmask.vercel.app/docs/permissions",
               })
             }
           >
