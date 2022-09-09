@@ -2,7 +2,7 @@
 
 [MetaMask](https://github.com/MetaMask/metamask-extension) analog for TON (The Open Network)
 
-You can find the latest version of OpenMask on [our official website](https://tonmask.vercel.app/).
+You can find the latest version of OpenMask on [our official website](https://openmask.app/).
 
 For [general questions](https://github.com/OpenProduct/openmask-extension/discussions), [feature requests or developer questions](https://github.com/OpenProduct/openmask-extension/issues)
 
@@ -10,7 +10,7 @@ OpenMask supports Google Chrome, and Chromium-based browsers. We recommend using
 
 For up to the minute news, follow our [Telegram](https://t.me/openproduct)
 
-To learn how to develop OpenMask-compatible applications, visit our [Developer Docs](https://tonmask.vercel.app/docs/introduction).
+To learn how to develop OpenMask-compatible applications, visit our [Developer Docs](https://openmask.app/docs/introduction).
 
 ## Building locally
 
@@ -29,8 +29,6 @@ You may create public toncenter api keys [here](https://toncenter.com/)
 
 Compressed builds can be found in `/build` once they're built.
 
-
 ## Other Docs
 
 - [How to add custom build to Chrome](https://github.com/MetaMask/metamask-extension/blob/develop/docs/add-to-chrome.md)
-

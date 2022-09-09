@@ -11,9 +11,9 @@ export const Asset = () => {
         <Center>
           <H1>Manage assets feature is coming soon</H1>
           <Text>
-            OpenMask team realize how useful may be feature to manage different
-            assets such as altcoins (aka jettons) or NFT. The service will
-            deliver this feature as soon as possible.
+            OpenMask team realizes how useful maybe the feature to manage
+            different assets such as altcoins (aka jettons) or NFT. The service
+            is going to deliver this feature as soon as possible.
           </Text>
           <Text>
             Please stay tuned to our telegram channel to not lost updates:

@@ -60,7 +60,7 @@ const About = () => {
         <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `https://tonmask.vercel.app/`,
+              url: `https://openmask.app/`,
             });
           }}
         >
