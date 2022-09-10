@@ -13,14 +13,7 @@
     "48": "tonmask-logo48.png",
     "128": "tonmask-logo128.png"
   },
-  "permissions": [
-    "storage",
-    "unlimitedStorage",
-    "clipboardWrite",
-    "activeTab",
-    "webRequest",
-    "notifications"
-  ],
+  "permissions": ["storage", "unlimitedStorage", "clipboardWrite", "activeTab"],
   "background": {
     "service_worker": "background.js"
   },
