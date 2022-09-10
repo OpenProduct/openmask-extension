@@ -47,8 +47,7 @@ export const useMutateNetworkStore = <T>(query: QueryType) => {
   const client = useQueryClient();
   const { data: network } = useNetwork();
   return useMutation<void, Error, T>(async (value) => {
-    const { local } = browser.storage;
-    await local.set({ [`${network}_${query}`]: value });
+    await browser.storage.local.set({ [`${network}_${query}`]: value });
     const err = checkForError();
     if (err) {
       throw err;

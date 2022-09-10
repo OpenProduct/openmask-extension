@@ -23,8 +23,7 @@ export enum QueryType {
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
-  const { local } = browser.storage;
-  return local.get(query).then<T>((result) => {
+  return browser.storage.local.get(query).then<T>((result) => {
     const err = checkForError();
     if (err) {
       throw err;
@@ -34,8 +33,7 @@ export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
 };
 
 export const setStoreValue = async <T>(query: QueryType, value: T) => {
-  const { local } = browser.storage;
-  await local.set({ [query]: value });
+  await browser.storage.local.set({ [query]: value });
   const err = checkForError();
   if (err) {
     throw err;
@@ -81,8 +79,7 @@ export const getNetworkStoreValue = async <T>(
   networkValue?: string
 ) => {
   const network = networkValue ?? (await getNetwork());
-  const { local } = browser.storage;
-  return local.get(`${network}_${query}`).then<T>((result) => {
+  return browser.storage.local.get(`${network}_${query}`).then<T>((result) => {
     const err = checkForError();
     if (err) {
       throw err;
@@ -97,8 +94,7 @@ export const setNetworkStoreValue = async <T>(
   networkValue?: string
 ) => {
   const network = networkValue ?? (await getNetwork());
-  const { local } = browser.storage;
-  await local.set({ [`${network}_${query}`]: value });
+  await browser.storage.local.set({ [`${network}_${query}`]: value });
   const err = checkForError();
   if (err) {
     throw err;

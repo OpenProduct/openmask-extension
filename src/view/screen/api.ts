@@ -12,8 +12,9 @@ export const saveAccountState = async (
   client: QueryClient,
   value: AccountState
 ) => {
-  const { local } = browser.storage;
-  await local.set({ [`${network}_${QueryType.account}`]: value });
+  await browser.storage.local.set({
+    [`${network}_${QueryType.account}`]: value,
+  });
   const err = checkForError();
   if (err) {
     throw err;
