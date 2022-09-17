@@ -9,3 +9,15 @@ export interface JettonParams {
   // A jetton name
   name?: string;
 }
+
+export interface JettonName {
+  symbol: string;
+  image: string;
+  name: string;
+}
+
+export interface JettonState {
+  state: JettonName;
+  minterAddress: string;
+  walletAddress?: string;
+}

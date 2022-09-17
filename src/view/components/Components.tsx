@@ -143,6 +143,8 @@ export const Gap = styled.div`
 `;
 
 export const ErrorMessage = styled.div`
+  width: 100%;
+  box-sizing: border-box;
   margin: ${(props) => props.theme.padding} 0;
   border: 1px solid ${(props) => props.theme.red};
   background: ${(props) => props.theme.lightRed};

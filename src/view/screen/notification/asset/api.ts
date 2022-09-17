@@ -1,22 +1,20 @@
-import { Address } from "@openmask/web-sdk";
-import { JettonMinterDao } from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
+import { Address, fromNano } from "@openmask/web-sdk";
+import {
+  JettonData,
+  JettonMinterDao,
+} from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
 import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
+import { JettonName, JettonState } from "../../../../libs/entries/asset";
 import { QueryType } from "../../../../libs/store/browserStore";
-import { TonProviderContext, WalletAddressContext } from "../../../context";
+import { TonProviderContext, WalletStateContext } from "../../../context";
 
-export interface JettonState {
-  symbol: string;
-  image: string;
-  name: string;
-}
-
-const getJettonState = async (
+const getJettonName = async (
   jsonDataUrl: string | null,
   searchParams: URLSearchParams
 ) => {
-  let state: Partial<JettonState> = {};
+  let state: Partial<JettonName> = {};
   if (jsonDataUrl) {
     try {
       state = await fetch(jsonDataUrl).then((response) => response.json());
@@ -45,16 +43,22 @@ const getJettonState = async (
     throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
   }
 
-  return state as JettonState;
+  return state as JettonName;
 };
+
+export interface JettonMinterData {
+  data: JettonData;
+  state: JettonName;
+  jettonWalletAddress: Address | null;
+}
 
 export const useJettonMinterData = (
   jettonMinterAddress: string,
   searchParams: URLSearchParams
 ) => {
   const provider = useContext(TonProviderContext);
-  const address = useContext(WalletAddressContext);
-  return useQuery(
+  const wallet = useContext(WalletStateContext);
+  return useQuery<JettonMinterData, Error>(
     [QueryType.jetton, jettonMinterAddress],
     async () => {
       const dap = new JettonMinterDao(
@@ -64,14 +68,13 @@ export const useJettonMinterData = (
 
       const data = await dap.getJettonData();
 
-      const state = await getJettonState(data.jettonContentUri, searchParams);
+      const state = await getJettonName(data.jettonContentUri, searchParams);
 
-      console.log(address);
-      //   const jettonWalletAddress = await dap
-      //     .getJettonWalletAddress(new Address(address))
-      //     .catch(() => null);
+      const jettonWalletAddress = await dap
+        .getJettonWalletAddress(new Address(wallet.address))
+        .catch(() => null);
 
-      return { data, state };
+      return { data, state, jettonWalletAddress };
     },
     { enabled: !!jettonMinterAddress }
   );
@@ -79,22 +82,30 @@ export const useJettonMinterData = (
 
 export const useJettonWalletData = (
   id: number,
-  jettonWalletAddress: string
+  jettonWalletAddress?: Address | null
 ) => {
   const provider = useContext(TonProviderContext);
 
   return useQuery(
     [QueryType.jetton, jettonWalletAddress, id],
     async () => {
-      const dap = new JettonWalletDao(
-        provider,
-        new Address(jettonWalletAddress)
-      );
-
+      const dap = new JettonWalletDao(provider, jettonWalletAddress!);
       const data = await dap.getData();
-
-      return data;
+      return fromNano(data.balance);
     },
     { enabled: !!jettonWalletAddress }
+  );
+};
+
+export interface AddJettonParams {
+  state: JettonState;
+  origin: string;
+}
+
+export const useAddJettonMutation = () => {
+  return useMutation<void, Error, AddJettonParams>(
+    async ({ state, origin }) => {
+      throw new Error("Error on insert jetton.");
+    }
   );
 };
