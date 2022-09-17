@@ -1,4 +1,3 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Address,
   Dns,
@@ -6,7 +5,8 @@ import {
   Method,
   toNano,
   TransferParams,
-} from "@tonmask/web-sdk";
+} from "@openmask/web-sdk";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { BN } from "bn.js";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";

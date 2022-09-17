@@ -1,5 +1,5 @@
+import { ALL, hexToBytes } from "@openmask/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ALL, hexToBytes } from "@tonmask/web-sdk";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
 import { WalletState } from "../../../../../libs/entries/wallet";

@@ -1,4 +1,4 @@
-import { ALL } from "@tonmask/web-sdk";
+import { ALL } from "@openmask/web-sdk";
 
 export type WalletVersion = keyof typeof ALL;
 

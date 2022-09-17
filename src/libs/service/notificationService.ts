@@ -1,4 +1,4 @@
-import { fromNano } from "@tonmask/web-sdk";
+import { fromNano } from "@openmask/web-sdk";
 import { TransactionParams } from "../entries/transaction";
 import { backgroundEventsEmitter } from "../event";
 import { Logger } from "../logger";

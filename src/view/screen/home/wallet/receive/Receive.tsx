@@ -1,4 +1,6 @@
+import { formatTransferUrl } from "@openmask/web-sdk";
 import { useContext } from "react";
+import QRCode from "react-qr-code";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ExtensionPlatform from "../../../../../libs/service/extension";
@@ -59,6 +61,11 @@ const Address = styled.div`
   word-break: break-all;
 `;
 
+const Block = styled.div`
+  padding: ${(props) => props.theme.padding} 0;
+  margin: 0 auto;
+`;
+
 const ReceiveTon = () => {
   const address = useContext(WalletAddressContext);
   const [copied, handleCopy] = useCopyToClipboard();
@@ -67,6 +74,9 @@ const ReceiveTon = () => {
     <ButtonColumn>
       <Title>Receive TON</Title>
       <Text>Share this address to receive TON</Text>
+      <Block>
+        <QRCode size={160} value={formatTransferUrl(address)} />
+      </Block>
       <Address onClick={() => handleCopy(address)}>{address}</Address>
       <ButtonNegative onClick={() => handleCopy(address)}>
         Copy {copied ? <CheckIcon /> : <CopyIcon />}

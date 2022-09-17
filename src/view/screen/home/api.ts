@@ -1,5 +1,5 @@
+import { Address } from "@openmask/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Address } from "@tonmask/web-sdk";
 import { useContext, useMemo } from "react";
 import { getNetworkConfig } from "../../../libs/entries/network";
 import { QueryType } from "../../../libs/store/browserStore";

@@ -1,5 +1,5 @@
+import { Address, ALL, bytesToHex, HttpProvider } from "@openmask/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Address, ALL, bytesToHex, HttpProvider } from "@tonmask/web-sdk";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";

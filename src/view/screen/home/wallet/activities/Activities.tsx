@@ -1,4 +1,4 @@
-import { base64ToBytes } from "@tonmask/web-sdk";
+import { base64ToBytes } from "@openmask/web-sdk";
 import React, { FC, useContext } from "react";
 import styled from "styled-components";
 import {
