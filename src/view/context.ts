@@ -1,4 +1,4 @@
-import { HttpProvider, WalletContract } from "@tonmask/web-sdk";
+import { HttpProvider, WalletContract } from "@openmask/web-sdk";
 import React from "react";
 import { AccountState } from "../libs/entries/account";
 import { WalletState } from "../libs/entries/wallet";

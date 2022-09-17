@@ -1,5 +1,5 @@
+import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import { QueryClient } from "@tanstack/react-query";
-import { fromNano } from "@tonmask/web-sdk/build/utils/utils";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
 import { AccountState } from "../../libs/entries/account";

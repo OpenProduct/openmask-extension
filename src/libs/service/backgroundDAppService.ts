@@ -1,4 +1,4 @@
-import HttpProvider from "@tonmask/web-sdk/build/providers/httpProvider";
+import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
 import { DAppMessage } from "../entries/message";

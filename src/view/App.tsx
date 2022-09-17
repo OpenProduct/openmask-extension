@@ -1,5 +1,5 @@
+import { ALL, hexToBytes, HttpProvider } from "@openmask/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ALL, hexToBytes, HttpProvider } from "@tonmask/web-sdk";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";

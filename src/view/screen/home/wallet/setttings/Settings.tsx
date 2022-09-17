@@ -1,4 +1,4 @@
-import { ALL } from "@tonmask/web-sdk";
+import { ALL } from "@openmask/web-sdk";
 import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
