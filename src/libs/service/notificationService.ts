@@ -96,6 +96,23 @@ export const openSwitchChainPopUp = async (
   return popupId;
 };
 
+export const openShowJettonPopUp = async (
+  id: number,
+  address: string,
+  origin: string,
+  logo?: string
+) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: encodeURIComponent(logo ?? ""),
+    address: encodeURIComponent(address),
+  });
+
+  await openPopUp(`/notification/jetton?${params.toString()}`);
+  return popupId;
+};
+
 export const closeCurrentPopUp = async (popupId: number | undefined) => {
   if (popupId) {
     try {
