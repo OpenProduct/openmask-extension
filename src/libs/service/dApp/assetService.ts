@@ -5,15 +5,14 @@
  * @since: 0.6.1
  */
 
-import browser from "webextension-polyfill";
 import { JettonParams } from "../../entries/asset";
 import { EventError } from "../../exception";
 import {
   getAccountState,
   getNetwork,
-  setAccountState,
+  setAccountState
 } from "../../store/browserStore";
-import { closeCurrentPopUp, openShowJettonPopUp } from "../notificationService";
+import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
 import { getWalletsByOrigin, waitApprove } from "./utils";
 
 export const showAsset = async (
@@ -34,12 +33,10 @@ export const showAsset = async (
     await setAccountState({ ...account, activeWallet: first }, network);
   }
 
-  const [tab] = await browser.tabs.query({ active: true });
   const popupId = await openShowJettonPopUp(
     id,
     params.address,
     origin,
-    tab.favIconUrl
   );
   try {
     await waitApprove(id, popupId);

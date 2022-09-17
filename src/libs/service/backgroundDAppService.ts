@@ -27,14 +27,14 @@ import {
 } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import { showAsset } from "./dApp/assetService";
-import { sendTransaction } from "./dApp/transactionService";
-import { getWalletsByOrigin, waitApprove } from "./dApp/utils";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
   openConnectUnlockPopUp,
   openSwitchChainPopUp,
-} from "./notificationService";
+} from "./dApp/notificationService";
+import { sendTransaction } from "./dApp/transactionService";
+import { getWalletsByOrigin, waitApprove } from "./dApp/utils";
 import { confirmWalletSeqNo } from "./walletService";
 
 const getBalance = async (origin: string, wallet: string | undefined) => {
@@ -96,8 +96,7 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
   }
   const whitelist = await getConnections();
   if (whitelist[origin] == null) {
-    const [tab] = await browser.tabs.query({ active: true });
-    const popupId = await openConnectDAppPopUp(id, origin, tab?.favIconUrl);
+    const popupId = await openConnectDAppPopUp(id, origin);
     try {
       await waitApprove(id, popupId);
     } finally {
@@ -167,14 +166,7 @@ export const switchChain = async (
     throw new EventError();
   }
 
-  const [tab] = await browser.tabs.query({ active: true });
-
-  const popupId = await openSwitchChainPopUp(
-    id,
-    origin,
-    network,
-    tab?.favIconUrl
-  );
+  const popupId = await openSwitchChainPopUp(id, origin, network);
   try {
     await waitApprove(id, popupId);
   } finally {

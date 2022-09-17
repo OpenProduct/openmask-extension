@@ -146,8 +146,8 @@ export default class ExtensionPlatform {
     });
   }
 
-  getActiveTabs() {
-    return new Promise((resolve, reject) => {
+  static getActiveTabs() {
+    return new Promise<browser.Tabs.Tab[]>((resolve, reject) => {
       browser.tabs.query({ active: true }).then((tabs) => {
         const error = checkForError();
         if (error) {

@@ -17,7 +17,7 @@ import memoryStore from "../../store/memoryStore";
 import {
   closeCurrentPopUp,
   openSendTransactionPopUp,
-} from "../notificationService";
+} from "./notificationService";
 import { getWalletsByOrigin } from "./utils";
 
 const waitTransaction = (id: number, popupId?: number) => {

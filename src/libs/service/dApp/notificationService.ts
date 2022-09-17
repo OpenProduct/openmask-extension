@@ -1,15 +1,15 @@
-import { fromNano } from "@openmask/web-sdk";
-import { TransactionParams } from "../entries/transaction";
-import { backgroundEventsEmitter } from "../event";
-import { Logger } from "../logger";
-import ExtensionPlatform from "./extension";
-
 /**
  * Service methods to manage notification PopUp
  *
  * @author: KuznetsovNikita
  * @since: 0.1.0
  */
+
+import { fromNano } from "@openmask/web-sdk";
+import { TransactionParams } from "../../entries/transaction";
+import { backgroundEventsEmitter } from "../../event";
+import { Logger } from "../../logger";
+import ExtensionPlatform from "../extension";
 
 const NOTIFICATION_HEIGHT = 620;
 const NOTIFICATION_WIDTH = 380;
@@ -25,6 +25,11 @@ ExtensionPlatform.addOnRemovedListener((windowId) => {
     popupId = undefined;
   }
 });
+
+export const getActiveTabLogo = async () => {
+  const [tab] = await ExtensionPlatform.getActiveTabs();
+  return encodeURIComponent((tab && tab.favIconUrl) ?? "");
+};
 
 const getPopup = async () => {
   const windows = await ExtensionPlatform.getAllWindows();
@@ -59,15 +64,11 @@ const openPopUp = async (page: string) => {
   }
 };
 
-export const openConnectDAppPopUp = async (
-  id: number,
-  origin: string,
-  logo?: string
-) => {
+export const openConnectDAppPopUp = async (id: number, origin: string) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
-    logo: encodeURIComponent(logo ?? ""),
+    logo: await getActiveTabLogo(),
   });
 
   await openPopUp(`/notification/dapp?${params.toString()}`);
@@ -82,13 +83,12 @@ export const openConnectUnlockPopUp = async () => {
 export const openSwitchChainPopUp = async (
   id: number,
   origin: string,
-  network: string,
-  logo?: string
+  network: string
 ) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
-    logo: encodeURIComponent(logo ?? ""),
+    logo: await getActiveTabLogo(),
     network: network,
   });
 
@@ -99,13 +99,12 @@ export const openSwitchChainPopUp = async (
 export const openShowJettonPopUp = async (
   id: number,
   address: string,
-  origin: string,
-  logo?: string
+  origin: string
 ) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
-    logo: encodeURIComponent(logo ?? ""),
+    logo: await getActiveTabLogo(),
     address: encodeURIComponent(address),
   });
 
@@ -131,11 +130,13 @@ export const openSendTransactionPopUp = async (
   const params = new URLSearchParams({
     address: encodeURIComponent(props.to),
     amount: encodeURIComponent(fromNano(props.value).toString()),
-    comment: props.data ? encodeURIComponent(props.data) : "",
+    comment: props.data ? encodeURIComponent(props.data) : "", // Data could large then url fit
     submit: "1",
     id: String(id),
     origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
   });
+
   await openPopUp(`/send?${params.toString()}`);
 
   return popupId;
