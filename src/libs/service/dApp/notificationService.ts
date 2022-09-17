@@ -6,6 +6,7 @@
  */
 
 import { fromNano } from "@openmask/web-sdk";
+import { JettonParams } from "../../entries/asset";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
@@ -98,14 +99,17 @@ export const openSwitchChainPopUp = async (
 
 export const openShowJettonPopUp = async (
   id: number,
-  address: string,
+  jetton: JettonParams,
   origin: string
 ) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
     logo: await getActiveTabLogo(),
-    address: encodeURIComponent(address),
+    address: encodeURIComponent(jetton.address),
+    symbol: encodeURIComponent(jetton.symbol ?? ""),
+    image: encodeURIComponent(jetton.image ?? ""),
+    name: encodeURIComponent(jetton.name ?? ""),
   });
 
   await openPopUp(`/notification/jetton?${params.toString()}`);

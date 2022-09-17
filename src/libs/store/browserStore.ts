@@ -16,6 +16,7 @@ export enum QueryType {
   balance = "balance",
   address = "address",
   transactions = "transactions",
+  jetton = "jetton",
 
   estimation = "estimation",
 

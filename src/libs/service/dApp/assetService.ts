@@ -10,7 +10,7 @@ import { EventError } from "../../exception";
 import {
   getAccountState,
   getNetwork,
-  setAccountState
+  setAccountState,
 } from "../../store/browserStore";
 import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
 import { getWalletsByOrigin, waitApprove } from "./utils";
@@ -33,11 +33,7 @@ export const showAsset = async (
     await setAccountState({ ...account, activeWallet: first }, network);
   }
 
-  const popupId = await openShowJettonPopUp(
-    id,
-    params.address,
-    origin,
-  );
+  const popupId = await openShowJettonPopUp(id, params, origin);
   try {
     await waitApprove(id, popupId);
     // Approved
