@@ -8,7 +8,7 @@
 import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
-import { DAppMessage } from "../entries/message";
+import { DAppMessage, OpenMaskApiResponse } from "../entries/message";
 import { getNetworkConfig } from "../entries/network";
 import { Permission } from "../entries/permission";
 import { backgroundEventsEmitter } from "../event";
@@ -111,9 +111,70 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
   return await getConnectedWallets(origin, network);
 };
 
-export const handleDAppMessage = async (
-  message: DAppMessage
-): Promise<unknown> => {
+let contentScriptPorts = new Set<browser.Runtime.Port>();
+
+const providerResponse = (
+  id: number,
+  method: string,
+  result: undefined | unknown,
+  error?: RuntimeError
+): OpenMaskApiResponse => {
+  return {
+    type: "OpenMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      id,
+      method,
+      result,
+      error: error
+        ? {
+            message: error.message,
+            code: error.code,
+            description: error.description,
+          }
+        : undefined,
+    },
+  };
+};
+
+const providerEvent = (
+  method: "accountsChanged" | "chainChanged",
+  result: undefined | unknown
+): OpenMaskApiEvent => {
+  return {
+    type: "OpenMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      method,
+      result,
+    },
+  };
+};
+
+export const handleDAppConnection = (port: browser.Runtime.Port) => {
+  contentScriptPorts.add(port);
+  port.onMessage.addListener(async (msg, contentPort) => {
+    if (msg.type !== "OpenMaskProvider" || !msg.message) {
+      return;
+    }
+
+    const [result, error] = await handleDAppMessage(msg.message)
+      .then((result) => [result, undefined] as const)
+      .catch((e: RuntimeError) => [undefined, e] as const);
+
+    Logger.log({ msg, result, error });
+    if (contentPort) {
+      contentPort.postMessage(
+        providerResponse(msg.message.id, msg.message.method, result, error)
+      );
+    }
+  });
+  port.onDisconnect.addListener((port) => {
+    contentScriptPorts.delete(port);
+  });
+};
+
+const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
 
   switch (message.method) {
@@ -160,7 +221,7 @@ export const handleDAppMessage = async (
   }
 };
 
-export const seeIfTabHaveAccess = (
+const seeIfTabHaveAccess = (
   port: browser.Runtime.Port,
   connections: Connections,
   accounts: string[]
@@ -174,4 +235,26 @@ export const seeIfTabHaveAccess = (
   }
   const wallets = Object.keys(connections[url.origin].connect);
   return wallets.includes(accounts[0]);
+};
+
+export const subscriptionDAppEvent = () => {
+  backgroundEventsEmitter.on("chainChanged", (message) => {
+    contentScriptPorts.forEach((port) => {
+      port.postMessage(providerEvent("chainChanged", message.params));
+    });
+  });
+
+  backgroundEventsEmitter.on("accountsChanged", async (message) => {
+    try {
+      const connections = await getConnections();
+      contentScriptPorts.forEach((port) => {
+        const access = seeIfTabHaveAccess(port, connections, message.params);
+        if (access) {
+          port.postMessage(providerEvent("accountsChanged", message.params));
+        }
+      });
+    } catch (e) {
+      Logger.error(e);
+    }
+  });
 };

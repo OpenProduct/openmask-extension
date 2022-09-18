@@ -21,3 +21,5 @@ export interface JettonState {
   minterAddress: string;
   walletAddress?: string;
 }
+
+export type Asset = JettonState;
