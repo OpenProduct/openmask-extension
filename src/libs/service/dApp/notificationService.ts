@@ -72,12 +72,12 @@ export const openConnectDAppPopUp = async (id: number, origin: string) => {
     logo: await getActiveTabLogo(),
   });
 
-  await openPopUp(`/notification/dapp?${params.toString()}`);
+  await openPopUp(`/notifications/dapp?${params.toString()}`);
   return popupId;
 };
 
 export const openConnectUnlockPopUp = async () => {
-  await openPopUp(`/notification/unlock`);
+  await openPopUp(`/notifications/unlock`);
   return popupId;
 };
 
@@ -93,7 +93,7 @@ export const openSwitchChainPopUp = async (
     network: network,
   });
 
-  await openPopUp(`/notification/network?${params.toString()}`);
+  await openPopUp(`/notifications/network?${params.toString()}`);
   return popupId;
 };
 
@@ -112,7 +112,7 @@ export const openShowJettonPopUp = async (
     name: encodeURIComponent(jetton.name ?? ""),
   });
 
-  await openPopUp(`/notification/jetton?${params.toString()}`);
+  await openPopUp(`/notifications/jetton?${params.toString()}`);
   return popupId;
 };
 

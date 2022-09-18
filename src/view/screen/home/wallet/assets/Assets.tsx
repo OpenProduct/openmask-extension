@@ -13,6 +13,7 @@ import {
 import { LinkIcon, TonIcon } from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { AppRoute } from "../../../../routes";
+import { AssetRoutes } from "../../../assets/Token";
 import { useJettonWalletBalance } from "./api";
 import packageJson from "/package.json";
 
@@ -30,7 +31,12 @@ const AlternativeAsset: FC<{ asset: Asset }> = React.memo(({ asset }) => {
       logoUrl={asset.state.image}
       balance={data}
       onShow={() =>
-        navigate(AppRoute.asset + "/" + encodeURIComponent(asset.minterAddress))
+        navigate(
+          AppRoute.assets +
+            AssetRoutes.jettons +
+            "/" +
+            encodeURIComponent(asset.minterAddress)
+        )
       }
     />
   );
@@ -58,7 +64,9 @@ export const Assets: FC<{ balance?: string; price?: number }> = ({
       <Center>
         <Line>
           Don't see your tokens?{" "}
-          <InlineButtonLink onClick={() => navigate(AppRoute.asset)}>
+          <InlineButtonLink
+            onClick={() => navigate(AppRoute.assets + AssetRoutes.jettons)}
+          >
             Import Jetton
           </InlineButtonLink>
         </Line>

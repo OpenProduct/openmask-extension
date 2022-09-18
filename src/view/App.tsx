@@ -20,14 +20,14 @@ import {
   WalletStateContext,
 } from "./context";
 import { any, AppRoute } from "./routes";
-import { Asset } from "./screen/asset/Asset";
+import { AssetsRouter } from "./screen/assets/Assets";
 import { Connections } from "./screen/connections/Connections";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
 import { ConnectWallet } from "./screen/import/ConnectWallet";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
-import { Notification } from "./screen/notification/Notification";
+import { NotificationsRouter } from "./screen/notifications/Notifications";
 import { Settings } from "./screen/settings/Settings";
 import { Unlock } from "./screen/unlock/Unlock";
 import defaultTheme from "./styles/defaultTheme";
@@ -72,11 +72,14 @@ const ContentRouter: FC<{
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
-          <Route path={any(AppRoute.notification)} element={<Notification />} />
+          <Route
+            path={any(AppRoute.notifications)}
+            element={<NotificationsRouter />}
+          />
           <Route path={any(AppRoute.settings)} element={<Settings />} />
           <Route path={AppRoute.connections} element={<Connections />} />
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-          <Route path={any(AppRoute.asset)} element={<Asset />} />
+          <Route path={any(AppRoute.assets)} element={<AssetsRouter />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </WalletContractContext.Provider>
@@ -93,7 +96,7 @@ const App = () => {
   const config = getNetworkConfig(network);
 
   const notification = useMemo(() => {
-    return window.location.hash.includes(AppRoute.notification);
+    return window.location.hash.includes(AppRoute.notifications);
   }, []);
 
   const tonProvider = useMemo(() => {

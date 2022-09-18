@@ -1,6 +1,6 @@
 export enum AppRoute {
   settings = "/settings",
-  notification = "/notification",
+  notifications = "/notifications",
   import = "/import",
   connect = "/connect",
   connections = "/connections",
@@ -8,7 +8,7 @@ export enum AppRoute {
   receive = "/receive",
   send = "/send",
   activities = "/activities",
-  asset = "/asset",
+  assets = "/assets",
   wallet = "/wallet",
 }
 

@@ -2,11 +2,13 @@ import ExtensionPlatform from "../../../libs/service/extension";
 import { Body, Center, H1, Text, TextLink } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { LinkIcon } from "../../components/Icons";
+import { AssetTabs } from "./Token";
 
-export const Asset = () => {
+export const ImportNFT = () => {
   return (
     <>
       <HomeButton />
+      <AssetTabs />
       <Body>
         <Center>
           <H1>Manage assets feature is coming soon</H1>

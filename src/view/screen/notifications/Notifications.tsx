@@ -4,20 +4,20 @@ import { ImportJetton } from "./asset/ImportJetton";
 import { ConnectDApp } from "./connect/ConnectDApp";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
 
-enum NotificationRoutes {
+enum NotificationsRoutes {
   network = "/network",
   dapp = "/dapp",
   unlock = "/unlock",
   jetton = "/jetton",
 }
 
-export const Notification = () => {
+export const NotificationsRouter = () => {
   return (
     <Routes>
-      <Route path={NotificationRoutes.network} element={<SwitchNetwork />} />
-      <Route path={NotificationRoutes.dapp} element={<ConnectDApp />} />
-      <Route path={NotificationRoutes.jetton} element={<ImportJetton />} />
-      <Route path={NotificationRoutes.unlock} element={<Loading />} />
+      <Route path={NotificationsRoutes.network} element={<SwitchNetwork />} />
+      <Route path={NotificationsRoutes.dapp} element={<ConnectDApp />} />
+      <Route path={NotificationsRoutes.jetton} element={<ImportJetton />} />
+      <Route path={NotificationsRoutes.unlock} element={<Loading />} />
     </Routes>
   );
 };

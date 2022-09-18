@@ -6,7 +6,7 @@ import { Tabs } from "../../../components/Tabs";
 import { WalletAddressContext, WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
 import { useConnections } from "../../connections/api";
-import { useActiveTabs } from "../../notification/connect/api";
+import { useActiveTabs } from "../../notifications/connect/api";
 import { Activities } from "./activities/Activities";
 import { Assets } from "./assets/Assets";
 import { Balance } from "./balance/Balance";
