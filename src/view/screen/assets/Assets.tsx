@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { ImportJetton, JettonView } from "./Jetton";
+import { ImportJetton, JettonView } from "./jetton/Jetton";
 import { ImportNFT } from "./Nft";
 import { AssetRoutes } from "./Token";
 

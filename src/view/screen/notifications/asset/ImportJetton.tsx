@@ -16,7 +16,7 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { sendBackground } from "../../../event";
-import { toShortAddress } from "../../api";
+import { toShortAddress } from "../../../utils";
 import { Loading, NotificationView } from "../../Loading";
 import {
   useAddJettonMutation,

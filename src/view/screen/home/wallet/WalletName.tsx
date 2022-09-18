@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import styled from "styled-components";
 import { CheckIcon, CopyIcon } from "../../../components/Icons";
 import { useCopyToClipboard } from "../../../hooks/useCopyToClipbpard";
-import { toShortAddress } from "../../api";
+import { toShortAddress } from "../../../utils";
 
 const Block = styled.div`
   cursor: pointer;
@@ -19,6 +19,15 @@ const Block = styled.div`
     background: ${(props) => props.theme.gray};
   }
 `;
+
+export const EmptyWalletName: FC<{ name: string }> = ({ name }) => {
+  return (
+    <Block>
+      <b>{name}</b>
+      <div>Not Found</div>
+    </Block>
+  );
+};
 
 export const WalletName: FC<{ address: string; name?: string }> = React.memo(
   ({ address, name }) => {

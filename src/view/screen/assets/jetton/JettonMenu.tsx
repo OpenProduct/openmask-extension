@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ExtensionPlatform from "../../../../libs/service/extension";
@@ -9,18 +9,23 @@ import {
   ListItem,
 } from "../../../components/DropDown";
 import { LinkIcon, MoreIcon } from "../../../components/Icons";
-import { AppRoute } from "../../../routes";
-import { useNetworkConfig } from "../api";
+import { WalletStateContext } from "../../../context";
+import { useNetworkConfig } from "../../home/api";
+import { JettonMinterAddressContext, JettonStateContext } from "./context";
 
 const Menu = styled.div`
   position: absolute;
   right: ${(props) => props.theme.padding};
 `;
 
-export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
+export const JettonMenu = () => {
   const navigate = useNavigate();
   const config = useNetworkConfig();
   const location = useLocation();
+
+  const wallet = useContext(WalletStateContext);
+  const minterAddress = useContext(JettonMinterAddressContext);
+  const jettonState = useContext(JettonStateContext);
 
   return (
     <Menu>
@@ -32,12 +37,34 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                 onClick={() => {
                   onClose();
                   ExtensionPlatform.openTab({
-                    url: `${config.scanUrl}/address/${address}`,
+                    url: `${config.scanUrl}/address/${wallet}`,
                   });
                 }}
               >
                 Open Wallet tonscan.org <LinkIcon />
               </ListItem>
+              <ListItem
+                onClick={() => {
+                  onClose();
+                  ExtensionPlatform.openTab({
+                    url: `${config.scanUrl}/address/${minterAddress}`,
+                  });
+                }}
+              >
+                Open Minter tonscan.org <LinkIcon />
+              </ListItem>
+              {jettonState && jettonState.walletAddress && (
+                <ListItem
+                  onClick={() => {
+                    onClose();
+                    ExtensionPlatform.openTab({
+                      url: `${config.scanUrl}/address/${jettonState.walletAddress}`,
+                    });
+                  }}
+                >
+                  Open Jetton tonscan.org <LinkIcon />
+                </ListItem>
+              )}
               <ListItem
                 onClick={() => {
                   onClose();
@@ -49,23 +76,6 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
               >
                 Expand view <LinkIcon />
               </ListItem>
-
-              <ListItem
-                onClick={() => {
-                  onClose();
-                  navigate(AppRoute.connections);
-                }}
-              >
-                Connected sites
-              </ListItem>
-              <ListItem
-                onClick={() => {
-                  onClose();
-                  navigate(AppRoute.wallet);
-                }}
-              >
-                Wallet Settings
-              </ListItem>
             </DropDownListPayload>
           );
         }}
@@ -76,4 +86,4 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
       </DropDown>
     </Menu>
   );
-});
+};

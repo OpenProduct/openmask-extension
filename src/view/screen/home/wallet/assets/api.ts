@@ -52,7 +52,7 @@ const getJettonWalletAddress = async (
               if (asset.minterAddress === jetton.minterAddress) {
                 return {
                   ...asset,
-                  walletAddress: jettonWalletAddress.toString(),
+                  walletAddress: jettonWalletAddress.toString(true, true, true),
                 };
               } else {
                 return asset;

@@ -1,11 +1,12 @@
-import { FC, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Container, Icon } from "../../../../components/Components";
-import { ReceiveIcon, SendIcon, TonIcon } from "../../../../components/Icons";
-import { AppRoute } from "../../../../routes";
-import { formatTonValue } from "../../../../utils";
-import { Fiat } from "./Fiat";
+import { Container, Icon } from "../../../components/Components";
+import { ReceiveIcon, SendIcon } from "../../../components/Icons";
+import { AppRoute } from "../../../routes";
+import { formatTonValue } from "../../../utils";
+import { useJettonWalletBalance } from "../../home/wallet/assets/api";
+import { JettonStateContext } from "./context";
 
 const Block = styled(Container)`
   flex-shrink: 0;
@@ -37,7 +38,7 @@ const NetworkLogo = styled.span`
 `;
 
 const Amount = styled.span`
-  margin: ${(props) => props.theme.padding} 0 5px;
+  margin: ${(props) => props.theme.padding} 0;
   font-size: xx-large;
 `;
 
@@ -46,14 +47,11 @@ const ActionIcon = styled(Icon)`
   color: ${(props) => props.theme.background};
 `;
 
-export interface BalanceProps {
-  balance?: string;
-  price?: number;
-}
-
-export const Balance: FC<BalanceProps> = ({ balance, price }) => {
+export const JettonBalance = () => {
   const navigate = useNavigate();
+  const state = useContext(JettonStateContext);
 
+  const { data: balance } = useJettonWalletBalance(state);
   const formatted = useMemo(() => {
     return balance ? formatTonValue(balance) : "-";
   }, [balance]);
@@ -61,10 +59,16 @@ export const Balance: FC<BalanceProps> = ({ balance, price }) => {
   return (
     <Block>
       <NetworkLogo>
-        <TonIcon />
+        <img
+          src={state.state.image}
+          width="40px"
+          height="40px"
+          alt="Jetton Logo"
+        />
       </NetworkLogo>
-      <Amount>{formatted} TON</Amount>
-      <Fiat balance={balance} price={price} />
+      <Amount>
+        {formatted} {state.state.symbol}
+      </Amount>
       <Row>
         <Column onClick={() => navigate(AppRoute.receive)}>
           <ActionIcon>

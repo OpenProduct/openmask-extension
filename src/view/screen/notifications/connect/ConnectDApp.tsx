@@ -23,7 +23,7 @@ import { DAppBadge } from "../../../components/DAppBadge";
 import { LinkIcon } from "../../../components/Icons";
 import { AccountStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { formatTonValue, toShortAddress } from "../../api";
+import { formatTonValue, toShortAddress } from "../../../utils";
 import { useBalance } from "../../home/api";
 import { useAddConnectionMutation } from "./api";
 

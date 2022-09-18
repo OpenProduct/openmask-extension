@@ -1,7 +1,6 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
-import { formatTonValue } from "../screen/api";
-import { useTonFiat } from "../screen/home/wallet/balance/Fiat";
+import { formatTonValue, useTonFiat } from "../utils";
 import { Gap } from "./Components";
 import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
 
@@ -55,7 +54,7 @@ const Forward = styled.div`
   align-items: center;
   cursor: pointer;
   font-size: 200%;
-  padding: 0 ${(props) => props.theme.padding};
+  padding: 0 30px 0 ${(props) => props.theme.padding};
 `;
 
 export const AssetView: FC<AssetProps> = ({

@@ -1,6 +1,6 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import styled from "styled-components";
-import { numberTonValue } from "../../../api";
+import { useTonFiat } from "../../../../utils";
 
 const Price = styled.span`
   margin: 0 0 20px;
@@ -8,21 +8,6 @@ const Price = styled.span`
   font-weight: bold;
   color: ${(props) => props.theme.lightColor};
 `;
-
-const fiatFormat = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-});
-
-export const useTonFiat = (balance?: string, price?: number) => {
-  return useMemo(() => {
-    if (price && balance) {
-      return `${fiatFormat.format(numberTonValue(balance) * price)}`;
-    } else {
-      return undefined;
-    }
-  }, [price, balance]);
-};
 
 export const Fiat: FC<{ balance?: string; price?: number }> = ({
   balance,

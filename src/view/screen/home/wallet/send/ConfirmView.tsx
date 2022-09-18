@@ -17,7 +17,7 @@ import { BackIcon } from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
-import { toShortAddress, toShortName } from "../../../api";
+import { toShortAddress, toShortName } from "../../../../utils";
 import {
   State,
   toState,

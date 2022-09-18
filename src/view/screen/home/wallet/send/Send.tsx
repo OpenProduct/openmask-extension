@@ -21,7 +21,7 @@ import { LoadingLogo } from "../../../../components/Logo";
 import { NetworkContext, WalletAddressContext } from "../../../../context";
 import { askBackground, sendBackground } from "../../../../event";
 import { AppRoute } from "../../../../routes";
-import { formatTonValue } from "../../../api";
+import { formatTonValue } from "../../../../utils";
 import { useNetworkConfig } from "../../api";
 import { State, stateToSearch, toState } from "./api";
 import { CancelButton, ConfirmView } from "./ConfirmView";
