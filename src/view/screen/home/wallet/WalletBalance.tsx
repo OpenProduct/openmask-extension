@@ -1,12 +1,11 @@
-import { useContext, useMemo } from "react";
+import { FC, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Icon } from "../../../components/Components";
-import { ReceiveIcon, SendIcon } from "../../../components/Icons";
+import { ReceiveIcon, SendIcon, TonIcon } from "../../../components/Icons";
 import { AppRoute } from "../../../routes";
 import { formatTonValue } from "../../../utils";
-import { useJettonWalletBalance } from "../../home/wallet/assets/api";
-import { JettonStateContext } from "./context";
+import { Fiat } from "./Fiat";
 
 const Block = styled(Container)`
   flex-shrink: 0;
@@ -38,7 +37,7 @@ const NetworkLogo = styled.span`
 `;
 
 const Amount = styled.span`
-  margin: ${(props) => props.theme.padding} 0;
+  margin: ${(props) => props.theme.padding} 0 5px;
   font-size: xx-large;
 `;
 
@@ -47,11 +46,14 @@ const ActionIcon = styled(Icon)`
   color: ${(props) => props.theme.background};
 `;
 
-export const JettonBalance = () => {
-  const navigate = useNavigate();
-  const state = useContext(JettonStateContext);
+export interface BalanceProps {
+  balance?: string;
+  price?: number;
+}
 
-  const { data: balance } = useJettonWalletBalance(state);
+export const Balance: FC<BalanceProps> = ({ balance, price }) => {
+  const navigate = useNavigate();
+
   const formatted = useMemo(() => {
     return balance ? formatTonValue(balance) : "-";
   }, [balance]);
@@ -59,16 +61,10 @@ export const JettonBalance = () => {
   return (
     <Block>
       <NetworkLogo>
-        <img
-          src={state.state.image}
-          width="40px"
-          height="40px"
-          alt="Jetton Logo"
-        />
+        <TonIcon />
       </NetworkLogo>
-      <Amount>
-        {formatted} {state.state.symbol}
-      </Amount>
+      <Amount>{formatted} TON</Amount>
+      <Fiat balance={balance} price={price} />
       <Row>
         <Column onClick={() => navigate(AppRoute.receive)}>
           <ActionIcon>

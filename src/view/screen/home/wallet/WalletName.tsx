@@ -20,15 +20,6 @@ const Block = styled.div`
   }
 `;
 
-export const EmptyWalletName: FC<{ name: string }> = ({ name }) => {
-  return (
-    <Block>
-      <b>{name}</b>
-      <div>Not Found</div>
-    </Block>
-  );
-};
-
 export const WalletName: FC<{ address: string; name?: string }> = React.memo(
   ({ address, name }) => {
     const [copied, handleCopy] = useCopyToClipboard();

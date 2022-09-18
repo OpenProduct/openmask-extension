@@ -1,88 +1,20 @@
-import React, { FC, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { Asset } from "../../../../../libs/entries/asset";
-import ExtensionPlatform from "../../../../../libs/service/extension";
-import { AssetView } from "../../../../components/Asset";
-import {
-  Center,
-  Gap,
-  InlineButtonLink,
-  Text,
-} from "../../../../components/Components";
-import { LinkIcon, TonIcon } from "../../../../components/Icons";
-import { WalletStateContext } from "../../../../context";
-import { AppRoute } from "../../../../routes";
-import { AssetRoutes } from "../../../assets/Token";
-import { useJettonWalletBalance } from "./api";
-import packageJson from "/package.json";
+import { Route, Routes } from "react-router-dom";
+import { ImportJetton } from "./import/Jetton";
+import { JettonRouter } from "./jetton/Jetton";
+import { ImportNFT } from "./Nft";
+import { AssetRoutes } from "./route";
 
-const Line = styled(Text)`
-  padding: 10px 0 5px;
-`;
-
-const AlternativeAsset: FC<{ asset: Asset }> = React.memo(({ asset }) => {
-  const navigate = useNavigate();
-  const { data } = useJettonWalletBalance(asset);
-
+export const AssetsRouter = () => {
   return (
-    <AssetView
-      name={asset.state.symbol}
-      logoUrl={asset.state.image}
-      balance={data}
-      onShow={() =>
-        navigate(
-          AppRoute.assets +
-            AssetRoutes.jettons +
-            "/" +
-            encodeURIComponent(asset.minterAddress)
-        )
-      }
-    />
-  );
-});
-
-export const Assets: FC<{ balance?: string; price?: number }> = ({
-  balance,
-  price,
-}) => {
-  const navigate = useNavigate();
-  const wallet = useContext(WalletStateContext);
-
-  return (
-    <>
-      <AssetView
-        name="TON"
-        logo={<TonIcon />}
-        balance={balance}
-        price={price}
-      />
-      {(wallet.assets ?? []).map((asset) => (
-        <AlternativeAsset asset={asset} />
-      ))}
-      <Gap />
-      <Center>
-        <Line>
-          Don't see your tokens?{" "}
-          <InlineButtonLink
-            onClick={() => navigate(AppRoute.assets + AssetRoutes.jettons)}
-          >
-            Import Jetton
-          </InlineButtonLink>
-        </Line>
-        <Text>
-          Need help?{" "}
-          <InlineButtonLink
-            onClick={() => {
-              ExtensionPlatform.openTab({
-                url: `${packageJson.repository}/issues`,
-              });
-            }}
-          >
-            Contact us! <LinkIcon />
-          </InlineButtonLink>
-        </Text>
-      </Center>
-    </>
+    <Routes>
+      <Route path={AssetRoutes.jettons}>
+        <Route index element={<ImportJetton />} />
+        <Route path=":minterAddress/*" element={<JettonRouter />} />
+      </Route>
+      <Route path={AssetRoutes.nfts}>
+        <Route index element={<ImportNFT />} />
+        <Route path=":collectionAddress/*" element={<div>NFT</div>} />
+      </Route>
+    </Routes>
   );
 };

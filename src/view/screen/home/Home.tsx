@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { WalletAddressContext, WalletStateContext } from "../../context";
 import { any, AppRoute } from "../../routes";
 import { useBalance, useCoinPrice } from "./api";
+import { AssetsRouter } from "./wallet/assets/Assets";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";
@@ -34,6 +35,7 @@ export const Home = () => {
           />
           <Route path={any(AppRoute.receive)} element={<Receive />} />
           <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
+          <Route path={any(AppRoute.assets)} element={<AssetsRouter />} />
           <Route
             path="*"
             element={<WalletHome price={price} balance={balance} />}

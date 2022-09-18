@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { useTonFiat } from "../../../../utils";
+import { useTonFiat } from "../../../utils";
 
 const Price = styled.span`
   margin: 0 0 20px;

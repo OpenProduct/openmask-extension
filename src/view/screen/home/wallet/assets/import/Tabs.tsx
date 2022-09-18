@@ -1,16 +1,12 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Tabs } from "../../components/Tabs";
-import { AppRoute } from "../../routes";
-
-export enum AssetRoutes {
-  jettons = "/jettons",
-  nfts = "/nfts",
-}
+import { Tabs } from "../../../../../components/Tabs";
+import { AppRoute } from "../../../../../routes";
+import { AssetRoutes } from "../route";
 
 const tabs = ["Jetton", "NFT"];
 
-export const AssetTabs = () => {
+export const AssetsTabs = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -28,10 +24,9 @@ export const AssetTabs = () => {
     [navigate]
   );
 
-  const active =
-    location.pathname === AppRoute.assets + AssetRoutes.nfts
-      ? tabs[1]
-      : tabs[0];
+  const active = location.pathname.includes(AssetRoutes.nfts)
+    ? tabs[1]
+    : tabs[0];
 
   return <Tabs options={tabs} active={active} onChange={onChange} />;
 };

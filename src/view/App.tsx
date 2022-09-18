@@ -20,7 +20,6 @@ import {
   WalletStateContext,
 } from "./context";
 import { any, AppRoute } from "./routes";
-import { AssetsRouter } from "./screen/assets/Assets";
 import { Connections } from "./screen/connections/Connections";
 import { Header } from "./screen/home/Header";
 import { Home } from "./screen/home/Home";
@@ -79,7 +78,6 @@ const ContentRouter: FC<{
           <Route path={any(AppRoute.settings)} element={<Settings />} />
           <Route path={AppRoute.connections} element={<Connections />} />
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-          <Route path={any(AppRoute.assets)} element={<AssetsRouter />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </WalletContractContext.Provider>

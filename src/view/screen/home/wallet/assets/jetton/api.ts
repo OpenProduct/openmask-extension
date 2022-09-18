@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonState } from "../../../../libs/entries/asset";
-import { TonWebTransaction } from "../../../../libs/entries/transaction";
-import { QueryType } from "../../../../libs/store/browserStore";
-import { NetworkContext, TonProviderContext } from "../../../context";
+import { JettonState } from "../../../../../../libs/entries/asset";
+import { TonWebTransaction } from "../../../../../../libs/entries/transaction";
+import { QueryType } from "../../../../../../libs/store/browserStore";
+import { NetworkContext, TonProviderContext } from "../../../../../context";
 
 export const useJettonTransactions = (
   state: JettonState,

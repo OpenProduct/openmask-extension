@@ -7,8 +7,8 @@ import { Tabs } from "../../../components/Tabs";
 import { WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
 import { Activities } from "./activities/Activities";
-import { Assets } from "./assets/Assets";
-import { Balance } from "./balance/Balance";
+import { AssetsList } from "./assets/AssetsList";
+import { Balance } from "./WalletBalance";
 import { WalletMenu } from "./WalletMenu";
 import { WalletName } from "./WalletName";
 
@@ -87,7 +87,10 @@ export const WalletHome: FC<{
       <Tabs options={tabs} active={active} onChange={onChange} />
       <Routes>
         <Route path={AppRoute.activities} element={<Activities />} />
-        <Route path="*" element={<Assets balance={balance} price={price} />} />
+        <Route
+          path="*"
+          element={<AssetsList balance={balance} price={price} />}
+        />
       </Routes>
     </>
   );
