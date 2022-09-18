@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 import { WalletAddressContext, WalletStateContext } from "../../context";
 import { any, AppRoute } from "../../routes";
-import { Asset } from "../asset/Asset";
 import { useBalance, useCoinPrice } from "./api";
 import { Receive } from "./wallet/receive/Receive";
 import { Send } from "./wallet/send/Send";
@@ -35,7 +34,6 @@ export const Home = () => {
           />
           <Route path={any(AppRoute.receive)} element={<Receive />} />
           <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
-          <Route path={any(AppRoute.asset)} element={<Asset />} />
           <Route
             path="*"
             element={<WalletHome price={price} balance={balance} />}

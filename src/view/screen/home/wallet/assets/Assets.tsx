@@ -20,18 +20,21 @@ const Line = styled(Text)`
   padding: 10px 0 5px;
 `;
 
-export const AlternativeAsset: FC<{ asset: Asset }> = React.memo(
-  ({ asset }) => {
-    const { data } = useJettonWalletBalance(asset.minterAddress);
-    return (
-      <AssetView
-        name={asset.state.symbol}
-        logoUrl={asset.state.image}
-        balance={data}
-      />
-    );
-  }
-);
+const AlternativeAsset: FC<{ asset: Asset }> = React.memo(({ asset }) => {
+  const navigate = useNavigate();
+  const { data } = useJettonWalletBalance(asset);
+
+  return (
+    <AssetView
+      name={asset.state.symbol}
+      logoUrl={asset.state.image}
+      balance={data}
+      onShow={() =>
+        navigate(AppRoute.asset + "/" + encodeURIComponent(asset.minterAddress))
+      }
+    />
+  );
+});
 
 export const Assets: FC<{ balance?: string; price?: number }> = ({
   balance,

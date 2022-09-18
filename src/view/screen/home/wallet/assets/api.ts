@@ -1,28 +1,99 @@
-import { Address, JettonMinterDao, JettonWalletDao } from "@openmask/web-sdk";
-import { useQuery } from "@tanstack/react-query";
+import {
+  Address,
+  HttpProvider,
+  JettonMinterDao,
+  JettonWalletDao,
+} from "@openmask/web-sdk";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
+import { AccountState } from "../../../../../libs/entries/account";
+import { JettonState } from "../../../../../libs/entries/asset";
 import { QueryType } from "../../../../../libs/store/browserStore";
-import { TonProviderContext, WalletAddressContext } from "../../../../context";
+import {
+  AccountStateContext,
+  NetworkContext,
+  TonProviderContext,
+} from "../../../../context";
+import { saveAccountState } from "../../../api";
 
-export const useJettonWalletBalance = (jettonMinterAddress: string) => {
+const getJettonWalletAddress = async (
+  client: QueryClient,
+  network: string,
+  provider: HttpProvider,
+  jetton: JettonState,
+  account: AccountState
+): Promise<Address | null> => {
+  if (jetton.walletAddress) {
+    return new Address(jetton.walletAddress);
+  }
+
+  const minter = new JettonMinterDao(
+    provider,
+    new Address(jetton.minterAddress)
+  );
+
+  const { activeWallet } = account;
+  if (!activeWallet) {
+    throw new Error("Unexpected active wallet");
+  }
+  const jettonWalletAddress = await minter.getJettonWalletAddress(
+    new Address(activeWallet)
+  );
+
+  if (jettonWalletAddress != null) {
+    // Update wallet jetton address in store
+    const value: AccountState = {
+      ...account,
+      wallets: account.wallets.map((wallet) => {
+        if (wallet.address === account.activeWallet) {
+          return {
+            ...wallet,
+            assets: wallet.assets?.map((asset) => {
+              if (asset.minterAddress === jetton.minterAddress) {
+                return {
+                  ...asset,
+                  walletAddress: jettonWalletAddress.toString(),
+                };
+              } else {
+                return asset;
+              }
+            }),
+          };
+        } else {
+          return wallet;
+        }
+      }),
+    };
+    await saveAccountState(network, client, value);
+  }
+
+  return jettonWalletAddress;
+};
+
+export const useJettonWalletBalance = (jetton: JettonState) => {
   const provider = useContext(TonProviderContext);
-  const wallet = useContext(WalletAddressContext);
-  return useQuery([QueryType.jetton, jettonMinterAddress, wallet], async () => {
-    const minter = new JettonMinterDao(
-      provider,
-      new Address(jettonMinterAddress)
-    );
+  const account = useContext(AccountStateContext);
+  const network = useContext(NetworkContext);
 
-    const jettonWalletAddress = await minter.getJettonWalletAddress(
-      new Address(wallet)
-    );
+  const client = useQueryClient();
+  return useQuery(
+    [QueryType.jetton, jetton.minterAddress, account.activeWallet],
+    async () => {
+      const jettonWalletAddress = await getJettonWalletAddress(
+        client,
+        network,
+        provider,
+        jetton,
+        account
+      );
 
-    if (!jettonWalletAddress) {
-      throw new Error("Missing jetton wallet address.");
+      if (!jettonWalletAddress) {
+        throw new Error("Missing jetton wallet address.");
+      }
+
+      const dao = new JettonWalletDao(provider, jettonWalletAddress);
+      const data = await dao.getData();
+      return data.balance.toString();
     }
-
-    const dao = new JettonWalletDao(provider, jettonWalletAddress);
-    const data = await dao.getData();
-    return data.balance.toString();
-  });
+  );
 };
