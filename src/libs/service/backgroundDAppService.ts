@@ -9,32 +9,26 @@ import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
 import { DAppMessage } from "../entries/message";
-import { getNetworkConfig, networkConfigs } from "../entries/network";
+import { getNetworkConfig } from "../entries/network";
 import { Permission } from "../entries/permission";
 import { backgroundEventsEmitter } from "../event";
-import {
-  ClosePopUpError,
-  ErrorCode,
-  EventError,
-  RuntimeError,
-} from "../exception";
+import { ClosePopUpError, ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
-import {
-  getConnections,
-  getNetwork,
-  QueryType,
-  setStoreValue,
-} from "../store/browserStore";
+import { getConnections, getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import { showAsset } from "./dApp/assetService";
+import { switchChain } from "./dApp/networkService";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
   openConnectUnlockPopUp,
-  openSwitchChainPopUp,
 } from "./dApp/notificationService";
 import { sendTransaction } from "./dApp/transactionService";
-import { getWalletsByOrigin, waitApprove } from "./dApp/utils";
+import {
+  getDAppPermissions,
+  getWalletsByOrigin,
+  waitApprove,
+} from "./dApp/utils";
 import { confirmWalletSeqNo } from "./walletService";
 
 const getBalance = async (origin: string, wallet: string | undefined) => {
@@ -115,63 +109,6 @@ const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
     }
   }
   return await getConnectedWallets(origin, network);
-};
-
-const getDAppPermissions = async (
-  network: string,
-  origin: string
-): Promise<Permission[]> => {
-  const connections = await getConnections(network);
-  if (!connections[origin]) return [];
-
-  const [first] = await getWalletsByOrigin(origin, network);
-
-  return connections[origin].connect[first] ?? [];
-};
-
-export const switchChain = async (
-  id: number,
-  origin: string,
-  isEvent: boolean,
-  network: string
-) => {
-  const current = await getNetwork();
-  if (current === network) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `Wallet already use "${network}" network`
-    );
-  }
-  if (networkConfigs.find((item) => item.name === network) == null) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `Wallet don't have configuration for "${network}" network`
-    );
-  }
-
-  const permissions = await getDAppPermissions(current, origin);
-
-  // DApp have permission to change network
-  if (permissions.includes(Permission.switchNetwork)) {
-    await setStoreValue(QueryType.network, network);
-    backgroundEventsEmitter.emit("chainChanged", {
-      method: "chainChanged",
-      params: network,
-    });
-    return;
-  }
-
-  // Show PopUp to ask confirmation to change network
-  if (!isEvent) {
-    throw new EventError();
-  }
-
-  const popupId = await openSwitchChainPopUp(id, origin, network);
-  try {
-    await waitApprove(id, popupId);
-  } finally {
-    await closeCurrentPopUp(popupId);
-  }
 };
 
 export const handleDAppMessage = async (

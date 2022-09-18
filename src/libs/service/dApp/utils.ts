@@ -5,6 +5,7 @@
  * @since: 0.6.1
  */
 
+import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
 import { getConnections } from "../../store/browserStore";
@@ -59,4 +60,16 @@ export const waitApprove = (id: number, popupId?: number) => {
     backgroundEventsEmitter.on("rejectRequest", cancel);
     backgroundEventsEmitter.on("closedPopUp", close);
   });
+};
+
+export const getDAppPermissions = async (
+  network: string,
+  origin: string
+): Promise<Permission[]> => {
+  const connections = await getConnections(network);
+  if (!connections[origin]) return [];
+
+  const [first] = await getWalletsByOrigin(origin, network);
+
+  return connections[origin].connect[first] ?? [];
 };
