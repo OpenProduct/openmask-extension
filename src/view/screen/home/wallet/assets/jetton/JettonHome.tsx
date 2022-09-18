@@ -1,16 +1,31 @@
 import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ExtensionPlatform from "../../../../../../libs/service/extension";
 import {
   ActivitiesList,
   ActivityMessage,
 } from "../../../../../components/ActivitiesList";
-import { Body, Scroll, Text } from "../../../../../components/Components";
+import {
+  Body,
+  ButtonColumn,
+  ButtonNegative,
+  InlineLink,
+  Scroll,
+  Text,
+} from "../../../../../components/Components";
 import { HomeButton } from "../../../../../components/HomeButton";
-import { CheckIcon, CopyIcon } from "../../../../../components/Icons";
+import {
+  CheckIcon,
+  CopyIcon,
+  DeleteIcon,
+  LinkIcon,
+} from "../../../../../components/Icons";
 import { Tabs } from "../../../../../components/Tabs";
 import { useCopyToClipboard } from "../../../../../hooks/useCopyToClipbpard";
 import { relative } from "../../../../../routes";
+import { toShortAddress } from "../../../../../utils";
+import { useNetworkConfig } from "../../../api";
 import { useJettonTransactions } from "./api";
 import { JettonMinterAddressContext, JettonStateContext } from "./context";
 import { JettonBalance } from "./JettonBalance";
@@ -41,7 +56,6 @@ const AddressBlock = styled.span`
   padding: 5px;
   line-height: 1.6;
 
-  max-width: 100%;
   box-sizing: border-box;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -57,56 +71,61 @@ const AddressLine: FC<{ address: string }> = ({ address }) => {
 
   return (
     <AddressBlock onClick={() => handleCopy(address)}>
-      {copied ? <CheckIcon /> : <CopyIcon />} {address}
+      {toShortAddress(address)} {copied ? <CheckIcon /> : <CopyIcon />}
     </AddressBlock>
   );
 };
 
 const JettonInfo = () => {
+  const navigate = useNavigate();
+  const config = useNetworkConfig();
   const jetton = useContext(JettonStateContext);
   const minterAddress = useContext(JettonMinterAddressContext);
 
-  const onDelete = () => {};
-
-  const isLoading = false;
-
   return (
     <Body>
-      <Text>Jetton Minter</Text>
+      <Text>
+        <b>Jetton Minter</b>{" "}
+        <InlineLink
+          onClick={() =>
+            ExtensionPlatform.openTab({
+              url: `${config.scanUrl}/address/${minterAddress}`,
+            })
+          }
+        >
+          Open tonscan.org <LinkIcon />
+        </InlineLink>
+      </Text>
       <Text>
         <AddressLine address={minterAddress} />
       </Text>
-      <Text>Jetton Wallet</Text>
+      <Text>
+        <b>Jetton Wallet</b>{" "}
+        {jetton.walletAddress && (
+          <InlineLink
+            onClick={() =>
+              ExtensionPlatform.openTab({
+                url: `${config.scanUrl}/address/${jetton.walletAddress}`,
+              })
+            }
+          >
+            Open tonscan.org <LinkIcon />
+          </InlineLink>
+        )}
+      </Text>
       <Text>
         {jetton.walletAddress ? (
-          <AddressLine address={minterAddress} />
+          <AddressLine address={jetton.walletAddress} />
         ) : (
           "Jetton Wallet Not Found"
         )}
       </Text>
+      <ButtonColumn>
+        <ButtonNegative onClick={() => navigate(relative(JettonRoute.hide))}>
+          Hide <DeleteIcon />
+        </ButtonNegative>
+      </ButtonColumn>
     </Body>
-    // <SecondBlock>
-    //   <WalletName address={} name="" />
-    //   { ? (
-    //     <WalletName address={jetton.walletAddress} name="Jetton Wallet" />
-    //   ) : (
-    //     <EmptyWalletName name="Jetton Wallet" />
-    //   )}
-    //   <DropDown
-    //     payload={() => (
-    //       <DropDownListPayload>
-    //         <ListTitle>Are you sure you want to hide jetton?</ListTitle>
-    //         <ListItem onClick={onDelete}>
-    //           {isLoading ? "Hiding..." : "Hide"}
-    //         </ListItem>
-    //       </DropDownListPayload>
-    //     )}
-    //   >
-    //     <Icon>
-    //       <DeleteIcon />
-    //     </Icon>
-    //   </DropDown>
-    // </SecondBlock>
   );
 };
 

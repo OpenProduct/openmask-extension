@@ -12,6 +12,7 @@ import {
   ErrorMessage,
   ErrorText,
   Gap,
+  H1,
   Input,
   Textarea,
 } from "../../../../components/Components";
@@ -22,11 +23,6 @@ import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
 import { decryptMnemonic } from "../../../api";
 import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
-
-const Title = styled.div`
-  font-size: x-large;
-  margin: ${(props) => props.theme.padding} 0;
-`;
 
 const Text = styled.div`
   font-size: medium;
@@ -75,7 +71,7 @@ const SettingsIndex = () => {
     <>
       <HomeButton />
       <Body>
-        <Title>Wallet Settings</Title>
+        <H1>Wallet Settings</H1>
 
         <Label>Wallet Name</Label>
         <Input
@@ -152,7 +148,7 @@ const SettingsMnemonic = () => {
 
   return (
     <Body>
-      <Title>Secret Recovery Phrase</Title>
+      <H1>Secret Recovery Phrase</H1>
       <Text>
         If you ever change browsers or move computers, you will need this Secret
         Recovery Phrase to access your wallet. Save them somewhere safe and
@@ -200,7 +196,7 @@ const SettingsDelete = () => {
 
   return (
     <Body>
-      <Title>Delete Wallet</Title>
+      <H1>Delete Wallet</H1>
       <Text>Deleting your wallet will clear all local stored data.</Text>
       <Text>The wallet could be re-enter by Secret Recovery Phrase.</Text>
       <Text>

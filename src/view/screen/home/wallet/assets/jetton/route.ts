@@ -3,5 +3,5 @@ export enum JettonRoute {
   activities = "/activities",
   send = "/send",
   receive = "/receive",
-  delete = "/delete",
+  hide = "/hide",
 }
