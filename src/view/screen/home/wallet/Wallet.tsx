@@ -8,7 +8,7 @@ import { AppRoute } from "../../../routes";
 import { useConnections } from "../../connections/api";
 import { useActiveTabs } from "../../notification/connect/api";
 import { Activities } from "./activities/Activities";
-import { Assets } from "./Assets";
+import { Assets } from "./assets/Assets";
 import { Balance } from "./balance/Balance";
 import { WalletMenu } from "./WalletMenu";
 import { WalletName } from "./WalletName";

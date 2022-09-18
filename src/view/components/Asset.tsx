@@ -47,7 +47,7 @@ const Fiat = styled.div`
   color: ${(props) => props.theme.lightColor};
 `;
 
-export const Asset: FC<AssetProps> = ({
+export const AssetView: FC<AssetProps> = ({
   name,
   logo,
   logoUrl,
@@ -57,7 +57,7 @@ export const Asset: FC<AssetProps> = ({
   const fiat = useTonFiat(balance, price);
 
   const formatted = useMemo(() => {
-    return balance ? formatTonValue(balance) : undefined;
+    return balance ? formatTonValue(balance) : "0";
   }, [balance]);
 
   return (
