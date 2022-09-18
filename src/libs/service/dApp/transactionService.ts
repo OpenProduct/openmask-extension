@@ -14,11 +14,11 @@ import {
   setAccountState,
 } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
+import { getWalletsByOrigin } from "../walletService";
 import {
   closeCurrentPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
-import { getWalletsByOrigin } from "./utils";
 
 const waitTransaction = (id: number, popupId?: number) => {
   return new Promise<number>((resolve, reject) => {

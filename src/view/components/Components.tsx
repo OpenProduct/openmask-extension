@@ -185,6 +185,10 @@ export const Text = styled.div`
   font-size: medium;
 `;
 
+export const Scroll = styled.div`
+  overflow: auto;
+`;
+
 export const TextLink = styled(Text)`
   font-size: large;
   color: ${(props) => props.theme.darkBlue};

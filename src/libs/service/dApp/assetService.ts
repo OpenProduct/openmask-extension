@@ -12,8 +12,9 @@ import {
   getNetwork,
   setAccountState,
 } from "../../store/browserStore";
+import { getWalletsByOrigin } from "../walletService";
 import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
-import { getWalletsByOrigin, waitApprove } from "./utils";
+import { waitApprove } from "./utils";
 
 export const showAsset = async (
   id: number,

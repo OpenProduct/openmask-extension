@@ -52,6 +52,7 @@ export interface PupUpEvents {
 
   chainChanged: string;
   accountsChanged: string[];
+  getWallets: string;
 }
 
 export interface ApproveTransaction {

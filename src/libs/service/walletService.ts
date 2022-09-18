@@ -4,7 +4,11 @@ import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
-import { getAccountState, getNetwork } from "../store/browserStore";
+import {
+  getAccountState,
+  getConnections,
+  getNetwork,
+} from "../store/browserStore";
 
 export const confirmWalletSeqNo = async (walletSeqNo: number) => {
   const network = await getNetwork();
@@ -47,4 +51,24 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
     method: "accountsChanged",
     params: [activeWallet],
   });
+};
+
+export const getWalletsByOrigin = async (origin: string, network: string) => {
+  const whitelist = await getConnections(network);
+  const account = whitelist[origin];
+  if (account == null) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `Origin "${origin}" is not in whitelist`
+    );
+  }
+
+  const wallets = Object.keys(account.connect);
+  if (wallets.length === 0) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `Origin "${origin}" don't have access to wallets for "${network}"`
+    );
+  }
+  return wallets;
 };

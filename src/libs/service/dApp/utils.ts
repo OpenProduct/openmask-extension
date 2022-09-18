@@ -9,26 +9,7 @@ import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
 import { getConnections } from "../../store/browserStore";
-
-export const getWalletsByOrigin = async (origin: string, network: string) => {
-  const whitelist = await getConnections(network);
-  const account = whitelist[origin];
-  if (account == null) {
-    throw new RuntimeError(
-      ErrorCode.unauthorize,
-      `Origin "${origin}" is not in whitelist`
-    );
-  }
-
-  const wallets = Object.keys(account.connect);
-  if (wallets.length === 0) {
-    throw new RuntimeError(
-      ErrorCode.unauthorize,
-      `Origin "${origin}" don't have access to wallets for "${network}"`
-    );
-  }
-  return wallets;
-};
+import { getWalletsByOrigin } from "../walletService";
 
 export const waitApprove = (id: number, popupId?: number) => {
   return new Promise((resolve, reject) => {

@@ -9,7 +9,7 @@
 import browser from "webextension-polyfill";
 import {
   handleDAppConnection,
-  subscriptionDAppEvent,
+  subscriptionDAppNotifications,
 } from "./libs/service/backgroundDAppService";
 import { handlePopUpConnection } from "./libs/service/backgroundPopUpService";
 
@@ -36,4 +36,4 @@ browser.runtime.onConnect.addListener((port) => {
 /**
  * Subscribing to update events and send it to dApps
  */
-subscriptionDAppEvent();
+subscriptionDAppNotifications();

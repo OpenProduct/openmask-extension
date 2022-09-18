@@ -16,6 +16,7 @@ import {
   Gap,
   H1,
   InlineLink,
+  Scroll,
   Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
@@ -47,10 +48,6 @@ const Row = styled.div`
 
 const Balance = styled(Row)`
   color: ${(props) => props.theme.darkGray};
-`;
-
-const Scroll = styled.div`
-  overflow: auto;
 `;
 
 const Wallet: FC<{

@@ -13,8 +13,9 @@ import {
   RESPONSE,
 } from "../event";
 import { Logger } from "../logger";
+import { getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
-import { confirmWalletSeqNo } from "./walletService";
+import { confirmWalletSeqNo, getWalletsByOrigin } from "./walletService";
 
 let popUpPort: browser.Runtime.Port;
 
@@ -55,6 +56,19 @@ popUpEventEmitter.on("isLock", (message) => {
 
 popUpEventEmitter.on("getPassword", (message) => {
   sendResponseToPopUp(message.id, memoryStore.getPassword());
+});
+
+popUpEventEmitter.on("getWallets", async (message) => {
+  try {
+    const wallets = await getWalletsByOrigin(
+      message.params,
+      await getNetwork()
+    );
+    sendResponseToPopUp(message.id, wallets);
+  } catch (e) {
+    Logger.error(e);
+    sendResponseToPopUp(message.id, undefined);
+  }
 });
 
 popUpEventEmitter.on("setPassword", (message) => {

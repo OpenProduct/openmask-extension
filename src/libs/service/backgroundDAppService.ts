@@ -8,7 +8,11 @@
 import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
-import { DAppMessage, OpenMaskApiResponse } from "../entries/message";
+import {
+  DAppMessage,
+  OpenMaskApiEvent,
+  OpenMaskApiResponse,
+} from "../entries/message";
 import { getNetworkConfig } from "../entries/network";
 import { Permission } from "../entries/permission";
 import { backgroundEventsEmitter } from "../event";
@@ -24,12 +28,8 @@ import {
   openConnectUnlockPopUp,
 } from "./dApp/notificationService";
 import { sendTransaction } from "./dApp/transactionService";
-import {
-  getDAppPermissions,
-  getWalletsByOrigin,
-  waitApprove,
-} from "./dApp/utils";
-import { confirmWalletSeqNo } from "./walletService";
+import { getDAppPermissions, waitApprove } from "./dApp/utils";
+import { confirmWalletSeqNo, getWalletsByOrigin } from "./walletService";
 
 const getBalance = async (origin: string, wallet: string | undefined) => {
   const network = await getNetwork();
@@ -237,7 +237,7 @@ const seeIfTabHaveAccess = (
   return wallets.includes(accounts[0]);
 };
 
-export const subscriptionDAppEvent = () => {
+export const subscriptionDAppNotifications = () => {
   backgroundEventsEmitter.on("chainChanged", (message) => {
     contentScriptPorts.forEach((port) => {
       port.postMessage(providerEvent("chainChanged", message.params));
