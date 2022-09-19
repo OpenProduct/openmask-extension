@@ -97,6 +97,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const onSelect = useCallback(
     async (address: string) => {
       resetSelect();
+      navigate(AppRoute.home);
       await mutateSelect(address);
     },
     [resetSelect, mutateSelect]
