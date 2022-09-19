@@ -1,42 +1,36 @@
+import { fromNano } from "@openmask/web-sdk";
+import BN from "bn.js";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { AddressTransfer } from "../../../../components/Address";
+import { JettonState } from "../../../../../../../libs/entries/asset";
+import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
+  ButtonBottomRow,
   ButtonPositive,
-  ButtonRow,
   ErrorMessage,
   Gap,
   TextLine,
-} from "../../../../components/Components";
-import { Dots } from "../../../../components/Dots";
+} from "../../../../../../components/Components";
+import { Dots } from "../../../../../../components/Dots";
 import {
   SendCancelButton,
   SendEditButton,
-} from "../../../../components/send/SendButtons";
-import { WalletStateContext } from "../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../utils";
-import {
-  State,
-  toState,
-  useEstimateFee,
-  useSendMethod,
-  useSendMutation,
-} from "./api";
+} from "../../../../../../components/send/SendButtons";
+import { WalletStateContext } from "../../../../../../context";
+import { toShortAddress, toShortName } from "../../../../../../utils";
+import { useEstimateFee, useSendMutation } from "../../../send/api";
+import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
 
 const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const onEdit = () => {
-    const state = toState(searchParams);
+    const state = toSendJettonState(searchParams);
     setSearchParams({ ...state }); // Remove submit flag from params
   };
   return <SendEditButton onEdit={onEdit} />;
 });
-
-const Fiat = styled.span`
-  color: ${(props) => props.theme.darkGray};
-`;
 
 const Comment = styled.div`
   padding: 10px;
@@ -47,19 +41,25 @@ const Comment = styled.div`
 `;
 
 interface ConfirmProps {
-  state: State;
-  price?: number;
+  jetton: JettonState;
+  state: SendJettonState;
   balance?: string;
   onSend: (seqNo: number, transactionId?: string) => void;
 }
 
-export const ConfirmView: FC<ConfirmProps> = ({
+export const SendJettonConfirm: FC<ConfirmProps> = ({
+  jetton,
   state,
   balance,
-  price,
   onSend,
 }) => {
-  const { data: method, error, isFetching } = useSendMethod(state, balance);
+  const wallet = useContext(WalletStateContext);
+
+  const {
+    data: method,
+    error,
+    isFetching,
+  } = useSendJettonMethod(jetton, state, balance);
   const { data } = useEstimateFee(method);
 
   const { mutateAsync, isLoading } = useSendMutation();
@@ -74,29 +74,29 @@ export const ConfirmView: FC<ConfirmProps> = ({
     if (!data) {
       return (
         <TextLine>
-          Loading
-          <Dots />
+          <Dots>Loading</Dots>
         </TextLine>
       );
     }
-    const totalTon =
-      (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
-      1000000000;
+    const totalTon = new BN(
+      data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee,
+      10
+    );
 
-    const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
+    const transaction =
+      state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
     return (
-      <TextLine>
-        ~<b>{fiatFees.format(totalTon)} TON</b> <Fiat>{fiat}</Fiat>
-      </TextLine>
+      <>
+        <TextLine>
+          Transaction: ~<b>{transaction} TON</b>
+        </TextLine>
+        <TextLine>
+          Network: ~<b>{fromNano(totalTon)} TON</b>
+        </TextLine>
+      </>
     );
-  }, [data, price]);
-
-  const inFiat = price
-    ? ` (USD ${fiatFees.format(parseFloat(state.amount) * price)}$)`
-    : "";
-
-  const wallet = useContext(WalletStateContext);
+  }, [data]);
 
   const disabled = isLoading || isFetching || error != null;
 
@@ -108,9 +108,15 @@ export const ConfirmView: FC<ConfirmProps> = ({
           left={toShortName(wallet.name)}
           right={toShortAddress(state.address)}
         />
-        <TextLine>SENDING:{state.origin ? ` (${state.origin})` : ""}</TextLine>
         <TextLine>
-          <b>{state.amount} TON</b> <Fiat>{inFiat}</Fiat>
+          SENDING {jetton.state.symbol}:
+          {state.origin ? ` (${state.origin})` : ""}
+        </TextLine>
+
+        <TextLine>
+          <b>
+            {state.amount} {jetton.state.symbol}
+          </b>
         </TextLine>
         {state.comment && (
           <>
@@ -119,17 +125,21 @@ export const ConfirmView: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Network fee estimation:</TextLine>
+        <TextLine>Fee estimation:</TextLine>
         <Fees />
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <Gap />
 
-        <ButtonRow>
-          <SendCancelButton disabled={isLoading} transactionId={state.id} />
+        <Gap />
+        <ButtonBottomRow>
+          <SendCancelButton
+            disabled={isLoading}
+            transactionId={state.id}
+            homeRoute="../"
+          />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
             {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>
-        </ButtonRow>
+        </ButtonBottomRow>
       </Body>
     </>
   );

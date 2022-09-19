@@ -10,7 +10,7 @@ import {
   getNetworkStoreValue,
   getScript,
   QueryType,
-  setStoreValue,
+  setStoreValue
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
 import { askBackground, uiEventEmitter } from "./event";
@@ -101,11 +101,14 @@ export const useInitialRedirect = () => {
       .then((operation) => {
         if (operation !== null) {
           Logger.log(operation);
-          navigate(
-            `${AppRoute.send}?${new URLSearchParams(
-              JSON.parse(operation.value)
-            ).toString()}`
-          );
+
+          if (operation.kind === "send") {
+            navigate(
+              `${AppRoute.send}?${new URLSearchParams(
+                JSON.parse(operation.value)
+              ).toString()}`
+            );
+          }
         }
       });
   }, []);

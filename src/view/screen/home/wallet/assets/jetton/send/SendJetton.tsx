@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { JettonState } from "../../../../../../../libs/entries/asset";
 import {
   Body,
   ButtonBottomRow,
@@ -8,56 +9,38 @@ import {
   Gap,
   H1,
   Input,
-} from "../../../../components/Components";
-import { SendCancelButton } from "../../../../components/send/SendButtons";
-import { SendLoadingView } from "../../../../components/send/SendLoadingView";
-import { SendSuccessView } from "../../../../components/send/SendSuccessView";
-import { WalletAddressContext } from "../../../../context";
-import { sendBackground } from "../../../../event";
-import { formatTonValue } from "../../../../utils";
-import { State, stateToSearch, toState } from "./api";
-import { ConfirmView } from "./ConfirmView";
+} from "../../../../../../components/Components";
+import { SendCancelButton } from "../../../../../../components/send/SendButtons";
+import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
+import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
+import { WalletAddressContext } from "../../../../../../context";
+import { sendBackground } from "../../../../../../event";
+import { useJettonWalletBalance } from "../../api";
+import { JettonMinterAddressContext, JettonStateContext } from "../context";
+import { SendJettonState, stateToSearch, toSendJettonState } from "./api";
+import { SendJettonConfirm } from "./SendJettonConfirm";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
 `;
 
-const MaxRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-`;
-
-const MaxButton = styled.button`
-  color: ${(props) => props.theme.darkBlue};
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0 5px;
-  background: ${(props) => props.theme.background};
-  border: 0;
-  outline: 0;
-`;
-
-interface Props {
-  price?: number;
-  balance?: string;
-}
-
 interface InputProps {
-  balance?: string;
-  state: State;
-  onChange: (field: Partial<State>) => void;
+  jetton: JettonState;
+  state: SendJettonState;
+
+  onChange: (field: Partial<SendJettonState>) => void;
   onSend: () => void;
 }
 
-const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
-  const formatted = useMemo(() => {
-    return balance ? formatTonValue(balance) : "-";
-  }, [balance]);
-
+const SendJettonInputView: FC<InputProps> = ({
+  jetton,
+  state,
+  onChange,
+  onSend,
+}) => {
   return (
     <Body>
-      <H1>Send TON</H1>
+      <H1>Send {jetton.state.symbol}</H1>
       <Label>Enter wallet address</Label>
       <Input
         value={state.address}
@@ -68,40 +51,24 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
       <Input
         type="number"
         value={state.amount}
-        onChange={(e) => onChange({ amount: e.target.value, max: "0" })}
-      />
-      <MaxRow>
-        <MaxButton
-          onClick={() =>
-            onChange({
-              amount: balance ? formatTonValue(balance) : "0",
-              max: "1",
-            })
-          }
-        >
-          Max
-        </MaxButton>
-        {formatted} TON
-      </MaxRow>
-
-      <Label>Comment (optional)</Label>
-      <Input
-        value={state.comment}
-        onChange={(e) => onChange({ comment: e.target.value })}
+        onChange={(e) => onChange({ amount: e.target.value })}
       />
 
       <Gap />
-
       <ButtonBottomRow>
-        <SendCancelButton transactionId={state.id} />
+        <SendCancelButton transactionId={state.id} homeRoute="../" />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
   );
 };
 
-export const Send: FC<Props> = ({ price, balance }) => {
+export const JettonSend = () => {
+  const address = useContext(WalletAddressContext);
+  const minterAddress = useContext(JettonMinterAddressContext);
+  const jetton = useContext(JettonStateContext);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: balance } = useJettonWalletBalance(jetton);
 
   const seqNo = searchParams.get("seqNo");
   const confirm = searchParams.get("confirm");
@@ -109,27 +76,27 @@ export const Send: FC<Props> = ({ price, balance }) => {
   const submit = searchParams.get("submit") === "1";
 
   const state = useMemo(() => {
-    return toState(searchParams);
+    return toSendJettonState(searchParams);
   }, [searchParams]);
 
   const onSubmit = useCallback(() => {
     const params = { ...stateToSearch(state), submit: "1" };
 
     sendBackground.message("storeOperation", {
-      kind: "send",
-      value: JSON.stringify(params),
+      kind: "sendJetton",
+      value: JSON.stringify({ minterAddress, state }),
     });
 
     setSearchParams(params);
   }, [setSearchParams, state]);
 
   const onChange = useCallback(
-    (field: Partial<State>) => {
+    (field: Partial<SendJettonState>) => {
       const params = stateToSearch({ ...state, ...field });
 
       sendBackground.message("storeOperation", {
-        kind: "send",
-        value: JSON.stringify(params),
+        kind: "sendJetton",
+        value: JSON.stringify({ minterAddress, state }),
       });
 
       setSearchParams(params);
@@ -165,8 +132,6 @@ export const Send: FC<Props> = ({ price, balance }) => {
     setSearchParams({ confirm: String(seqNo) });
   }, [setSearchParams, seqNo]);
 
-  const address = useContext(WalletAddressContext);
-
   if (confirm !== null) {
     return <SendSuccessView address={address} />;
   }
@@ -179,20 +144,20 @@ export const Send: FC<Props> = ({ price, balance }) => {
 
   if (!submit) {
     return (
-      <InputView
+      <SendJettonInputView
         state={state}
+        jetton={jetton}
         onChange={onChange}
         onSend={onSubmit}
-        balance={balance}
       />
     );
   }
 
   return (
-    <ConfirmView
+    <SendJettonConfirm
       state={state}
+      jetton={jetton}
       balance={balance}
-      price={price}
       onSend={onSend}
     />
   );

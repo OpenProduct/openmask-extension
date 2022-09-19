@@ -9,10 +9,9 @@ import {
   H1,
   Text,
 } from "../../../../../components/Components";
-import { AppRoute, relative } from "../../../../../routes";
+import { AppRoute } from "../../../../../routes";
 import { useHideJettonMutation } from "./api";
 import { JettonStateContext } from "./context";
-import { JettonRoute } from "./route";
 
 export const JettonHide = () => {
   const jetton = useContext(JettonStateContext);
@@ -36,10 +35,7 @@ export const JettonHide = () => {
       <Text>The Jetton could be re-enter by Jetton Minter address.</Text>
       <Gap />
       <ButtonRow>
-        <ButtonNegative
-          onClick={() => navigate(relative(JettonRoute.index))}
-          disabled={isLoading}
-        >
+        <ButtonNegative onClick={() => navigate("../")} disabled={isLoading}>
           Cancel
         </ButtonNegative>
         <ButtonPositive onClick={onDelete} disabled={isLoading}>

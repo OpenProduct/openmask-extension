@@ -185,6 +185,10 @@ export const Text = styled.div`
   font-size: medium;
 `;
 
+export const TextLine = styled(Text)`
+  word-break: break-all;
+`;
+
 export const Scroll = styled.div`
   overflow: auto;
 `;

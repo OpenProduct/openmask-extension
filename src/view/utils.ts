@@ -39,3 +39,8 @@ export const useTonFiat = (balance?: string, price?: number) => {
     }
   }, [price, balance]);
 };
+
+export const fiatFees = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 4,
+});

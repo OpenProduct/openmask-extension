@@ -21,7 +21,7 @@ type Props = {
   right: string | null;
 };
 
-export const Address: FC<Props> = ({ left, right }) => {
+export const AddressTransfer: FC<Props> = ({ left, right }) => {
   return (
     <Block>
       {left}

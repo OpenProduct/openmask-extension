@@ -33,7 +33,10 @@ export type AskProcessor<R> = {
   ): R;
 };
 
-export type UnfinishedOperation = { kind: "send"; value: string } | null;
+export type UnfinishedOperation =
+  | null
+  | { kind: "send"; value: string }
+  | { kind: "sendJetton"; value: string };
 
 export interface PupUpEvents {
   isLock: void;
