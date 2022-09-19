@@ -12,8 +12,8 @@ export interface JettonParams {
 
 export interface JettonName {
   symbol: string;
-  image: string;
   name: string;
+  image?: string;
 }
 
 export interface JettonState {

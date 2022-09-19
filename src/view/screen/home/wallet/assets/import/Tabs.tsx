@@ -4,7 +4,7 @@ import { Tabs } from "../../../../../components/Tabs";
 import { AppRoute } from "../../../../../routes";
 import { AssetRoutes } from "../route";
 
-const tabs = ["Jetton", "NFT"];
+const tabs = ["Import Jetton", "Import NFT"];
 
 export const AssetsTabs = () => {
   const navigate = useNavigate();

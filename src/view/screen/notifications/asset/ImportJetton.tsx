@@ -15,6 +15,7 @@ import {
   Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
+import { JettonRow } from "../../../components/JettonRow";
 import { sendBackground } from "../../../event";
 import { toShortAddress } from "../../../utils";
 import { Loading, NotificationView } from "../../Loading";
@@ -54,12 +55,7 @@ const JettonWallet: FC<JettonWalletProps> = React.memo(
     return (
       <>
         <Text>Wallet: {toShortAddress(wallet)}</Text>
-        <Row>
-          <img alt="Coin Logo" width="35px" height="35px" src={state.image} />
-          <Font>
-            {state.name} ({jettonBallance ?? 0} {state.symbol})
-          </Font>
-        </Row>
+        <JettonRow state={state} balance={jettonBallance} />
       </>
     );
   }

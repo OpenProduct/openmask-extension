@@ -59,9 +59,6 @@ const getJettonName = async (
   if (!state.symbol) {
     errors.push("symbol");
   }
-  if (!state.image) {
-    errors.push("image");
-  }
   if (errors.length) {
     throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
   }

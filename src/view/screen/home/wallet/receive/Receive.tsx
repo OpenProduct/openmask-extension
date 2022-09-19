@@ -92,7 +92,7 @@ export const ReceiveCoin: FC<ReceiveProps> = ({ symbol = "TON" }) => {
   );
 };
 
-export const Receive = () => {
+export const ReceiveRouter = () => {
   return (
     <>
       <HomeButton />
