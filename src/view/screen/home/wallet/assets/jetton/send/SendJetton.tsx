@@ -54,6 +54,12 @@ const SendJettonInputView: FC<InputProps> = ({
         onChange={(e) => onChange({ amount: e.target.value })}
       />
 
+      <Label>Comment (optional)</Label>
+      <Input
+        value={state.comment}
+        onChange={(e) => onChange({ comment: e.target.value })}
+      />
+
       <Gap />
       <ButtonBottomRow>
         <SendCancelButton transactionId={state.id} homeRoute="../" />
@@ -84,7 +90,7 @@ export const JettonSend = () => {
 
     sendBackground.message("storeOperation", {
       kind: "sendJetton",
-      value: JSON.stringify({ minterAddress, state }),
+      value: JSON.stringify({ minterAddress, state: params }),
     });
 
     setSearchParams(params);
@@ -96,7 +102,7 @@ export const JettonSend = () => {
 
       sendBackground.message("storeOperation", {
         kind: "sendJetton",
-        value: JSON.stringify({ minterAddress, state }),
+        value: JSON.stringify({ minterAddress, state: params }),
       });
 
       setSearchParams(params);
@@ -116,8 +122,8 @@ export const JettonSend = () => {
         });
       } else {
         sendBackground.message("storeOperation", {
-          kind: "send",
-          value: JSON.stringify(params),
+          kind: "sendJetton",
+          value: JSON.stringify({ minterAddress, state: params }),
         });
       }
 

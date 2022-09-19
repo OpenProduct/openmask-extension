@@ -6,8 +6,8 @@ import { JettonState } from "../../../../../../../libs/entries/asset";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
-  ButtonBottomRow,
   ButtonPositive,
+  ButtonRow,
   ErrorMessage,
   Gap,
   TextLine,
@@ -37,6 +37,10 @@ const Comment = styled.div`
   font-size: medium;
   margin-bottom: ${(props) => props.theme.padding};
   word-break: break-all;
+`;
+
+const Quote = styled.div`
+  margin-bottom: ${(props) => props.theme.padding};
 `;
 
 interface ConfirmProps {
@@ -124,15 +128,15 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
         <TextLine>
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
-        <div>
+        <Quote>
           * The wallet sends an amount of TON to cover transaction costs. The
           rest of the TON that will not be used will be returned to the wallet.
-        </div>
+        </Quote>
 
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
 
         <Gap />
-        <ButtonBottomRow>
+        <ButtonRow>
           <SendCancelButton
             disabled={isLoading}
             transactionId={state.id}
@@ -141,7 +145,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
             {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>
-        </ButtonBottomRow>
+        </ButtonRow>
       </Body>
     </>
   );

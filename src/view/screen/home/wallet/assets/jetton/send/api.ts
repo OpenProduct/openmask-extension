@@ -10,6 +10,7 @@ import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { JettonState } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
+import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
@@ -79,6 +80,14 @@ export const useSendJettonMethod = (
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
     async () => {
+      if (balance) {
+        if (new BN(balance).cmp(toNano(state.amount)) === -1) {
+          throw new RuntimeError(
+            ErrorCode.unexpectedParams,
+            "Don't enough Jetton Wallet balance"
+          );
+        }
+      }
       if (!walletAddress) {
         throw new Error("Jetton Wallet Not Found.");
       }
@@ -125,6 +134,7 @@ export const useSendJettonMethod = (
       const method = contract.transfer(params);
 
       return { method, seqno };
-    }
+    },
+    { enabled: balance != null }
   );
 };
