@@ -1,5 +1,4 @@
 import { fromNano } from "@openmask/web-sdk";
-import BN from "bn.js";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
@@ -19,7 +18,7 @@ import {
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
-import { toShortAddress, toShortName } from "../../../../../../utils";
+import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
 import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
 
@@ -78,25 +77,19 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
         </TextLine>
       );
     }
-    const totalTon = new BN(
-      data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee,
-      10
+    const totalTon = fromNano(
+      String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
     );
-
-    const transaction =
-      state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
     return (
-      <>
-        <TextLine>
-          Transaction: ~<b>{transaction} TON</b>
-        </TextLine>
-        <TextLine>
-          Network: ~<b>{fromNano(totalTon)} TON</b>
-        </TextLine>
-      </>
+      <TextLine>
+        Network: ~<b>{fiatFees.format(parseFloat(totalTon))} TON</b>
+      </TextLine>
     );
   }, [data]);
+
+  const transaction =
+    state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
   const disabled = isLoading || isFetching || error != null;
 
@@ -125,8 +118,17 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Fee estimation:</TextLine>
+        <TextLine>Network fee estimation:</TextLine>
         <Fees />
+        <TextLine>Transaction fee estimation:</TextLine>
+        <TextLine>
+          Max: ~<b>{fiatFees.format(transaction)} TON*</b>
+        </TextLine>
+        <div>
+          * The wallet sends an amount of TON to cover transaction costs. The
+          rest of the TON that will not be used will be returned to the wallet.
+        </div>
+
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
 
         <Gap />

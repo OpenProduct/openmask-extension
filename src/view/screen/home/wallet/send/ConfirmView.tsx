@@ -1,3 +1,4 @@
+import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
@@ -74,14 +75,16 @@ export const ConfirmView: FC<ConfirmProps> = ({
     if (!data) {
       return (
         <TextLine>
-          Loading
-          <Dots />
+          <Dots>Loading</Dots>
         </TextLine>
       );
     }
-    const totalTon =
-      (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
-      1000000000;
+
+    const totalTon = parseFloat(
+      fromNano(
+        String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
+      )
+    );
 
     const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
 
