@@ -30,7 +30,7 @@ export interface SendJettonState {
   amount: string;
   /**
    * TON Amount with would be transfer to handle internal transaction expenses
-   * By default agreed to 0.1 TON
+   * By default community agreed to 0.1 TON
    */
   transactionAmount: string;
 
@@ -110,7 +110,7 @@ export const useSendJettonMethod = (
           ? toNano("0.10")
           : toNano(state.transactionAmount);
 
-      let payloadCell = new Cell();
+      const payloadCell = new Cell();
       payloadCell.bits.writeUint(0, 32);
       payloadCell.bits.writeString(state.comment);
 
