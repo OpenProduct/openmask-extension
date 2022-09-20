@@ -153,11 +153,12 @@ export const signRawValue = async (
     );
   }
 
-  memoryStore.setOperation({ kind: "rawSing", value: value.data });
-
   await switchActiveAddress(origin);
 
+  memoryStore.setOperation({ kind: "rawSing", value: value.data });
+
   const popupId = await openRawSingPopUp(id, origin);
+
   try {
     const value = await waitRawSign(id, popupId);
     return value;
