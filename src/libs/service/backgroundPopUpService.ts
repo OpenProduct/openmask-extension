@@ -119,6 +119,10 @@ popUpEventEmitter.on("approveTransaction", (message) => {
   backgroundEventsEmitter.emit("approveTransaction", message);
 });
 
+popUpEventEmitter.on("signRaw", (message) => {
+  backgroundEventsEmitter.emit("signRaw", message);
+});
+
 popUpEventEmitter.on("chainChanged", (message) => {
   backgroundEventsEmitter.emit("chainChanged", message);
 });

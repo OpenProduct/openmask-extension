@@ -27,7 +27,7 @@ import {
   openConnectDAppPopUp,
   openConnectUnlockPopUp,
 } from "./dApp/notificationService";
-import { sendTransaction } from "./dApp/transactionService";
+import { sendTransaction, signRawValue } from "./dApp/transactionService";
 import { getDAppPermissions, waitApprove } from "./dApp/utils";
 import { confirmWalletSeqNo, getWalletsByOrigin } from "./walletService";
 
@@ -194,6 +194,10 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     }
     case "ton_confirmWalletSeqNo": {
       return confirmWalletSeqNo(message.params[0]);
+    }
+
+    case "ton_rawSign": {
+      return signRawValue(message.id, origin, message.params[0]);
     }
 
     case "wallet_getLocked": {

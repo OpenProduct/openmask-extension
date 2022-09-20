@@ -6,7 +6,11 @@
  */
 
 import { TransactionParams } from "../../entries/transaction";
-import { ApproveTransaction, backgroundEventsEmitter } from "../../event";
+import {
+  ApproveTransaction,
+  backgroundEventsEmitter,
+  SignRawValue,
+} from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
 import {
   getAccountState,
@@ -17,6 +21,7 @@ import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
 import {
   closeCurrentPopUp,
+  openRawSingPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
 
@@ -84,7 +89,7 @@ export const sendTransaction = async (
   params: TransactionParams
 ) => {
   const current = memoryStore.getOperation();
-  if (current && current.kind === "send") {
+  if (current != null) {
     throw new RuntimeError(
       ErrorCode.unauthorize,
       "Another operation in progress"
@@ -96,9 +101,68 @@ export const sendTransaction = async (
   const popupId = await openSendTransactionPopUp(id, origin, params);
   try {
     const seqNo = await waitTransaction(id, popupId);
-    memoryStore.setOperation(null);
     return seqNo;
   } finally {
+    memoryStore.setOperation(null);
+    await closeCurrentPopUp(popupId);
+  }
+};
+
+const waitRawSign = (id: number, popupId?: number) => {
+  return new Promise<string>((resolve, reject) => {
+    const approve = (options: { params: SignRawValue }) => {
+      if (options.params.id === id) {
+        backgroundEventsEmitter.off("signRaw", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        resolve(options.params.value);
+      }
+    };
+    const close = (options: { params: number }) => {
+      if (popupId === options.params) {
+        backgroundEventsEmitter.off("signRaw", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        reject(new ClosePopUpError());
+      }
+    };
+    const cancel = (options: { params: number }) => {
+      if (options.params === id) {
+        backgroundEventsEmitter.off("signRaw", approve);
+        backgroundEventsEmitter.off("rejectRequest", cancel);
+        backgroundEventsEmitter.off("closedPopUp", close);
+        reject(new RuntimeError(ErrorCode.reject, "Reject transaction"));
+      }
+    };
+    backgroundEventsEmitter.on("signRaw", approve);
+    backgroundEventsEmitter.on("rejectRequest", cancel);
+    backgroundEventsEmitter.on("closedPopUp", close);
+  });
+};
+
+export const signRawValue = async (
+  id: number,
+  origin: string,
+  value: { data: string }
+) => {
+  const current = memoryStore.getOperation();
+  if (current != null) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      "Another operation in progress"
+    );
+  }
+
+  memoryStore.setOperation({ kind: "rawSing", value: value.data });
+
+  await switchActiveAddress(origin);
+
+  const popupId = await openRawSingPopUp(id, origin);
+  try {
+    const value = await waitRawSign(id, popupId);
+    return value;
+  } finally {
+    memoryStore.setOperation(null);
     await closeCurrentPopUp(popupId);
   }
 };

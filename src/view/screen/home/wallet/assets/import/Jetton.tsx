@@ -99,8 +99,6 @@ export const ImportJetton = () => {
 
     if (jettonName != null) {
       jettonState = jettonName;
-
-      return;
     } else {
       const error = toSymbolError(symbol);
       if (error) {
@@ -162,10 +160,14 @@ export const ImportJetton = () => {
           onChange={(e) => setMinter(e.target.value)}
           onBlur={onSearch}
         />
-        {!isLoading && jetton != null && (
+        {!isLoading && jetton != null && jettonName == null && (
           <>
             <Label>Jetton Symbol</Label>
-            <Input value={symbol} onChange={(e) => setSymbol(e.target.value)} />
+            <Input
+              disabled={isAddLoading}
+              value={symbol}
+              onChange={(e) => setSymbol(e.target.value)}
+            />
             {symbolError && <ErrorText>{symbolError}</ErrorText>}
           </>
         )}

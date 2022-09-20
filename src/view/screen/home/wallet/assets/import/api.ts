@@ -34,6 +34,9 @@ export const useJettonNameMutation = () => {
   return useMutation<JettonState, Error, string | null>(async (jsonDataUrl) => {
     let state: Partial<JettonState> = {};
     if (jsonDataUrl) {
+      if (jsonDataUrl.startsWith("ipfs://")) {
+        jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
+      }
       try {
         state = await fetch(jsonDataUrl).then((response) => response.json());
       } catch (e) {

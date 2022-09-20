@@ -36,7 +36,8 @@ export type AskProcessor<R> = {
 export type UnfinishedOperation =
   | null
   | { kind: "send"; value: string }
-  | { kind: "sendJetton"; value: string };
+  | { kind: "sendJetton"; value: string }
+  | { kind: "rawSing"; value: string };
 
 export interface PupUpEvents {
   isLock: void;
@@ -49,6 +50,7 @@ export interface PupUpEvents {
   approveRequest: number;
   rejectRequest: number;
   approveTransaction: ApproveTransaction;
+  signRaw: SignRawValue;
   confirmSeqNo: number;
   storeOperation: UnfinishedOperation;
   getOperation: void;
@@ -56,6 +58,11 @@ export interface PupUpEvents {
   chainChanged: string;
   accountsChanged: string[];
   getWallets: string;
+}
+
+export interface SignRawValue {
+  id: number;
+  value: string;
 }
 
 export interface ApproveTransaction {
@@ -69,6 +76,7 @@ export interface BackgroundEvents {
   approveRequest: number;
   rejectRequest: number;
   approveTransaction: ApproveTransaction;
+  signRaw: SignRawValue;
   closedPopUp: number;
 
   chainChanged: string;

@@ -55,6 +55,14 @@ const Forward = styled.div`
   cursor: pointer;
   font-size: 200%;
   padding: 0 30px 0 ${(props) => props.theme.padding};
+
+  &:hover {
+    color: ${(props) => props.theme.darkGray};
+  }
+`;
+
+const Round = styled.img`
+  border-radius: 50%;
 `;
 
 export const AssetView: FC<AssetProps> = ({
@@ -77,7 +85,7 @@ export const AssetView: FC<AssetProps> = ({
         {logo ? (
           logo
         ) : logoUrl ? (
-          <img alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
+          <Round alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
         ) : (
           <BaseLogoIcon />
         )}

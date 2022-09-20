@@ -39,6 +39,9 @@ const getJettonName = async (
 ) => {
   let state: Partial<JettonState> = {};
   if (jsonDataUrl) {
+    if (jsonDataUrl.startsWith("ipfs://")) {
+      jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
+    }
     try {
       state = await fetch(jsonDataUrl).then((response) => response.json());
     } catch (e) {
