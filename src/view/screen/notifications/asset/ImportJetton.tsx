@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { JettonName } from "../../../../libs/entries/asset";
+import { JettonState } from "../../../../libs/entries/asset";
 import {
   Body,
   ButtonBottomRow,
@@ -42,7 +42,7 @@ const Font = styled.span`
 interface JettonWalletProps {
   wallet: string;
   id: number;
-  state: JettonName;
+  state: JettonState;
   jettonMinterAddress: string;
 }
 const JettonWallet: FC<JettonWalletProps> = React.memo(

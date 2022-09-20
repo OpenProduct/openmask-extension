@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
-import { JettonState } from "../../../../../../../libs/entries/asset";
+import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
 import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
@@ -68,7 +68,7 @@ interface WrapperMethod {
 }
 
 export const useSendJettonMethod = (
-  { walletAddress }: JettonState,
+  { walletAddress }: JettonAsset,
   state: SendJettonState,
   balance: string | undefined
 ) => {

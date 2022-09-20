@@ -1,7 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { JettonState } from "../../../../../../../libs/entries/asset";
+import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import {
   Body,
   ButtonBottomRow,
@@ -25,7 +25,7 @@ const Label = styled.div`
 `;
 
 interface InputProps {
-  jetton: JettonState;
+  jetton: JettonAsset;
   state: SendJettonState;
 
   onChange: (field: Partial<SendJettonState>) => void;

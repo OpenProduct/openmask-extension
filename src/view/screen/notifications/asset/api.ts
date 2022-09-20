@@ -6,7 +6,7 @@ import {
 import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonName, JettonState } from "../../../../libs/entries/asset";
+import { JettonAsset, JettonState } from "../../../../libs/entries/asset";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -37,7 +37,7 @@ const getJettonName = async (
   jsonDataUrl: string | null,
   searchParams: URLSearchParams
 ) => {
-  let state: Partial<JettonName> = {};
+  let state: Partial<JettonState> = {};
   if (jsonDataUrl) {
     try {
       state = await fetch(jsonDataUrl).then((response) => response.json());
@@ -63,12 +63,12 @@ const getJettonName = async (
     throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
   }
 
-  return state as JettonName;
+  return state as JettonState;
 };
 
 export interface JettonMinterData {
   data: JettonData;
-  state: JettonName;
+  state: JettonState;
 }
 
 export const useJettonMinterData = (
@@ -123,7 +123,7 @@ export const useJettonWalletBalance = (
 };
 
 export interface AddJettonParams {
-  state: JettonState;
+  state: JettonAsset;
   wallets: string[] | undefined;
 }
 

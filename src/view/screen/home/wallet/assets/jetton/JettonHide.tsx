@@ -24,8 +24,6 @@ export const JettonHide = () => {
     navigate(AppRoute.home);
   };
 
-  if (!jetton) return <></>;
-
   return (
     <Body>
       <H1>Hide Jetton</H1>

@@ -1,6 +1,6 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
-import { JettonName } from "../../libs/entries/asset";
+import { JettonState } from "../../libs/entries/asset";
 import { IconSize } from "./Components";
 import { BaseLogoIcon } from "./Icons";
 
@@ -18,23 +18,34 @@ const Font = styled.span`
 `;
 
 interface Props {
-  state: JettonName;
+  state: JettonState;
   balance: string | undefined;
 }
 
-export const JettonRow: FC<Props> = ({ state, balance }) => {
+export const JettonRow: FC<Props> = React.memo(({ state, balance }) => {
   return (
     <Row>
-      {state.image ? (
-        <img alt="Jetton Logo" width="35px" height="35px" src={state.image} />
-      ) : (
-        <IconSize>
-          <BaseLogoIcon />
-        </IconSize>
-      )}
+      <JettonLogo image={state.image} />
       <Font>
         {state.name} ({balance ?? 0} {state.symbol})
       </Font>
     </Row>
   );
-};
+});
+
+export const JettonLogo: FC<{ image?: string; size?: number }> = React.memo(
+  ({ image, size = 35 }) => {
+    return image ? (
+      <img
+        alt="Jetton Logo"
+        width={size + "px"}
+        height={size + "px"}
+        src={image}
+      />
+    ) : (
+      <IconSize>
+        <BaseLogoIcon />
+      </IconSize>
+    );
+  }
+);

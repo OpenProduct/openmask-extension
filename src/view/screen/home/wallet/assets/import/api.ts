@@ -5,10 +5,16 @@ import {
   JettonMinterDao,
   JettonWalletDao,
 } from "@openmask/web-sdk";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonName } from "../../../../../../libs/entries/asset";
-import { TonProviderContext, WalletStateContext } from "../../../../../context";
+import { JettonAsset, JettonState } from "../../../../../../libs/entries/asset";
+import {
+  AccountStateContext,
+  NetworkContext,
+  TonProviderContext,
+  WalletStateContext,
+} from "../../../../../context";
+import { saveAccountState } from "../../../../api";
 
 export const useJettonMinterMutation = () => {
   const provider = useContext(TonProviderContext);
@@ -25,8 +31,8 @@ export const useJettonMinterMutation = () => {
 };
 
 export const useJettonNameMutation = () => {
-  return useMutation<JettonName, Error, string | null>(async (jsonDataUrl) => {
-    let state: Partial<JettonName> = {};
+  return useMutation<JettonState, Error, string | null>(async (jsonDataUrl) => {
+    let state: Partial<JettonState> = {};
     if (jsonDataUrl) {
       try {
         state = await fetch(jsonDataUrl).then((response) => response.json());
@@ -46,7 +52,7 @@ export const useJettonNameMutation = () => {
       throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
     }
 
-    return state as JettonName;
+    return state as JettonState;
   });
 };
 
@@ -78,6 +84,43 @@ export const useJettonWalletMutation = () => {
         balance: fromNano(data.balance),
         address: jettonWalletAddress.toString(true, true, true),
       };
+    }
+  );
+};
+
+interface AddJettonProps {
+  minter: string;
+  jettonState: JettonState;
+  jettonWallet: JettonWalletData | null;
+}
+
+export const useAddJettonMutation = () => {
+  const network = useContext(NetworkContext);
+  const account = useContext(AccountStateContext);
+  const client = useQueryClient();
+
+  return useMutation<void, Error, AddJettonProps>(
+    async ({ jettonState, minter, jettonWallet }) => {
+      const value = {
+        ...account,
+        wallets: account.wallets.map((wallet) => {
+          if (wallet.address === account.activeWallet) {
+            const assets = wallet.assets ?? [];
+            if (!assets.some((item) => item.minterAddress === minter)) {
+              // If not exists
+              const asset: JettonAsset = {
+                state: jettonState,
+                minterAddress: minter,
+                walletAddress: jettonWallet?.address,
+              };
+              assets.push(asset);
+              return { ...wallet, assets };
+            }
+          }
+          return wallet;
+        }),
+      };
+      await saveAccountState(network, client, value);
     }
   );
 };

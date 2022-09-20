@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonState } from "../../../../../../libs/entries/asset";
+import { JettonAsset } from "../../../../../../libs/entries/asset";
 import { TonWebTransaction } from "../../../../../../libs/entries/transaction";
 import { QueryType } from "../../../../../../libs/store/browserStore";
 import {
@@ -11,7 +11,7 @@ import {
 import { saveAccountState } from "../../../../api";
 
 export const useJettonTransactions = (
-  state: JettonState,
+  state: JettonAsset,
   limit: number = 10
 ) => {
   const network = useContext(NetworkContext);

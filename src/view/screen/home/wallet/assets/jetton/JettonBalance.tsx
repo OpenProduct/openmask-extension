@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Icon } from "../../../../../components/Components";
 import { ReceiveIcon, SendIcon } from "../../../../../components/Icons";
+import { JettonLogo } from "../../../../../components/JettonRow";
 import { relative } from "../../../../../routes";
 import { formatTonValue } from "../../../../../utils";
 import { useJettonWalletBalance } from "../api";
@@ -34,8 +35,8 @@ const Text = styled.span`
   font-size: larger;
 `;
 
-const NetworkLogo = styled.span`
-  font-size: 3em;
+const JettonWrapper = styled.span`
+  font-size: 2em;
 `;
 
 const Amount = styled.span`
@@ -59,14 +60,9 @@ export const JettonBalance = () => {
 
   return (
     <Block>
-      <NetworkLogo>
-        <img
-          src={state.state.image}
-          width="40px"
-          height="40px"
-          alt="Jetton Logo"
-        />
-      </NetworkLogo>
+      <JettonWrapper>
+        <JettonLogo image={state.state.image} size={40} />
+      </JettonWrapper>
       <Amount>
         {formatted} {state.state.symbol}
       </Amount>

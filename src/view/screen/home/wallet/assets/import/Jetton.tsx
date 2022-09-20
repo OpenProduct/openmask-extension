@@ -1,7 +1,8 @@
 import { JettonData } from "@openmask/web-sdk";
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { JettonName } from "../../../../../../libs/entries/asset";
+import { JettonState } from "../../../../../../libs/entries/asset";
 import {
   Body,
   ButtonColumn,
@@ -14,8 +15,10 @@ import {
 import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { JettonRow } from "../../../../../components/JettonRow";
+import { AppRoute } from "../../../../../routes";
 import {
   JettonWalletData,
+  useAddJettonMutation,
   useJettonMinterMutation,
   useJettonNameMutation,
   useJettonWalletMutation,
@@ -30,9 +33,21 @@ const Block = styled.div`
   margin-top: ${(props) => props.theme.padding};
 `;
 
+const toSymbolError = (symbol: string): string | undefined => {
+  if (symbol == "") {
+    return "The symbol is required";
+  }
+  if (symbol.length < 3 || symbol.length > 11) {
+    return "The symbol length should be in 3 - 11 letter range";
+  }
+  return undefined;
+};
+
 export const ImportJetton = () => {
+  const navigate = useNavigate();
+
   const [jetton, setJetton] = useState<JettonData | null>(null);
-  const [jettonName, setJettonName] = useState<JettonName | null>(null);
+  const [jettonName, setJettonName] = useState<JettonState | null>(null);
   const [jettonWallet, setJettonWallet] = useState<JettonWalletData | null>(
     null
   );
@@ -45,9 +60,16 @@ export const ImportJetton = () => {
   const {
     mutateAsync: jettonDataAsync,
     isLoading: isDataLoading,
-    error,
-    reset,
+    error: errorMinter,
+    reset: resetMinter,
   } = useJettonMinterMutation();
+
+  const {
+    mutateAsync: addJettonAsync,
+    isLoading: isAddLoading,
+    reset: resetAdd,
+    error: errorAdd,
+  } = useAddJettonMutation();
 
   const { mutateAsync: jettonNameAsync, isLoading: isNameLoading } =
     useJettonNameMutation();
@@ -56,7 +78,7 @@ export const ImportJetton = () => {
     useJettonWalletMutation();
 
   const onSearch = useCallback(async () => {
-    reset();
+    resetMinter();
     const data = await jettonDataAsync(minter);
     setJetton(data);
 
@@ -66,13 +88,45 @@ export const ImportJetton = () => {
         setJettonName(name)
       ),
     ]);
-  }, [reset, jettonDataAsync, setJetton, setJettonName, minter]);
+  }, [resetMinter, jettonDataAsync, setJetton, setJettonName, minter]);
 
-  const onAdd = useCallback(() => {}, []);
+  const onAdd = async () => {
+    if (jetton == null) return;
+
+    resetAdd();
+
+    let jettonState: JettonState;
+
+    if (jettonName != null) {
+      jettonState = jettonName;
+
+      return;
+    } else {
+      const error = toSymbolError(symbol);
+      if (error) {
+        setSymbolError(error);
+        return;
+      }
+
+      jettonState = {
+        symbol: symbol.toUpperCase(),
+        name: symbol,
+      };
+    }
+
+    await addJettonAsync({
+      minter,
+      jettonState,
+      jettonWallet,
+    });
+
+    navigate(AppRoute.home);
+  };
 
   const isLoading = isDataLoading || isNameLoading || isWalletLoading;
+
   const Button = () => {
-    if (isLoading) {
+    if (isLoading || isAddLoading) {
       return (
         <ButtonPositive disabled={true}>
           <Dots>Loading</Dots>
@@ -86,18 +140,12 @@ export const ImportJetton = () => {
     return <ButtonPositive onClick={onAdd}>Add Jetton</ButtonPositive>;
   };
 
-  const state = useMemo<JettonName>(() => {
+  const state = useMemo<JettonState>(() => {
     if (jettonName) {
       return jettonName;
     }
-    if (symbol) {
-      return {
-        symbol,
-        name: symbol,
-      };
-    }
     return {
-      symbol: "COIN",
+      symbol: symbol != "" ? symbol.toUpperCase() : "COIN",
       name: "Name not loaded",
     };
   }, [jettonName, symbol]);
@@ -107,7 +155,7 @@ export const ImportJetton = () => {
       <HomeButton />
       <AssetsTabs />
       <Body>
-        <Label>Jetton Minter address</Label>
+        <Label>Jetton Minter Contract address</Label>
         <Input
           disabled={jetton != null}
           value={minter}
@@ -128,7 +176,8 @@ export const ImportJetton = () => {
           </Block>
         )}
 
-        {error && <ErrorMessage>{error.message}</ErrorMessage>}
+        {errorMinter && <ErrorMessage>{errorMinter.message}</ErrorMessage>}
+        {errorAdd && <ErrorMessage>{errorAdd.message}</ErrorMessage>}
 
         <Gap />
         <ButtonColumn>

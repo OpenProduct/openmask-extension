@@ -10,16 +10,16 @@ export interface JettonParams {
   name?: string;
 }
 
-export interface JettonName {
+export interface JettonState {
   symbol: string;
   name: string;
   image?: string;
 }
 
-export interface JettonState {
-  state: JettonName;
+export interface JettonAsset {
+  state: JettonState;
   minterAddress: string;
   walletAddress?: string;
 }
 
-export type Asset = JettonState;
+export type Asset = JettonAsset;

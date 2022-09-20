@@ -2,7 +2,7 @@ import { fromNano } from "@openmask/web-sdk";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { JettonState } from "../../../../../../../libs/entries/asset";
+import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
@@ -44,7 +44,7 @@ const Quote = styled.div`
 `;
 
 interface ConfirmProps {
-  jetton: JettonState;
+  jetton: JettonAsset;
   state: SendJettonState;
   balance?: string;
   onSend: (seqNo: number, transactionId?: string) => void;

@@ -7,7 +7,7 @@ import {
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
-import { JettonState } from "../../../../../libs/entries/asset";
+import { JettonAsset } from "../../../../../libs/entries/asset";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -20,7 +20,7 @@ const getJettonWalletAddress = async (
   client: QueryClient,
   network: string,
   provider: HttpProvider,
-  jetton: JettonState,
+  jetton: JettonAsset,
   account: AccountState
 ): Promise<Address | null> => {
   if (jetton.walletAddress) {
@@ -70,7 +70,7 @@ const getJettonWalletAddress = async (
   return jettonWalletAddress;
 };
 
-export const useJettonWalletBalance = (jetton: JettonState) => {
+export const useJettonWalletBalance = (jetton: JettonAsset) => {
   const provider = useContext(TonProviderContext);
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);

@@ -1,8 +1,9 @@
 import { FC, useContext, useMemo } from "react";
-import { Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { Body } from "../../../../../components/Components";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { WalletStateContext } from "../../../../../context";
+import { AppRoute } from "../../../../../routes";
 import { ReceiveCoin } from "../../receive/Receive";
 import { JettonMinterAddressContext, JettonStateContext } from "./context";
 import { JettonHide } from "./JettonHide";
@@ -22,6 +23,7 @@ const ReceiveJetton: FC<{ symbol: string }> = ({ symbol }) => {
 };
 
 export const JettonRouter = () => {
+  const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
   const params = useParams();
 
@@ -30,10 +32,16 @@ export const JettonRouter = () => {
   }, [params]);
 
   const jetton = useMemo(() => {
-    return wallet.assets?.find(
+    const asset = wallet.assets?.find(
       (asset) => asset.minterAddress === minterAddress
-    )!;
+    );
+    if (!asset) {
+      navigate(AppRoute.home);
+    }
+    return asset!;
   }, [wallet]);
+
+  if (!jetton) return <></>;
 
   return (
     <JettonStateContext.Provider value={jetton}>
