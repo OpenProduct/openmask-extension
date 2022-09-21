@@ -144,16 +144,24 @@ export const Gap = styled.div`
   flex-grow: 1;
 `;
 
-export const ErrorMessage = styled.div`
+const MessageBase = styled.div`
   width: 100%;
   box-sizing: border-box;
   margin: ${(props) => props.theme.padding} 0;
-  border: 1px solid ${(props) => props.theme.red};
-  background: ${(props) => props.theme.lightRed};
   font-size: medium;
   padding: ${(props) => props.theme.padding};
   border-radius: ${(props) => props.theme.padding};
+`;
+
+export const ErrorMessage = styled(MessageBase)`
   word-break: break-all;
+  border: 1px solid ${(props) => props.theme.red};
+  background: ${(props) => props.theme.lightRed};
+`;
+
+export const WarningMessage = styled(MessageBase)`
+  border: 1px solid ${(props) => props.theme.color};
+  background: ${(props) => props.theme.lightOrange};
 `;
 
 export const ErrorText = styled.div`
