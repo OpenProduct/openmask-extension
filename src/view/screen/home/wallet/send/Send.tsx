@@ -143,9 +143,9 @@ export const Send: FC<Props> = ({ price, balance }) => {
 
       if (transactionId) {
         // if transaction init from dApp, return approve
-        sendBackground.message("approveTransaction", {
+        sendBackground.message("approveRequest", {
           id: Number(transactionId),
-          seqNo,
+          payload: seqNo,
         });
       } else {
         sendBackground.message("storeOperation", {

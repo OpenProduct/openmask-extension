@@ -6,19 +6,19 @@
  */
 
 import { Permission } from "../../entries/permission";
-import { backgroundEventsEmitter } from "../../event";
+import { backgroundEventsEmitter, PayloadRequest } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
 import { getConnections } from "../../store/browserStore";
 import { getWalletsByOrigin } from "../walletService";
 
-export const waitApprove = (id: number, popupId?: number) => {
-  return new Promise((resolve, reject) => {
-    const approve = (options: { params: number }) => {
-      if (options.params === id) {
+export const waitApprove = <Payload>(id: number, popupId?: number) => {
+  return new Promise<Payload>((resolve, reject) => {
+    const approve = (options: { params: PayloadRequest<Payload> }) => {
+      if (options.params.id === id) {
         backgroundEventsEmitter.off("approveRequest", approve);
         backgroundEventsEmitter.off("rejectRequest", cancel);
         backgroundEventsEmitter.off("closedPopUp", close);
-        resolve(undefined);
+        resolve(options.params.payload);
       }
     };
     const close = (options: { params: number }) => {

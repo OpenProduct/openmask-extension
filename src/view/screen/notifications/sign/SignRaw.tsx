@@ -19,7 +19,7 @@ import { DAppBadge } from "../../../components/DAppBadge";
 import { LinkIcon } from "../../../components/Icons";
 import { sendBackground } from "../../../event";
 import { Loading } from "../../Loading";
-import { useSignRawData, useSignRawMutation } from "./api";
+import { useSignData, useSignMutation } from "./api";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -45,8 +45,8 @@ export const SignRaw = () => {
 
   const id = parseInt(searchParams.get("id") ?? "0", 10);
 
-  const { mutateAsync, isLoading, error: rawSignError } = useSignRawMutation();
-  const { data, error, isFetching } = useSignRawData(id);
+  const { mutateAsync, isLoading, error: rawSignError } = useSignMutation();
+  const { data, error, isFetching } = useSignData(id);
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
@@ -60,7 +60,7 @@ export const SignRaw = () => {
 
   const onSign = async () => {
     const value = await mutateAsync(data);
-    sendBackground.message("signRaw", { id, value });
+    sendBackground.message("approveRequest", { id, payload: value });
   };
 
   if (isFetching) {

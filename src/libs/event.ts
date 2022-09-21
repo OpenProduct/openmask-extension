@@ -37,7 +37,7 @@ export type UnfinishedOperation =
   | null
   | { kind: "send"; value: string }
   | { kind: "sendJetton"; value: string }
-  | { kind: "rawSing"; value: string };
+  | { kind: "sign"; value: string };
 
 export interface PupUpEvents {
   isLock: void;
@@ -47,10 +47,9 @@ export interface PupUpEvents {
   locked: void;
   getPassword: void;
   setPassword: string;
-  approveRequest: number;
+  approveRequest: PayloadRequest;
   rejectRequest: number;
-  approveTransaction: ApproveTransaction;
-  signRaw: SignRawValue;
+
   confirmSeqNo: number;
   storeOperation: UnfinishedOperation;
   getOperation: void;
@@ -60,23 +59,17 @@ export interface PupUpEvents {
   getWallets: string;
 }
 
-export interface SignRawValue {
+export interface PayloadRequest<P = any> {
   id: number;
-  value: string;
-}
-
-export interface ApproveTransaction {
-  id: number;
-  seqNo: number;
+  payload: P;
 }
 
 export interface BackgroundEvents {
   unlock: void;
   locked: void;
-  approveRequest: number;
+  approveRequest: PayloadRequest;
   rejectRequest: number;
-  approveTransaction: ApproveTransaction;
-  signRaw: SignRawValue;
+
   closedPopUp: number;
 
   chainChanged: string;

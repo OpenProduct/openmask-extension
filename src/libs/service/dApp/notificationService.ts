@@ -6,6 +6,7 @@
  */
 
 import { fromNano } from "@openmask/web-sdk";
+import { NotificationsRoutes } from "../../../view/screen/notifications/route";
 import { JettonParams } from "../../entries/asset";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
@@ -72,12 +73,14 @@ export const openConnectDAppPopUp = async (id: number, origin: string) => {
     logo: await getActiveTabLogo(),
   });
 
-  await openPopUp(`/notifications/dapp?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.dapp}?${params.toString()}`
+  );
   return popupId;
 };
 
 export const openConnectUnlockPopUp = async () => {
-  await openPopUp(`/notifications/unlock`);
+  await openPopUp(`/notifications${NotificationsRoutes.unlock}`);
   return popupId;
 };
 
@@ -93,7 +96,9 @@ export const openSwitchChainPopUp = async (
     network: network,
   });
 
-  await openPopUp(`/notifications/network?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.network}?${params.toString()}`
+  );
   return popupId;
 };
 
@@ -112,7 +117,9 @@ export const openShowJettonPopUp = async (
     name: encodeURIComponent(jetton.name ?? ""),
   });
 
-  await openPopUp(`/notifications/jetton?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.jetton}?${params.toString()}`
+  );
   return popupId;
 };
 
@@ -153,7 +160,23 @@ export const openRawSingPopUp = async (id: number, origin: string) => {
     logo: await getActiveTabLogo(),
   });
 
-  await openPopUp(`/notifications/raw?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.raw}?${params.toString()}`
+  );
+
+  return popupId;
+};
+
+export const openPersonalSingPopUp = async (id: number, origin: string) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
+  });
+
+  await openPopUp(
+    `/notifications${NotificationsRoutes.personal}?${params.toString()}`
+  );
 
   return popupId;
 };

@@ -12,26 +12,26 @@ import { askBackgroundPassword } from "../../import/api";
 
 const timeout = 15;
 
-export const useSignRawData = (id: number) => {
+export const useSignData = (id: number) => {
   return useQuery<string, Error>([QueryType.raw, id], async () => {
     const operation = await askBackground<UnfinishedOperation>(timeout).message(
       "getOperation"
     );
 
-    if (!operation || operation.kind != "rawSing") {
-      throw new Error("Missing rawSign data");
+    if (!operation || operation.kind != "sign") {
+      throw new Error("Missing sign data");
     }
 
     return operation.value;
   });
 };
 
-export const useSignRawMutation = () => {
+export const useSignMutation = () => {
   const wallet = useContext(WalletStateContext);
 
   return useMutation<string, Error, string | undefined>(async (hex) => {
     if (!hex) {
-      throw new Error("Missing rawSign data");
+      throw new Error("Missing sign data");
     }
 
     const mnemonic = await decryptMnemonic(

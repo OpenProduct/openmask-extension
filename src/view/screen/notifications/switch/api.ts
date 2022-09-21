@@ -11,6 +11,6 @@ export const useSwitchNetworkMutation = () => {
     await setStoreValue(QueryType.network, network);
 
     sendBackground.message("chainChanged", network);
-    sendBackground.message("approveRequest", id);
+    sendBackground.message("approveRequest", { id, payload: undefined });
   });
 };

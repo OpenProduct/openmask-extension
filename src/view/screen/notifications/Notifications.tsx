@@ -2,16 +2,10 @@ import { Route, Routes } from "react-router-dom";
 import { Loading } from "../Loading";
 import { ImportJetton } from "./asset/ImportJetton";
 import { ConnectDApp } from "./connect/ConnectDApp";
-import { SignRaw } from "./raw/SignRaw";
+import { NotificationsRoutes } from "./route";
+import { SignPersonal } from "./sign/PersonalSign";
+import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
-
-enum NotificationsRoutes {
-  network = "/network",
-  dapp = "/dapp",
-  unlock = "/unlock",
-  jetton = "/jetton",
-  raw = "/raw",
-}
 
 export const NotificationsRouter = () => {
   return (
@@ -21,6 +15,7 @@ export const NotificationsRouter = () => {
       <Route path={NotificationsRoutes.jetton} element={<ImportJetton />} />
       <Route path={NotificationsRoutes.unlock} element={<Loading />} />
       <Route path={NotificationsRoutes.raw} element={<SignRaw />} />
+      <Route path={NotificationsRoutes.personal} element={<SignPersonal />} />
     </Routes>
   );
 };

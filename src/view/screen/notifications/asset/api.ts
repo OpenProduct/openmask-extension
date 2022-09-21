@@ -1,7 +1,7 @@
 import { Address, fromNano } from "@openmask/web-sdk";
 import {
   JettonData,
-  JettonMinterDao,
+  JettonMinterDao
 } from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
 import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,
-  TonProviderContext,
+  TonProviderContext
 } from "../../../context";
 import { askBackground, sendBackground } from "../../../event";
 import { saveAccountState } from "../../api";
@@ -157,7 +157,7 @@ export const useAddJettonMutation = (id: number) => {
         }),
       };
       await saveAccountState(network, client, value);
-      sendBackground.message("approveRequest", id);
+      sendBackground.message("approveRequest", { id, payload: undefined });
     }
   );
 };
