@@ -16,6 +16,7 @@ import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
 import {
   closeCurrentPopUp,
+  openPersonalSingPopUp,
   openRawSingPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
@@ -118,7 +119,7 @@ export const signPersonalValue = async (
   if (!value.data.startsWith(PersonalSign)) {
     throw new RuntimeError(
       ErrorCode.unexpectedParams,
-      `Personal sign should start with "${PersonalSign}" prefix.`
+      `Personal sign should start with hex "${PersonalSign}" prefix.`
     );
   }
 
@@ -126,7 +127,7 @@ export const signPersonalValue = async (
 
   memoryStore.setOperation({ kind: "sign", value: value.data });
 
-  const popupId = await openRawSingPopUp(id, origin);
+  const popupId = await openPersonalSingPopUp(id, origin);
 
   try {
     const value = await waitApprove<string>(id, popupId);
