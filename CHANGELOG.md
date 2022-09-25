@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2022-09-25
+
+### Fixed
+
+- Add `ton_rawSing` method and notification view
+
 ## [0.7.0] - 2022-09-25
 
-### Uncategorized
+### Added
 
 - Add `ton_rawSing` method and notification view
 - Add `ton_personalSing` method and notification view
@@ -19,23 +25,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.1] - 2022-09-17
 
-### Changed
+### Added
 
 - QR code on Receive page
+
+### Changed
+
 - Update libs version
 - Optimise build, remove unnecessary dependencies
 
 ## [0.6.0] - 2022-09-10
 
-### Changed
+### Added
 
 - Update wallet permissions. Added Locked permission, to allow dApps read base information from locked wallet
+
+### Changed
+
 - Fixing layout issue and formalizing ton value issue
 - Make narrowest extension permissions
 
 ## [0.5.0] - 2022-09-07
 
-### Uncategorized
+### Added
 
 - A key vault for multiple wallets
 - Switch TON mainnet/testnet in one click
@@ -48,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.5.0...v0.6.0
