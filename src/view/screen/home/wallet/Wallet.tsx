@@ -1,15 +1,14 @@
-import { FC, useCallback, useContext, useMemo } from "react";
+import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { Badge, Container } from "../../../components/Components";
+import { ConnectBadge } from "../../../components/ConnectBadge";
 import { Tabs } from "../../../components/Tabs";
-import { WalletAddressContext, WalletStateContext } from "../../../context";
+import { WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
-import { useConnections } from "../../connections/api";
-import { useActiveTabs } from "../../notification/connect/api";
 import { Activities } from "./activities/Activities";
-import { Assets } from "./Assets";
-import { Balance } from "./balance/Balance";
+import { AssetsList } from "./assets/AssetsList";
+import { Balance } from "./WalletBalance";
 import { WalletMenu } from "./WalletMenu";
 import { WalletName } from "./WalletName";
 
@@ -50,33 +49,13 @@ const Dot = styled.div<{ isConnected: boolean }>`
 `;
 
 export const WalletInfo = () => {
-  const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
-  const address = useContext(WalletAddressContext);
-
-  const { data: connections } = useConnections();
-  const { data: tab } = useActiveTabs();
-
-  const isConnected = useMemo(() => {
-    if (!connections || !tab || !tab.url) return false;
-    const url = new URL(tab.url);
-    return connections[url.origin] != null;
-  }, [connections, tab]);
 
   return (
     <Block>
-      <Connect onClick={() => navigate(AppRoute.connections)}>
-        {isConnected ? (
-          <>
-            <Dot isConnected />
-            <span>Connected</span>
-          </>
-        ) : (
-          <>Not Connected</>
-        )}
-      </Connect>
-      <WalletName address={address} name={wallet.name} />
-      <WalletMenu address={address} />
+      <ConnectBadge />
+      <WalletName address={wallet.address} name={wallet.name} />
+      <WalletMenu address={wallet.address} />
     </Block>
   );
 };
@@ -108,7 +87,10 @@ export const WalletHome: FC<{
       <Tabs options={tabs} active={active} onChange={onChange} />
       <Routes>
         <Route path={AppRoute.activities} element={<Activities />} />
-        <Route path="*" element={<Assets balance={balance} price={price} />} />
+        <Route
+          path="*"
+          element={<AssetsList balance={balance} price={price} />}
+        />
       </Routes>
     </>
   );

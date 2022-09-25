@@ -33,7 +33,11 @@ export type AskProcessor<R> = {
   ): R;
 };
 
-export type UnfinishedOperation = { kind: "send"; value: string } | null;
+export type UnfinishedOperation =
+  | null
+  | { kind: "send"; value: string }
+  | { kind: "sendJetton"; value: string }
+  | { kind: "sign"; value: string };
 
 export interface PupUpEvents {
   isLock: void;
@@ -43,28 +47,29 @@ export interface PupUpEvents {
   locked: void;
   getPassword: void;
   setPassword: string;
-  approveRequest: number;
+  approveRequest: PayloadRequest;
   rejectRequest: number;
-  approveTransaction: ApproveTransaction;
+
   confirmSeqNo: number;
   storeOperation: UnfinishedOperation;
   getOperation: void;
 
   chainChanged: string;
   accountsChanged: string[];
+  getWallets: string;
 }
 
-export interface ApproveTransaction {
+export interface PayloadRequest<P = any> {
   id: number;
-  seqNo: number;
+  payload: P;
 }
 
 export interface BackgroundEvents {
   unlock: void;
   locked: void;
-  approveRequest: number;
+  approveRequest: PayloadRequest;
   rejectRequest: number;
-  approveTransaction: ApproveTransaction;
+
   closedPopUp: number;
 
   chainChanged: string;

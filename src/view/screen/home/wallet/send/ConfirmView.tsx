@@ -1,75 +1,39 @@
+import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import React, { FC, useCallback, useContext } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { Address } from "../../../../components/Address";
+import { AddressTransfer } from "../../../../components/Address";
 import {
   Body,
-  ButtonNegative,
   ButtonPositive,
   ButtonRow,
-  Container,
   ErrorMessage,
   Gap,
-  Text,
+  TextLine,
 } from "../../../../components/Components";
 import { Dots } from "../../../../components/Dots";
-import { BackIcon } from "../../../../components/Icons";
+import {
+  SendCancelButton,
+  SendEditButton,
+} from "../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../context";
-import { sendBackground } from "../../../../event";
-import { AppRoute } from "../../../../routes";
-import { toShortAddress, toShortName } from "../../../api";
+import { fiatFees, toShortAddress, toShortName } from "../../../../utils";
 import {
   State,
   toState,
   useEstimateFee,
-  useMethod,
+  useSendMethod,
   useSendMutation,
 } from "./api";
 
-const Block = styled(Container)`
-  width: 100%;
-`;
-
-const Button = styled.div`
-  cursor: pointer;
-`;
-
 const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const state = toState(searchParams);
   const onEdit = () => {
-    setSearchParams({ ...state });
+    const state = toState(searchParams);
+    setSearchParams({ ...state }); // Remove submit flag from params
   };
-  return (
-    <Block>
-      <Button onClick={onEdit}>
-        <BackIcon /> Edit
-      </Button>
-    </Block>
-  );
+  return <SendEditButton onEdit={onEdit} />;
 });
-
-export const CancelButton: FC<{
-  disabled?: boolean;
-  transactionId?: string;
-}> = ({ disabled, transactionId }) => {
-  const navigate = useNavigate();
-  const onCancel = () => {
-    if (transactionId) {
-      sendBackground.message("rejectRequest", Number(transactionId));
-    }
-    navigate(AppRoute.home);
-  };
-  return (
-    <ButtonNegative onClick={onCancel} disabled={disabled}>
-      Cancel
-    </ButtonNegative>
-  );
-};
-
-const TextLine = styled(Text)`
-  word-break: break-all;
-`;
 
 const Fiat = styled.span`
   color: ${(props) => props.theme.darkGray};
@@ -90,18 +54,13 @@ interface ConfirmProps {
   onSend: (seqNo: number, transactionId?: string) => void;
 }
 
-const fiatFees = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 4,
-});
-
 export const ConfirmView: FC<ConfirmProps> = ({
   state,
   balance,
   price,
   onSend,
 }) => {
-  const { data: method, error, isFetching } = useMethod(state, balance);
+  const { data: method, error, isFetching } = useSendMethod(state, balance);
   const { data } = useEstimateFee(method);
 
   const { mutateAsync, isLoading } = useSendMutation();
@@ -116,14 +75,16 @@ export const ConfirmView: FC<ConfirmProps> = ({
     if (!data) {
       return (
         <TextLine>
-          Loading
-          <Dots />
+          <Dots>Loading</Dots>
         </TextLine>
       );
     }
-    const totalTon =
-      (data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee) /
-      1000000000;
+
+    const totalTon = parseFloat(
+      fromNano(
+        String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
+      )
+    );
 
     const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
 
@@ -146,7 +107,7 @@ export const ConfirmView: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <Address
+        <AddressTransfer
           left={toShortName(wallet.name)}
           right={toShortAddress(state.address)}
         />
@@ -167,16 +128,9 @@ export const ConfirmView: FC<ConfirmProps> = ({
         <Gap />
 
         <ButtonRow>
-          <CancelButton disabled={isLoading} transactionId={state.id} />
+          <SendCancelButton disabled={isLoading} transactionId={state.id} />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
-            {isFetching ? (
-              <>
-                Validating
-                <Dots />
-              </>
-            ) : (
-              "Confirm"
-            )}
+            {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>
         </ButtonRow>
       </Body>

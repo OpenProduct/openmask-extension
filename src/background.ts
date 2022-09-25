@@ -1,100 +1,39 @@
+/**
+ * The background service worker - a script with run inside browser
+ * The service is responsible to manage input and output events or requests from DApps and PopUp
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.1.0
+ */
+
 import browser from "webextension-polyfill";
-import { OpenMaskApiEvent, OpenMaskApiResponse } from "./libs/entries/message";
-import { backgroundEventsEmitter } from "./libs/event";
-import { RuntimeError } from "./libs/exception";
-import { Logger } from "./libs/logger";
 import {
-  handleDAppMessage,
-  seeIfTabHaveAccess,
+  handleDAppConnection,
+  subscriptionDAppNotifications,
 } from "./libs/service/backgroundDAppService";
 import { handlePopUpConnection } from "./libs/service/backgroundPopUpService";
-import { getConnections } from "./libs/store/browserStore";
-
-let contentScriptPorts = new Set<browser.Runtime.Port>();
-
-const providerResponse = (
-  id: number,
-  method: string,
-  result: undefined | unknown,
-  error?: RuntimeError
-): OpenMaskApiResponse => {
-  return {
-    type: "OpenMaskAPI",
-    message: {
-      jsonrpc: "2.0",
-      id,
-      method,
-      result,
-      error: error
-        ? {
-            message: error.message,
-            code: error.code,
-            description: error.description,
-          }
-        : undefined,
-    },
-  };
-};
-
-const providerEvent = (
-  method: "accountsChanged" | "chainChanged",
-  result: undefined | unknown
-): OpenMaskApiEvent => {
-  return {
-    type: "OpenMaskAPI",
-    message: {
-      jsonrpc: "2.0",
-      method,
-      result,
-    },
-  };
-};
 
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "OpenMaskUI") {
+    /**
+     * Subscribing to events from PopUp UI
+     * The background script is a kind of backend with responsible
+     * to processing requests and store secure data in memory store.
+     */
     handlePopUpConnection(port);
   }
 
   if (port.name === "OpenMaskContentScript") {
-    contentScriptPorts.add(port);
-    port.onMessage.addListener(async (msg, contentPort) => {
-      if (msg.type !== "OpenMaskProvider" || !msg.message) {
-        return;
-      }
-
-      const [result, error] = await handleDAppMessage(msg.message)
-        .then((result) => [result, undefined] as const)
-        .catch((e: RuntimeError) => [undefined, e] as const);
-
-      Logger.log({ msg, result, error });
-      if (contentPort) {
-        contentPort.postMessage(
-          providerResponse(msg.message.id, msg.message.method, result, error)
-        );
-      }
-    });
-    port.onDisconnect.addListener((port) => {
-      contentScriptPorts.delete(port);
-    });
+    /**
+     * Subscribing to events from dApps
+     * The background is responsible to be as a service or middleware,
+     * it could completely handle request or open notification modal to user confirmations.
+     */
+    handleDAppConnection(port);
   }
 });
 
-backgroundEventsEmitter.on("chainChanged", (message) => {
-  contentScriptPorts.forEach((port) => {
-    port.postMessage(providerEvent("chainChanged", message.params));
-  });
-});
-
-backgroundEventsEmitter.on("accountsChanged", async (message) => {
-  try {
-    const connections = await getConnections();
-    contentScriptPorts.forEach((port) => {
-      const access = seeIfTabHaveAccess(port, connections, message.params);
-      if (access) {
-        port.postMessage(providerEvent("accountsChanged", message.params));
-      }
-    });
-  } catch (e) {
-    Logger.error(e);
-  }
-});
+/**
+ * Subscribing to update events and send it to dApps
+ */
+subscriptionDAppNotifications();

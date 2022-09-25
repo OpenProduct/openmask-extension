@@ -1,6 +1,6 @@
 export enum ErrorCode {
-  unauthorizeOperation = 1001,
-  rejectOperation = 1002,
+  unauthorize = 1001,
+  reject = 1002,
   closePopUp = 1003,
   unexpectedParams = 1004,
 }
@@ -19,5 +19,15 @@ export class RuntimeError extends Error {
 export class ClosePopUpError extends RuntimeError {
   constructor() {
     super(ErrorCode.closePopUp, "Close PopUp");
+  }
+}
+
+export class EventError extends RuntimeError {
+  constructor(message?: string) {
+    super(
+      ErrorCode.unexpectedParams,
+      message ??
+        `The method have to call with user event, for example when user click to button, calling event by script is restricted.`
+    );
   }
 }

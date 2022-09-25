@@ -1,30 +1,22 @@
-import { useQueryClient } from "@tanstack/react-query";
-import React, { FC, useCallback, useContext, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { FC, useCallback, useContext, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import ExtensionPlatform from "../../../../../libs/service/extension";
 import {
   Body,
   ButtonBottomRow,
-  ButtonColumn,
-  ButtonNegative,
   ButtonPositive,
-  Center,
   Gap,
   H1,
   Input,
-  Text,
 } from "../../../../components/Components";
-import { HomeButton } from "../../../../components/HomeButton";
-import { LinkIcon } from "../../../../components/Icons";
-import { LoadingLogo } from "../../../../components/Logo";
-import { NetworkContext, WalletAddressContext } from "../../../../context";
-import { askBackground, sendBackground } from "../../../../event";
-import { AppRoute } from "../../../../routes";
-import { formatTonValue } from "../../../api";
-import { useNetworkConfig } from "../../api";
+import { SendCancelButton } from "../../../../components/send/SendButtons";
+import { SendLoadingView } from "../../../../components/send/SendLoadingView";
+import { SendSuccessView } from "../../../../components/send/SendSuccessView";
+import { WalletAddressContext } from "../../../../context";
+import { sendBackground } from "../../../../event";
+import { formatTonValue } from "../../../../utils";
 import { State, stateToSearch, toState } from "./api";
-import { CancelButton, ConfirmView } from "./ConfirmView";
+import { ConfirmView } from "./ConfirmView";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -101,78 +93,10 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
       <Gap />
 
       <ButtonBottomRow>
-        <CancelButton transactionId={state.id} />
+        <SendCancelButton transactionId={state.id} />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
-  );
-};
-
-const timeout = 60 * 1000; // 60 sec
-
-const LoadingView: FC<{ seqNo: string; onConfirm: () => void }> = React.memo(
-  ({ seqNo, onConfirm }) => {
-    const client = useQueryClient();
-    const network = useContext(NetworkContext);
-    const address = useContext(WalletAddressContext);
-
-    useEffect(() => {
-      askBackground<void>(timeout)
-        .message("confirmSeqNo", parseInt(seqNo))
-        .then(() => {
-          sendBackground.message("accountsChanged", [address]);
-          client.invalidateQueries([network, address]);
-          onConfirm();
-        });
-    }, [seqNo, onConfirm, client, network, address]);
-
-    return (
-      <Body>
-        <Gap />
-        <LoadingLogo />
-        <Center>
-          <H1>Await confirmation</H1>
-          <Text>~15 sec</Text>
-        </Center>
-        <Gap />
-      </Body>
-    );
-  }
-);
-
-const SuccessView = () => {
-  const navigate = useNavigate();
-  const config = useNetworkConfig();
-  const address = useContext(WalletAddressContext);
-
-  return (
-    <>
-      <HomeButton />
-      <Body>
-        <Gap />
-        <LoadingLogo />
-        <Center>
-          <H1>Success</H1>
-          <Text>Transaction confirmed</Text>
-        </Center>
-        <ButtonColumn>
-          <ButtonNegative
-            onClick={() => {
-              ExtensionPlatform.openTab({
-                url: `${config.scanUrl}/address/${address}`,
-              });
-            }}
-          >
-            View on tonscan.org <LinkIcon />
-          </ButtonNegative>
-          <ButtonPositive onClick={() => navigate(AppRoute.home)}>
-            Close
-          </ButtonPositive>
-        </ButtonColumn>
-
-        <Gap />
-      </Body>
-    </>
   );
 };
 
@@ -219,9 +143,9 @@ export const Send: FC<Props> = ({ price, balance }) => {
 
       if (transactionId) {
         // if transaction init from dApp, return approve
-        sendBackground.message("approveTransaction", {
+        sendBackground.message("approveRequest", {
           id: Number(transactionId),
-          seqNo,
+          payload: seqNo,
         });
       } else {
         sendBackground.message("storeOperation", {
@@ -241,12 +165,16 @@ export const Send: FC<Props> = ({ price, balance }) => {
     setSearchParams({ confirm: String(seqNo) });
   }, [setSearchParams, seqNo]);
 
+  const address = useContext(WalletAddressContext);
+
   if (confirm !== null) {
-    return <SuccessView />;
+    return <SendSuccessView address={address} />;
   }
 
   if (seqNo !== null) {
-    return <LoadingView seqNo={seqNo} onConfirm={onConfirm} />;
+    return (
+      <SendLoadingView address={address} seqNo={seqNo} onConfirm={onConfirm} />
+    );
   }
 
   if (!submit) {

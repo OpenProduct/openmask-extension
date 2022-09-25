@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Block = styled.span`
@@ -6,7 +6,7 @@ const Block = styled.span`
   width: 8px;
 `;
 
-export const Dots: FC = () => {
+export const Dots: FC<PropsWithChildren> = ({ children }) => {
   const [timer, setTimer] = useState(0);
 
   useEffect(() => {
@@ -16,5 +16,10 @@ export const Dots: FC = () => {
     };
   }, [timer]);
 
-  return <Block>.{".".repeat(timer)}</Block>;
+  return (
+    <>
+      {children}
+      <Block>.{".".repeat(timer)}</Block>
+    </>
+  );
 };

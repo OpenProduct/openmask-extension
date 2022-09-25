@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Address } from "../../../components/Address";
+import { AddressTransfer } from "../../../components/Address";
 import {
   Body,
   ButtonBottomRow,
@@ -52,7 +52,7 @@ export const SwitchNetwork = () => {
           added network:
         </Text>
       </Center>
-      <Address left={current} right={network} />
+      <AddressTransfer left={current} right={network} />
       <Gap />
       <ButtonBottomRow>
         <ButtonNegative onClick={onCancel} disabled={isLoading}>

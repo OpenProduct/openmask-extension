@@ -4,16 +4,14 @@ import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
-import { getAccountState, getNetwork } from "../store/browserStore";
+import {
+  getAccountState,
+  getConnections,
+  getNetwork,
+} from "../store/browserStore";
 
-export const confirmWalletSeqNo = async (walletSeqNo: number) => {
+export const getActiveWallet = async () => {
   const network = await getNetwork();
-  const config = getNetworkConfig(network);
-
-  const provider = new HttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
-
   const { activeWallet } = await getAccountState(network);
 
   if (!activeWallet) {
@@ -22,6 +20,19 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
       "Unexpected active wallet"
     );
   }
+  return activeWallet;
+};
+
+export const confirmWalletSeqNo = async (
+  walletSeqNo: number,
+  activeWallet: string
+) => {
+  const network = await getNetwork();
+  const config = getNetworkConfig(network);
+
+  const provider = new HttpProvider(config.rpcUrl, {
+    apiKey: config.apiKey,
+  });
 
   const bn: BN = await provider.call2(activeWallet, "seqno");
   let currentSeqNo = bn.toNumber();
@@ -47,4 +58,24 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
     method: "accountsChanged",
     params: [activeWallet],
   });
+};
+
+export const getWalletsByOrigin = async (origin: string, network: string) => {
+  const whitelist = await getConnections(network);
+  const account = whitelist[origin];
+  if (account == null) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `Origin "${origin}" is not in whitelist`
+    );
+  }
+
+  const wallets = Object.keys(account.connect);
+  if (wallets.length === 0) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `Origin "${origin}" don't have access to wallets for "${network}"`
+    );
+  }
+  return wallets;
 };

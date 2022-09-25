@@ -13,8 +13,13 @@ import {
   RESPONSE,
 } from "../event";
 import { Logger } from "../logger";
+import { getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
-import { confirmWalletSeqNo } from "./walletService";
+import {
+  confirmWalletSeqNo,
+  getActiveWallet,
+  getWalletsByOrigin,
+} from "./walletService";
 
 let popUpPort: browser.Runtime.Port;
 
@@ -57,6 +62,19 @@ popUpEventEmitter.on("getPassword", (message) => {
   sendResponseToPopUp(message.id, memoryStore.getPassword());
 });
 
+popUpEventEmitter.on("getWallets", async (message) => {
+  try {
+    const wallets = await getWalletsByOrigin(
+      message.params,
+      await getNetwork()
+    );
+    sendResponseToPopUp(message.id, wallets);
+  } catch (e) {
+    Logger.error(e);
+    sendResponseToPopUp(message.id, undefined);
+  }
+});
+
 popUpEventEmitter.on("setPassword", (message) => {
   sendResponseToPopUp(message.id, memoryStore.setPassword(message.params));
   sendMessageToPopUp("unlock");
@@ -84,7 +102,7 @@ popUpEventEmitter.on("getOperation", (message) => {
 
 popUpEventEmitter.on("confirmSeqNo", async (message) => {
   try {
-    await confirmWalletSeqNo(message.params);
+    await confirmWalletSeqNo(message.params, await getActiveWallet());
     sendResponseToPopUp(message.id);
   } catch (e) {
     Logger.error(e);
@@ -99,10 +117,6 @@ popUpEventEmitter.on("approveRequest", (message) => {
 
 popUpEventEmitter.on("rejectRequest", (message) => {
   backgroundEventsEmitter.emit("rejectRequest", message);
-});
-
-popUpEventEmitter.on("approveTransaction", (message) => {
-  backgroundEventsEmitter.emit("approveTransaction", message);
 });
 
 popUpEventEmitter.on("chainChanged", (message) => {

@@ -106,7 +106,7 @@ export const Badge = styled.div`
   cursor: pointer;
 `;
 
-export const Icon = styled.span`
+export const IconSize = styled.span`
   color: ${(props) => props.theme.darkGray};
   font-size: 200%;
   border-radius: 50%;
@@ -115,7 +115,9 @@ export const Icon = styled.span`
   display: inline-block;
   cursor: pointer;
   padding: 5px;
+`;
 
+export const Icon = styled(IconSize)`
   &:hover {
     background: ${(props) => props.theme.gray};
     color: ${(props) => props.theme.color};
@@ -142,14 +144,24 @@ export const Gap = styled.div`
   flex-grow: 1;
 `;
 
-export const ErrorMessage = styled.div`
+const MessageBase = styled.div`
+  width: 100%;
+  box-sizing: border-box;
   margin: ${(props) => props.theme.padding} 0;
-  border: 1px solid ${(props) => props.theme.red};
-  background: ${(props) => props.theme.lightRed};
   font-size: medium;
   padding: ${(props) => props.theme.padding};
   border-radius: ${(props) => props.theme.padding};
+`;
+
+export const ErrorMessage = styled(MessageBase)`
   word-break: break-all;
+  border: 1px solid ${(props) => props.theme.red};
+  background: ${(props) => props.theme.lightRed};
+`;
+
+export const WarningMessage = styled(MessageBase)`
+  border: 1px solid ${(props) => props.theme.color};
+  background: ${(props) => props.theme.lightOrange};
 `;
 
 export const ErrorText = styled.div`
@@ -181,6 +193,14 @@ export const Textarea = styled.textarea`
 export const Text = styled.div`
   padding-bottom: ${(props) => props.theme.padding};
   font-size: medium;
+`;
+
+export const TextLine = styled(Text)`
+  word-break: break-all;
+`;
+
+export const Scroll = styled.div`
+  overflow: auto;
 `;
 
 export const TextLink = styled(Text)`

@@ -12,7 +12,7 @@ import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
 import { AccountStateContext, NetworkContext } from "../../context";
 import { sendBackground } from "../../event";
 import { AppRoute } from "../../routes";
-import { formatTonValue } from "../api";
+import { formatTonValue } from "../../utils";
 import { ConnectRoutes } from "../import/ConnectWallet";
 import { useBalance, useSelectWalletMutation } from "./api";
 
@@ -97,6 +97,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const onSelect = useCallback(
     async (address: string) => {
       resetSelect();
+      navigate(AppRoute.home);
       await mutateSelect(address);
     },
     [resetSelect, mutateSelect]

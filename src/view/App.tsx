@@ -26,7 +26,7 @@ import { Home } from "./screen/home/Home";
 import { ConnectWallet } from "./screen/import/ConnectWallet";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
-import { Notification } from "./screen/notification/Notification";
+import { NotificationsRouter } from "./screen/notifications/Notifications";
 import { Settings } from "./screen/settings/Settings";
 import { Unlock } from "./screen/unlock/Unlock";
 import defaultTheme from "./styles/defaultTheme";
@@ -71,7 +71,10 @@ const ContentRouter: FC<{
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
         <Routes>
-          <Route path={any(AppRoute.notification)} element={<Notification />} />
+          <Route
+            path={any(AppRoute.notifications)}
+            element={<NotificationsRouter />}
+          />
           <Route path={any(AppRoute.settings)} element={<Settings />} />
           <Route path={AppRoute.connections} element={<Connections />} />
           <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
@@ -90,6 +93,10 @@ const App = () => {
 
   const config = getNetworkConfig(network);
 
+  const notification = useMemo(() => {
+    return window.location.hash.includes(AppRoute.notifications);
+  }, []);
+
   const tonProvider = useMemo(() => {
     return new HttpProvider(config.rpcUrl, { apiKey: config.apiKey });
   }, [config]);
@@ -102,7 +109,7 @@ const App = () => {
     <AccountStateContext.Provider value={data}>
       <NetworkContext.Provider value={network}>
         <TonProviderContext.Provider value={tonProvider}>
-          <Header lock={lock} />
+          <Header lock={lock || notification} />
           <ContentRouter
             account={data}
             ton={tonProvider}

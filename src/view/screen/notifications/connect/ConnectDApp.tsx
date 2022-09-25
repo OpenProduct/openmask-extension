@@ -16,13 +16,14 @@ import {
   Gap,
   H1,
   InlineLink,
+  Scroll,
   Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { LinkIcon } from "../../../components/Icons";
 import { AccountStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { formatTonValue, toShortAddress } from "../../api";
+import { formatTonValue, toShortAddress } from "../../../utils";
 import { useBalance } from "../../home/api";
 import { useAddConnectionMutation } from "./api";
 
@@ -47,10 +48,6 @@ const Row = styled.div`
 
 const Balance = styled(Row)`
   color: ${(props) => props.theme.darkGray};
-`;
-
-const Scroll = styled.div`
-  overflow: auto;
 `;
 
 const Wallet: FC<{

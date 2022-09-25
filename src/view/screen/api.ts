@@ -1,4 +1,3 @@
-import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import { QueryClient } from "@tanstack/react-query";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
@@ -21,30 +20,6 @@ export const saveAccountState = async (
   }
   client.setQueryData([network, QueryType.account], value);
   await client.invalidateQueries([network, value.activeWallet]);
-};
-
-const balanceFormat = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 4,
-});
-
-export const numberTonValue = (value: string): number => {
-  return parseFloat(fromNano(value));
-};
-
-export const formatTonValue = (value: string): string => {
-  return balanceFormat.format(numberTonValue(value));
-};
-
-export const toShortAddress = (address: string): string => {
-  return address.slice(0, 4) + "...." + address.slice(-4);
-};
-
-export const toShortName = (name: string): string => {
-  if (name.length > 15) {
-    return name.slice(0, 15) + "...";
-  }
-  return name;
 };
 
 export const validateMnemonic = (mnemonic: string[]) => {

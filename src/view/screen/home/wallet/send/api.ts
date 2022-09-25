@@ -11,6 +11,7 @@ import { BN } from "bn.js";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { NetworkConfig } from "../../../../../libs/entries/network";
+import { SendMode } from "../../../../../libs/entries/tonSendMode";
 import { ErrorCode, RuntimeError } from "../../../../../libs/exception";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
@@ -50,7 +51,7 @@ export const stateToSearch = (state: State) => {
   }, {} as Record<string, string>);
 };
 
-const getToAddress = async (
+export const getToAddress = async (
   ton: HttpProvider,
   config: NetworkConfig,
   toAddress: string
@@ -75,26 +76,19 @@ const getToAddress = async (
   }
 };
 
-export enum SendMode {
-  CARRRY_ALL_REMAINING_BALANCE = 128,
-  CARRRY_ALL_REMAINING_INCOMING_VALUE = 64,
-  DESTROY_ACCOUNT_IF_ZERO = 32,
-  PAY_GAS_SEPARATLY = 1,
-  IGNORE_ERRORS = 2,
-}
-
-interface WrapperMethod {
+export interface WrapperMethod {
   method: Method;
   seqno: number;
 }
-export const useMethod = (state: State, balance?: string) => {
+
+export const useSendMethod = (state: State, balance?: string) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
   const config = useNetworkConfig();
 
   return useQuery<WrapperMethod, Error>(
-    [QueryType.method, state],
+    [QueryType.method, wallet.address, state],
     async () => {
       if (balance) {
         if (new BN(balance).cmp(toNano(state.amount)) === -1) {

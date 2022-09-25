@@ -1,31 +1,3 @@
-import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
-import browser from "webextension-polyfill";
-import { Connections } from "../entries/connection";
-import { DAppMessage } from "../entries/message";
-import { getNetworkConfig, networkConfigs } from "../entries/network";
-import { Permission } from "../entries/permission";
-import { TransactionParams } from "../entries/transaction";
-import { ApproveTransaction, backgroundEventsEmitter } from "../event";
-import { ClosePopUpError, ErrorCode, RuntimeError } from "../exception";
-import { Logger } from "../logger";
-import {
-  getAccountState,
-  getConnections,
-  getNetwork,
-  QueryType,
-  setAccountState,
-  setStoreValue,
-} from "../store/browserStore";
-import memoryStore from "../store/memoryStore";
-import {
-  closeCurrentPopUp,
-  openConnectDAppPopUp,
-  openConnectUnlockPopUp,
-  openSendTransactionPopUp,
-  openSwitchChainPopUp,
-} from "./notificationService";
-import { confirmWalletSeqNo } from "./walletService";
-
 /**
  * Service methods and subscription to handle DApp events
  *
@@ -33,297 +5,111 @@ import { confirmWalletSeqNo } from "./walletService";
  * @since: 0.1.0
  */
 
-const getWalletsByOrigin = async (origin: string, network: string) => {
-  const whitelist = await getConnections(network);
-  const account = whitelist[origin];
-  if (account == null) {
-    throw new RuntimeError(
-      ErrorCode.unauthorizeOperation,
-      `Origin "${origin}" is not in whitelist`
-    );
-  }
+import { Address } from "@openmask/web-sdk";
+import browser from "webextension-polyfill";
+import { Connections } from "../entries/connection";
+import {
+  DAppMessage,
+  OpenMaskApiEvent,
+  OpenMaskApiResponse,
+} from "../entries/message";
+import { backgroundEventsEmitter } from "../event";
+import { ErrorCode, RuntimeError } from "../exception";
+import { Logger } from "../logger";
+import { getConnections, getNetwork } from "../store/browserStore";
+import memoryStore from "../store/memoryStore";
+import { showAsset } from "./dApp/assetService";
+import {
+  connectDApp,
+  getBalance,
+  getConnectedWallets,
+} from "./dApp/connectService";
+import { switchChain } from "./dApp/networkService";
+import {
+  confirmAccountSeqNo,
+  sendTransaction,
+  signPersonalValue,
+  signRawValue,
+} from "./dApp/transactionService";
 
-  const wallets = Object.keys(account.connect);
-  if (wallets.length === 0) {
-    throw new RuntimeError(
-      ErrorCode.unauthorizeOperation,
-      `Origin "${origin}" don't have access to wallets for "${network}"`
-    );
-  }
-  return wallets;
+let contentScriptPorts = new Set<browser.Runtime.Port>();
+
+const providerResponse = (
+  id: number,
+  method: string,
+  result: undefined | unknown,
+  error?: RuntimeError
+): OpenMaskApiResponse => {
+  return {
+    type: "OpenMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      id,
+      method,
+      result,
+      error: error
+        ? {
+            message: error.message,
+            code: error.code,
+            description: error.description,
+          }
+        : undefined,
+    },
+  };
 };
 
-const getBalance = async (origin: string, wallet: string | undefined) => {
-  const network = await getNetwork();
-  const config = getNetworkConfig(network);
-
-  const provider = new HttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
-
-  if (wallet) {
-    const result = await provider.getBalance(wallet);
-    Logger.log({ result });
-    return result;
-  }
-
-  const [first] = await getWalletsByOrigin(origin, network);
-  const result = await provider.getBalance(first);
-  Logger.log({ result });
-  return result;
+const providerEvent = (
+  method: "accountsChanged" | "chainChanged",
+  result: undefined | unknown
+): OpenMaskApiEvent => {
+  return {
+    type: "OpenMaskAPI",
+    message: {
+      jsonrpc: "2.0",
+      method,
+      result,
+    },
+  };
 };
 
-const getConnectedWallets = async (origin: string, network: string) => {
-  if (memoryStore.isLock()) {
-    const permissions = await getDAppPermissions(network, origin);
+export const handleDAppConnection = (port: browser.Runtime.Port) => {
+  contentScriptPorts.add(port);
+  port.onMessage.addListener(async (msg, contentPort) => {
+    if (msg.type !== "OpenMaskProvider" || !msg.message) {
+      return;
+    }
 
-    if (!permissions.includes(Permission.locked)) {
-      throw new RuntimeError(
-        ErrorCode.unauthorizeOperation,
-        `Application locked`
+    const [result, error] = await handleDAppMessage(msg.message)
+      .then((result) => [result, undefined] as const)
+      .catch((e: RuntimeError) => [undefined, e] as const);
+
+    Logger.log({ msg, result, error });
+    if (contentPort) {
+      contentPort.postMessage(
+        providerResponse(msg.message.id, msg.message.method, result, error)
       );
     }
-  }
-
-  return await getWalletsByOrigin(origin, network);
-};
-
-const waitUnlock = (popupId?: number) => {
-  return new Promise((resolve, reject) => {
-    const close = (options: { params: number }) => {
-      if (popupId === options.params) {
-        backgroundEventsEmitter.off("closedPopUp", close);
-        backgroundEventsEmitter.off("unlock", unlock);
-        reject(new ClosePopUpError());
-      }
-    };
-
-    const unlock = () => {
-      backgroundEventsEmitter.off("unlock", unlock);
-      resolve(undefined);
-    };
-
-    backgroundEventsEmitter.on("unlock", unlock);
-    backgroundEventsEmitter.on("closedPopUp", close);
+  });
+  port.onDisconnect.addListener((port) => {
+    contentScriptPorts.delete(port);
   });
 };
 
-const connectDApp = async (id: number, origin: string, isEvent: boolean) => {
-  const network = await getNetwork();
-  if (!isEvent) {
-    return await getConnectedWallets(origin, network);
-  }
-  const whitelist = await getConnections();
-  if (whitelist[origin] == null) {
-    const [tab] = await browser.tabs.query({ active: true });
-    const popupId = await openConnectDAppPopUp(id, origin, tab?.favIconUrl);
-    try {
-      await waitApprove(id, popupId);
-    } finally {
-      await closeCurrentPopUp(popupId);
-    }
-  }
-  if (memoryStore.isLock()) {
-    const permissions = await getDAppPermissions(network, origin);
-    if (!permissions.includes(Permission.locked)) {
-      const popupId = await openConnectUnlockPopUp();
-      try {
-        await waitUnlock(popupId);
-      } finally {
-        await closeCurrentPopUp(popupId);
-      }
-    }
-  }
-  return await getConnectedWallets(origin, network);
-};
-
-const switchActiveAddress = async (origin: string, from?: string) => {
-  const network = await getNetwork();
-  const wallets = await getWalletsByOrigin(origin, network);
-  const account = await getAccountState(network);
-
-  if (!from) {
-    // Switch to wallet with use permissions
-    if (account.activeWallet !== wallets[0]) {
-      await setAccountState({ ...account, activeWallet: wallets[0] }, network);
-    }
-    return;
-  }
-
-  const address = wallets.find((item) => item === from);
+const validateWalletAddress = (
+  address: string | undefined
+): string | undefined => {
   if (!address) {
-    throw new RuntimeError(
-      ErrorCode.unauthorizeOperation,
-      `Don't have an access to wallet "${from}"`
-    );
+    return undefined;
   }
 
-  if (account.activeWallet !== address) {
-    await setAccountState({ ...account, activeWallet: address }, network);
-  }
-};
-
-const waitTransaction = (id: number, popupId?: number) => {
-  return new Promise<number>((resolve, reject) => {
-    const approve = (options: { params: ApproveTransaction }) => {
-      if (options.params.id === id) {
-        backgroundEventsEmitter.off("approveTransaction", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        resolve(options.params.seqNo);
-      }
-    };
-    const close = (options: { params: number }) => {
-      if (popupId === options.params) {
-        backgroundEventsEmitter.off("approveTransaction", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(new ClosePopUpError());
-      }
-    };
-    const cancel = (options: { params: number }) => {
-      if (options.params === id) {
-        backgroundEventsEmitter.off("approveTransaction", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(
-          new RuntimeError(ErrorCode.rejectOperation, "Reject transaction")
-        );
-      }
-    };
-    backgroundEventsEmitter.on("approveTransaction", approve);
-    backgroundEventsEmitter.on("rejectRequest", cancel);
-    backgroundEventsEmitter.on("closedPopUp", close);
-  });
-};
-
-const sendTransaction = async (
-  id: number,
-  origin: string,
-  params: TransactionParams
-) => {
-  const current = memoryStore.getOperation();
-  if (current && current.kind === "send") {
-    throw new RuntimeError(
-      ErrorCode.unauthorizeOperation,
-      "Another operation in progress"
-    );
-  }
-
-  await switchActiveAddress(origin, params.from);
-
-  const popupId = await openSendTransactionPopUp(id, origin, params);
-  try {
-    const seqNo = await waitTransaction(id, popupId);
-    memoryStore.setOperation(null);
-    return seqNo;
-  } finally {
-    await closeCurrentPopUp(popupId);
+  if (Address.isValid(address)) {
+    return address;
+  } else {
+    throw new RuntimeError(ErrorCode.unexpectedParams, "Invalid address");
   }
 };
 
-export const waitApprove = (id: number, popupId?: number) => {
-  return new Promise((resolve, reject) => {
-    const approve = (options: { params: number }) => {
-      if (options.params === id) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        resolve(undefined);
-      }
-    };
-    const close = (options: { params: number }) => {
-      if (popupId === options.params) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(new ClosePopUpError());
-      }
-    };
-    const cancel = (options: { params: number }) => {
-      if (options.params === id) {
-        backgroundEventsEmitter.off("approveRequest", approve);
-        backgroundEventsEmitter.off("rejectRequest", cancel);
-        backgroundEventsEmitter.off("closedPopUp", close);
-        reject(new RuntimeError(ErrorCode.rejectOperation, "Reject request"));
-      }
-    };
-    backgroundEventsEmitter.on("approveRequest", approve);
-    backgroundEventsEmitter.on("rejectRequest", cancel);
-    backgroundEventsEmitter.on("closedPopUp", close);
-  });
-};
-
-const getDAppPermissions = async (
-  network: string,
-  origin: string
-): Promise<Permission[]> => {
-  const connections = await getConnections(network);
-  if (!connections[origin]) return [];
-
-  const [first] = await getWalletsByOrigin(origin, network);
-
-  return connections[origin].connect[first] ?? [];
-};
-
-export const switchChain = async (
-  id: number,
-  origin: string,
-  isEvent: boolean,
-  network: string
-) => {
-  const current = await getNetwork();
-  if (current === network) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `Wallet already use "${network}" network`
-    );
-  }
-  if (networkConfigs.find((item) => item.name === network) == null) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `Wallet don't have configuration for "${network}" network`
-    );
-  }
-
-  const permissions = await getDAppPermissions(current, origin);
-
-  // DApp have permission to change network
-  if (permissions.includes(Permission.switchNetwork)) {
-    await setStoreValue(QueryType.network, network);
-    backgroundEventsEmitter.emit("chainChanged", {
-      method: "chainChanged",
-      params: network,
-    });
-    return;
-  }
-
-  // Show PopUp to ask confirmation to change network
-  if (!isEvent) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `The method have to call with user event, for example when user click to button, calling event by script is restricted.`
-    );
-  }
-
-  const [tab] = await browser.tabs.query({ active: true });
-
-  const popupId = await openSwitchChainPopUp(
-    id,
-    origin,
-    network,
-    tab?.favIconUrl
-  );
-  try {
-    await waitApprove(id, popupId);
-  } finally {
-    await closeCurrentPopUp(popupId);
-  }
-};
-
-export const handleDAppMessage = async (
-  message: DAppMessage
-): Promise<unknown> => {
+const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
 
   switch (message.method) {
@@ -331,18 +117,43 @@ export const handleDAppMessage = async (
       return "pong";
     }
 
-    case "ton_getBalance": {
-      return getBalance(origin, message.params[0]);
-    }
     case "wallet_requestAccounts":
     case "ton_requestAccounts": {
       return connectDApp(message.id, origin, message.event);
     }
+    case "ton_getAccounts": {
+      return getConnectedWallets(origin, await getNetwork());
+    }
+
+    case "ton_getBalance": {
+      return getBalance(origin, validateWalletAddress(message.params[0]));
+    }
+
     case "ton_sendTransaction": {
       return sendTransaction(message.id, origin, message.params[0]);
     }
     case "ton_confirmWalletSeqNo": {
-      return confirmWalletSeqNo(message.params[0]);
+      return confirmAccountSeqNo(
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
+    }
+    case "ton_rawSign": {
+      return signRawValue(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
+    }
+    case "ton_personalSign": {
+      return signPersonalValue(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
 
     case "wallet_getLocked": {
@@ -355,8 +166,14 @@ export const handleDAppMessage = async (
       return switchChain(message.id, origin, message.event, message.params[0]);
     }
 
-    case "ton_getAccounts": {
-      return getConnectedWallets(origin, await getNetwork());
+    case "wallet_watchAsset": {
+      return showAsset(
+        message.id,
+        origin,
+        message.event,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     default:
       throw new RuntimeError(
@@ -366,7 +183,7 @@ export const handleDAppMessage = async (
   }
 };
 
-export const seeIfTabHaveAccess = (
+const seeIfTabHaveAccess = (
   port: browser.Runtime.Port,
   connections: Connections,
   accounts: string[]
@@ -380,4 +197,26 @@ export const seeIfTabHaveAccess = (
   }
   const wallets = Object.keys(connections[url.origin].connect);
   return wallets.includes(accounts[0]);
+};
+
+export const subscriptionDAppNotifications = () => {
+  backgroundEventsEmitter.on("chainChanged", (message) => {
+    contentScriptPorts.forEach((port) => {
+      port.postMessage(providerEvent("chainChanged", message.params));
+    });
+  });
+
+  backgroundEventsEmitter.on("accountsChanged", async (message) => {
+    try {
+      const connections = await getConnections();
+      contentScriptPorts.forEach((port) => {
+        const access = seeIfTabHaveAccess(port, connections, message.params);
+        if (access) {
+          port.postMessage(providerEvent("accountsChanged", message.params));
+        }
+      });
+    } catch (e) {
+      Logger.error(e);
+    }
+  });
 };

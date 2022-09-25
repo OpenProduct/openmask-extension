@@ -1,5 +1,5 @@
 import { formatTransferUrl } from "@openmask/web-sdk";
-import { useContext } from "react";
+import { FC, useContext } from "react";
 import QRCode from "react-qr-code";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -8,6 +8,7 @@ import {
   ButtonColumn,
   ButtonNegative,
   Container,
+  H1,
 } from "../../../../components/Components";
 import { HomeButton } from "../../../../components/HomeButton";
 import { CheckIcon, CopyIcon, LinkIcon } from "../../../../components/Icons";
@@ -46,10 +47,6 @@ const ReceiveIndex = () => {
   );
 };
 
-const Title = styled.div`
-  font-size: x-large;
-`;
-
 const Text = styled.div`
   color: ${(props) => props.theme.darkGray};
 `;
@@ -66,17 +63,27 @@ const Block = styled.div`
   margin: 0 auto;
 `;
 
-const ReceiveTon = () => {
+interface ReceiveProps {
+  symbol?: string;
+}
+
+const Title = styled(H1)`
+  margin: 0;
+`;
+
+export const ReceiveCoin: FC<ReceiveProps> = ({ symbol = "TON" }) => {
   const address = useContext(WalletAddressContext);
   const [copied, handleCopy] = useCopyToClipboard();
 
   return (
     <ButtonColumn>
-      <Title>Receive TON</Title>
-      <Text>Share this address to receive TON</Text>
-      <Block>
-        <QRCode size={160} value={formatTransferUrl(address)} />
-      </Block>
+      <Title>Receive {symbol}</Title>
+      {symbol === "TON" && (
+        <Block>
+          <QRCode size={160} value={formatTransferUrl(address)} />
+        </Block>
+      )}
+      <Text>Share this address to receive {symbol} in The Open Network</Text>
       <Address onClick={() => handleCopy(address)}>{address}</Address>
       <ButtonNegative onClick={() => handleCopy(address)}>
         Copy {copied ? <CheckIcon /> : <CopyIcon />}
@@ -85,13 +92,13 @@ const ReceiveTon = () => {
   );
 };
 
-export const Receive = () => {
+export const ReceiveRouter = () => {
   return (
     <>
       <HomeButton />
       <Body>
         <Routes>
-          <Route path={ReceiveRoutes.ton} element={<ReceiveTon />} />
+          <Route path={ReceiveRoutes.ton} element={<ReceiveCoin />} />
           <Route path={ReceiveRoutes.index} element={<ReceiveIndex />} />
         </Routes>
       </Body>

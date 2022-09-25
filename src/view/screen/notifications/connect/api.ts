@@ -29,7 +29,7 @@ export const useAddConnectionMutation = () => {
 
       await setConnections(connections, network);
 
-      sendBackground.message("approveRequest", id);
+      sendBackground.message("approveRequest", { id, payload: undefined });
     }
   );
 };

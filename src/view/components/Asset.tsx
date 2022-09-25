@@ -1,8 +1,8 @@
 import { FC, useMemo } from "react";
 import styled from "styled-components";
-import { formatTonValue } from "../screen/api";
-import { useTonFiat } from "../screen/home/wallet/balance/Fiat";
-import { BaseLogoIcon } from "./Icons";
+import { formatTonValue, useTonFiat } from "../utils";
+import { Gap } from "./Components";
+import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
 
 export interface AssetProps {
   name: string;
@@ -10,6 +10,7 @@ export interface AssetProps {
   logoUrl?: string;
   balance?: string;
   price?: number;
+  onShow?: () => void;
 }
 
 const Block = styled.div`
@@ -47,17 +48,35 @@ const Fiat = styled.div`
   color: ${(props) => props.theme.lightColor};
 `;
 
-export const Asset: FC<AssetProps> = ({
+const Forward = styled.div`
+  display: flex;
+  height: 100%;
+  align-items: center;
+  cursor: pointer;
+  font-size: 200%;
+  padding: 0 30px 0 ${(props) => props.theme.padding};
+
+  &:hover {
+    color: ${(props) => props.theme.darkGray};
+  }
+`;
+
+const Round = styled.img`
+  border-radius: 50%;
+`;
+
+export const AssetView: FC<AssetProps> = ({
   name,
   logo,
   logoUrl,
   balance,
   price,
+  onShow,
 }) => {
   const fiat = useTonFiat(balance, price);
 
   const formatted = useMemo(() => {
-    return balance ? formatTonValue(balance) : undefined;
+    return balance ? formatTonValue(balance) : "0";
   }, [balance]);
 
   return (
@@ -66,7 +85,7 @@ export const Asset: FC<AssetProps> = ({
         {logo ? (
           logo
         ) : logoUrl ? (
-          <img alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
+          <Round alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
         ) : (
           <BaseLogoIcon />
         )}
@@ -77,6 +96,12 @@ export const Asset: FC<AssetProps> = ({
         </Balance>
         {fiat && <Fiat>{fiat}$</Fiat>}
       </Text>
+      <Gap />
+      {onShow && (
+        <Forward onClick={onShow}>
+          <ArrowForwardIcon />
+        </Forward>
+      )}
     </Block>
   );
 };

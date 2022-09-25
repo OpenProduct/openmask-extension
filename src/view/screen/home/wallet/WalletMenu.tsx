@@ -36,7 +36,7 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                   });
                 }}
               >
-                Open tonscan.org <LinkIcon />
+                Open Wallet tonscan.org <LinkIcon />
               </ListItem>
               <ListItem
                 onClick={() => {

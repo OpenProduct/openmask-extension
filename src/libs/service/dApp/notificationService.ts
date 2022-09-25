@@ -1,15 +1,17 @@
-import { fromNano } from "@openmask/web-sdk";
-import { TransactionParams } from "../entries/transaction";
-import { backgroundEventsEmitter } from "../event";
-import { Logger } from "../logger";
-import ExtensionPlatform from "./extension";
-
 /**
  * Service methods to manage notification PopUp
  *
  * @author: KuznetsovNikita
  * @since: 0.1.0
  */
+
+import { fromNano } from "@openmask/web-sdk";
+import { NotificationsRoutes } from "../../../view/screen/notifications/route";
+import { JettonParams } from "../../entries/asset";
+import { TransactionParams } from "../../entries/transaction";
+import { backgroundEventsEmitter } from "../../event";
+import { Logger } from "../../logger";
+import ExtensionPlatform from "../extension";
 
 const NOTIFICATION_HEIGHT = 620;
 const NOTIFICATION_WIDTH = 380;
@@ -25,6 +27,11 @@ ExtensionPlatform.addOnRemovedListener((windowId) => {
     popupId = undefined;
   }
 });
+
+export const getActiveTabLogo = async () => {
+  const [tab] = await ExtensionPlatform.getActiveTabs();
+  return encodeURIComponent((tab && tab.favIconUrl) ?? "");
+};
 
 const getPopup = async () => {
   const windows = await ExtensionPlatform.getAllWindows();
@@ -59,40 +66,60 @@ const openPopUp = async (page: string) => {
   }
 };
 
-export const openConnectDAppPopUp = async (
-  id: number,
-  origin: string,
-  logo?: string
-) => {
+export const openConnectDAppPopUp = async (id: number, origin: string) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
-    logo: encodeURIComponent(logo ?? ""),
+    logo: await getActiveTabLogo(),
   });
 
-  await openPopUp(`/notification/dapp?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.dapp}?${params.toString()}`
+  );
   return popupId;
 };
 
 export const openConnectUnlockPopUp = async () => {
-  await openPopUp(`/notification/unlock`);
+  await openPopUp(`/notifications${NotificationsRoutes.unlock}`);
   return popupId;
 };
 
 export const openSwitchChainPopUp = async (
   id: number,
   origin: string,
-  network: string,
-  logo?: string
+  network: string
 ) => {
   const params = new URLSearchParams({
     id: String(id),
     origin: encodeURIComponent(origin),
-    logo: encodeURIComponent(logo ?? ""),
+    logo: await getActiveTabLogo(),
     network: network,
   });
 
-  await openPopUp(`/notification/network?${params.toString()}`);
+  await openPopUp(
+    `/notifications${NotificationsRoutes.network}?${params.toString()}`
+  );
+  return popupId;
+};
+
+export const openShowJettonPopUp = async (
+  id: number,
+  jetton: JettonParams,
+  origin: string
+) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
+    address: encodeURIComponent(jetton.address),
+    symbol: encodeURIComponent(jetton.symbol ?? ""),
+    image: encodeURIComponent(jetton.image ?? ""),
+    name: encodeURIComponent(jetton.name ?? ""),
+  });
+
+  await openPopUp(
+    `/notifications${NotificationsRoutes.jetton}?${params.toString()}`
+  );
   return popupId;
 };
 
@@ -114,12 +141,42 @@ export const openSendTransactionPopUp = async (
   const params = new URLSearchParams({
     address: encodeURIComponent(props.to),
     amount: encodeURIComponent(fromNano(props.value).toString()),
-    comment: props.data ? encodeURIComponent(props.data) : "",
+    comment: props.data ? encodeURIComponent(props.data) : "", // Data could large then url fit
     submit: "1",
     id: String(id),
     origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
   });
+
   await openPopUp(`/send?${params.toString()}`);
+
+  return popupId;
+};
+
+export const openRawSingPopUp = async (id: number, origin: string) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
+  });
+
+  await openPopUp(
+    `/notifications${NotificationsRoutes.raw}?${params.toString()}`
+  );
+
+  return popupId;
+};
+
+export const openPersonalSingPopUp = async (id: number, origin: string) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
+  });
+
+  await openPopUp(
+    `/notifications${NotificationsRoutes.personal}?${params.toString()}`
+  );
 
   return popupId;
 };

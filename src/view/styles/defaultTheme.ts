@@ -18,6 +18,9 @@ const defaultTheme: DefaultTheme = {
   red: "#d73a49",
   lightRed: "#d73a4919",
 
+  orange: "#655500",
+  lightOrange: "#f8ad2f",
+
   padding: "15px",
 };
 
