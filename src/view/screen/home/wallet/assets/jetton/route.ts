@@ -1,6 +1,6 @@
 export enum JettonRoute {
   index = "/",
-  activities = "/activities",
+  info = "/info",
   send = "/send",
   receive = "/receive",
   hide = "/hide",

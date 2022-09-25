@@ -129,7 +129,7 @@ const JettonInfo = () => {
   );
 };
 
-const tabs = ["Info", "Activity"];
+const tabs = ["Activity", "Info"];
 
 export const JettonHome = () => {
   const navigate = useNavigate();
@@ -140,8 +140,8 @@ export const JettonHome = () => {
     (tab: typeof tabs[number]) => {
       navigate(
         tab === "Info"
-          ? relative(JettonRoute.index)
-          : relative(JettonRoute.activities),
+          ? relative(JettonRoute.info)
+          : relative(JettonRoute.index),
         {
           replace: true,
         }
@@ -150,7 +150,7 @@ export const JettonHome = () => {
     [navigate]
   );
 
-  const active = location.pathname.includes(JettonRoute.activities)
+  const active = location.pathname.includes(JettonRoute.info)
     ? tabs[1]
     : tabs[0];
 
@@ -160,8 +160,8 @@ export const JettonHome = () => {
       <JettonBalance />
       <Tabs options={tabs} active={active} onChange={onChange} />
       <Routes>
-        <Route path={JettonRoute.activities} element={<JettonActivities />} />
-        <Route path="*" element={<JettonInfo />} />
+        <Route path={JettonRoute.info} element={<JettonInfo />} />
+        <Route path="*" element={<JettonActivities />} />
       </Routes>
     </Scroll>
   );
