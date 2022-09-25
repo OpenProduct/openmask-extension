@@ -59,8 +59,8 @@ export const SignRaw = () => {
   }, [error]);
 
   const onSign = async () => {
-    const value = await mutateAsync(data);
-    sendBackground.message("approveRequest", { id, payload: value });
+    const signature = await mutateAsync(data);
+    sendBackground.message("approveRequest", { id, payload: signature });
   };
 
   if (isFetching) {

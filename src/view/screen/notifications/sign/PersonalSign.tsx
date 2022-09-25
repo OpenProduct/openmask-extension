@@ -50,8 +50,10 @@ export const SignPersonal = () => {
   }, [error]);
 
   const onSign = async () => {
-    const value = await mutateAsync(data);
-    sendBackground.message("approveRequest", { id, payload: value });
+    if (!data) return;
+    const hex = Buffer.from(data, "utf8").toString("hex");
+    const signature = await mutateAsync(hex);
+    sendBackground.message("approveRequest", { id, payload: signature });
   };
 
   if (isFetching) {

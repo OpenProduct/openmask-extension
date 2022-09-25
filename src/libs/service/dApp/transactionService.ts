@@ -101,8 +101,6 @@ export const signRawValue = async (
   }
 };
 
-const PersonalSign = "TON Signed Message:";
-
 export const signPersonalValue = async (
   id: number,
   origin: string,
@@ -116,24 +114,20 @@ export const signPersonalValue = async (
     );
   }
 
-  if (!value.data.startsWith(PersonalSign)) {
-    throw new RuntimeError(
-      ErrorCode.unexpectedParams,
-      `Personal sign should start with hex "${PersonalSign}" prefix.`
-    );
-  }
-
   await switchActiveAddress(origin);
 
   memoryStore.setOperation({ kind: "sign", value: value.data });
 
-  const popupId = await openPersonalSingPopUp(id, origin);
-
   try {
-    const value = await waitApprove<string>(id, popupId);
-    return value;
+    const popupId = await openPersonalSingPopUp(id, origin);
+
+    try {
+      const signature = await waitApprove<string>(id, popupId);
+      return signature;
+    } finally {
+      await closeCurrentPopUp(popupId);
+    }
   } finally {
     memoryStore.setOperation(null);
-    await closeCurrentPopUp(popupId);
   }
 };
