@@ -14,7 +14,7 @@ import {
 } from "../../store/browserStore";
 import { getWalletsByOrigin } from "../walletService";
 import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
-import { waitApprove } from "./utils";
+import { checkBaseDAppPermission, waitApprove } from "./utils";
 
 export const showAsset = async (
   id: number,
@@ -22,6 +22,7 @@ export const showAsset = async (
   isEvent: boolean,
   params: JettonParams
 ) => {
+  await checkBaseDAppPermission(origin);
   if (!isEvent) {
     throw new EventError();
   }

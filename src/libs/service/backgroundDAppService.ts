@@ -32,10 +32,19 @@ import {
   signPersonalValue,
   signRawValue,
 } from "./dApp/transactionService";
-import { getDAppPermissions, waitApprove } from "./dApp/utils";
-import { confirmWalletSeqNo, getWalletsByOrigin } from "./walletService";
+import {
+  checkBaseDAppPermission,
+  getDAppPermissions,
+  waitApprove,
+} from "./dApp/utils";
+import {
+  confirmWalletSeqNo,
+  getActiveWallet,
+  getWalletsByOrigin,
+} from "./walletService";
 
 const getBalance = async (origin: string, wallet: string | undefined) => {
+  await checkBaseDAppPermission(origin, wallet);
   const network = await getNetwork();
   const config = getNetworkConfig(network);
 
@@ -178,6 +187,18 @@ export const handleDAppConnection = (port: browser.Runtime.Port) => {
   });
 };
 
+const confirmAccountSeqNo = async (
+  origin: string,
+  walletSeqNo: number,
+  wallet?: string
+) => {
+  if (!wallet) {
+    wallet = await getActiveWallet();
+  }
+  await checkBaseDAppPermission(origin, wallet);
+  return confirmWalletSeqNo(walletSeqNo, wallet);
+};
+
 const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
 
@@ -197,7 +218,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return sendTransaction(message.id, origin, message.params[0]);
     }
     case "ton_confirmWalletSeqNo": {
-      return confirmWalletSeqNo(message.params[0]);
+      return confirmAccountSeqNo(origin, message.params[0], message.params[1]);
     }
 
     case "ton_rawSign": {

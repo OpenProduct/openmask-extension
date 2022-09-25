@@ -8,7 +8,7 @@
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter, PayloadRequest } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
-import { getConnections } from "../../store/browserStore";
+import { getConnections, getNetwork } from "../../store/browserStore";
 import { getWalletsByOrigin } from "../walletService";
 
 export const waitApprove = <Payload>(id: number, popupId?: number) => {
@@ -45,12 +45,29 @@ export const waitApprove = <Payload>(id: number, popupId?: number) => {
 
 export const getDAppPermissions = async (
   network: string,
-  origin: string
+  origin: string,
+  wallet?: string
 ): Promise<Permission[]> => {
   const connections = await getConnections(network);
   if (!connections[origin]) return [];
 
-  const [first] = await getWalletsByOrigin(origin, network);
+  if (!wallet) {
+    [wallet] = await getWalletsByOrigin(origin, network);
+  }
 
-  return connections[origin].connect[first] ?? [];
+  return connections[origin].connect[wallet] ?? [];
+};
+
+export const checkBaseDAppPermission = async (
+  origin: string,
+  wallet?: string
+) => {
+  const network = await getNetwork();
+  const permissions = await getDAppPermissions(network, origin, wallet);
+  if (!permissions.some((item) => item === Permission.base)) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `The origin "${origin}" don't have permissions to use a wallet.`
+    );
+  }
 };

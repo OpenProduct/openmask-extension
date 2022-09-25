@@ -15,7 +15,11 @@ import {
 import { Logger } from "../logger";
 import { getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
-import { confirmWalletSeqNo, getWalletsByOrigin } from "./walletService";
+import {
+  confirmWalletSeqNo,
+  getActiveWallet,
+  getWalletsByOrigin,
+} from "./walletService";
 
 let popUpPort: browser.Runtime.Port;
 
@@ -98,7 +102,7 @@ popUpEventEmitter.on("getOperation", (message) => {
 
 popUpEventEmitter.on("confirmSeqNo", async (message) => {
   try {
-    await confirmWalletSeqNo(message.params);
+    await confirmWalletSeqNo(message.params, await getActiveWallet());
     sendResponseToPopUp(message.id);
   } catch (e) {
     Logger.error(e);

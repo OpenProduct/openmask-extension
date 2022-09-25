@@ -20,7 +20,7 @@ import {
   openRawSingPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
-import { waitApprove } from "./utils";
+import { checkBaseDAppPermission, waitApprove } from "./utils";
 
 const switchActiveAddress = async (origin: string, from?: string) => {
   const network = await getNetwork();
@@ -53,6 +53,7 @@ export const sendTransaction = async (
   origin: string,
   params: TransactionParams
 ) => {
+  await checkBaseDAppPermission(origin);
   const current = memoryStore.getOperation();
   if (current != null) {
     throw new RuntimeError(
@@ -78,6 +79,7 @@ export const signRawValue = async (
   origin: string,
   value: { data: string }
 ) => {
+  await checkBaseDAppPermission(origin);
   const current = memoryStore.getOperation();
   if (current != null) {
     throw new RuntimeError(
@@ -106,6 +108,7 @@ export const signPersonalValue = async (
   origin: string,
   value: { data: string }
 ) => {
+  await checkBaseDAppPermission(origin);
   const current = memoryStore.getOperation();
   if (current != null) {
     throw new RuntimeError(

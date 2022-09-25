@@ -10,14 +10,8 @@ import {
   getNetwork,
 } from "../store/browserStore";
 
-export const confirmWalletSeqNo = async (walletSeqNo: number) => {
+export const getActiveWallet = async () => {
   const network = await getNetwork();
-  const config = getNetworkConfig(network);
-
-  const provider = new HttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
-
   const { activeWallet } = await getAccountState(network);
 
   if (!activeWallet) {
@@ -26,6 +20,19 @@ export const confirmWalletSeqNo = async (walletSeqNo: number) => {
       "Unexpected active wallet"
     );
   }
+  return activeWallet;
+};
+
+export const confirmWalletSeqNo = async (
+  walletSeqNo: number,
+  activeWallet: string
+) => {
+  const network = await getNetwork();
+  const config = getNetworkConfig(network);
+
+  const provider = new HttpProvider(config.rpcUrl, {
+    apiKey: config.apiKey,
+  });
 
   const bn: BN = await provider.call2(activeWallet, "seqno");
   let currentSeqNo = bn.toNumber();
