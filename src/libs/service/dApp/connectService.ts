@@ -5,9 +5,12 @@
  * @since: 0.1.0
  */
 
+import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
+import { getNetworkConfig } from "../../entries/network";
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
+import { Logger } from "../../logger";
 import { getConnections, getNetwork } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
@@ -16,7 +19,11 @@ import {
   openConnectDAppPopUp,
   openConnectUnlockPopUp,
 } from "./notificationService";
-import { getDAppPermissions, waitApprove } from "./utils";
+import {
+  checkBaseDAppPermission,
+  getDAppPermissions,
+  waitApprove,
+} from "./utils";
 
 export const getConnectedWallets = async (origin: string, network: string) => {
   if (memoryStore.isLock()) {
@@ -80,4 +87,28 @@ export const connectDApp = async (
     }
   }
   return await getConnectedWallets(origin, network);
+};
+
+export const getBalance = async (
+  origin: string,
+  wallet: string | undefined
+) => {
+  await checkBaseDAppPermission(origin, wallet);
+  const network = await getNetwork();
+  const config = getNetworkConfig(network);
+
+  const provider = new HttpProvider(config.rpcUrl, {
+    apiKey: config.apiKey,
+  });
+
+  if (wallet) {
+    const result = await provider.getBalance(wallet);
+    Logger.log({ result });
+    return result;
+  }
+
+  const [first] = await getWalletsByOrigin(origin, network);
+  const result = await provider.getBalance(first);
+  Logger.log({ result });
+  return result;
 };

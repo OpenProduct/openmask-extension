@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
+import { Address } from "@openmask/web-sdk";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
 import {
@@ -13,47 +13,24 @@ import {
   OpenMaskApiEvent,
   OpenMaskApiResponse,
 } from "../entries/message";
-import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
 import { getConnections, getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import { showAsset } from "./dApp/assetService";
-import { connectDApp, getConnectedWallets } from "./dApp/connectService";
+import {
+  connectDApp,
+  getBalance,
+  getConnectedWallets,
+} from "./dApp/connectService";
 import { switchChain } from "./dApp/networkService";
 import {
+  confirmAccountSeqNo,
   sendTransaction,
   signPersonalValue,
   signRawValue,
 } from "./dApp/transactionService";
-import { checkBaseDAppPermission } from "./dApp/utils";
-import {
-  confirmWalletSeqNo,
-  getActiveWallet,
-  getWalletsByOrigin,
-} from "./walletService";
-
-const getBalance = async (origin: string, wallet: string | undefined) => {
-  await checkBaseDAppPermission(origin, wallet);
-  const network = await getNetwork();
-  const config = getNetworkConfig(network);
-
-  const provider = new HttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
-
-  if (wallet) {
-    const result = await provider.getBalance(wallet);
-    Logger.log({ result });
-    return result;
-  }
-
-  const [first] = await getWalletsByOrigin(origin, network);
-  const result = await provider.getBalance(first);
-  Logger.log({ result });
-  return result;
-};
 
 let contentScriptPorts = new Set<browser.Runtime.Port>();
 
@@ -118,16 +95,18 @@ export const handleDAppConnection = (port: browser.Runtime.Port) => {
   });
 };
 
-const confirmAccountSeqNo = async (
-  origin: string,
-  walletSeqNo: number,
-  wallet?: string
-) => {
-  if (!wallet) {
-    wallet = await getActiveWallet();
+const validateWalletAddress = (
+  address: string | undefined
+): string | undefined => {
+  if (!address) {
+    return undefined;
   }
-  await checkBaseDAppPermission(origin, wallet);
-  return confirmWalletSeqNo(walletSeqNo, wallet);
+
+  if (Address.isValid(address)) {
+    return address;
+  } else {
+    throw new RuntimeError(ErrorCode.unexpectedParams, "Invalid address");
+  }
 };
 
 const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
@@ -138,25 +117,43 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return "pong";
     }
 
-    case "ton_getBalance": {
-      return getBalance(origin, message.params[0]);
-    }
     case "wallet_requestAccounts":
     case "ton_requestAccounts": {
       return connectDApp(message.id, origin, message.event);
     }
+    case "ton_getAccounts": {
+      return getConnectedWallets(origin, await getNetwork());
+    }
+
+    case "ton_getBalance": {
+      return getBalance(origin, validateWalletAddress(message.params[0]));
+    }
+
     case "ton_sendTransaction": {
       return sendTransaction(message.id, origin, message.params[0]);
     }
     case "ton_confirmWalletSeqNo": {
-      return confirmAccountSeqNo(origin, message.params[0], message.params[1]);
+      return confirmAccountSeqNo(
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
-
     case "ton_rawSign": {
-      return signRawValue(message.id, origin, message.params[0]);
+      return signRawValue(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     case "ton_personalSign": {
-      return signPersonalValue(message.id, origin, message.params[0]);
+      return signPersonalValue(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
 
     case "wallet_getLocked": {
@@ -170,11 +167,13 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     }
 
     case "wallet_watchAsset": {
-      return showAsset(message.id, origin, message.event, message.params[0]);
-    }
-
-    case "ton_getAccounts": {
-      return getConnectedWallets(origin, await getNetwork());
+      return showAsset(
+        message.id,
+        origin,
+        message.event,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     default:
       throw new RuntimeError(

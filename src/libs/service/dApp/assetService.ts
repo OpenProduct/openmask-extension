@@ -7,33 +7,26 @@
 
 import { JettonParams } from "../../entries/asset";
 import { EventError } from "../../exception";
-import {
-  getAccountState,
-  getNetwork,
-  setAccountState,
-} from "../../store/browserStore";
-import { getWalletsByOrigin } from "../walletService";
 import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
-import { checkBaseDAppPermission, waitApprove } from "./utils";
+import {
+  checkBaseDAppPermission,
+  switchActiveAddress,
+  waitApprove,
+} from "./utils";
 
 export const showAsset = async (
   id: number,
   origin: string,
   isEvent: boolean,
-  params: JettonParams
+  params: JettonParams,
+  wallet?: string
 ) => {
-  await checkBaseDAppPermission(origin);
+  await checkBaseDAppPermission(origin, wallet);
   if (!isEvent) {
     throw new EventError();
   }
 
-  const network = await getNetwork();
-
-  const [first] = await getWalletsByOrigin(origin, network);
-  const account = await getAccountState(network);
-  if (account.activeWallet !== first) {
-    await setAccountState({ ...account, activeWallet: first }, network);
-  }
+  await switchActiveAddress(origin, wallet);
 
   const popupId = await openShowJettonPopUp(id, params, origin);
   try {

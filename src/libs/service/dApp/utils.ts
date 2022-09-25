@@ -8,7 +8,12 @@
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter, PayloadRequest } from "../../event";
 import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
-import { getConnections, getNetwork } from "../../store/browserStore";
+import {
+  getAccountState,
+  getConnections,
+  getNetwork,
+  setAccountState,
+} from "../../store/browserStore";
 import { getWalletsByOrigin } from "../walletService";
 
 export const waitApprove = <Payload>(id: number, popupId?: number) => {
@@ -69,5 +74,31 @@ export const checkBaseDAppPermission = async (
       ErrorCode.unauthorize,
       `The origin "${origin}" don't have permissions to use a wallet.`
     );
+  }
+};
+
+export const switchActiveAddress = async (origin: string, from?: string) => {
+  const network = await getNetwork();
+  const wallets = await getWalletsByOrigin(origin, network);
+  const account = await getAccountState(network);
+
+  if (!from) {
+    // Switch to wallet with use permissions
+    if (account.activeWallet !== wallets[0]) {
+      await setAccountState({ ...account, activeWallet: wallets[0] }, network);
+    }
+    return;
+  }
+
+  const address = wallets.find((item) => item === from);
+  if (!address) {
+    throw new RuntimeError(
+      ErrorCode.unauthorize,
+      `Don't have an access to wallet "${from}"`
+    );
+  }
+
+  if (account.activeWallet !== address) {
+    await setAccountState({ ...account, activeWallet: address }, network);
   }
 };
