@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Add `ton_rawSing` method and notification view
+- Fix jettons navigation
+- Fix redirects on change network
 
 ## [0.7.0] - 2022-09-25
 
