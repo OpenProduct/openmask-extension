@@ -49,7 +49,10 @@ const getJettonWalletAddress = async (
           return {
             ...wallet,
             assets: wallet.assets?.map((asset) => {
-              if (asset.minterAddress === jetton.minterAddress) {
+              if (
+                "minterAddress" in asset &&
+                asset.minterAddress === jetton.minterAddress
+              ) {
                 return {
                   ...asset,
                   walletAddress: jettonWalletAddress.toString(true, true, true),

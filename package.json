@@ -1,5 +1,5 @@
 {
-  "name": "@OpenMask/extension",
+  "name": "@openmask/extension",
   "version": "0.7.1",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
