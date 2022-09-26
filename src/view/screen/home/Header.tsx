@@ -89,6 +89,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const onChain = useCallback(
     async (config: NetworkConfig) => {
       await mutateNetwork(config.name);
+      navigate(AppRoute.home);
       sendBackground.message("chainChanged", config.name);
     },
     [mutateNetwork]

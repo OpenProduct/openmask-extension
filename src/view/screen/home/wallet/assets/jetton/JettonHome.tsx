@@ -121,7 +121,7 @@ const JettonInfo = () => {
         )}
       </Text>
       <ButtonColumn>
-        <ButtonNegative onClick={() => navigate(relative(JettonRoute.hide))}>
+        <ButtonNegative onClick={() => navigate(`..${JettonRoute.hide}`)}>
           Hide <DeleteIcon />
         </ButtonNegative>
       </ButtonColumn>
