@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { ImportJetton } from "./import/Jetton";
+import { ImportNft } from "./import/Nft";
 import { JettonRouter } from "./jetton/Jetton";
-import { ImportNFT } from "./Nft";
 import { AssetRoutes } from "./route";
 
 export const AssetsRouter = () => {
@@ -12,7 +12,7 @@ export const AssetsRouter = () => {
         <Route path=":minterAddress/*" element={<JettonRouter />} />
       </Route>
       <Route path={AssetRoutes.nfts}>
-        <Route index element={<ImportNFT />} />
+        <Route index element={<ImportNft />} />
         <Route path=":collectionAddress/*" element={<div>NFT</div>} />
       </Route>
     </Routes>

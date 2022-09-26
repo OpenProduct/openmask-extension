@@ -1,7 +1,11 @@
 import React, { FC, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Asset } from "../../../../../libs/entries/asset";
+import {
+  Asset,
+  JettonAsset,
+  NftAsset,
+} from "../../../../../libs/entries/asset";
 import ExtensionPlatform from "../../../../../libs/service/extension";
 import { AssetView } from "../../../../components/Asset";
 import {
@@ -21,7 +25,11 @@ const Line = styled(Text)`
   padding: 10px 0 5px;
 `;
 
-const AlternativeAsset: FC<{ asset: Asset }> = React.memo(({ asset }) => {
+const seeIfJettonAsset = (asset: Asset): asset is JettonAsset => {
+  return "minterAddress" in asset;
+};
+
+const JettonAssetView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
   const navigate = useNavigate();
   const { data } = useJettonWalletBalance(asset);
 
@@ -42,6 +50,10 @@ const AlternativeAsset: FC<{ asset: Asset }> = React.memo(({ asset }) => {
   );
 });
 
+const NftAssetView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
+  return <div>{asset.collectionAddress}</div>;
+});
+
 export const AssetsList: FC<{ balance?: string; price?: number }> = ({
   balance,
   price,
@@ -57,9 +69,13 @@ export const AssetsList: FC<{ balance?: string; price?: number }> = ({
         balance={balance}
         price={price}
       />
-      {(wallet.assets ?? []).map((asset) => (
-        <AlternativeAsset asset={asset} />
-      ))}
+      {(wallet.assets ?? []).map((asset) =>
+        seeIfJettonAsset(asset) ? (
+          <JettonAssetView asset={asset} />
+        ) : (
+          <NftAssetView asset={asset} />
+        )
+      )}
       <Gap />
       <Center>
         <Line>
@@ -67,7 +83,7 @@ export const AssetsList: FC<{ balance?: string; price?: number }> = ({
           <InlineButtonLink
             onClick={() => navigate(AppRoute.assets + AssetRoutes.jettons)}
           >
-            Import Jetton
+            Import Token
           </InlineButtonLink>
         </Line>
         <Text>

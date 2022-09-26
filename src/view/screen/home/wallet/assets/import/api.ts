@@ -109,7 +109,12 @@ export const useAddJettonMutation = () => {
         wallets: account.wallets.map((wallet) => {
           if (wallet.address === account.activeWallet) {
             const assets = wallet.assets ?? [];
-            if (!assets.some((item) => item.minterAddress === minter)) {
+            if (
+              !assets.some(
+                (item) =>
+                  "minterAddress" in item && item.minterAddress === minter
+              )
+            ) {
               // If not exists
               const asset: JettonAsset = {
                 state: jettonState,
