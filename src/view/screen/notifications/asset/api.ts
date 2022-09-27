@@ -1,7 +1,7 @@
 import { Address, fromNano } from "@openmask/web-sdk";
 import {
   JettonData,
-  JettonMinterDao,
+  JettonMinterDao
 } from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
 import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,
-  TonProviderContext,
+  TonProviderContext
 } from "../../../context";
 import { askBackground, sendBackground } from "../../../event";
 import { saveAccountState } from "../../api";
@@ -146,11 +146,7 @@ export const useAddJettonMutation = (id: number) => {
           if (wallets.includes(wallet.address)) {
             const assets = wallet.assets ?? [];
             if (
-              !assets.some(
-                (item) =>
-                  "minterAddress" in item &&
-                  item.minterAddress === state.minterAddress
-              )
+              !assets.some((item) => item.minterAddress === state.minterAddress)
             ) {
               // If not exists
               assets.push(state);

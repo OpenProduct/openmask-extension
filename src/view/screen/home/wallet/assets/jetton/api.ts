@@ -37,9 +37,7 @@ export const useHideJettonMutation = () => {
             return {
               ...wallet,
               assets: (wallet.assets ?? []).filter(
-                (asset) =>
-                  "minterAddress" in asset &&
-                  asset.minterAddress !== jettonMinterAddress
+                (asset) => asset.minterAddress !== jettonMinterAddress
               ),
             };
           }

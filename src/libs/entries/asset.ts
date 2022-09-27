@@ -22,19 +22,4 @@ export interface JettonAsset {
   walletAddress?: string;
 }
 
-export interface NftState {
-  collectionAddress: string;
-  contentUri: string | null;
-}
-
-export interface NftItem {
-  state: NftState;
-  address: string;
-}
-
-export interface NftAsset {
-  items: NftItem[];
-  collectionAddress: string;
-}
-
-export type Asset = JettonAsset | NftAsset;
+export type Asset = JettonAsset;

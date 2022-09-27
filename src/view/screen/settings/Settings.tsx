@@ -69,15 +69,6 @@ const About = () => {
         <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `https://t.me/openproduct`,
-            });
-          }}
-        >
-          Telegram <LinkIcon />
-        </TextLink>
-        <TextLink
-          onClick={() => {
-            ExtensionPlatform.openTab({
               url: `https://github.com/OpenProduct`,
             });
           }}

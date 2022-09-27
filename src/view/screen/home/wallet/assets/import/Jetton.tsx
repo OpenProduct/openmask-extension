@@ -14,7 +14,6 @@ import {
 } from "../../../../../components/Components";
 import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
-import { InputField } from "../../../../../components/InputField";
 import { JettonRow } from "../../../../../components/JettonRow";
 import { AppRoute } from "../../../../../routes";
 import {
@@ -154,14 +153,13 @@ export const ImportJetton = () => {
       <HomeButton />
       <AssetsTabs />
       <Body>
-        <InputField
-          label="Jetton Minter Contract address"
+        <Label>Jetton Minter Contract address</Label>
+        <Input
           disabled={jetton != null}
           value={minter}
           onChange={(e) => setMinter(e.target.value)}
           onBlur={onSearch}
         />
-
         {!isLoading && jetton != null && jettonName == null && (
           <>
             <Label>Jetton Symbol</Label>
