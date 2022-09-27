@@ -1,3 +1,5 @@
+import Joi from "joi";
+
 export interface JettonParams {
   type: "jetton";
   // The address of the token contract
@@ -14,7 +16,15 @@ export interface JettonState {
   symbol: string;
   name: string;
   image?: string;
+  description?: string;
 }
+
+export const JettonStateSchema = Joi.object<JettonState>({
+  name: Joi.string().required(),
+  symbol: Joi.string().required(),
+  description: Joi.string(),
+  image: Joi.string(),
+}).unknown();
 
 export interface JettonAsset {
   state: JettonState;
@@ -23,12 +33,20 @@ export interface JettonAsset {
 }
 
 export interface NftState {
-  collectionAddress: string;
-  contentUri: string | null;
+  image: string;
+  name?: string;
+  description?: string;
 }
 
+export const NftStateSchema = Joi.object<NftState>({
+  image: Joi.string().required(),
+  name: Joi.string(),
+  description: Joi.string(),
+}).unknown();
+
 export interface NftItem {
-  state: NftState;
+  state?: NftState;
+  contentUri: string | null;
   address: string;
 }
 

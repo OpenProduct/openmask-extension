@@ -4,12 +4,19 @@ import {
   JettonData,
   JettonMinterDao,
   JettonWalletDao,
-  NftContractDao,
+  NftContentDao,
   NftData,
 } from "@openmask/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonAsset, JettonState } from "../../../../../../libs/entries/asset";
+import {
+  JettonAsset,
+  JettonState,
+  JettonStateSchema,
+  NftState,
+  NftStateSchema,
+} from "../../../../../../libs/entries/asset";
+import { requestJson } from "../../../../../../libs/service/requestService";
 import {
   AccountStateContext,
   NetworkContext,
@@ -36,28 +43,10 @@ export const useJettonNameMutation = () => {
   return useMutation<JettonState, Error, string | null>(async (jsonDataUrl) => {
     let state: Partial<JettonState> = {};
     if (jsonDataUrl) {
-      if (jsonDataUrl.startsWith("ipfs://")) {
-        jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
-      }
-      try {
-        state = await fetch(jsonDataUrl).then((response) => response.json());
-      } catch (e) {
-        throw new Error(`Failed to load Jetton Data from "${jsonDataUrl}"`);
-      }
+      state = await requestJson<Partial<JettonState>>(jsonDataUrl);
     }
 
-    const errors: string[] = [];
-    if (!state.name) {
-      errors.push("name");
-    }
-    if (!state.symbol) {
-      errors.push("symbol");
-    }
-    if (errors.length) {
-      throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
-    }
-
-    return state as JettonState;
+    return await JettonStateSchema.validateAsync(state);
   });
 };
 
@@ -139,7 +128,14 @@ export const useNftDataMutation = () => {
   const provider = useContext(TonProviderContext);
   return useMutation<NftData, Error, string>(async (nftAddress) => {
     const address = new Address(nftAddress);
-    const dao = new NftContractDao(provider, address);
+    const dao = new NftContentDao(provider, address);
     return await dao.getData();
+  });
+};
+
+export const useNftContentMutation = () => {
+  return useMutation<NftState, Error, string>(async (jsonUrl) => {
+    const state = await requestJson<NftState>(jsonUrl!);
+    return await NftStateSchema.validateAsync(state);
   });
 };
