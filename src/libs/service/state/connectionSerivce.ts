@@ -1,5 +1,5 @@
-import { Connections } from "../entries/connection";
-import { Permission } from "../entries/permission";
+import { Connections } from "../../entries/connection";
+import { Permission } from "../../entries/permission";
 
 export const addDAppAccess = (
   connections: Connections,

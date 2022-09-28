@@ -32,26 +32,39 @@ export interface JettonAsset {
   walletAddress?: string;
 }
 
-export interface NftState {
+export interface NftItemState {
   image: string;
   name?: string;
   description?: string;
 }
 
-export const NftStateSchema = Joi.object<NftState>({
+export const NftItemStateSchema = Joi.object<NftItemState>({
   image: Joi.string().required(),
   name: Joi.string(),
   description: Joi.string(),
 }).unknown();
 
 export interface NftItem {
-  state?: NftState;
+  state: NftItemState | null;
   contentUri: string | null;
   address: string;
 }
 
+export interface NftCollectionState {
+  image: string;
+  name?: string;
+  description?: string;
+}
+
+export const NftCollectionStateSchema = Joi.object<NftCollectionState>({
+  image: Joi.string().required(),
+  name: Joi.string(),
+  description: Joi.string(),
+}).unknown();
+
 export interface NftAsset {
   items: NftItem[];
+  state: NftCollectionState | null;
   collectionAddress: string;
 }
 

@@ -2,7 +2,10 @@ import { Address, NftData } from "@openmask/web-sdk";
 import React, { FC, useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { NftState } from "../../../../../../libs/entries/asset";
+import {
+  NftCollectionState,
+  NftItemState,
+} from "../../../../../../libs/entries/asset";
 import {
   Body,
   ButtonColumn,
@@ -15,7 +18,13 @@ import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { InputField } from "../../../../../components/InputField";
 import { WalletStateContext } from "../../../../../context";
-import { useNftContentMutation, useNftDataMutation } from "./api";
+import { AppRoute } from "../../../../../routes";
+import {
+  useAddNftMutation,
+  useNftCollectionDataMutation,
+  useNftContentMutation,
+  useNftDataMutation,
+} from "./api";
 import { AssetsTabs } from "./Tabs";
 
 const Block = styled.div`
@@ -35,8 +44,8 @@ const NftImage = styled.img`
   max-width: 100%;
 `;
 
-const NftPayload: FC<{ data: NftData; state: NftState | null }> = React.memo(
-  ({ data, state }) => {
+const NftPayload: FC<{ data: NftData; state: NftItemState | null }> =
+  React.memo(({ data, state }) => {
     if (!state) {
       return (
         <Block>
@@ -54,8 +63,7 @@ const NftPayload: FC<{ data: NftData; state: NftState | null }> = React.memo(
         {state.description && <Text>{state.description}</Text>}
       </Block>
     );
-  }
-);
+  });
 
 export const ImportNft = () => {
   const navigate = useNavigate();
@@ -63,7 +71,9 @@ export const ImportNft = () => {
   const wallet = useContext(WalletStateContext);
 
   const [nftData, setNftData] = useState<NftData | null>(null);
-  const [nftState, setNftState] = useState<NftState | null>(null);
+  const [nftState, setNftState] = useState<NftItemState | null>(null);
+  const [nftCollectionState, setNftCollectionState] =
+    useState<NftCollectionState | null>(null);
 
   const [address, setAddress] = useState("");
 
@@ -80,7 +90,19 @@ export const ImportNft = () => {
     isLoading: isStateLoading,
   } = useNftContentMutation();
 
-  const isLoading = isDataLoading || isStateLoading;
+  const {
+    mutateAsync: nftCollectionStateAsync,
+    isLoading: isCollectionLoading,
+  } = useNftCollectionDataMutation();
+
+  const {
+    mutateAsync: addNftAsync,
+    error: addNftError,
+    reset: resetAdd,
+    isLoading: isAddLoading,
+  } = useAddNftMutation();
+
+  const isLoading = isDataLoading || isStateLoading || isCollectionLoading;
 
   const isOwnNft = useMemo(() => {
     if (!nftData) return false;
@@ -104,12 +126,31 @@ export const ImportNft = () => {
       const state = await nftStateAsync(data.contentUri);
       setNftState(state);
     }
+    if (data.collectionAddress) {
+      const collection = await nftCollectionStateAsync(data.collectionAddress);
+      setNftCollectionState(collection);
+    }
   };
 
-  const onAdd = () => {};
+  const onAdd = async () => {
+    resetAdd();
+
+    if (!isOwnNft || !nftData) {
+      return;
+    }
+
+    await addNftAsync({
+      nftAddress: address,
+      nftData,
+      state: nftState,
+      collection: nftCollectionState,
+    });
+
+    navigate(AppRoute.home);
+  };
 
   const Button = () => {
-    if (isLoading) {
+    if (isLoading || isAddLoading) {
       return (
         <ButtonPositive disabled={true}>
           <Dots>Loading</Dots>
@@ -142,12 +183,13 @@ export const ImportNft = () => {
           disabled={nftData != null}
         />
 
-        {nftDataError && <ErrorMessage>{nftDataError.message}</ErrorMessage>}
-        {nftStateError && <ErrorMessage>{nftStateError.message}</ErrorMessage>}
-
         {nftData && !isLoading && (
           <NftPayload data={nftData} state={nftState} />
         )}
+
+        {nftDataError && <ErrorMessage>{nftDataError.message}</ErrorMessage>}
+        {nftStateError && <ErrorMessage>{nftStateError.message}</ErrorMessage>}
+        {addNftError && <ErrorMessage>{addNftError.message}</ErrorMessage>}
 
         <Gap />
         <ButtonColumn>

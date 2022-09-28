@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import browser from "webextension-polyfill";
 import { Permission } from "../../../../libs/entries/permission";
-import { addDAppAccess } from "../../../../libs/service/connectionSerivce";
+import { addDAppAccess } from "../../../../libs/service/state/connectionSerivce";
 import {
   getConnections,
   QueryType,

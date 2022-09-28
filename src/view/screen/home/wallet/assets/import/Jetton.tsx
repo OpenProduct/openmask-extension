@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { JettonState } from "../../../../../../libs/entries/asset";
+import { JettonWalletData } from "../../../../../../libs/service/state/assetService";
 import {
   Body,
   ButtonColumn,
@@ -18,7 +19,6 @@ import { InputField } from "../../../../../components/InputField";
 import { JettonRow } from "../../../../../components/JettonRow";
 import { AppRoute } from "../../../../../routes";
 import {
-  JettonWalletData,
   useAddJettonMutation,
   useJettonMinterMutation,
   useJettonNameMutation,
