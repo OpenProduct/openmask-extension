@@ -1,5 +1,5 @@
 import { Address, NftData } from "@openmask/web-sdk";
-import React, { FC, useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -12,11 +12,11 @@ import {
   ButtonPositive,
   ErrorMessage,
   Gap,
-  Text,
 } from "../../../../../components/Components";
 import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { InputField } from "../../../../../components/InputField";
+import { NftPayload } from "../../../../../components/NftPayload";
 import { WalletStateContext } from "../../../../../context";
 import { AppRoute } from "../../../../../routes";
 import {
@@ -28,42 +28,8 @@ import {
 import { AssetsTabs } from "./Tabs";
 
 const Block = styled.div`
-  padding: ${(props) => props.theme.padding} 0;
+  padding-top: ${(props) => props.theme.padding};
 `;
-
-const ImageWrapper = styled.div`
-  padding: ${(props) => props.theme.padding};
-  margin-bottom: ${(props) => props.theme.padding};
-  border: 1px solid ${(props) => props.theme.darkGray};
-  border-radius: 20px;
-  text-align: center;
-`;
-
-const NftImage = styled.img`
-  max-height: 200px;
-  max-width: 100%;
-`;
-
-const NftPayload: FC<{ data: NftData; state: NftItemState | null }> =
-  React.memo(({ data, state }) => {
-    if (!state) {
-      return (
-        <Block>
-          <Text>Missing NFT content</Text>
-        </Block>
-      );
-    }
-
-    return (
-      <Block>
-        {state.name && <Text>{state.name}</Text>}
-        <ImageWrapper>
-          <NftImage src={state.image} alt="NFT image" />
-        </ImageWrapper>
-        {state.description && <Text>{state.description}</Text>}
-      </Block>
-    );
-  });
 
 export const ImportNft = () => {
   const navigate = useNavigate();
@@ -184,7 +150,9 @@ export const ImportNft = () => {
         />
 
         {nftData && !isLoading && (
-          <NftPayload data={nftData} state={nftState} />
+          <Block>
+            <NftPayload state={nftState} />
+          </Block>
         )}
 
         {nftDataError && <ErrorMessage>{nftDataError.message}</ErrorMessage>}

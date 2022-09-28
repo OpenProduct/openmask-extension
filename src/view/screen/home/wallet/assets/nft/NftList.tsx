@@ -38,38 +38,34 @@ const TextLine = styled.div`
 export const NftList: FC<{ asset: NftAsset }> = ({ asset }) => {
   const navigate = useNavigate();
   return (
-    <>
+    <Scroll>
       <HomeButton />
-      <Scroll>
-        <Body>
-          <H1>{asset.state?.name ?? "Collection"}</H1>
-          <Grid>
-            {asset.items.map((item) => {
-              if (!item.state) {
-                return (
-                  <Item key={item.address}>
-                    <TextLine>Missing NFT data</TextLine>
-                  </Item>
-                );
-              } else {
-                return (
-                  <Item
-                    key={item.address}
-                    onClick={() =>
-                      navigate(`./${encodeURIComponent(item.address)}`)
-                    }
-                  >
-                    {item.state?.name && (
-                      <TextLine>{item.state?.name}</TextLine>
-                    )}
-                    <ItemImage src={item.state?.image} alt="NFT image" />
-                  </Item>
-                );
-              }
-            })}
-          </Grid>
-        </Body>
-      </Scroll>
-    </>
+      <Body>
+        <H1>{asset.state?.name ?? "Collection"}</H1>
+        <Grid>
+          {asset.items.map((item) => {
+            if (!item.state) {
+              return (
+                <Item key={item.address}>
+                  <TextLine>Missing NFT data</TextLine>
+                </Item>
+              );
+            } else {
+              return (
+                <Item
+                  key={item.address}
+                  onClick={() =>
+                    navigate(`./${encodeURIComponent(item.address)}`)
+                  }
+                >
+                  {item.state?.name && <TextLine>{item.state?.name}</TextLine>}
+                  <ItemImage src={item.state?.image} alt="NFT image" />
+                </Item>
+              );
+            }
+          })}
+        </Grid>
+      </Body>
+    </Scroll>
   );
 };

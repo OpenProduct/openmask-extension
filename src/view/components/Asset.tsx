@@ -1,5 +1,5 @@
 import { FC, useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { formatTonValue, useTonFiat } from "../utils";
 import { Gap } from "./Components";
 import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
@@ -17,12 +17,18 @@ export interface AssetJettonProps extends AssetProps {
   price?: number;
 }
 
-const Block = styled.div`
+const Block = styled.div<{ pointer: boolean }>`
   width: 100%;
   display: flex;
   flex-direction: row;
   border-bottom: 2px solid ${(props) => props.theme.gray};
   min-height: 100px;
+
+  ${(props) =>
+    props.pointer &&
+    css`
+      cursor: pointer;
+    `}
 `;
 
 const Image = styled.div`
@@ -92,12 +98,12 @@ export const AssetItemView: FC<AssetProps> = ({
   onShow,
 }) => {
   return (
-    <Block>
+    <Block pointer={onShow != null} onClick={onShow}>
       <Image>
         {logo ? (
           logo
         ) : logoUrl ? (
-          <Round alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
+          <Round alt="Asset Logo" src={logoUrl} width="40px" height="40px" />
         ) : (
           <BaseLogoIcon />
         )}
@@ -108,7 +114,7 @@ export const AssetItemView: FC<AssetProps> = ({
       </Text>
       <Gap />
       {onShow && (
-        <Forward onClick={onShow}>
+        <Forward>
           <ArrowForwardIcon />
         </Forward>
       )}
