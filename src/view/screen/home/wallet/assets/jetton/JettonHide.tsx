@@ -30,7 +30,7 @@ export const JettonHide = () => {
       <Text>
         Hiding <b>{jetton.state.name}</b> Jetton will clear local stored data.
       </Text>
-      <Text>The NFT could be re-enter by Jetton Minter address.</Text>
+      <Text>The Jetton could be re-enter by Jetton Minter address.</Text>
       <Gap />
       <ButtonRow>
         <ButtonNegative onClick={() => navigate("../")} disabled={isLoading}>

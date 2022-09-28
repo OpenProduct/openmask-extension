@@ -31,7 +31,7 @@ export const NftHide = () => {
         Hiding <b>{nft.state?.name ?? "Unknown"}</b> NFT will clear local stored
         data.
       </Text>
-      <Text>The Jetton could be re-enter by NFT Contract address.</Text>
+      <Text>The NFT could be re-enter by NFT Contract address.</Text>
       <Gap />
       <ButtonRow>
         <ButtonNegative onClick={() => navigate("../")} disabled={isLoading}>
