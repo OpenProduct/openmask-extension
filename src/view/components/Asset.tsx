@@ -8,9 +8,13 @@ export interface AssetProps {
   name: string;
   logo?: React.ReactElement;
   logoUrl?: string;
+  fiat?: string;
+  onShow?: () => void;
+}
+
+export interface AssetJettonProps extends AssetProps {
   balance?: string;
   price?: number;
-  onShow?: () => void;
 }
 
 const Block = styled.div`
@@ -65,13 +69,11 @@ const Round = styled.img`
   border-radius: 50%;
 `;
 
-export const AssetView: FC<AssetProps> = ({
+export const AssetJettonView: FC<AssetJettonProps> = ({
   name,
-  logo,
-  logoUrl,
   balance,
   price,
-  onShow,
+  ...props
 }) => {
   const fiat = useTonFiat(balance, price);
 
@@ -79,6 +81,16 @@ export const AssetView: FC<AssetProps> = ({
     return balance ? formatTonValue(balance) : "0";
   }, [balance]);
 
+  return <AssetItemView name={`${formatted} ${name}`} fiat={fiat} {...props} />;
+};
+
+export const AssetItemView: FC<AssetProps> = ({
+  name,
+  logo,
+  logoUrl,
+  fiat,
+  onShow,
+}) => {
   return (
     <Block>
       <Image>
@@ -91,9 +103,7 @@ export const AssetView: FC<AssetProps> = ({
         )}
       </Image>
       <Text>
-        <Balance>
-          {formatted} {name}
-        </Balance>
+        <Balance>{name}</Balance>
         {fiat && <Fiat>{fiat}$</Fiat>}
       </Text>
       <Gap />

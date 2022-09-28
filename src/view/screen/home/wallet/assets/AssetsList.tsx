@@ -1,13 +1,10 @@
-import React, { FC, useContext } from "react";
+import React, { FC, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import {
-  Asset,
-  JettonAsset,
-  NftAsset,
-} from "../../../../../libs/entries/asset";
+import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import ExtensionPlatform from "../../../../../libs/service/extension";
-import { AssetView } from "../../../../components/Asset";
+import { seeIfJettonAsset } from "../../../../../libs/service/state/assetService";
+import { AssetItemView, AssetJettonView } from "../../../../components/Asset";
 import {
   Center,
   Gap,
@@ -25,16 +22,12 @@ const Line = styled(Text)`
   padding: 10px 0 5px;
 `;
 
-const seeIfJettonAsset = (asset: Asset): asset is JettonAsset => {
-  return "minterAddress" in asset;
-};
-
-const JettonAssetView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
+const JettonRowView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
   const navigate = useNavigate();
   const { data } = useJettonWalletBalance(asset);
 
   return (
-    <AssetView
+    <AssetJettonView
       name={asset.state.symbol}
       logoUrl={asset.state.image}
       balance={data}
@@ -50,8 +43,46 @@ const JettonAssetView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
   );
 });
 
-const NftAssetView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
-  return <div>{asset.collectionAddress}</div>;
+const NftRowView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
+  const navigate = useNavigate();
+  const name = useMemo(() => {
+    if (asset.state?.name) {
+      return asset.state?.name!;
+    }
+
+    const item = asset.items.find((item) => item.state?.name);
+    if (item) {
+      return item.state?.name!;
+    }
+
+    return "Unknown";
+  }, [asset]);
+
+  const logoUrl = useMemo(() => {
+    if (asset.state?.image) {
+      return asset.state?.image;
+    }
+    const item = asset.items.find((item) => item.state?.image);
+    if (item) {
+      return item.state?.image;
+    }
+    return undefined;
+  }, [asset]);
+
+  return (
+    <AssetItemView
+      name={name}
+      logoUrl={logoUrl}
+      onShow={() =>
+        navigate(
+          AppRoute.assets +
+            AssetRoutes.nfts +
+            "/" +
+            encodeURIComponent(asset.collectionAddress)
+        )
+      }
+    />
+  );
 });
 
 export const AssetsList: FC<{ balance?: string; price?: number }> = ({
@@ -63,7 +94,7 @@ export const AssetsList: FC<{ balance?: string; price?: number }> = ({
 
   return (
     <>
-      <AssetView
+      <AssetJettonView
         name="TON"
         logo={<TonIcon />}
         balance={balance}
@@ -71,9 +102,9 @@ export const AssetsList: FC<{ balance?: string; price?: number }> = ({
       />
       {(wallet.assets ?? []).map((asset) =>
         seeIfJettonAsset(asset) ? (
-          <JettonAssetView asset={asset} />
+          <JettonRowView asset={asset} />
         ) : (
-          <NftAssetView asset={asset} />
+          <NftRowView asset={asset} />
         )
       )}
       <Gap />
