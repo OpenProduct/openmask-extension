@@ -58,7 +58,7 @@ const NftPayload: FC<{ data: NftData; state: NftItemState | null }> =
       <Block>
         {state.name && <Text>{state.name}</Text>}
         <ImageWrapper>
-          <NftImage src={state.image} />
+          <NftImage src={state.image} alt="NFT image" />
         </ImageWrapper>
         {state.description && <Text>{state.description}</Text>}
       </Block>
