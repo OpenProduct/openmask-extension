@@ -69,19 +69,22 @@ const NftRowView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
     return undefined;
   }, [asset]);
 
+  const url = useMemo(() => {
+    const collection =
+      AppRoute.assets +
+      AssetRoutes.nfts +
+      "/" +
+      encodeURIComponent(asset.collectionAddress);
+
+    if (asset.items.length !== 1) {
+      return collection;
+    }
+
+    return collection + "/" + encodeURIComponent(asset.items[0].address);
+  }, [asset]);
+
   return (
-    <AssetItemView
-      name={name}
-      logoUrl={logoUrl}
-      onShow={() =>
-        navigate(
-          AppRoute.assets +
-            AssetRoutes.nfts +
-            "/" +
-            encodeURIComponent(asset.collectionAddress)
-        )
-      }
-    />
+    <AssetItemView name={name} logoUrl={logoUrl} onShow={() => navigate(url)} />
   );
 });
 
