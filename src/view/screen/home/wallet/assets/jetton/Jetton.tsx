@@ -1,7 +1,7 @@
 import { FC, useContext, useMemo } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { JettonAsset } from "../../../../../../libs/entries/asset";
-import { seeIfJettonAsset } from "../../../../../../libs/service/state/assetService";
+import { seeIfJettonAsset } from "../../../../../../libs/state/assetService";
 import { Body } from "../../../../../components/Components";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { WalletStateContext } from "../../../../../context";

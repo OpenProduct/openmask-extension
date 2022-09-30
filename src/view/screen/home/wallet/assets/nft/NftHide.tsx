@@ -11,16 +11,17 @@ import {
 } from "../../../../../components/Components";
 import { AppRoute } from "../../../../../routes";
 import { useHideNftMutation } from "./api";
-import { NftItemStateContext } from "./context";
+import { NftItemStateContext, NftStateContext } from "./context";
 
 export const NftHide = () => {
-  const nft = useContext(NftItemStateContext);
+  const { collectionAddress } = useContext(NftStateContext);
+  const { address, state } = useContext(NftItemStateContext);
   const navigate = useNavigate();
 
   const { mutateAsync, isLoading } = useHideNftMutation();
 
   const onDelete = async () => {
-    await mutateAsync(nft.address);
+    await mutateAsync({ collectionAddress, address });
     navigate(AppRoute.home);
   };
 
@@ -28,7 +29,7 @@ export const NftHide = () => {
     <Body>
       <H1>Hide NFT</H1>
       <Text>
-        Hiding <b>{nft.state?.name ?? "Unknown"}</b> NFT will clear local stored
+        Hiding <b>{state?.name ?? "Unknown"}</b> NFT will clear local stored
         data.
       </Text>
       <Text>The NFT could be re-enter by NFT Contract address.</Text>

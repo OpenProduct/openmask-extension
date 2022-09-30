@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   getWalletConnections,
   WalletConnection,
-} from "../../../libs/service/state/connectionSerivce";
+} from "../../../libs/state/connectionSerivce";
 import {
   Badge,
   Body,

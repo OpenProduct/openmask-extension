@@ -25,7 +25,7 @@ import {
   AddNftProps,
   addNftToWallet,
   JettonWalletData,
-} from "../../../../../../libs/service/state/assetService";
+} from "../../../../../../libs/state/assetService";
 import {
   AccountStateContext,
   NetworkContext,

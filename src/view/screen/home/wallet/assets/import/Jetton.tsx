@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { JettonState } from "../../../../../../libs/entries/asset";
-import { JettonWalletData } from "../../../../../../libs/service/state/assetService";
+import { JettonWalletData } from "../../../../../../libs/state/assetService";
 import {
   Body,
   ButtonColumn,

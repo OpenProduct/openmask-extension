@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import ExtensionPlatform from "../../../../../libs/service/extension";
-import { seeIfJettonAsset } from "../../../../../libs/service/state/assetService";
+import { seeIfJettonAsset } from "../../../../../libs/state/assetService";
 import { AssetItemView, AssetJettonView } from "../../../../components/Asset";
 import {
   Center,

@@ -128,9 +128,7 @@ export const ImportNft = () => {
     }
 
     if (!isOwnNft) {
-      return (
-        <ButtonPositive disabled={true}>Another's wallet NFT</ButtonPositive>
-      );
+      return <ButtonPositive disabled={true}>Another's NFT</ButtonPositive>;
     }
 
     return <ButtonPositive onClick={onAdd}>Add NFT</ButtonPositive>;
