@@ -35,9 +35,6 @@ export interface SendJettonState {
   transactionAmount: string;
 
   comment: string;
-  // Transaction id. Define if transaction init from dApp,
-  id?: string;
-  origin?: string;
 }
 
 export const toSendJettonState = (
@@ -50,8 +47,6 @@ export const toSendJettonState = (
       searchParams.get("transactionAmount") ?? ""
     ),
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
-    id: searchParams.get("id") ?? undefined,
-    origin: decodeURIComponent(searchParams.get("origin") ?? ""),
   };
 };
 

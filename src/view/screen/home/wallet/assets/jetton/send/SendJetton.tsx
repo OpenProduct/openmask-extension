@@ -62,7 +62,7 @@ const SendJettonInputView: FC<InputProps> = ({
 
       <Gap />
       <ButtonBottomRow>
-        <SendCancelButton transactionId={state.id} homeRoute="../" />
+        <SendCancelButton homeRoute="../" />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>

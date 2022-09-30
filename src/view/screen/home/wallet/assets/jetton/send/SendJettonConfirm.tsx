@@ -70,7 +70,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
   const onConfirm = async () => {
     if (!method) return;
     const seqNo = await mutateAsync(method);
-    onSend(seqNo, state.id);
+    onSend(seqNo);
   };
 
   const Fees = useCallback(() => {
@@ -105,10 +105,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           left={toShortName(wallet.name)}
           right={toShortAddress(state.address)}
         />
-        <TextLine>
-          SENDING {jetton.state.symbol}:
-          {state.origin ? ` (${state.origin})` : ""}
-        </TextLine>
+        <TextLine>SENDING {jetton.state.symbol}:</TextLine>
 
         <TextLine>
           <b>
@@ -137,11 +134,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
 
         <Gap />
         <ButtonRow>
-          <SendCancelButton
-            disabled={isLoading}
-            transactionId={state.id}
-            homeRoute="../"
-          />
+          <SendCancelButton disabled={isLoading} homeRoute="../" />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
             {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>
