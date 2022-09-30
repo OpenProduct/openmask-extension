@@ -33,10 +33,17 @@ export type AskProcessor<R> = {
   ): R;
 };
 
+interface SendNftOperation {
+  collectionAddress: string;
+  address: string;
+  params: Record<string, string>;
+}
+
 export type UnfinishedOperation =
   | null
   | { kind: "send"; value: string }
   | { kind: "sendJetton"; value: string }
+  | { kind: "sendNft"; value: SendNftOperation }
   | { kind: "sign"; value: string };
 
 export interface PupUpEvents {
