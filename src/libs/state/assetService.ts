@@ -70,7 +70,19 @@ export const addJettonToWallet = (
   });
 };
 
-export const setIfNftAssetOver = (collectionAddress: string) => {
+export const deleteJettonAsset = (
+  account: AccountState,
+  jettonMinterAddress: string
+): AccountState => {
+  return useActiveAssets(account, (assets) => {
+    return assets.filter(
+      (asset) =>
+        seeIfJettonAsset(asset) && asset.minterAddress !== jettonMinterAddress
+    );
+  });
+};
+
+const setIfNftAssetOver = (collectionAddress: string) => {
   return (value: Asset): value is NftAsset => {
     return (
       !seeIfJettonAsset(value) && value.collectionAddress === collectionAddress

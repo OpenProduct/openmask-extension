@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { JettonAsset } from "../../../../../../libs/entries/asset";
 import { TonWebTransaction } from "../../../../../../libs/entries/transaction";
+import { deleteJettonAsset } from "../../../../../../libs/state/assetService";
 import { QueryType } from "../../../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -30,22 +31,7 @@ export const useHideJettonMutation = () => {
   const client = useQueryClient();
   return useMutation<void, Error, string>(
     async (jettonMinterAddress: string) => {
-      const value = {
-        ...account,
-        wallets: account.wallets.map((wallet) => {
-          if (wallet.address === account.activeWallet) {
-            return {
-              ...wallet,
-              assets: (wallet.assets ?? []).filter(
-                (asset) =>
-                  "minterAddress" in asset &&
-                  asset.minterAddress !== jettonMinterAddress
-              ),
-            };
-          }
-          return wallet;
-        }),
-      };
+      const value = deleteJettonAsset(account, jettonMinterAddress);
       await saveAccountState(network, client, value);
     }
   );
