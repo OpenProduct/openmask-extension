@@ -7,8 +7,8 @@ import {
   ButtonPositive,
   Gap,
   H1,
-  Input,
 } from "../../../../components/Components";
+import { InputField } from "../../../../components/InputField";
 import { SendCancelButton } from "../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../components/send/SendSuccessView";
@@ -17,10 +17,6 @@ import { sendBackground } from "../../../../event";
 import { formatTonValue } from "../../../../utils";
 import { State, stateToSearch, toState } from "./api";
 import { ConfirmView } from "./ConfirmView";
-
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
 
 const MaxRow = styled.div`
   display: flex;
@@ -58,14 +54,15 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
   return (
     <Body>
       <H1>Send TON</H1>
-      <Label>Enter wallet address</Label>
-      <Input
+
+      <InputField
+        label="Enter wallet address"
         value={state.address}
         onChange={(e) => onChange({ address: e.target.value })}
       />
 
-      <Label>Amount</Label>
-      <Input
+      <InputField
+        label="Amount"
         type="number"
         value={state.amount}
         onChange={(e) => onChange({ amount: e.target.value, max: "0" })}
@@ -84,8 +81,8 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         {formatted} TON
       </MaxRow>
 
-      <Label>Comment (optional)</Label>
-      <Input
+      <InputField
+        label="Comment (optional)"
         value={state.comment}
         onChange={(e) => onChange({ comment: e.target.value })}
       />

@@ -1,6 +1,5 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import styled from "styled-components";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import {
   Body,
@@ -8,8 +7,8 @@ import {
   ButtonPositive,
   Gap,
   H1,
-  Input,
 } from "../../../../../../components/Components";
+import { InputField } from "../../../../../../components/InputField";
 import { SendCancelButton } from "../../../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
@@ -19,10 +18,6 @@ import { useJettonWalletBalance } from "../../api";
 import { JettonMinterAddressContext, JettonStateContext } from "../context";
 import { SendJettonState, stateToSearch, toSendJettonState } from "./api";
 import { SendJettonConfirm } from "./SendJettonConfirm";
-
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
 
 interface InputProps {
   jetton: JettonAsset;
@@ -41,21 +36,22 @@ const SendJettonInputView: FC<InputProps> = ({
   return (
     <Body>
       <H1>Send {jetton.state.symbol}</H1>
-      <Label>Enter wallet address</Label>
-      <Input
+
+      <InputField
+        label="Enter wallet address"
         value={state.address}
         onChange={(e) => onChange({ address: e.target.value })}
       />
 
-      <Label>Amount</Label>
-      <Input
+      <InputField
+        label="Amount"
         type="number"
         value={state.amount}
         onChange={(e) => onChange({ amount: e.target.value })}
       />
 
-      <Label>Comment (optional)</Label>
-      <Input
+      <InputField
+        label="Comment (optional)"
         value={state.comment}
         onChange={(e) => onChange({ comment: e.target.value })}
       />
