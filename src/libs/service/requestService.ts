@@ -1,10 +1,14 @@
+export const ipfsProxy = (url: string) => {
+  if (url.startsWith("ipfs://")) {
+    return url.replace("ipfs://", "https://ipfs.io/ipfs/");
+  }
+  return url;
+};
 export const requestJson = async <T>(
   jsonDataUrl: string,
   timeout = 15000
 ): Promise<T> => {
-  if (jsonDataUrl.startsWith("ipfs://")) {
-    jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
-  }
+  jsonDataUrl = ipfsProxy(jsonDataUrl);
   try {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);

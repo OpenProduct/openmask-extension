@@ -1,6 +1,7 @@
-import React, { FC } from "react";
+import React, { FC, useMemo } from "react";
 import styled from "styled-components";
 import { NftItemState } from "../../libs/entries/asset";
+import { ipfsProxy } from "../../libs/service/requestService";
 import { Text } from "./Components";
 
 const Block = styled.div`
@@ -22,6 +23,11 @@ const NftImage = styled.img`
 
 export const NftPayload: FC<{ state?: NftItemState | null }> = React.memo(
   ({ state }) => {
+    const image = useMemo(() => {
+      if (state) {
+        return ipfsProxy(state.image);
+      }
+    }, [state]);
     if (!state) {
       return (
         <Block>
@@ -38,7 +44,7 @@ export const NftPayload: FC<{ state?: NftItemState | null }> = React.memo(
           </Text>
         )}
         <ImageWrapper>
-          <NftImage src={state.image} alt="NFT image" />
+          <NftImage src={image} alt="NFT image" />
         </ImageWrapper>
         {state.description && <Text>{state.description}</Text>}
       </Block>

@@ -1,5 +1,6 @@
 import { FC, useMemo } from "react";
 import styled, { css } from "styled-components";
+import { ipfsProxy } from "../../libs/service/requestService";
 import { formatTonValue, useTonFiat } from "../utils";
 import { Gap } from "./Components";
 import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
@@ -31,12 +32,14 @@ const Block = styled.div<{ pointer: boolean }>`
     `}
 `;
 
-const Image = styled.div`
+const ImageBlock = styled.div`
   shrink: 0;
   padding: ${(props) => props.theme.padding};
   display: flex;
   align-items: center;
   color: ${(props) => props.theme.darkGray};
+`;
+const ImageIcon = styled.div`
   font-size: 3em;
 `;
 
@@ -99,15 +102,22 @@ export const AssetItemView: FC<AssetProps> = ({
 }) => {
   return (
     <Block pointer={onShow != null} onClick={onShow}>
-      <Image>
+      <ImageBlock>
         {logo ? (
-          logo
+          <ImageIcon>{logo}</ImageIcon>
         ) : logoUrl ? (
-          <Round alt="Asset Logo" src={logoUrl} width="40px" height="40px" />
+          <Round
+            alt="Asset Logo"
+            src={ipfsProxy(logoUrl)}
+            width="40px"
+            height="40px"
+          />
         ) : (
-          <BaseLogoIcon />
+          <ImageIcon>
+            <BaseLogoIcon />
+          </ImageIcon>
         )}
-      </Image>
+      </ImageBlock>
       <Text>
         <Balance>{name}</Balance>
         {fiat && <Fiat>{fiat}$</Fiat>}
