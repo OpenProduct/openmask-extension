@@ -28,7 +28,7 @@ interface InputProps {
 const SendNftInputView: FC<InputProps> = ({ nft, state, onChange, onSend }) => {
   return (
     <Body>
-      <H1>Send {nft.state?.name ?? "Unknown"}</H1>
+      <H1>Transfer {nft.state?.name ?? "Unknown"}</H1>
 
       <InputField
         label="Enter wallet address"

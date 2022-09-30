@@ -11,8 +11,8 @@ import { NftItemStateContext, NftStateContext } from "./context";
 import { NftHide } from "./NftHide";
 import { NftHome } from "./NftHome";
 import { NftList } from "./NftList";
-import { NftSend } from "./NftSend";
 import { NftItemRoute } from "./router";
+import { NftSend } from "./send/SendNft";
 
 const ReceiveNft = () => {
   return (
