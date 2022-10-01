@@ -5,17 +5,17 @@ import styled from "styled-components";
 import { NftItem } from "../../../../../../../libs/entries/asset";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
-  Body,
-  ButtonPositive,
-  ButtonRow,
-  ErrorMessage,
-  Gap,
-  TextLine,
+    Body,
+    ButtonPositive,
+    ButtonRow,
+    ErrorMessage,
+    Gap,
+    TextLine
 } from "../../../../../../components/Components";
 import { Dots } from "../../../../../../components/Dots";
 import {
-  SendCancelButton,
-  SendEditButton,
+    SendCancelButton,
+    SendEditButton
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
 import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
@@ -123,7 +123,7 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
         <Quote>
-          * The wallet sends an amount of TON to cover transaction and network
+          * The wallet sends an amount of TON to cover internal transaction and network
           storage costs. The rest of the TON that will not be used will be
           returned to the wallet.
         </Quote>

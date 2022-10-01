@@ -10,11 +10,14 @@ import {
   getNetworkStoreValue,
   getScript,
   QueryType,
-  setStoreValue
+  setStoreValue,
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
 import { askBackground, uiEventEmitter } from "./event";
 import { AppRoute } from "./routes";
+import { JettonRoute } from "./screen/home/wallet/assets/jetton/route";
+import { NftItemRoute } from "./screen/home/wallet/assets/nft/router";
+import { AssetRoutes } from "./screen/home/wallet/assets/route";
 
 export const useNetwork = () => {
   return useQuery([QueryType.network], () => getNetwork());
@@ -108,6 +111,29 @@ export const useInitialRedirect = () => {
                 JSON.parse(operation.value)
               ).toString()}`
             );
+          } else if (operation.kind === "sendJetton") {
+            const { minterAddress, params } = operation.value;
+
+            const page = [
+              AppRoute.assets,
+              AssetRoutes.jettons,
+              `/${encodeURIComponent(minterAddress)}`,
+              JettonRoute.send,
+            ].join("");
+
+            navigate(`${page}?${new URLSearchParams(params).toString()}`);
+          } else if (operation.kind === "sendNft") {
+            const { collectionAddress, address, params } = operation.value;
+
+            const page = [
+              AppRoute.assets,
+              AssetRoutes.nfts,
+              `/${encodeURIComponent(collectionAddress)}`,
+              `/${encodeURIComponent(address)}`,
+              NftItemRoute.send,
+            ].join("");
+
+            navigate(`${page}?${new URLSearchParams(params).toString()}`);
           }
         }
       });
