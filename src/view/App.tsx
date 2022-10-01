@@ -40,11 +40,11 @@ const ContentRouter: FC<{
 }> = ({ account, ton, lock, script, notification }) => {
   const location = useLocation();
 
-  useInitialRedirect(notification);
-
   const wallet = account.wallets.find(
     (w) => w.address === account.activeWallet
   );
+
+  useInitialRedirect(notification, wallet?.address);
 
   const walletContract = useMemo(() => {
     if (!wallet) return undefined;

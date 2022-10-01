@@ -12,7 +12,7 @@ import { InputField } from "../../../../../../components/InputField";
 import { SendCancelButton } from "../../../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
-import { WalletAddressContext } from "../../../../../../context";
+import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
 import { useJettonWalletBalance } from "../../api";
 import { JettonMinterAddressContext, JettonStateContext } from "../context";
@@ -60,7 +60,7 @@ const SendJettonInputView: FC<InputProps> = ({
 };
 
 export const JettonSend = () => {
-  const address = useContext(WalletAddressContext);
+  const wallet = useContext(WalletStateContext);
   const minterAddress = useContext(JettonMinterAddressContext);
   const jetton = useContext(JettonStateContext);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -80,7 +80,7 @@ export const JettonSend = () => {
 
     sendBackground.message("storeOperation", {
       kind: "sendJetton",
-      value: { minterAddress, params },
+      value: { wallet: wallet.address, minterAddress, params },
     });
 
     setSearchParams(params);
@@ -92,7 +92,7 @@ export const JettonSend = () => {
 
       sendBackground.message("storeOperation", {
         kind: "sendJetton",
-        value: { minterAddress, params },
+        value: { wallet: wallet.address, minterAddress, params },
       });
 
       setSearchParams(params);
@@ -104,10 +104,7 @@ export const JettonSend = () => {
     (seqNo: number) => {
       const params = { seqNo: String(seqNo) };
 
-      sendBackground.message("storeOperation", {
-        kind: "sendJetton",
-        value: { minterAddress, params },
-      });
+      sendBackground.message("storeOperation", null);
       setSearchParams(params);
     },
     [setSearchParams]
@@ -120,12 +117,16 @@ export const JettonSend = () => {
   }, [setSearchParams, seqNo]);
 
   if (confirm !== null) {
-    return <SendSuccessView address={address} />;
+    return <SendSuccessView address={wallet.address} />;
   }
 
   if (seqNo !== null) {
     return (
-      <SendLoadingView address={address} seqNo={seqNo} onConfirm={onConfirm} />
+      <SendLoadingView
+        address={wallet.address}
+        seqNo={seqNo}
+        onConfirm={onConfirm}
+      />
     );
   }
 

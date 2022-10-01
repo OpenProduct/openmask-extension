@@ -88,7 +88,10 @@ export const useLock = () => {
   return lock;
 };
 
-export const useInitialRedirect = (notification: boolean) => {
+export const useInitialRedirect = (
+  notification: boolean,
+  walletAddress?: string
+) => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,14 +111,19 @@ export const useInitialRedirect = (notification: boolean) => {
           Logger.log(operation);
 
           if (operation.kind === "send") {
+            const { params, wallet } = operation.value;
+            if (wallet !== walletAddress) {
+              return;
+            }
+
             navigate(
-              `${AppRoute.send}?${new URLSearchParams(
-                JSON.parse(operation.value)
-              ).toString()}`
+              `${AppRoute.send}?${new URLSearchParams(params).toString()}`
             );
           } else if (operation.kind === "sendJetton") {
-            const { minterAddress, params } = operation.value;
-
+            const { minterAddress, params, wallet } = operation.value;
+            if (wallet !== walletAddress) {
+              return;
+            }
             const page = [
               AppRoute.assets,
               AssetRoutes.jettons,
@@ -125,7 +133,12 @@ export const useInitialRedirect = (notification: boolean) => {
 
             navigate(`${page}?${new URLSearchParams(params).toString()}`);
           } else if (operation.kind === "sendNft") {
-            const { collectionAddress, address, params } = operation.value;
+            const { wallet, collectionAddress, address, params } =
+              operation.value;
+
+            if (wallet !== walletAddress) {
+              return;
+            }
 
             const page = [
               AppRoute.assets,

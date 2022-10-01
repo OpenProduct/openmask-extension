@@ -73,6 +73,7 @@ export const NftSend = () => {
     sendBackground.message("storeOperation", {
       kind: "sendNft",
       value: {
+        wallet: wallet.address,
         collectionAddress: collection.collectionAddress,
         address: nft.address,
         params,
@@ -89,6 +90,7 @@ export const NftSend = () => {
       sendBackground.message("storeOperation", {
         kind: "sendNft",
         value: {
+          wallet: wallet.address,
           collectionAddress: collection.collectionAddress,
           address: nft.address,
           params,
@@ -104,14 +106,7 @@ export const NftSend = () => {
     (seqNo: number) => {
       const params = { seqNo: String(seqNo) };
 
-      sendBackground.message("storeOperation", {
-        kind: "sendNft",
-        value: {
-          collectionAddress: collection.collectionAddress,
-          address: nft.address,
-          params,
-        },
-      });
+      sendBackground.message("storeOperation", null);
 
       setSearchParams(params);
     },

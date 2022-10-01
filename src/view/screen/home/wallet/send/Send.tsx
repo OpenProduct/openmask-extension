@@ -12,7 +12,7 @@ import { InputField } from "../../../../components/InputField";
 import { SendCancelButton } from "../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../components/send/SendSuccessView";
-import { WalletAddressContext } from "../../../../context";
+import { WalletAddressContext, WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { formatTonValue } from "../../../../utils";
 import { State, stateToSearch, toState } from "./api";
@@ -100,6 +100,8 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
 export const Send: FC<Props> = ({ price, balance }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const wallet = useContext(WalletStateContext);
+
   const seqNo = searchParams.get("seqNo");
   const confirm = searchParams.get("confirm");
 
@@ -114,7 +116,7 @@ export const Send: FC<Props> = ({ price, balance }) => {
 
     sendBackground.message("storeOperation", {
       kind: "send",
-      value: JSON.stringify(params),
+      value: { wallet: wallet.address, params },
     });
 
     setSearchParams(params);
@@ -126,7 +128,7 @@ export const Send: FC<Props> = ({ price, balance }) => {
 
       sendBackground.message("storeOperation", {
         kind: "send",
-        value: JSON.stringify(params),
+        value: { wallet: wallet.address, params },
       });
 
       setSearchParams(params);
@@ -145,10 +147,7 @@ export const Send: FC<Props> = ({ price, balance }) => {
           payload: seqNo,
         });
       } else {
-        sendBackground.message("storeOperation", {
-          kind: "send",
-          value: JSON.stringify(params),
-        });
+        sendBackground.message("storeOperation", null);
       }
 
       setSearchParams(params);
