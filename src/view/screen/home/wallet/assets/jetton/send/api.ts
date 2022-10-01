@@ -1,4 +1,3 @@
-import { Cell } from "@openmask/web-sdk/build/boc/cell";
 import { Method } from "@openmask/web-sdk/build/contract/contract";
 import { jettonTransferBody } from "@openmask/web-sdk/build/contract/token/ft/utils";
 import { TransferParams } from "@openmask/web-sdk/build/contract/wallet/walletContract";
@@ -7,7 +6,6 @@ import { toNano } from "@openmask/web-sdk/build/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
-import * as tonMnemonic from "tonweb-mnemonic";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
 import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
@@ -17,10 +15,8 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../../../../../context";
-import { decryptMnemonic } from "../../../../../api";
-import { askBackgroundPassword } from "../../../../../import/api";
 import { useNetworkConfig } from "../../../../api";
-import { getToAddress } from "../../../send/api";
+import { getTransactionsParams } from "../../../send/api";
 
 export interface SendJettonState {
   address: string;
@@ -28,16 +24,21 @@ export interface SendJettonState {
    * Amount of jettons to transfer
    */
   amount: string;
+
   /**
    * TON Amount with would be transfer to handle internal transaction expenses
    * By default community agreed to 0.1 TON
    */
   transactionAmount: string;
 
+  /**
+   * The amount of ton from `transactionAmount` with would be sent to the jetton receiver to notify it.
+   * The value should be less then `transactionAmount`.
+   * default - 0.000000001
+   */
+  forwardAmount?: string;
+
   comment: string;
-  // Transaction id. Define if transaction init from dApp,
-  id?: string;
-  origin?: string;
 }
 
 export const toSendJettonState = (
@@ -50,8 +51,6 @@ export const toSendJettonState = (
       searchParams.get("transactionAmount") ?? ""
     ),
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
-    id: searchParams.get("id") ?? undefined,
-    origin: decodeURIComponent(searchParams.get("origin") ?? ""),
   };
 };
 
@@ -93,33 +92,30 @@ export const useSendJettonMethod = (
       }
       const jettonWalletAddress = new Address(walletAddress);
 
-      const [toAddress, keyPair, seqno] = await Promise.all([
-        getToAddress(ton, config, state.address),
-        (async () => {
-          const mnemonic = await decryptMnemonic(
-            wallet.mnemonic,
-            await askBackgroundPassword()
-          );
-          return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-        })(),
-        ton.getSeqno(wallet.address),
-      ] as const);
+      const [toAddress, keyPair, seqno] = await getTransactionsParams(
+        ton,
+        config,
+        state.address,
+        wallet
+      );
 
       const transactionAmount =
         state.transactionAmount == ""
           ? toNano("0.10")
           : toNano(state.transactionAmount);
 
-      const payloadCell = new Cell();
-      payloadCell.bits.writeUint(0, 32);
-      payloadCell.bits.writeString(state.comment);
+      const forwardAmount = state.forwardAmount
+        ? toNano(state.forwardAmount)
+        : new BN(1, 10);
+
+      const forwardPayload = new TextEncoder().encode(state.comment ?? "");
 
       const payload = jettonTransferBody({
         toAddress: new Address(toAddress),
         responseAddress: new Address(wallet.address),
         jettonAmount: toNano(state.amount),
-        forwardAmount: new BN(1, 10),
-        forwardPayload: payloadCell.bits.getTopUppedArray(),
+        forwardAmount,
+        forwardPayload,
       });
 
       const params: TransferParams = {

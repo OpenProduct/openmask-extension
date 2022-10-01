@@ -4,7 +4,7 @@ import {
   Connections,
   defaultConnections,
 } from "../../../libs/entries/connection";
-import { revokeDAppAccess } from "../../../libs/service/connectionSerivce";
+import { revokeDAppAccess } from "../../../libs/state/connectionSerivce";
 import {
   getNetworkStoreValue,
   QueryType,

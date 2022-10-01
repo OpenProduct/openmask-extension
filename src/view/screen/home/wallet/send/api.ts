@@ -12,6 +12,7 @@ import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { SendMode } from "../../../../../libs/entries/tonSendMode";
+import { WalletState } from "../../../../../libs/entries/wallet";
 import { ErrorCode, RuntimeError } from "../../../../../libs/exception";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
@@ -49,6 +50,25 @@ export const stateToSearch = (state: State) => {
     acc[key] = encodeURIComponent(value);
     return acc;
   }, {} as Record<string, string>);
+};
+
+export const getTransactionsParams = (
+  ton: HttpProvider,
+  config: NetworkConfig,
+  toAddress: string,
+  wallet: WalletState
+) => {
+  return Promise.all([
+    getToAddress(ton, config, toAddress),
+    (async () => {
+      const mnemonic = await decryptMnemonic(
+        wallet.mnemonic,
+        await askBackgroundPassword()
+      );
+      return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
+    })(),
+    ton.getSeqno(wallet.address),
+  ] as const);
 };
 
 export const getToAddress = async (
@@ -99,17 +119,12 @@ export const useSendMethod = (state: State, balance?: string) => {
         }
       }
 
-      const [toAddress, keyPair, seqno] = await Promise.all([
-        getToAddress(ton, config, state.address),
-        (async () => {
-          const mnemonic = await decryptMnemonic(
-            wallet.mnemonic,
-            await askBackgroundPassword()
-          );
-          return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-        })(),
-        ton.getSeqno(wallet.address),
-      ] as const);
+      const [toAddress, keyPair, seqno] = await getTransactionsParams(
+        ton,
+        config,
+        state.address,
+        wallet
+      );
 
       const sendMode =
         state.max === "1"

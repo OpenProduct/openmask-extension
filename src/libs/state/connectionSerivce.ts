@@ -1,3 +1,11 @@
+/**
+ * Service methods to manage connection state for application
+ * The file should contain pure function to mutate state
+ *
+ * @author: KuznetsovNikita
+ * @since: 0.7.0
+ */
+
 import { Connections } from "../entries/connection";
 import { Permission } from "../entries/permission";
 

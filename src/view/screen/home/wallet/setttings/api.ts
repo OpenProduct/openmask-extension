@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
 import { WalletState } from "../../../../../libs/entries/wallet";
-import { updateWalletAddress } from "../../../../../libs/service/connectionSerivce";
+import { updateWalletAddress } from "../../../../../libs/state/connectionSerivce";
 import {
   getConnections,
   setConnections,

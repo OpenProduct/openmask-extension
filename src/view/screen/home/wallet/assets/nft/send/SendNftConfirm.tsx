@@ -2,7 +2,7 @@ import { fromNano } from "@openmask/web-sdk";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import { JettonAsset } from "../../../../../../../libs/entries/asset";
+import { NftItem } from "../../../../../../../libs/entries/asset";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
@@ -20,12 +20,12 @@ import {
 import { WalletStateContext } from "../../../../../../context";
 import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
-import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
+import { SendNftState, toSendNftState, useTransferNftMethod } from "./api";
 
 const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const onEdit = () => {
-    const state = toSendJettonState(searchParams);
+    const state = toSendNftState(searchParams);
     setSearchParams({ ...state }); // Remove submit flag from params
   };
   return <SendEditButton onEdit={onEdit} />;
@@ -44,14 +44,14 @@ const Quote = styled.div`
 `;
 
 interface ConfirmProps {
-  jetton: JettonAsset;
-  state: SendJettonState;
+  nft: NftItem;
+  state: SendNftState;
   balance?: string;
-  onSend: (seqNo: number, transactionId?: string) => void;
+  onSend: (seqNo: number) => void;
 }
 
-export const SendJettonConfirm: FC<ConfirmProps> = ({
-  jetton,
+export const SendNftConfirm: FC<ConfirmProps> = ({
+  nft,
   state,
   balance,
   onSend,
@@ -62,7 +62,8 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     data: method,
     error,
     isFetching,
-  } = useSendJettonMethod(jetton, state, balance);
+  } = useTransferNftMethod(state, balance);
+
   const { data } = useEstimateFee(method);
 
   const { mutateAsync, isLoading } = useSendMutation();
@@ -92,8 +93,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     );
   }, [data]);
 
-  const transaction =
-    state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
+  const transaction = state.amount != "" ? parseFloat(state.amount) : 0.05;
 
   const disabled = isLoading || isFetching || error != null;
 
@@ -105,12 +105,9 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           left={toShortName(wallet.name)}
           right={toShortAddress(state.address)}
         />
-        <TextLine>SENDING {jetton.state.symbol}:</TextLine>
-
+        <TextLine>SENDING NFT:</TextLine>
         <TextLine>
-          <b>
-            {state.amount} {jetton.state.symbol}
-          </b>
+          <b>{nft.state?.name ?? "Unknown"}</b>
         </TextLine>
         {state.comment && (
           <>
@@ -126,8 +123,9 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
         <Quote>
-          * The wallet sends an amount of TON to cover transaction costs. The
-          rest of the TON that will not be used will be returned to the wallet.
+          * The wallet sends an amount of TON to cover transaction and network
+          storage costs. The rest of the TON that will not be used will be
+          returned to the wallet.
         </Quote>
 
         {error && <ErrorMessage>{error.message}</ErrorMessage>}

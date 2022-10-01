@@ -1,7 +1,11 @@
 import { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Container, Icon } from "../../../../../components/Components";
+import {
+  BallanceBlock,
+  BallanceButton,
+  BallanceButtonRow,
+} from "../../../../../components/BalanceButton";
 import { ReceiveIcon, SendIcon } from "../../../../../components/Icons";
 import { JettonLogo } from "../../../../../components/JettonRow";
 import { relative } from "../../../../../routes";
@@ -10,31 +14,6 @@ import { useJettonWalletBalance } from "../api";
 import { JettonStateContext } from "./context";
 import { JettonRoute } from "./route";
 
-const Block = styled(Container)`
-  flex-shrink: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Row = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const Text = styled.span`
-  font-size: larger;
-`;
-
 const JettonWrapper = styled.span`
   font-size: 2em;
 `;
@@ -42,11 +21,6 @@ const JettonWrapper = styled.span`
 const Amount = styled.span`
   margin: ${(props) => props.theme.padding} 0;
   font-size: xx-large;
-`;
-
-const ActionIcon = styled(Icon)`
-  background: ${(props) => props.theme.blue};
-  color: ${(props) => props.theme.background};
 `;
 
 export const JettonBalance = () => {
@@ -59,27 +33,27 @@ export const JettonBalance = () => {
   }, [balance]);
 
   return (
-    <Block>
+    <BallanceBlock>
       <JettonWrapper>
         <JettonLogo image={state.state.image} size={40} />
       </JettonWrapper>
       <Amount>
         {formatted} {state.state.symbol}
       </Amount>
-      <Row>
-        <Column onClick={() => navigate(relative(JettonRoute.receive))}>
-          <ActionIcon>
-            <ReceiveIcon />
-          </ActionIcon>
-          <Text>Receive</Text>
-        </Column>
-        <Column onClick={() => navigate(relative(JettonRoute.send))}>
-          <ActionIcon>
-            <SendIcon />
-          </ActionIcon>
-          <Text>Send</Text>
-        </Column>
-      </Row>
-    </Block>
+      <BallanceButtonRow>
+        <BallanceButton
+          label="Receive"
+          onClick={() => navigate(relative(JettonRoute.receive))}
+        >
+          <ReceiveIcon />
+        </BallanceButton>
+        <BallanceButton
+          label="Send"
+          onClick={() => navigate(relative(JettonRoute.send))}
+        >
+          <SendIcon />
+        </BallanceButton>
+      </BallanceButtonRow>
+    </BallanceBlock>
   );
 };

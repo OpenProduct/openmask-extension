@@ -1,17 +1,22 @@
 import { Address, fromNano } from "@openmask/web-sdk";
 import {
   JettonData,
-  JettonMinterDao
+  JettonMinterDao,
 } from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
 import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonAsset, JettonState } from "../../../../libs/entries/asset";
+import {
+  JettonAsset,
+  JettonState,
+  JettonStateSchema,
+} from "../../../../libs/entries/asset";
+import { requestJson } from "../../../../libs/service/requestService";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,
-  TonProviderContext
+  TonProviderContext,
 } from "../../../context";
 import { askBackground, sendBackground } from "../../../event";
 import { saveAccountState } from "../../api";
@@ -39,14 +44,7 @@ const getJettonName = async (
 ) => {
   let state: Partial<JettonState> = {};
   if (jsonDataUrl) {
-    if (jsonDataUrl.startsWith("ipfs://")) {
-      jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
-    }
-    try {
-      state = await fetch(jsonDataUrl).then((response) => response.json());
-    } catch (e) {
-      throw new Error(`Failed to load Jetton Data from "${jsonDataUrl}"`);
-    }
+    state = await requestJson<Partial<JettonState>>(jsonDataUrl);
   } else {
     state = {
       symbol: decodeURIComponent(searchParams.get("symbol") ?? ""),
@@ -54,19 +52,7 @@ const getJettonName = async (
       name: decodeURIComponent(searchParams.get("name") ?? ""),
     };
   }
-
-  const errors: string[] = [];
-  if (!state.name) {
-    errors.push("name");
-  }
-  if (!state.symbol) {
-    errors.push("symbol");
-  }
-  if (errors.length) {
-    throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
-  }
-
-  return state as JettonState;
+  return await JettonStateSchema.validateAsync(state);
 };
 
 export interface JettonMinterData {
@@ -146,7 +132,11 @@ export const useAddJettonMutation = (id: number) => {
           if (wallets.includes(wallet.address)) {
             const assets = wallet.assets ?? [];
             if (
-              !assets.some((item) => item.minterAddress === state.minterAddress)
+              !assets.some(
+                (item) =>
+                  "minterAddress" in item &&
+                  item.minterAddress === state.minterAddress
+              )
             ) {
               // If not exists
               assets.push(state);
