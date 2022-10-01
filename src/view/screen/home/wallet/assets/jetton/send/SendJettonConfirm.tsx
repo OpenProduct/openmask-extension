@@ -126,8 +126,9 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
         <Quote>
-          * The wallet sends an amount of TON to cover transaction costs. The
-          rest of the TON that will not be used will be returned to the wallet.
+          * The wallet sends an amount of TON to cover internal transaction
+          costs. The rest of the TON that will not be used will be returned to
+          the wallet.
         </Quote>
 
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
