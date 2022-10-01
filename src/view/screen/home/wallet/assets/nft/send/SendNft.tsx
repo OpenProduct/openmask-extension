@@ -12,10 +12,13 @@ import { InputField } from "../../../../../../components/InputField";
 import { SendCancelButton } from "../../../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
-import { WalletAddressContext } from "../../../../../../context";
+import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
+import { useBalance } from "../../../../api";
+import { useHideNftMutation } from "../api";
 import { NftItemStateContext, NftStateContext } from "../context";
 import { SendNftState, stateToSearch, toSendNftState } from "./api";
+import { SendNftConfirm } from "./SendNftConfirm";
 
 interface InputProps {
   nft: NftItem;
@@ -46,15 +49,19 @@ const SendNftInputView: FC<InputProps> = ({ nft, state, onChange, onSend }) => {
 };
 
 export const NftSend = () => {
-  const address = useContext(WalletAddressContext);
+  const wallet = useContext(WalletStateContext);
   const collection = useContext(NftStateContext);
   const nft = useContext(NftItemStateContext);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const { data: balance } = useBalance(wallet.address);
 
   const seqNo = searchParams.get("seqNo");
   const confirm = searchParams.get("confirm");
 
   const submit = searchParams.get("submit") === "1";
+
+  const { mutateAsync: hideNftMutationAsync } = useHideNftMutation();
 
   const state = useMemo(() => {
     return toSendNftState(searchParams);
@@ -111,19 +118,28 @@ export const NftSend = () => {
     [setSearchParams]
   );
 
-  const onConfirm = useCallback(() => {
+  const onConfirm = useCallback(async () => {
+    await hideNftMutationAsync({
+      collectionAddress: collection.collectionAddress,
+      address: nft.address,
+    });
+
     sendBackground.message("storeOperation", null);
 
     setSearchParams({ confirm: String(seqNo) });
   }, [setSearchParams, seqNo]);
 
   if (confirm !== null) {
-    return <SendSuccessView address={address} />;
+    return <SendSuccessView address={wallet.address} />;
   }
 
   if (seqNo !== null) {
     return (
-      <SendLoadingView address={address} seqNo={seqNo} onConfirm={onConfirm} />
+      <SendLoadingView
+        address={wallet.address}
+        seqNo={seqNo}
+        onConfirm={onConfirm}
+      />
     );
   }
 
@@ -138,5 +154,7 @@ export const NftSend = () => {
     );
   }
 
-  return <div></div>;
+  return (
+    <SendNftConfirm nft={nft} state={state} onSend={onSend} balance={balance} />
+  );
 };

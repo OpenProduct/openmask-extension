@@ -7,7 +7,6 @@ import { toNano } from "@openmask/web-sdk/build/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
-import * as tonMnemonic from "tonweb-mnemonic";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
 import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
@@ -17,10 +16,8 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../../../../../context";
-import { decryptMnemonic } from "../../../../../api";
-import { askBackgroundPassword } from "../../../../../import/api";
 import { useNetworkConfig } from "../../../../api";
-import { getToAddress } from "../../../send/api";
+import { getTransactionsParams } from "../../../send/api";
 
 export interface SendJettonState {
   address: string;
@@ -88,17 +85,12 @@ export const useSendJettonMethod = (
       }
       const jettonWalletAddress = new Address(walletAddress);
 
-      const [toAddress, keyPair, seqno] = await Promise.all([
-        getToAddress(ton, config, state.address),
-        (async () => {
-          const mnemonic = await decryptMnemonic(
-            wallet.mnemonic,
-            await askBackgroundPassword()
-          );
-          return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-        })(),
-        ton.getSeqno(wallet.address),
-      ] as const);
+      const [toAddress, keyPair, seqno] = await getTransactionsParams(
+        ton,
+        config,
+        state.address,
+        wallet
+      );
 
       const transactionAmount =
         state.transactionAmount == ""
