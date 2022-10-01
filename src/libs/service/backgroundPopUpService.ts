@@ -110,6 +110,11 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
   }
 });
 
+popUpEventEmitter.on("chainChanged", (message) => {
+  memoryStore.setOperation(null);
+  backgroundEventsEmitter.emit("chainChanged", message);
+});
+
 // Just Proxy messages to background service
 popUpEventEmitter.on("approveRequest", (message) => {
   backgroundEventsEmitter.emit("approveRequest", message);
@@ -117,10 +122,6 @@ popUpEventEmitter.on("approveRequest", (message) => {
 
 popUpEventEmitter.on("rejectRequest", (message) => {
   backgroundEventsEmitter.emit("rejectRequest", message);
-});
-
-popUpEventEmitter.on("chainChanged", (message) => {
-  backgroundEventsEmitter.emit("chainChanged", message);
 });
 
 popUpEventEmitter.on("accountsChanged", (message) => {

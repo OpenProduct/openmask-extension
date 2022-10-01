@@ -118,6 +118,8 @@ const validateWalletAddress = (
 const DataParamsSchema = Joi.object<{ data: string }>({
   data: Joi.string().required(),
 });
+const StringSchema = Joi.string().required();
+const NumberSchema = Joi.number().required();
 
 const validateAssetParams = async (value: any): Promise<AssetParams> => {
   if (value.kind === "jetton") {
@@ -153,7 +155,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     case "ton_confirmWalletSeqNo": {
       return confirmAccountSeqNo(
         origin,
-        message.params[0],
+        await NumberSchema.validateAsync(message.params[0]),
         validateWalletAddress(message.params[1])
       );
     }
@@ -181,7 +183,12 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return getNetwork();
     }
     case "wallet_switchChain": {
-      return switchChain(message.id, origin, message.event, message.params[0]);
+      return switchChain(
+        message.id,
+        origin,
+        message.event,
+        await StringSchema.validateAsync(message.params[0])
+      );
     }
 
     case "wallet_watchAsset": {
