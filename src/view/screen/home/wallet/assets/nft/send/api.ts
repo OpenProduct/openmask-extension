@@ -27,11 +27,12 @@ export interface SendNftState {
    */
   amount: string;
   /**
-   * The amount of ton from `amount` with would be sent to the nft receiver.
+   * The amount of ton from `amount` with would be sent to the nft receiver to notify it.
    * The value should be less then `amount`.
    * default - 0.000000001
    */
   forwardAmount: string;
+
   comment: string;
 }
 
@@ -39,9 +40,7 @@ export const toSendNftState = (searchParams: URLSearchParams): SendNftState => {
   return {
     address: decodeURIComponent(searchParams.get("address") ?? ""),
     amount: decodeURIComponent(searchParams.get("amount") ?? ""),
-    forwardAmount: decodeURIComponent(
-      searchParams.get("transactionAmount") ?? ""
-    ),
+    forwardAmount: decodeURIComponent(searchParams.get("forwardAmount") ?? ""),
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
   };
 };

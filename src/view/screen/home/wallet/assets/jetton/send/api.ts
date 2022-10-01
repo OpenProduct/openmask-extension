@@ -25,11 +25,19 @@ export interface SendJettonState {
    * Amount of jettons to transfer
    */
   amount: string;
+
   /**
    * TON Amount with would be transfer to handle internal transaction expenses
    * By default community agreed to 0.1 TON
    */
   transactionAmount: string;
+
+  /**
+   * The amount of ton from `transactionAmount` with would be sent to the jetton receiver to notify it.
+   * The value should be less then `transactionAmount`.
+   * default - 0.000000001
+   */
+  forwardAmount?: string;
 
   comment: string;
 }
@@ -97,6 +105,10 @@ export const useSendJettonMethod = (
           ? toNano("0.10")
           : toNano(state.transactionAmount);
 
+      const forwardAmount = state.forwardAmount
+        ? toNano(state.forwardAmount)
+        : new BN(1, 10);
+
       const payloadCell = new Cell();
       payloadCell.bits.writeUint(0, 32);
       payloadCell.bits.writeString(state.comment);
@@ -105,7 +117,7 @@ export const useSendJettonMethod = (
         toAddress: new Address(toAddress),
         responseAddress: new Address(wallet.address),
         jettonAmount: toNano(state.amount),
-        forwardAmount: new BN(1, 10),
+        forwardAmount,
         forwardPayload: payloadCell.bits.getTopUppedArray(),
       });
 
