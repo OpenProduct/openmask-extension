@@ -75,10 +75,13 @@ export const deleteJettonAsset = (
   jettonMinterAddress: string
 ): AccountState => {
   return useActiveAssets(account, (assets) => {
-    return assets.filter(
-      (asset) =>
-        seeIfJettonAsset(asset) && asset.minterAddress !== jettonMinterAddress
-    );
+    return assets.filter((asset) => {
+      if (!seeIfJettonAsset(asset)) {
+        return true;
+      } else {
+        return asset.minterAddress !== jettonMinterAddress;
+      }
+    });
   });
 };
 
