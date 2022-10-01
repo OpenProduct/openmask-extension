@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openmask/web-sdk";
+import { Address } from "@openmask/web-sdk/build/utils/address";
 import Joi from "joi";
 import browser from "webextension-polyfill";
 import {

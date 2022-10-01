@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { fromNano } from "@openmask/web-sdk";
+import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import { NotificationsRoutes } from "../../../view/screen/notifications/route";
 import { JettonParams, NftParams } from "../../entries/asset";
 import { TransactionParams } from "../../entries/transaction";
