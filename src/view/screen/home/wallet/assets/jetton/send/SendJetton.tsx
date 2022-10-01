@@ -50,12 +50,6 @@ const SendJettonInputView: FC<InputProps> = ({
         onChange={(e) => onChange({ amount: e.target.value })}
       />
 
-      <InputField
-        label="Comment (optional)"
-        value={state.comment}
-        onChange={(e) => onChange({ comment: e.target.value })}
-      />
-
       <Gap />
       <ButtonBottomRow>
         <SendCancelButton homeRoute="../" />

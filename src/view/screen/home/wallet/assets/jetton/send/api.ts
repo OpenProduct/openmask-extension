@@ -1,4 +1,3 @@
-import { Cell } from "@openmask/web-sdk/build/boc/cell";
 import { Method } from "@openmask/web-sdk/build/contract/contract";
 import { jettonTransferBody } from "@openmask/web-sdk/build/contract/token/ft/utils";
 import { TransferParams } from "@openmask/web-sdk/build/contract/wallet/walletContract";
@@ -109,16 +108,14 @@ export const useSendJettonMethod = (
         ? toNano(state.forwardAmount)
         : new BN(1, 10);
 
-      const payloadCell = new Cell();
-      payloadCell.bits.writeUint(0, 32);
-      payloadCell.bits.writeString(state.comment);
+      const forwardPayload = new TextEncoder().encode(state.comment ?? "");
 
       const payload = jettonTransferBody({
         toAddress: new Address(toAddress),
         responseAddress: new Address(wallet.address),
         jettonAmount: toNano(state.amount),
         forwardAmount,
-        forwardPayload: payloadCell.bits.getTopUppedArray(),
+        forwardPayload,
       });
 
       const params: TransferParams = {
