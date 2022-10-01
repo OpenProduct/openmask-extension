@@ -35,8 +35,8 @@ export const SendSuccessView: FC<Props> = ({
         <Gap />
         <LoadingLogo />
         <Center>
-          <H1>Success</H1>
-          <Text>Transaction confirmed</Text>
+          <H1>Confirm</H1>
+          <Text>Transaction finished</Text>
         </Center>
         <ButtonColumn>
           <ButtonNegative
