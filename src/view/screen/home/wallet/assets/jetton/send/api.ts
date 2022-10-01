@@ -19,6 +19,9 @@ import { useNetworkConfig } from "../../../../api";
 import { getTransactionsParams } from "../../../send/api";
 
 export interface SendJettonState {
+  /**
+   * The Jetton receiver main wallet address.
+   */
   address: string;
   /**
    * Amount of jettons to transfer
@@ -38,6 +41,11 @@ export interface SendJettonState {
    */
   forwardAmount?: string;
 
+  /**
+   * The forward comment with should show to jetton receiver with `forwardAmount`
+   * I can't send transaction to receiver have a forwarded message,
+   * if some one have an idea how wrap the text, I will appreciate for help
+   */
   comment: string;
 }
 

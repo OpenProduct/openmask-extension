@@ -20,6 +20,9 @@ import { getTransactionsParams, WrapperMethod } from "../../../send/api";
 import { NftItemStateContext } from "../context";
 
 export interface SendNftState {
+  /**
+   * The nft receiver wallet address.
+   */
   address: string;
   /**
    * The amount of ton to cover transaction and storage cost.
@@ -33,6 +36,11 @@ export interface SendNftState {
    */
   forwardAmount: string;
 
+  /**
+   * The forward comment with should show to nft receiver with `forwardAmount`
+   * I can't send transaction to receiver have a forwarded message,
+   * if some one have an idea how wrap the text, I will appreciate for help
+   */
   comment: string;
 }
 

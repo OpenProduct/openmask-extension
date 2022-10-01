@@ -80,7 +80,7 @@ export const JettonSend = () => {
 
     sendBackground.message("storeOperation", {
       kind: "sendJetton",
-      value: JSON.stringify({ minterAddress, state: params }),
+      value: { minterAddress, params },
     });
 
     setSearchParams(params);
@@ -92,7 +92,7 @@ export const JettonSend = () => {
 
       sendBackground.message("storeOperation", {
         kind: "sendJetton",
-        value: JSON.stringify({ minterAddress, state: params }),
+        value: { minterAddress, params },
       });
 
       setSearchParams(params);
@@ -101,22 +101,13 @@ export const JettonSend = () => {
   );
 
   const onSend = useCallback(
-    (seqNo: number, transactionId?: string) => {
+    (seqNo: number) => {
       const params = { seqNo: String(seqNo) };
 
-      if (transactionId) {
-        // if transaction init from dApp, return approve
-        sendBackground.message("approveRequest", {
-          id: Number(transactionId),
-          payload: seqNo,
-        });
-      } else {
-        sendBackground.message("storeOperation", {
-          kind: "sendJetton",
-          value: JSON.stringify({ minterAddress, state: params }),
-        });
-      }
-
+      sendBackground.message("storeOperation", {
+        kind: "sendJetton",
+        value: { minterAddress, params },
+      });
       setSearchParams(params);
     },
     [setSearchParams]
