@@ -176,7 +176,7 @@ export const ImportJetton = () => {
 
         {!isLoading && jetton != null && (
           <Block>
-            <JettonRow state={state} balance={jettonWallet?.balance} />;
+            <JettonRow state={state} balance={jettonWallet?.balance} />
           </Block>
         )}
 
