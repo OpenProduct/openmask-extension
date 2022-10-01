@@ -88,7 +88,7 @@ export const useLock = () => {
   return lock;
 };
 
-export const useInitialRedirect = () => {
+export const useInitialRedirect = (notification: boolean) => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,6 +99,8 @@ export const useInitialRedirect = () => {
   }, []);
 
   useEffect(() => {
+    if (notification) return;
+
     askBackground<UnfinishedOperation>()
       .message("getOperation")
       .then((operation) => {

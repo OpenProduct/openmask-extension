@@ -36,10 +36,11 @@ const ContentRouter: FC<{
   ton: HttpProvider;
   lock: boolean;
   script: string | null;
-}> = ({ account, ton, lock, script }) => {
+  notification: boolean;
+}> = ({ account, ton, lock, script, notification }) => {
   const location = useLocation();
 
-  useInitialRedirect();
+  useInitialRedirect(notification);
 
   const wallet = account.wallets.find(
     (w) => w.address === account.activeWallet
@@ -115,6 +116,7 @@ const App = () => {
             ton={tonProvider}
             lock={lock}
             script={script}
+            notification={notification}
           />
         </TonProviderContext.Provider>
       </NetworkContext.Provider>
