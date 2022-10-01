@@ -29,7 +29,7 @@ export interface SendNftState {
   /**
    * The amount of ton from `amount` with would be sent to the nft receiver.
    * The value should be less then `amount`.
-   * default - 0.02
+   * default - 0.000000001
    */
   forwardAmount: string;
   comment: string;
@@ -68,9 +68,9 @@ export const useTransferNftMethod = (
     [QueryType.method, wallet.address, state],
     async () => {
       const amount = toNano(state.amount ? state.amount : "0.05");
-      const forwardAmount = toNano(
-        state.forwardAmount ? state.forwardAmount : "0.02"
-      );
+      const forwardAmount = state.forwardAmount
+        ? toNano(state.forwardAmount)
+        : new BN(1, 10);
 
       if (balance) {
         if (new BN(balance).cmp(amount) === -1) {
