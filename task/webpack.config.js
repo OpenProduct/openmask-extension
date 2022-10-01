@@ -1,5 +1,5 @@
 const path = require("path");
-const { DefinePlugin, ProvidePlugin } = require("webpack");
+const { DefinePlugin } = require("webpack");
 
 module.exports = [
   {
@@ -23,10 +23,6 @@ module.exports = [
       path: path.resolve(__dirname, "../build"),
     },
     plugins: [
-      new ProvidePlugin({
-        process: "process/browser",
-        Buffer: ["buffer", "Buffer"],
-      }),
       new DefinePlugin({
         "process.env.REACT_APP_TONCENTER_API_KEY": JSON.stringify(
           process.env.REACT_APP_TONCENTER_API_KEY || ""

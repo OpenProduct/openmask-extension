@@ -6,13 +6,7 @@
  */
 
 import { Address } from "@openmask/web-sdk/build/utils/address";
-import Joi from "joi";
 import browser from "webextension-polyfill";
-import {
-  AssetParams,
-  JettonParamsSchema,
-  NftParamsSchema,
-} from "../entries/asset";
 import { Connections } from "../entries/connection";
 import {
   DAppMessage,
@@ -115,19 +109,19 @@ const validateWalletAddress = (
   }
 };
 
-const DataParamsSchema = Joi.object<{ data: string }>({
-  data: Joi.string().required(),
-});
-const StringSchema = Joi.string().required();
-const NumberSchema = Joi.number().required();
+// const DataParamsSchema = Joi.object<{ data: string }>({
+//   data: Joi.string().required(),
+// });
+// const StringSchema = Joi.string().required();
+// const NumberSchema = Joi.number().required();
 
-const validateAssetParams = async (value: any): Promise<AssetParams> => {
-  if (value.kind === "jetton") {
-    return await JettonParamsSchema.validateAsync(value);
-  } else {
-    return await NftParamsSchema.validateAsync(value);
-  }
-};
+// const validateAssetParams = async (value: any): Promise<AssetParams> => {
+//   if (value.kind === "jetton") {
+//     return await JettonParamsSchema.validateAsync(value);
+//   } else {
+//     return await NftParamsSchema.validateAsync(value);
+//   }
+// };
 
 const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
@@ -155,7 +149,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     case "ton_confirmWalletSeqNo": {
       return confirmAccountSeqNo(
         origin,
-        await NumberSchema.validateAsync(message.params[0]),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -163,7 +157,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return signRawValue(
         message.id,
         origin,
-        await DataParamsSchema.validateAsync(message.params[0]),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -171,7 +165,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return signPersonalValue(
         message.id,
         origin,
-        await DataParamsSchema.validateAsync(message.params[0]),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -183,12 +177,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return getNetwork();
     }
     case "wallet_switchChain": {
-      return switchChain(
-        message.id,
-        origin,
-        message.event,
-        await StringSchema.validateAsync(message.params[0])
-      );
+      return switchChain(message.id, origin, message.event, message.params[0]);
     }
 
     case "wallet_watchAsset": {
@@ -196,7 +185,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
         message.id,
         origin,
         message.event,
-        await validateAssetParams(message.params[0]),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }

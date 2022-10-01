@@ -7,9 +7,9 @@ import {
 } from "../../../../libs/entries/asset";
 import {
   Body,
-  ButtonBottomRow,
   ButtonNegative,
   ButtonPositive,
+  ButtonRow,
   Center,
   ErrorMessage,
   Gap,
@@ -144,7 +144,7 @@ export const ImportNft = () => {
       <NftPayload state={nftState} />
 
       <Gap />
-      <ButtonBottomRow>
+      <ButtonRow>
         <ButtonNegative onClick={onBack} disabled={isLoading}>
           Cancel
         </ButtonNegative>
@@ -152,9 +152,9 @@ export const ImportNft = () => {
           onClick={onAdd}
           disabled={isLoading || isAddLoading || !isOwnNft}
         >
-          {isOwnNft ? "Another's NFT" : "Add NFT"}
+          {isOwnNft ? "Add NFT" : "Another's NFT"}
         </ButtonPositive>
-      </ButtonBottomRow>
+      </ButtonRow>
     </Body>
   );
 };
