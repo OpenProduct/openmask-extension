@@ -3,6 +3,7 @@ export enum NotificationsRoutes {
   dapp = "/dapp",
   unlock = "/unlock",
   jetton = "/jetton",
+  nft = "/nft",
   raw = "/raw",
   personal = "/personal",
 }

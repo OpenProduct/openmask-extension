@@ -12,6 +12,7 @@ import {
   JettonStateSchema,
 } from "../../../../libs/entries/asset";
 import { requestJson } from "../../../../libs/service/requestService";
+import { seeIfJettonAsset } from "../../../../libs/state/assetService";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -134,7 +135,7 @@ export const useAddJettonMutation = (id: number) => {
             if (
               !assets.some(
                 (item) =>
-                  "minterAddress" in item &&
+                  seeIfJettonAsset(item) &&
                   item.minterAddress === state.minterAddress
               )
             ) {

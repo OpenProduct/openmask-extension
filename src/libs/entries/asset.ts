@@ -2,7 +2,7 @@ import Joi from "joi";
 
 export interface JettonParams {
   type: "jetton";
-  // The address of the token contract
+  // The address of the minter contract
   address: string;
   // A ticker symbol or shorthand, up to 11 characters
   symbol?: string;
@@ -11,6 +11,27 @@ export interface JettonParams {
   // A jetton name
   name?: string;
 }
+
+export const JettonParamsSchema = Joi.object<JettonParams>({
+  type: Joi.string().required().valid("jetton"),
+  address: Joi.string().required(),
+  symbol: Joi.string(),
+  image: Joi.string(),
+  name: Joi.string(),
+});
+
+export interface NftParams {
+  type: "nft";
+  // The address of the nft contract
+  address: string;
+}
+
+export const NftParamsSchema = Joi.object<NftParams>({
+  type: Joi.string().required().valid("nft"),
+  address: Joi.string().required(),
+});
+
+export type AssetParams = JettonParams | NftParams;
 
 export interface JettonState {
   symbol: string;
