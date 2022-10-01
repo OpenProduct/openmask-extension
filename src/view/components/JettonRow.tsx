@@ -44,7 +44,7 @@ export const JettonLogo: FC<{ image?: string; size?: number }> = React.memo(
         alt="Jetton Logo"
         width={size + "px"}
         height={size + "px"}
-        src={image}
+        src={ipfsProxy(image)}
       />
     ) : (
       <IconSize>
