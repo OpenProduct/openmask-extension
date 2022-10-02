@@ -107,49 +107,51 @@ export const useInitialRedirect = (
     askBackground<UnfinishedOperation>()
       .message("getOperation")
       .then((operation) => {
-        if (operation !== null) {
-          Logger.log(operation);
+        if (operation == null) {
+          return;
+        }
 
-          if (operation.kind === "send") {
-            const { params, wallet } = operation.value;
-            if (wallet !== walletAddress) {
-              return;
-            }
+        Logger.log(operation);
 
-            navigate(
-              `${AppRoute.send}?${new URLSearchParams(params).toString()}`
-            );
-          } else if (operation.kind === "sendJetton") {
-            const { minterAddress, params, wallet } = operation.value;
-            if (wallet !== walletAddress) {
-              return;
-            }
-            const page = [
-              AppRoute.assets,
-              AssetRoutes.jettons,
-              `/${encodeURIComponent(minterAddress)}`,
-              JettonRoute.send,
-            ].join("");
-
-            navigate(`${page}?${new URLSearchParams(params).toString()}`);
-          } else if (operation.kind === "sendNft") {
-            const { wallet, collectionAddress, address, params } =
-              operation.value;
-
-            if (wallet !== walletAddress) {
-              return;
-            }
-
-            const page = [
-              AppRoute.assets,
-              AssetRoutes.nfts,
-              `/${encodeURIComponent(collectionAddress)}`,
-              `/${encodeURIComponent(address)}`,
-              NftItemRoute.send,
-            ].join("");
-
-            navigate(`${page}?${new URLSearchParams(params).toString()}`);
+        if (operation.kind === "send") {
+          const { params, wallet } = operation.value;
+          if (wallet !== walletAddress) {
+            return;
           }
+
+          navigate(
+            `${AppRoute.send}?${new URLSearchParams(params).toString()}`
+          );
+        } else if (operation.kind === "sendJetton") {
+          const { minterAddress, params, wallet } = operation.value;
+          if (wallet !== walletAddress) {
+            return;
+          }
+          const page = [
+            AppRoute.assets,
+            AssetRoutes.jettons,
+            `/${encodeURIComponent(minterAddress)}`,
+            JettonRoute.send,
+          ].join("");
+
+          navigate(`${page}?${new URLSearchParams(params).toString()}`);
+        } else if (operation.kind === "sendNft") {
+          const { wallet, collectionAddress, address, params } =
+            operation.value;
+
+          if (wallet !== walletAddress) {
+            return;
+          }
+
+          const page = [
+            AppRoute.assets,
+            AssetRoutes.nfts,
+            `/${encodeURIComponent(collectionAddress)}`,
+            `/${encodeURIComponent(address)}`,
+            NftItemRoute.send,
+          ].join("");
+
+          navigate(`${page}?${new URLSearchParams(params).toString()}`);
         }
       });
   }, []);

@@ -1,24 +1,88 @@
 import { FC, useCallback, useContext, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { NftItem } from "../../../../../../../libs/entries/asset";
+import ExtensionPlatform from "../../../../../../../libs/service/extension";
 import {
   Body,
   ButtonBottomRow,
+  ButtonColumn,
+  ButtonNegative,
   ButtonPositive,
+  Center,
+  ErrorMessage,
   Gap,
   H1,
+  Text,
 } from "../../../../../../components/Components";
+import { DeleteIcon, LinkIcon } from "../../../../../../components/Icons";
 import { InputField } from "../../../../../../components/InputField";
+import { LoadingLogo } from "../../../../../../components/Logo";
 import { SendCancelButton } from "../../../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
-import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
 import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
-import { useBalance } from "../../../../api";
+import { AppRoute } from "../../../../../../routes";
+import { useBalance, useNetworkConfig } from "../../../../api";
 import { useHideNftMutation } from "../api";
 import { NftItemStateContext, NftStateContext } from "../context";
 import { SendNftState, stateToSearch, toSendNftState } from "./api";
 import { SendNftConfirm } from "./SendNftConfirm";
+
+interface SuccessProps {
+  collectionAddress: string;
+  address: string;
+  walletAddress: string;
+}
+
+const SuccessView: FC<SuccessProps> = ({
+  collectionAddress,
+  address,
+  walletAddress,
+}) => {
+  const navigate = useNavigate();
+  const config = useNetworkConfig();
+
+  const {
+    mutateAsync: hideNftMutationAsync,
+    reset,
+    error,
+  } = useHideNftMutation();
+
+  const onHide = async () => {
+    reset();
+
+    await hideNftMutationAsync({ collectionAddress, address });
+
+    navigate(AppRoute.home);
+  };
+
+  return (
+    <Body>
+      <Gap />
+      <LoadingLogo />
+      <Center>
+        <H1>Confirm</H1>
+        <Text>Transaction finished</Text>
+      </Center>
+      <ButtonColumn>
+        <ButtonNegative
+          onClick={() => {
+            ExtensionPlatform.openTab({
+              url: `${config.scanUrl}/address/${walletAddress}`,
+            });
+          }}
+        >
+          View on tonscan.org <LinkIcon />
+        </ButtonNegative>
+        <ButtonPositive onClick={onHide}>
+          Hide NFT <DeleteIcon />
+        </ButtonPositive>
+      </ButtonColumn>
+      {error && <ErrorMessage>{error.message}</ErrorMessage>}
+      <Gap />
+    </Body>
+  );
+};
 
 interface InputProps {
   nft: NftItem;
@@ -60,8 +124,6 @@ export const NftSend = () => {
   const confirm = searchParams.get("confirm");
 
   const submit = searchParams.get("submit") === "1";
-
-  const { mutateAsync: hideNftMutationAsync } = useHideNftMutation();
 
   const state = useMemo(() => {
     return toSendNftState(searchParams);
@@ -114,18 +176,18 @@ export const NftSend = () => {
   );
 
   const onConfirm = useCallback(async () => {
-    await hideNftMutationAsync({
-      collectionAddress: collection.collectionAddress,
-      address: nft.address,
-    });
-
     sendBackground.message("storeOperation", null);
-
     setSearchParams({ confirm: String(seqNo) });
   }, [setSearchParams, seqNo]);
 
   if (confirm !== null) {
-    return <SendSuccessView address={wallet.address} />;
+    return (
+      <SuccessView
+        collectionAddress={collection.collectionAddress}
+        address={nft.address}
+        walletAddress={wallet.address}
+      />
+    );
   }
 
   if (seqNo !== null) {

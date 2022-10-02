@@ -13,7 +13,6 @@ import {
   H1,
   Text,
 } from "../Components";
-import { HomeButton } from "../HomeButton";
 import { LinkIcon } from "../Icons";
 import { LoadingLogo } from "../Logo";
 
@@ -21,6 +20,7 @@ export interface Props {
   address: string;
   homeRoute?: string;
 }
+
 export const SendSuccessView: FC<Props> = ({
   address,
   homeRoute = AppRoute.home,
@@ -29,31 +29,32 @@ export const SendSuccessView: FC<Props> = ({
   const config = useNetworkConfig();
 
   return (
-    <>
-      <HomeButton />
-      <Body>
-        <Gap />
-        <LoadingLogo />
-        <Center>
-          <H1>Confirm</H1>
-          <Text>Transaction finished</Text>
-        </Center>
-        <ButtonColumn>
-          <ButtonNegative
-            onClick={() => {
-              ExtensionPlatform.openTab({
-                url: `${config.scanUrl}/address/${address}`,
-              });
-            }}
-          >
-            View on tonscan.org <LinkIcon />
-          </ButtonNegative>
-          <ButtonPositive onClick={() => navigate(homeRoute)}>
-            Close
-          </ButtonPositive>
-        </ButtonColumn>
-        <Gap />
-      </Body>
-    </>
+    <Body>
+      <Gap />
+      <LoadingLogo />
+      <Center>
+        <H1>Confirm</H1>
+        <Text>Transaction finished</Text>
+      </Center>
+      <ButtonColumn>
+        <ButtonNegative
+          onClick={() => {
+            ExtensionPlatform.openTab({
+              url: `${config.scanUrl}/address/${address}`,
+            });
+          }}
+        >
+          View on tonscan.org <LinkIcon />
+        </ButtonNegative>
+        <ButtonPositive
+          onClick={() => {
+            navigate(homeRoute);
+          }}
+        >
+          Close
+        </ButtonPositive>
+      </ButtonColumn>
+      <Gap />
+    </Body>
   );
 };
