@@ -3,7 +3,7 @@ import { AccountState, defaultAccountState } from "../entries/account";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
 import {
-  defaultTonProxyConfiguration,
+  DisabledProxyConfiguration,
   ProxyConfiguration,
 } from "../entries/proxy";
 import { checkForError } from "../utils";
@@ -61,7 +61,7 @@ export const getNetwork = () => {
 export const getProxyConfiguration = () => {
   return getStoreValue<ProxyConfiguration>(
     QueryType.proxy,
-    defaultTonProxyConfiguration
+    DisabledProxyConfiguration
   );
 };
 
@@ -79,6 +79,10 @@ export const getAccountState = (network?: string) => {
     defaultAccountState,
     network
   );
+};
+
+export const setProxyConfiguration = (value: ProxyConfiguration) => {
+  return setStoreValue(QueryType.proxy, value);
 };
 
 export const setAccountState = (value: AccountState, network?: string) => {

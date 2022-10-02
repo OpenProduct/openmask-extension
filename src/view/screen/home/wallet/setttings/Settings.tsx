@@ -14,6 +14,8 @@ import {
   Gap,
   H1,
   Input,
+  SelectLabel,
+  SelectPayload,
   Textarea,
 } from "../../../../components/Components";
 import { DropDownList } from "../../../../components/DropDown";
@@ -27,20 +29,6 @@ import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 const Text = styled.div`
   font-size: medium;
   margin-top: ${(props) => props.theme.padding};
-`;
-
-const Label = styled.div`
-  margin: 40px 0 10px;
-`;
-
-const Select = styled.div`
-  font-size: medium;
-  padding: 5px 10px;
-  border-bottom: 1px solid ${(props) => props.theme.darkGray};
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  box-sizing: border-box;
 `;
 
 const Button = styled(ButtonDanger)`
@@ -73,7 +61,7 @@ const SettingsIndex = () => {
       <Body>
         <H1>Wallet Settings</H1>
 
-        <Label>Wallet Name</Label>
+        <SelectLabel>Wallet Name</SelectLabel>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -82,7 +70,7 @@ const SettingsIndex = () => {
           }}
         />
 
-        <Label>Address</Label>
+        <SelectLabel>Address</SelectLabel>
         <DropDownList
           isLeft
           options={bounceableOptions}
@@ -91,13 +79,13 @@ const SettingsIndex = () => {
             onChange({ isBounceable: value === bounceableOptions[0] })
           }
         >
-          <Select>
+          <SelectPayload>
             {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}
             <ArrowDownIcon />
-          </Select>
+          </SelectPayload>
         </DropDownList>
 
-        <Label>Version</Label>
+        <SelectLabel>Version</SelectLabel>
         <DropDownList
           isLeft
           options={Object.keys(ALL)}
@@ -106,17 +94,17 @@ const SettingsIndex = () => {
             onChange({ version: version as WalletVersion })
           }
         >
-          <Select>
+          <SelectPayload>
             {wallet.version} <ArrowDownIcon />
-          </Select>
+          </SelectPayload>
         </DropDownList>
 
-        <Label>Reveal Secret Recovery Phrase</Label>
+        <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
         <Button onClick={() => navigate(relative(WalletRoutes.mnemonic))}>
           Reveal Secret Recovery Phrase
         </Button>
 
-        <Label>Delete Wallet</Label>
+        <SelectLabel>Delete Wallet</SelectLabel>
         <Button onClick={() => navigate(relative(WalletRoutes.delete))}>
           Delete Wallet <DeleteIcon />
         </Button>

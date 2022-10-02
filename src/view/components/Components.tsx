@@ -222,3 +222,23 @@ export const Logo = styled.img`
   border-radius: 50%;
   padding: 5px;
 `;
+
+export const SelectLabel = styled.div`
+  margin: 40px 0 10px;
+`;
+
+export const SelectPayload = styled.div<{ disabled?: boolean }>`
+  font-size: medium;
+  padding: 5px 10px;
+  border-bottom: 1px solid ${(props) => props.theme.darkGray};
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  ${(props) =>
+    props.disabled &&
+    css`
+      opacity: 0.5;
+    `}
+`;

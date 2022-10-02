@@ -80,13 +80,21 @@ const Container: FC<{
 export interface DropDownProps extends PropsWithChildren {
   payload: (onClose: () => void) => React.ReactNode;
   isLeft?: boolean;
+  disabled?: boolean;
 }
 
-export const DropDown = ({ children, payload, isLeft }: DropDownProps) => {
+export const DropDown = ({
+  children,
+  payload,
+  isLeft,
+  disabled,
+}: DropDownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggling = () => {
-    setIsOpen((value) => !value);
+    if (!disabled) {
+      setIsOpen((value) => !value);
+    }
   };
 
   return (
@@ -106,6 +114,7 @@ export interface DropDownListProps<T> extends PropsWithChildren {
   renderOption: (option: T) => React.ReactNode;
   onSelect: (option: T) => void;
   isLeft?: boolean;
+  disabled?: boolean;
 }
 
 export const DropDownList = <T extends any>({
@@ -114,9 +123,11 @@ export const DropDownList = <T extends any>({
   renderOption,
   onSelect,
   isLeft,
+  disabled,
 }: DropDownListProps<T>) => {
   return (
     <DropDown
+      disabled={disabled}
       isLeft={isLeft}
       payload={(onClose) => (
         <DropDownListPayload>
