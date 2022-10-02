@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import styled from "styled-components";
 import { JettonState } from "../../libs/entries/asset";
+import { ipfsProxy } from "../../libs/service/requestService";
 import { IconSize } from "./Components";
 import { BaseLogoIcon } from "./Icons";
 
