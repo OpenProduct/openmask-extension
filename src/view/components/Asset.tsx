@@ -55,6 +55,12 @@ const Text = styled.div`
 const Balance = styled.div`
   font-weight: bold;
   font-size: large;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const Fiat = styled.div`
