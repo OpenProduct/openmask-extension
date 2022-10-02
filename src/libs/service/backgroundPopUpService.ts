@@ -127,4 +127,8 @@ popUpEventEmitter.on("rejectRequest", (message) => {
 popUpEventEmitter.on("accountsChanged", (message) => {
   backgroundEventsEmitter.emit("accountsChanged", message);
 });
+
+popUpEventEmitter.on("proxyChanged", (message) => {
+  backgroundEventsEmitter.emit("proxyChanged", message);
+});
 // End of proxy messages

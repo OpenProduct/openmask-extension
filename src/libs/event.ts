@@ -1,3 +1,4 @@
+import { ProxyConfiguration } from "./entries/proxy";
 import { EventEmitter } from "./eventEmitter";
 
 export type IEventEmitter<T> = {
@@ -74,6 +75,8 @@ export interface PupUpEvents {
   chainChanged: string;
   accountsChanged: string[];
   getWallets: string;
+
+  proxyChanged: ProxyConfiguration;
 }
 
 export interface PayloadRequest<P = any> {
@@ -91,6 +94,8 @@ export interface BackgroundEvents {
 
   chainChanged: string;
   accountsChanged: string[];
+
+  proxyChanged: ProxyConfiguration;
 }
 
 export const RESPONSE = "Response";
