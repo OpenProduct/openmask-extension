@@ -5,9 +5,13 @@
  * @since: 0.6.1
  */
 
-import { JettonParams } from "../../entries/asset";
+import { AssetParams } from "../../entries/asset";
 import { EventError } from "../../exception";
-import { closeCurrentPopUp, openShowJettonPopUp } from "./notificationService";
+import {
+  closeCurrentPopUp,
+  openShowJettonPopUp,
+  openShowNftPopUp,
+} from "./notificationService";
 import {
   checkBaseDAppPermission,
   switchActiveAddress,
@@ -18,7 +22,7 @@ export const showAsset = async (
   id: number,
   origin: string,
   isEvent: boolean,
-  params: JettonParams,
+  params: AssetParams,
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
@@ -28,7 +32,13 @@ export const showAsset = async (
 
   await switchActiveAddress(origin, wallet);
 
-  const popupId = await openShowJettonPopUp(id, params, origin);
+  let popupId: number | undefined;
+  if (params.type === "jetton") {
+    popupId = await openShowJettonPopUp(id, params, origin);
+  } else {
+    popupId = await openShowNftPopUp(id, params, origin);
+  }
+
   try {
     await waitApprove(id, popupId);
     // Approved

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2022-10-02
+
+### Changed
+
+- Update `wallet_watchAsset` method to import NFT
+
+### Added
+
+- Add NFT list on home page
+- Add NFT page with transfer feature and import by NFT contract address features
+- Add TON Proxy and TON Sites
+
 ## [0.7.1] - 2022-09-25
 
 ### Fixed
@@ -61,7 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.1...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.6.0...v0.6.1

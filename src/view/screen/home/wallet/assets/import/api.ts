@@ -4,10 +4,28 @@ import {
   JettonData,
   JettonMinterDao,
   JettonWalletDao,
+  NftCollectionDao,
+  NftContentDao,
+  NftData,
 } from "@openmask/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
-import { JettonAsset, JettonState } from "../../../../../../libs/entries/asset";
+import {
+  JettonState,
+  JettonStateSchema,
+  NftCollectionState,
+  NftCollectionStateSchema,
+  NftItemState,
+  NftItemStateSchema,
+} from "../../../../../../libs/entries/asset";
+import { requestJson } from "../../../../../../libs/service/requestService";
+import {
+  AddJettonProps,
+  addJettonToWallet,
+  AddNftProps,
+  addNftToWallet,
+  JettonWalletData,
+} from "../../../../../../libs/state/assetService";
 import {
   AccountStateContext,
   NetworkContext,
@@ -34,35 +52,13 @@ export const useJettonNameMutation = () => {
   return useMutation<JettonState, Error, string | null>(async (jsonDataUrl) => {
     let state: Partial<JettonState> = {};
     if (jsonDataUrl) {
-      if (jsonDataUrl.startsWith("ipfs://")) {
-        jsonDataUrl = jsonDataUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
-      }
-      try {
-        state = await fetch(jsonDataUrl).then((response) => response.json());
-      } catch (e) {
-        throw new Error(`Failed to load Jetton Data from "${jsonDataUrl}"`);
-      }
+      state = await requestJson<Partial<JettonState>>(jsonDataUrl);
     }
 
-    const errors: string[] = [];
-    if (!state.name) {
-      errors.push("name");
-    }
-    if (!state.symbol) {
-      errors.push("symbol");
-    }
-    if (errors.length) {
-      throw new Error(`Failed to load ${errors.join(", ")} Jetton Data`);
-    }
-
-    return state as JettonState;
+    return await JettonStateSchema.validateAsync(state);
   });
 };
 
-export interface JettonWalletData {
-  balance: string;
-  address: string;
-}
 export const useJettonWalletMutation = () => {
   const provider = useContext(TonProviderContext);
   const wallet = useContext(WalletStateContext);
@@ -91,39 +87,56 @@ export const useJettonWalletMutation = () => {
   );
 };
 
-interface AddJettonProps {
-  minter: string;
-  jettonState: JettonState;
-  jettonWallet: JettonWalletData | null;
-}
-
 export const useAddJettonMutation = () => {
   const network = useContext(NetworkContext);
   const account = useContext(AccountStateContext);
   const client = useQueryClient();
 
-  return useMutation<void, Error, AddJettonProps>(
-    async ({ jettonState, minter, jettonWallet }) => {
-      const value = {
-        ...account,
-        wallets: account.wallets.map((wallet) => {
-          if (wallet.address === account.activeWallet) {
-            const assets = wallet.assets ?? [];
-            if (!assets.some((item) => item.minterAddress === minter)) {
-              // If not exists
-              const asset: JettonAsset = {
-                state: jettonState,
-                minterAddress: minter,
-                walletAddress: jettonWallet?.address,
-              };
-              assets.push(asset);
-              return { ...wallet, assets };
-            }
-          }
-          return wallet;
-        }),
-      };
-      await saveAccountState(network, client, value);
+  return useMutation<void, Error, AddJettonProps>(async (options) => {
+    const value = addJettonToWallet(account, options);
+    await saveAccountState(network, client, value);
+  });
+};
+
+export const useNftDataMutation = () => {
+  const provider = useContext(TonProviderContext);
+  return useMutation<NftData, Error, string>(async (nftAddress) => {
+    const address = new Address(nftAddress);
+    const dao = new NftContentDao(provider, address);
+    return await dao.getData();
+  });
+};
+
+export const useNftContentMutation = () => {
+  return useMutation<NftItemState, Error, string>(async (jsonUrl) => {
+    const state = await requestJson<NftItemState>(jsonUrl!);
+    return await NftItemStateSchema.validateAsync(state);
+  });
+};
+
+export const useNftCollectionDataMutation = () => {
+  const provider = useContext(TonProviderContext);
+  return useMutation<NftCollectionState, Error, Address>(async (address) => {
+    const dao = new NftCollectionDao(provider, address);
+    const data = await dao.getCollectionData();
+    if (!data.collectionContentUri) {
+      throw new Error("Missing collection content");
     }
-  );
+    const state = await requestJson<NftCollectionState>(
+      data.collectionContentUri
+    );
+
+    return await NftCollectionStateSchema.validateAsync(state);
+  });
+};
+
+export const useAddNftMutation = () => {
+  const network = useContext(NetworkContext);
+  const account = useContext(AccountStateContext);
+  const client = useQueryClient();
+
+  return useMutation<void, Error, AddNftProps>(async (options) => {
+    const value = addNftToWallet(account, options);
+    await saveAccountState(network, client, value);
+  });
 };

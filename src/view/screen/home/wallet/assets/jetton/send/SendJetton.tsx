@@ -1,6 +1,5 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import styled from "styled-components";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import {
   Body,
@@ -8,21 +7,17 @@ import {
   ButtonPositive,
   Gap,
   H1,
-  Input,
 } from "../../../../../../components/Components";
+import { InputField } from "../../../../../../components/InputField";
 import { SendCancelButton } from "../../../../../../components/send/SendButtons";
 import { SendLoadingView } from "../../../../../../components/send/SendLoadingView";
 import { SendSuccessView } from "../../../../../../components/send/SendSuccessView";
-import { WalletAddressContext } from "../../../../../../context";
+import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
 import { useJettonWalletBalance } from "../../api";
 import { JettonMinterAddressContext, JettonStateContext } from "../context";
 import { SendJettonState, stateToSearch, toSendJettonState } from "./api";
 import { SendJettonConfirm } from "./SendJettonConfirm";
-
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
 
 interface InputProps {
   jetton: JettonAsset;
@@ -41,28 +36,23 @@ const SendJettonInputView: FC<InputProps> = ({
   return (
     <Body>
       <H1>Send {jetton.state.symbol}</H1>
-      <Label>Enter wallet address</Label>
-      <Input
+
+      <InputField
+        label="Enter wallet address"
         value={state.address}
         onChange={(e) => onChange({ address: e.target.value })}
       />
 
-      <Label>Amount</Label>
-      <Input
+      <InputField
+        label="Amount"
         type="number"
         value={state.amount}
         onChange={(e) => onChange({ amount: e.target.value })}
       />
 
-      <Label>Comment (optional)</Label>
-      <Input
-        value={state.comment}
-        onChange={(e) => onChange({ comment: e.target.value })}
-      />
-
       <Gap />
       <ButtonBottomRow>
-        <SendCancelButton transactionId={state.id} homeRoute="../" />
+        <SendCancelButton homeRoute="../" />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
@@ -70,7 +60,7 @@ const SendJettonInputView: FC<InputProps> = ({
 };
 
 export const JettonSend = () => {
-  const address = useContext(WalletAddressContext);
+  const wallet = useContext(WalletStateContext);
   const minterAddress = useContext(JettonMinterAddressContext);
   const jetton = useContext(JettonStateContext);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,7 +80,7 @@ export const JettonSend = () => {
 
     sendBackground.message("storeOperation", {
       kind: "sendJetton",
-      value: JSON.stringify({ minterAddress, state: params }),
+      value: { wallet: wallet.address, minterAddress, params },
     });
 
     setSearchParams(params);
@@ -102,7 +92,7 @@ export const JettonSend = () => {
 
       sendBackground.message("storeOperation", {
         kind: "sendJetton",
-        value: JSON.stringify({ minterAddress, state: params }),
+        value: { wallet: wallet.address, minterAddress, params },
       });
 
       setSearchParams(params);
@@ -111,22 +101,10 @@ export const JettonSend = () => {
   );
 
   const onSend = useCallback(
-    (seqNo: number, transactionId?: string) => {
+    (seqNo: number) => {
       const params = { seqNo: String(seqNo) };
 
-      if (transactionId) {
-        // if transaction init from dApp, return approve
-        sendBackground.message("approveRequest", {
-          id: Number(transactionId),
-          payload: seqNo,
-        });
-      } else {
-        sendBackground.message("storeOperation", {
-          kind: "sendJetton",
-          value: JSON.stringify({ minterAddress, state: params }),
-        });
-      }
-
+      sendBackground.message("storeOperation", null);
       setSearchParams(params);
     },
     [setSearchParams]
@@ -139,12 +117,16 @@ export const JettonSend = () => {
   }, [setSearchParams, seqNo]);
 
   if (confirm !== null) {
-    return <SendSuccessView address={address} />;
+    return <SendSuccessView address={wallet.address} />;
   }
 
   if (seqNo !== null) {
     return (
-      <SendLoadingView address={address} seqNo={seqNo} onConfirm={onConfirm} />
+      <SendLoadingView
+        address={wallet.address}
+        seqNo={seqNo}
+        onConfirm={onConfirm}
+      />
     );
   }
 

@@ -5,10 +5,12 @@ import { Body, H1, Text, TextLink } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
+import { GeneralSettings } from "./General";
 import packageJson from "/package.json";
 
 enum SettingsRoutes {
   about = "/about",
+  general = "/general",
   index = "/",
 }
 
@@ -24,6 +26,15 @@ const Item = styled.div`
   align-items: center;
 `;
 
+interface SettingsLink {
+  route: SettingsRoutes;
+  name: string;
+}
+const SETTINGS: SettingsLink[] = [
+  { route: SettingsRoutes.general, name: "General" },
+  { route: SettingsRoutes.about, name: "About" },
+];
+
 const SettingsIndex = () => {
   const navigate = useNavigate();
   return (
@@ -31,16 +42,18 @@ const SettingsIndex = () => {
       <HomeButton />
       <Body>
         <H1>Account Settings</H1>
-        <Item onClick={() => navigate(relative(SettingsRoutes.about))}>
-          <span>About</span>
-          <ArrowForwardIcon />
-        </Item>
+        {SETTINGS.map((item) => (
+          <Item key={item.route} onClick={() => navigate(relative(item.route))}>
+            <span>{item.name}</span>
+            <ArrowForwardIcon />
+          </Item>
+        ))}
       </Body>
     </>
   );
 };
 
-const About = () => {
+const AboutSettings = () => {
   return (
     <>
       <HomeButton path={AppRoute.settings} text="Back to Settings" />
@@ -69,6 +82,15 @@ const About = () => {
         <TextLink
           onClick={() => {
             ExtensionPlatform.openTab({
+              url: `https://t.me/openproduct`,
+            });
+          }}
+        >
+          Telegram <LinkIcon />
+        </TextLink>
+        <TextLink
+          onClick={() => {
+            ExtensionPlatform.openTab({
               url: `https://github.com/OpenProduct`,
             });
           }}
@@ -92,7 +114,8 @@ const About = () => {
 export const Settings = () => {
   return (
     <Routes>
-      <Route path={SettingsRoutes.about} element={<About />} />
+      <Route path={SettingsRoutes.about} element={<AboutSettings />} />
+      <Route path={SettingsRoutes.general} element={<GeneralSettings />} />
       <Route path={SettingsRoutes.index} element={<SettingsIndex />} />
     </Routes>
   );

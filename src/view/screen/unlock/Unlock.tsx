@@ -4,14 +4,13 @@ import {
   ButtonColumn,
   ButtonPositive,
   Center,
-  ErrorText,
   H1,
-  Input,
 } from "../../components/Components";
+import { InputField } from "../../components/InputField";
 import { LoadingLogo } from "../../components/Logo";
 import { useUnlockMutation } from "./api";
 
-const Body = styled.header`
+const Body = styled.form`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -31,23 +30,23 @@ export const Unlock = () => {
   };
 
   return (
-    <Body>
+    <Body onSubmit={unlock}>
       <ButtonColumn>
         <LoadingLogo />
         <Center>
           <H1>Welcome Back!</H1>
         </Center>
         <div>
-          <label>Password</label>
-          <Input
+          <InputField
+            label="Password"
+            error={error}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <ErrorText>Invalid Password</ErrorText>}
         </div>
 
-        <ButtonPositive onClick={unlock} disabled={isLoading}>
+        <ButtonPositive type="submit" disabled={isLoading}>
           Unlock
         </ButtonPositive>
       </ButtonColumn>

@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import styled from "styled-components";
 import { JettonState } from "../../../../libs/entries/asset";
 import {
   Body,
@@ -25,19 +24,6 @@ import {
   useJettonWalletBalance,
   useOriginWallets,
 } from "./api";
-
-const Row = styled.div`
-  display: inline-flex;
-  gap: ${(props) => props.theme.padding};
-  align-items: center;
-  padding-bottom: ${(props) => props.theme.padding};
-`;
-
-const Font = styled.span`
-  font-size: large;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
 
 interface JettonWalletProps {
   wallet: string;

@@ -1,3 +1,4 @@
+import { ProxyConfiguration } from "./entries/proxy";
 import { EventEmitter } from "./eventEmitter";
 
 export type IEventEmitter<T> = {
@@ -33,10 +34,27 @@ export type AskProcessor<R> = {
   ): R;
 };
 
+interface SendOperation {
+  wallet: string;
+  params: Record<string, string>;
+}
+interface SendJettonOperation {
+  wallet: string;
+  minterAddress: string;
+  params: Record<string, string>;
+}
+interface SendNftOperation {
+  wallet: string;
+  collectionAddress: string;
+  address: string;
+  params: Record<string, string>;
+}
+
 export type UnfinishedOperation =
   | null
-  | { kind: "send"; value: string }
-  | { kind: "sendJetton"; value: string }
+  | { kind: "send"; value: SendOperation }
+  | { kind: "sendJetton"; value: SendJettonOperation }
+  | { kind: "sendNft"; value: SendNftOperation }
   | { kind: "sign"; value: string };
 
 export interface PupUpEvents {
@@ -57,6 +75,8 @@ export interface PupUpEvents {
   chainChanged: string;
   accountsChanged: string[];
   getWallets: string;
+
+  proxyChanged: ProxyConfiguration;
 }
 
 export interface PayloadRequest<P = any> {
@@ -74,6 +94,8 @@ export interface BackgroundEvents {
 
   chainChanged: string;
   accountsChanged: string[];
+
+  proxyChanged: ProxyConfiguration;
 }
 
 export const RESPONSE = "Response";

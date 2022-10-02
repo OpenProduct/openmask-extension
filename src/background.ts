@@ -12,6 +12,10 @@ import {
   subscriptionDAppNotifications,
 } from "./libs/service/backgroundDAppService";
 import { handlePopUpConnection } from "./libs/service/backgroundPopUpService";
+import {
+  initBrowserProxy,
+  subscriptionProxyNotifications,
+} from "./libs/service/backgroundProxyService";
 
 browser.runtime.onConnect.addListener((port) => {
   if (port.name === "OpenMaskUI") {
@@ -37,3 +41,9 @@ browser.runtime.onConnect.addListener((port) => {
  * Subscribing to update events and send it to dApps
  */
 subscriptionDAppNotifications();
+
+/**
+ * Set-up browser proxy and subscription to change events;
+ */
+initBrowserProxy();
+subscriptionProxyNotifications();

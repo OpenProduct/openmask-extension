@@ -2,9 +2,15 @@ import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
+import {
+  DisabledProxyConfiguration,
+  ProxyConfiguration,
+} from "../entries/proxy";
 import { checkForError } from "../utils";
 
 export enum QueryType {
+  proxy = "proxy",
+
   price = "price",
 
   script = "script",
@@ -52,6 +58,13 @@ export const getNetwork = () => {
   return getStoreValue(QueryType.network, networkConfigs[0].name);
 };
 
+export const getProxyConfiguration = () => {
+  return getStoreValue<ProxyConfiguration>(
+    QueryType.proxy,
+    DisabledProxyConfiguration
+  );
+};
+
 export const getConnections = (network?: string) => {
   return getNetworkStoreValue<Connections>(
     QueryType.connection,
@@ -66,6 +79,10 @@ export const getAccountState = (network?: string) => {
     defaultAccountState,
     network
   );
+};
+
+export const setProxyConfiguration = (value: ProxyConfiguration) => {
+  return setStoreValue(QueryType.proxy, value);
 };
 
 export const setAccountState = (value: AccountState, network?: string) => {

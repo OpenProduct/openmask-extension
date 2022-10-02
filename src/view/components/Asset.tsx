@@ -1,5 +1,6 @@
 import { FC, useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { ipfsProxy } from "../../libs/service/requestService";
 import { formatTonValue, useTonFiat } from "../utils";
 import { Gap } from "./Components";
 import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
@@ -8,25 +9,37 @@ export interface AssetProps {
   name: string;
   logo?: React.ReactElement;
   logoUrl?: string;
-  balance?: string;
-  price?: number;
+  fiat?: string;
   onShow?: () => void;
 }
 
-const Block = styled.div`
+export interface AssetJettonProps extends AssetProps {
+  balance?: string;
+  price?: number;
+}
+
+const Block = styled.div<{ pointer: boolean }>`
   width: 100%;
   display: flex;
   flex-direction: row;
   border-bottom: 2px solid ${(props) => props.theme.gray};
   min-height: 100px;
+
+  ${(props) =>
+    props.pointer &&
+    css`
+      cursor: pointer;
+    `}
 `;
 
-const Image = styled.div`
+const ImageBlock = styled.div`
   shrink: 0;
   padding: ${(props) => props.theme.padding};
   display: flex;
   align-items: center;
   color: ${(props) => props.theme.darkGray};
+`;
+const ImageIcon = styled.div`
   font-size: 3em;
 `;
 
@@ -42,6 +55,12 @@ const Text = styled.div`
 const Balance = styled.div`
   font-weight: bold;
   font-size: large;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const Fiat = styled.div`
@@ -65,13 +84,11 @@ const Round = styled.img`
   border-radius: 50%;
 `;
 
-export const AssetView: FC<AssetProps> = ({
+export const AssetJettonView: FC<AssetJettonProps> = ({
   name,
-  logo,
-  logoUrl,
   balance,
   price,
-  onShow,
+  ...props
 }) => {
   const fiat = useTonFiat(balance, price);
 
@@ -79,26 +96,41 @@ export const AssetView: FC<AssetProps> = ({
     return balance ? formatTonValue(balance) : "0";
   }, [balance]);
 
+  return <AssetItemView name={`${formatted} ${name}`} fiat={fiat} {...props} />;
+};
+
+export const AssetItemView: FC<AssetProps> = ({
+  name,
+  logo,
+  logoUrl,
+  fiat,
+  onShow,
+}) => {
   return (
-    <Block>
-      <Image>
+    <Block pointer={onShow != null} onClick={onShow}>
+      <ImageBlock>
         {logo ? (
-          logo
+          <ImageIcon>{logo}</ImageIcon>
         ) : logoUrl ? (
-          <Round alt="Coin Logo" src={logoUrl} width="40px" height="40px" />
+          <Round
+            alt="Asset Logo"
+            src={ipfsProxy(logoUrl)}
+            width="40px"
+            height="40px"
+          />
         ) : (
-          <BaseLogoIcon />
+          <ImageIcon>
+            <BaseLogoIcon />
+          </ImageIcon>
         )}
-      </Image>
+      </ImageBlock>
       <Text>
-        <Balance>
-          {formatted} {name}
-        </Balance>
+        <Balance>{name}</Balance>
         {fiat && <Fiat>{fiat}$</Fiat>}
       </Text>
       <Gap />
       {onShow && (
-        <Forward onClick={onShow}>
+        <Forward>
           <ArrowForwardIcon />
         </Forward>
       )}

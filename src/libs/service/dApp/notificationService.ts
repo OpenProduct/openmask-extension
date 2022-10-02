@@ -5,9 +5,9 @@
  * @since: 0.1.0
  */
 
-import { fromNano } from "@openmask/web-sdk";
+import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import { NotificationsRoutes } from "../../../view/screen/notifications/route";
-import { JettonParams } from "../../entries/asset";
+import { JettonParams, NftParams } from "../../entries/asset";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
@@ -119,6 +119,24 @@ export const openShowJettonPopUp = async (
 
   await openPopUp(
     `/notifications${NotificationsRoutes.jetton}?${params.toString()}`
+  );
+  return popupId;
+};
+
+export const openShowNftPopUp = async (
+  id: number,
+  nft: NftParams,
+  origin: string
+) => {
+  const params = new URLSearchParams({
+    id: String(id),
+    origin: encodeURIComponent(origin),
+    logo: await getActiveTabLogo(),
+    address: encodeURIComponent(nft.address),
+  });
+
+  await openPopUp(
+    `/notifications${NotificationsRoutes.nft}?${params.toString()}`
   );
   return popupId;
 };

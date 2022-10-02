@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openmask/web-sdk";
+import { Address } from "@openmask/web-sdk/build/utils/address";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
 import {
@@ -108,6 +108,20 @@ const validateWalletAddress = (
     throw new RuntimeError(ErrorCode.unexpectedParams, "Invalid address");
   }
 };
+
+// const DataParamsSchema = Joi.object<{ data: string }>({
+//   data: Joi.string().required(),
+// });
+// const StringSchema = Joi.string().required();
+// const NumberSchema = Joi.number().required();
+
+// const validateAssetParams = async (value: any): Promise<AssetParams> => {
+//   if (value.kind === "jetton") {
+//     return await JettonParamsSchema.validateAsync(value);
+//   } else {
+//     return await NftParamsSchema.validateAsync(value);
+//   }
+// };
 
 const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);

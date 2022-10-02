@@ -70,7 +70,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
   const onConfirm = async () => {
     if (!method) return;
     const seqNo = await mutateAsync(method);
-    onSend(seqNo, state.id);
+    onSend(seqNo);
   };
 
   const Fees = useCallback(() => {
@@ -105,10 +105,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           left={toShortName(wallet.name)}
           right={toShortAddress(state.address)}
         />
-        <TextLine>
-          SENDING {jetton.state.symbol}:
-          {state.origin ? ` (${state.origin})` : ""}
-        </TextLine>
+        <TextLine>SENDING {jetton.state.symbol}:</TextLine>
 
         <TextLine>
           <b>
@@ -129,19 +126,16 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
         <Quote>
-          * The wallet sends an amount of TON to cover transaction costs. The
-          rest of the TON that will not be used will be returned to the wallet.
+          * The wallet sends an amount of TON to cover internal transaction
+          costs. The rest of the TON that will not be used will be returned to
+          the wallet.
         </Quote>
 
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
 
         <Gap />
         <ButtonRow>
-          <SendCancelButton
-            disabled={isLoading}
-            transactionId={state.id}
-            homeRoute="../"
-          />
+          <SendCancelButton disabled={isLoading} homeRoute="../" />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
             {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>
