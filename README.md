@@ -1,5 +1,9 @@
 # OpenMask Browser Extension
 
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+
+OpenMask Browser Extension is a non-custodial crypto wallet and gateway to blockchain dApps.
+
 [MetaMask](https://github.com/MetaMask/metamask-extension) analog for TON (The Open Network)
 
 You can find the latest version of OpenMask on [our official website](https://openmask.app/).
