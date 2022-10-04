@@ -110,6 +110,10 @@ popUpEventEmitter.on("confirmSeqNo", async (message) => {
   }
 });
 
+popUpEventEmitter.on("getNotification", (message) => {
+  sendResponseToPopUp(message.id, memoryStore.getNotification());
+});
+
 popUpEventEmitter.on("chainChanged", (message) => {
   memoryStore.setOperation(null);
   backgroundEventsEmitter.emit("chainChanged", message);

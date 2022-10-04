@@ -24,6 +24,7 @@ import {
   getBalance,
   getConnectedWallets,
 } from "./dApp/connectService";
+import { deploySmartContract } from "./dApp/deployService";
 import { switchChain } from "./dApp/networkService";
 import {
   confirmAccountSeqNo,
@@ -170,6 +171,14 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       );
     }
 
+    case "ton_deployContract": {
+      return deploySmartContract(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
+    }
     case "wallet_getLocked": {
       return memoryStore.isLock();
     }

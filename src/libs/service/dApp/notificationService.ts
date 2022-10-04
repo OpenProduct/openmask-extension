@@ -6,6 +6,7 @@
  */
 
 import { fromNano } from "@openmask/web-sdk/build/utils/utils";
+import { AppRoute } from "../../../view/routes";
 import { NotificationsRoutes } from "../../../view/screen/notifications/route";
 import { JettonParams, NftParams } from "../../entries/asset";
 import { TransactionParams } from "../../entries/transaction";
@@ -196,5 +197,10 @@ export const openPersonalSingPopUp = async (id: number, origin: string) => {
     `/notifications${NotificationsRoutes.personal}?${params.toString()}`
   );
 
+  return popupId;
+};
+
+export const openNotificationPopUp = async () => {
+  await openPopUp(AppRoute.notifications);
   return popupId;
 };

@@ -50,6 +50,26 @@ interface SendNftOperation {
   params: Record<string, string>;
 }
 
+export interface DeployParams {
+  workchain?: number;
+  initDataCell: string;
+  initCodeCell: string;
+  initMessageCell?: string;
+  amount: string;
+}
+
+export type NotificationFields<Kind extends string, Value> = {
+  kind: Kind;
+  id: number;
+  logo?: string;
+  origin: string;
+  data: Value;
+};
+
+export type NotificationData =
+  | NotificationFields<"deploy", DeployParams>
+  | NotificationFields<"test", string>;
+
 export type UnfinishedOperation =
   | null
   | { kind: "send"; value: SendOperation }
@@ -77,6 +97,9 @@ export interface PupUpEvents {
   getWallets: string;
 
   proxyChanged: ProxyConfiguration;
+
+  getNotification: void;
+  closePopUp: number;
 }
 
 export interface PayloadRequest<P = any> {

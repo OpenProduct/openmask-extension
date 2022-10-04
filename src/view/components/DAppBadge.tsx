@@ -19,7 +19,7 @@ const Origin = styled.div`
 `;
 
 type Props = {
-  logo: string;
+  logo?: string;
   origin: string;
 };
 

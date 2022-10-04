@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
+import { NotificationData } from "../../../libs/event";
 import { encrypt } from "../../../libs/service/cryptoService";
 import {
   AccountStateContext,
@@ -18,6 +19,12 @@ export const askBackgroundPassword = async () => {
     throw new Error("Unexpected password");
   }
   return password;
+};
+
+export const askBackgroundNotification = async () => {
+  return await askBackground<NotificationData | undefined>().message(
+    "getNotification"
+  );
 };
 
 const lastWalletVersion = "v4R2";

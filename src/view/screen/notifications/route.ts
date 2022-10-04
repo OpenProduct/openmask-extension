@@ -6,4 +6,5 @@ export enum NotificationsRoutes {
   nft = "/nft",
   raw = "/raw",
   personal = "/personal",
+  deploy = "/deploy",
 }
