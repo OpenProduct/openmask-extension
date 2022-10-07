@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2022-10-08
+
+### Changed
+
+- Allow multiple notification
+- Update and improve wallet layout
+- Change `ton_personalSing` method
+
+### Added
+
+- Add `ton_deployContract` method to deploy smart contract
+
 ## [0.8.0] - 2022-10-02
 
 ### Changed
@@ -73,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.8.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.6.1...v0.7.0
