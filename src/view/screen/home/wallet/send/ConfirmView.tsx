@@ -17,7 +17,7 @@ import {
   SendEditButton,
 } from "../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../utils";
+import { fiatFees } from "../../../../utils";
 import {
   State,
   toState,
@@ -107,10 +107,7 @@ export const ConfirmView: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <AddressTransfer
-          left={toShortName(wallet.name)}
-          right={toShortAddress(state.address)}
-        />
+        <AddressTransfer left={wallet.name} right={state.address} />
         <TextLine>SENDING:{state.origin ? ` (${state.origin})` : ""}</TextLine>
         <TextLine>
           <b>{state.amount} TON</b> <Fiat>{inFiat}</Fiat>

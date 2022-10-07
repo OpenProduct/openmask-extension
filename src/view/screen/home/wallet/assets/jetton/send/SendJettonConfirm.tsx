@@ -18,7 +18,7 @@ import {
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
+import { fiatFees } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
 import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
 
@@ -82,10 +82,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <AddressTransfer
-          left={toShortName(wallet.name)}
-          right={toShortAddress(state.address)}
-        />
+        <AddressTransfer left={wallet.name} right={state.address} />
         <TextLine>SENDING {jetton.state.symbol}:</TextLine>
 
         <TextLine>
@@ -100,7 +97,6 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Network fee estimation:</TextLine>
         <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
         <TextLine>

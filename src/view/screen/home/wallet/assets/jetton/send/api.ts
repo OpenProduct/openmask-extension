@@ -8,13 +8,13 @@ import BN from "bn.js";
 import { useContext } from "react";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
-import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
 } from "../../../../../../context";
+import { checkBalanceOrDie } from "../../../../../api";
 import { useNetworkConfig } from "../../../../api";
 import { getTransactionsParams } from "../../../send/api";
 
@@ -87,14 +87,8 @@ export const useSendJettonMethod = (
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
     async () => {
-      if (balance) {
-        if (new BN(balance).cmp(toNano(state.amount)) === -1) {
-          throw new RuntimeError(
-            ErrorCode.unexpectedParams,
-            "Don't enough Jetton Wallet balance"
-          );
-        }
-      }
+      await checkBalanceOrDie(balance, toNano(state.amount));
+
       if (!walletAddress) {
         throw new Error("Jetton Wallet Not Found.");
       }

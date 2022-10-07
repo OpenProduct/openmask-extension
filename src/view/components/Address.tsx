@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 import { ArrowRightIcon } from "./Icons";
 
@@ -14,7 +14,7 @@ const Block = styled.div`
 
 const Icon = styled.span`
   font-size: large;
-  margin: 0 5px;
+  margin: 0 10px;
 `;
 
 const Item = styled.div`
@@ -26,7 +26,7 @@ type Props = {
   right: string | null;
 };
 
-export const AddressTransfer: FC<Props> = ({ left, right }) => {
+export const AddressTransfer: FC<Props> = React.memo(({ left, right }) => {
   return (
     <Block>
       <Item>{left}</Item>
@@ -36,4 +36,4 @@ export const AddressTransfer: FC<Props> = ({ left, right }) => {
       <Item>{right}</Item>
     </Block>
   );
-};
+});

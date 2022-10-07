@@ -1,3 +1,4 @@
+import { fromNano } from "@openmask/web-sdk";
 import { FC, useContext } from "react";
 import styled from "styled-components";
 import {
@@ -23,8 +24,9 @@ import { Dots } from "../../../components/Dots";
 import { Fees } from "../../../components/send/Fees";
 import { WalletStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
+import { useBalance } from "../../home/api";
 import { useEstimateFee, useSendMutation } from "../../home/wallet/send/api";
-import { useDeployContractMutation } from "./api";
+import { useDeployContractMutation, useSmartContractAddress } from "./api";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -43,11 +45,14 @@ export const DeployContract: FC<
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
 
+  const { data: balance } = useBalance(wallet.address);
+  const { data: address } = useSmartContractAddress(data);
+
   const {
     data: method,
     isFetching: isValidating,
     error: methodError,
-  } = useDeployContractMutation(data);
+  } = useDeployContractMutation(data, balance);
 
   const { data: estimation } = useEstimateFee(method);
   const {
@@ -62,13 +67,13 @@ export const DeployContract: FC<
   };
 
   const onDeploy = async () => {
-    if (!method) return;
+    if (!method || !address) return;
 
     await mutateAsync(method);
 
     const payload: DeployOutputParams = {
       walletSeqNo: method.seqno,
-      newContractAddress: method.address.toString(true, true, true),
+      newContractAddress: address.toString(true, true, true),
     };
 
     sendBackground.message("approveRequest", {
@@ -90,12 +95,12 @@ export const DeployContract: FC<
 
       <AddressTransfer
         left={wallet.name}
-        right={method ? method.address.toString(true, true, true) : null}
+        right={address ? address.toString(true, true, true) : null}
       />
 
       <TextLine>Forward amount:</TextLine>
       <TextLine>
-        <b>{data.amount} TON</b>
+        <b>{fromNano(data.amount)} TON</b>
       </TextLine>
 
       <Fees estimation={estimation} />
@@ -123,7 +128,7 @@ export const DeployContract: FC<
         </ButtonNegative>
         <ButtonPositive
           onClick={onDeploy}
-          disabled={loading || deployError != null}
+          disabled={loading || deployError != null || methodError != null}
         >
           {isValidating ? (
             <Dots>Validating</Dots>

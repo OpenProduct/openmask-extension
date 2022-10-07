@@ -1,73 +1,104 @@
 import { Contract, TransferParams } from "@openmask/web-sdk";
 import { Cell } from "@openmask/web-sdk/build/boc/cell";
-import {
-  Address,
-  contractAddress,
-  toNano,
-} from "@openmask/web-sdk/build/utils";
+import { Address, contractAddress } from "@openmask/web-sdk/build/utils";
 import { useQuery } from "@tanstack/react-query";
+import BN from "bn.js";
 import { useContext } from "react";
-import * as tonMnemonic from "tonweb-mnemonic";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
 import { DeployInputParams } from "../../../../libs/entries/transactionMessage";
+import { ErrorCode, RuntimeError } from "../../../../libs/exception";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
 } from "../../../context";
-import { decryptMnemonic } from "../../api";
+import { checkBalanceOrDie, getWalletKeyPair } from "../../api";
 import { WrapperMethod } from "../../home/wallet/send/api";
-import { askBackgroundPassword } from "../../import/api";
 
-export interface WrapperDeployMethod extends WrapperMethod {
-  address: Address;
-}
+export const toInitState = async (params: DeployInputParams) => {
+  const { initDataCell, initCodeCell, workchain, amount, initMessageCell } =
+    params;
 
-export const useDeployContractMutation = (params?: DeployInputParams) => {
+  const initialData = Cell.oneFromBoc(initDataCell);
+  const initialCode = Cell.oneFromBoc(initCodeCell);
+
+  const address = await contractAddress({
+    workchain: workchain ?? 0,
+    initialData,
+    initialCode,
+  });
+
+  return {
+    workchain: workchain ?? 0,
+    initialData,
+    initialCode,
+    address,
+    amount: new BN(amount, 10),
+    initialMessage: initMessageCell
+      ? Cell.oneFromBoc(initMessageCell)
+      : new Cell(),
+  };
+};
+
+export const useSmartContractAddress = (params?: DeployInputParams) => {
+  return useQuery<Address, Error>(
+    [QueryType.method, "address", params],
+    async () => {
+      const { address } = await toInitState(params!);
+      return address;
+    },
+    { enabled: params != null }
+  );
+};
+
+export const useDeployContractMutation = (
+  params?: DeployInputParams,
+  balance?: string
+) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
 
-  return useQuery<WrapperDeployMethod, Error>(
-    [QueryType.contract, "method", params],
+  return useQuery<WrapperMethod, Error>(
+    [QueryType.method, wallet.address, params],
     async () => {
-      const { initDataCell, initCodeCell, initMessageCell, amount, workchain } =
-        params!;
+      const {
+        address: newContractAddress,
+        initialData,
+        initialCode,
+        amount,
+        initialMessage,
+      } = await toInitState(params!);
 
-      const initialData = Cell.oneFromBoc(initDataCell);
-      const initialCode = Cell.oneFromBoc(initCodeCell);
+      await checkBalanceOrDie(balance, amount);
 
-      const [newContractAddress, keyPair, seqno] = await Promise.all([
-        contractAddress({
-          workchain: workchain ?? 0,
-          initialData,
-          initialCode,
-        }),
-        (async () => {
-          const mnemonic = await decryptMnemonic(
-            wallet.mnemonic,
-            await askBackgroundPassword()
-          );
-          return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-        })(),
+      if (await ton.isContractDeployed(newContractAddress.toString())) {
+        throw new RuntimeError(
+          ErrorCode.unexpectedParams,
+          "Smart Contract already deployed"
+        );
+      }
+
+      const [keyPair, seqno] = await Promise.all([
+        getWalletKeyPair(wallet),
         ton.getSeqno(wallet.address),
       ] as const);
 
       const payload: TransferParams = {
         secretKey: keyPair.secretKey,
         toAddress: newContractAddress.toString(),
-        amount: toNano(amount),
+        amount: amount,
         seqno: seqno,
         sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-        payload: initMessageCell ? Cell.oneFromBoc(initMessageCell) : "",
+        payload: initialMessage,
         stateInit: Contract.createStateInit(initialCode, initialData),
       };
 
       const method = contract.transfer(payload);
 
-      return { method, seqno, address: newContractAddress };
+      return { method, seqno };
     },
-    { enabled: params != null }
+    { enabled: params != null && balance != null }
   );
 };

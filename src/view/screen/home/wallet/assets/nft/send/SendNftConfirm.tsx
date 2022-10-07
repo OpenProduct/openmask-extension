@@ -18,7 +18,7 @@ import {
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
+import { fiatFees } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
 import { SendNftState, toSendNftState, useTransferNftMethod } from "./api";
 
@@ -82,10 +82,7 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <AddressTransfer
-          left={toShortName(wallet.name)}
-          right={toShortAddress(state.address)}
-        />
+        <AddressTransfer left={wallet.name} right={state.address} />
         <TextLine>SENDING NFT:</TextLine>
         <TextLine>
           <b>{nft.state?.name ?? "Unknown"}</b>

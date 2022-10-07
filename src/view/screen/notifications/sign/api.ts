@@ -1,14 +1,12 @@
 import { bytesToHex, hexToBytes } from "@openmask/web-sdk/build/utils/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import * as tonMnemonic from "tonweb-mnemonic";
 import nacl from "tweetnacl";
 import { UnfinishedOperation } from "../../../../libs/event";
 import { QueryType } from "../../../../libs/store/browserStore";
 import { WalletStateContext } from "../../../context";
 import { askBackground } from "../../../event";
-import { decryptMnemonic } from "../../api";
-import { askBackgroundPassword } from "../../import/api";
+import { getWalletKeyPair } from "../../api";
 
 const timeout = 15;
 
@@ -34,11 +32,7 @@ export const useSignMutation = () => {
       throw new Error("Missing sign data");
     }
 
-    const mnemonic = await decryptMnemonic(
-      wallet.mnemonic,
-      await askBackgroundPassword()
-    );
-    const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
+    const keyPair = await getWalletKeyPair(wallet);
 
     const signature = nacl.sign.detached(hexToBytes(hex), keyPair.secretKey);
     return bytesToHex(signature);
