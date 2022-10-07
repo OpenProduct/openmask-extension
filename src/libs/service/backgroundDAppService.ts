@@ -27,6 +27,7 @@ import {
 import { switchChain } from "./dApp/networkService";
 import {
   confirmAccountSeqNo,
+  deploySmartContract,
   sendTransaction,
   signPersonalValue,
   signRawValue,
@@ -170,6 +171,14 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       );
     }
 
+    case "ton_deployContract": {
+      return deploySmartContract(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
+    }
     case "wallet_getLocked": {
       return memoryStore.isLock();
     }

@@ -5,14 +5,18 @@
  * @since: 0.6.1
  */
 
+import {
+  DeployInputParams,
+  DeployOutputParams,
+} from "../../entries/notificationMessage";
 import { TransactionParams } from "../../entries/transaction";
 import { ErrorCode, RuntimeError } from "../../exception";
 import memoryStore from "../../store/memoryStore";
 import { confirmWalletSeqNo, getActiveWallet } from "../walletService";
 import {
   closeCurrentPopUp,
-  openPersonalSingPopUp,
-  openRawSingPopUp,
+  getActiveTabLogo,
+  openNotificationPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
 import {
@@ -66,26 +70,22 @@ export const signRawValue = async (
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
-  const current = memoryStore.getOperation();
-  if (current != null) {
-    throw new RuntimeError(
-      ErrorCode.unauthorize,
-      "Another operation in progress"
-    );
-  }
-
   await switchActiveAddress(origin, wallet);
 
-  memoryStore.setOperation({ kind: "sign", value: value.data });
-
-  const popupId = await openRawSingPopUp(id, origin);
+  memoryStore.addNotification({
+    kind: "rawSign",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: value,
+  });
 
   try {
-    const value = await waitApprove<string>(id, popupId);
-    return value;
+    const popupId = await openNotificationPopUp();
+    const signature = await waitApprove<string>(id, popupId);
+    return signature;
   } finally {
-    memoryStore.setOperation(null);
-    await closeCurrentPopUp(popupId);
+    memoryStore.removeNotification(id);
   }
 };
 
@@ -96,28 +96,46 @@ export const signPersonalValue = async (
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
-  const current = memoryStore.getOperation();
-  if (current != null) {
-    throw new RuntimeError(
-      ErrorCode.unauthorize,
-      "Another operation in progress"
-    );
-  }
-
   await switchActiveAddress(origin, wallet);
 
-  memoryStore.setOperation({ kind: "sign", value: value.data });
+  memoryStore.addNotification({
+    kind: "personalSign",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: value,
+  });
 
   try {
-    const popupId = await openPersonalSingPopUp(id, origin);
-
-    try {
-      const signature = await waitApprove<string>(id, popupId);
-      return signature;
-    } finally {
-      await closeCurrentPopUp(popupId);
-    }
+    const popupId = await openNotificationPopUp();
+    const signature = await waitApprove<string>(id, popupId);
+    return signature;
   } finally {
-    memoryStore.setOperation(null);
+    memoryStore.removeNotification(id);
+  }
+};
+
+export const deploySmartContract = async (
+  id: number,
+  origin: string,
+  data: DeployInputParams,
+  wallet?: string
+) => {
+  await checkBaseDAppPermission(origin, wallet);
+  await switchActiveAddress(origin, wallet);
+
+  memoryStore.addNotification({
+    kind: "deploy",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data,
+  });
+
+  try {
+    const popupId = await openNotificationPopUp();
+    return await waitApprove<DeployOutputParams>(id, popupId);
+  } finally {
+    memoryStore.removeNotification(id);
   }
 };

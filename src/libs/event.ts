@@ -1,3 +1,10 @@
+import { JettonParams, NftParams } from "./entries/asset";
+import {
+  ConnectDAppParams,
+  DeployInputParams,
+  RawSignInputParams,
+  SwitchNetworkParams,
+} from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
 import { EventEmitter } from "./eventEmitter";
 
@@ -50,12 +57,28 @@ interface SendNftOperation {
   params: Record<string, string>;
 }
 
+export type NotificationFields<Kind extends string, Value> = {
+  kind: Kind;
+  id: number;
+  logo?: string;
+  origin: string;
+  data: Value;
+};
+
+export type NotificationData =
+  | NotificationFields<"deploy", DeployInputParams>
+  | NotificationFields<"rawSign", RawSignInputParams>
+  | NotificationFields<"personalSign", RawSignInputParams>
+  | NotificationFields<"switchNetwork", SwitchNetworkParams>
+  | NotificationFields<"importJetton", JettonParams>
+  | NotificationFields<"importNft", NftParams>
+  | NotificationFields<"connectDApp", ConnectDAppParams>;
+
 export type UnfinishedOperation =
   | null
   | { kind: "send"; value: SendOperation }
   | { kind: "sendJetton"; value: SendJettonOperation }
-  | { kind: "sendNft"; value: SendNftOperation }
-  | { kind: "sign"; value: string };
+  | { kind: "sendNft"; value: SendNftOperation };
 
 export interface PupUpEvents {
   isLock: void;
@@ -77,6 +100,9 @@ export interface PupUpEvents {
   getWallets: string;
 
   proxyChanged: ProxyConfiguration;
+
+  getNotification: void;
+  closePopUp: number;
 }
 
 export interface PayloadRequest<P = any> {

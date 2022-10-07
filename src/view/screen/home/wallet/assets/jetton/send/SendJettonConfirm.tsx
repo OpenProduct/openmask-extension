@@ -1,5 +1,4 @@
-import { fromNano } from "@openmask/web-sdk";
-import React, { FC, useCallback, useContext } from "react";
+import React, { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
@@ -13,12 +12,13 @@ import {
   TextLine,
 } from "../../../../../../components/Components";
 import { Dots } from "../../../../../../components/Dots";
+import { Fees } from "../../../../../../components/send/Fees";
 import {
   SendCancelButton,
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
+import { fiatFees } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
 import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
 
@@ -73,25 +73,6 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     onSend(seqNo);
   };
 
-  const Fees = useCallback(() => {
-    if (!data) {
-      return (
-        <TextLine>
-          <Dots>Loading</Dots>
-        </TextLine>
-      );
-    }
-    const totalTon = fromNano(
-      String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
-    );
-
-    return (
-      <TextLine>
-        Network: ~<b>{fiatFees.format(parseFloat(totalTon))} TON</b>
-      </TextLine>
-    );
-  }, [data]);
-
   const transaction =
     state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
@@ -101,10 +82,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <AddressTransfer
-          left={toShortName(wallet.name)}
-          right={toShortAddress(state.address)}
-        />
+        <AddressTransfer left={wallet.name} right={state.address} />
         <TextLine>SENDING {jetton.state.symbol}:</TextLine>
 
         <TextLine>
@@ -119,8 +97,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Network fee estimation:</TextLine>
-        <Fees />
+        <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
         <TextLine>
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>

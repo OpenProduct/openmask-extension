@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {
   JettonAsset,
+  JettonParams,
   JettonState,
   JettonStateSchema,
 } from "../../../../libs/entries/asset";
@@ -41,16 +42,16 @@ export const useOriginWallets = (origin: string) => {
 
 const getJettonName = async (
   jsonDataUrl: string | null,
-  searchParams: URLSearchParams
+  params: JettonParams
 ) => {
   let state: Partial<JettonState> = {};
   if (jsonDataUrl) {
     state = await requestJson<Partial<JettonState>>(jsonDataUrl);
   } else {
     state = {
-      symbol: decodeURIComponent(searchParams.get("symbol") ?? ""),
-      image: decodeURIComponent(searchParams.get("image") ?? ""),
-      name: decodeURIComponent(searchParams.get("name") ?? ""),
+      symbol: params.symbol,
+      image: params.image,
+      name: params.name,
     };
   }
   return await JettonStateSchema.validateAsync(state);
@@ -61,26 +62,19 @@ export interface JettonMinterData {
   state: JettonState;
 }
 
-export const useJettonMinterData = (
-  jettonMinterAddress: string,
-  searchParams: URLSearchParams
-) => {
+export const useJettonMinterData = (params: JettonParams) => {
   const provider = useContext(TonProviderContext);
   return useQuery<JettonMinterData, Error>(
-    [QueryType.jetton, jettonMinterAddress],
+    [QueryType.jetton, params.address],
     async () => {
-      const dap = new JettonMinterDao(
-        provider,
-        new Address(jettonMinterAddress)
-      );
+      const dap = new JettonMinterDao(provider, new Address(params.address));
 
       const data = await dap.getJettonData();
 
-      const state = await getJettonName(data.jettonContentUri, searchParams);
+      const state = await getJettonName(data.jettonContentUri, params);
 
       return { data, state };
-    },
-    { enabled: !!jettonMinterAddress }
+    }
   );
 };
 

@@ -7,11 +7,8 @@
 
 import { AssetParams } from "../../entries/asset";
 import { EventError } from "../../exception";
-import {
-  closeCurrentPopUp,
-  openShowJettonPopUp,
-  openShowNftPopUp,
-} from "./notificationService";
+import memoryStore from "../../store/memoryStore";
+import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import {
   checkBaseDAppPermission,
   switchActiveAddress,
@@ -29,17 +26,28 @@ export const showAsset = async (
   if (!isEvent) {
     throw new EventError();
   }
-
   await switchActiveAddress(origin, wallet);
 
-  let popupId: number | undefined;
   if (params.type === "jetton") {
-    popupId = await openShowJettonPopUp(id, params, origin);
+    memoryStore.addNotification({
+      kind: "importJetton",
+      id,
+      logo: await getActiveTabLogo(),
+      origin,
+      data: params,
+    });
   } else {
-    popupId = await openShowNftPopUp(id, params, origin);
+    memoryStore.addNotification({
+      kind: "importNft",
+      id,
+      logo: await getActiveTabLogo(),
+      origin,
+      data: params,
+    });
   }
 
   try {
+    const popupId = await openNotificationPopUp();
     await waitApprove(id, popupId);
     // Approved
     return true;
@@ -47,6 +55,6 @@ export const showAsset = async (
     // Rejected or close pop up
     return false;
   } finally {
-    await closeCurrentPopUp(popupId);
+    memoryStore.removeNotification(id);
   }
 };

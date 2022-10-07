@@ -6,8 +6,7 @@
  */
 
 import { fromNano } from "@openmask/web-sdk/build/utils/utils";
-import { NotificationsRoutes } from "../../../view/screen/notifications/route";
-import { JettonParams, NftParams } from "../../entries/asset";
+import { AppRoute } from "../../../view/routes";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
@@ -30,10 +29,10 @@ ExtensionPlatform.addOnRemovedListener((windowId) => {
 
 export const getActiveTabLogo = async () => {
   const [tab] = await ExtensionPlatform.getActiveTabs();
-  return encodeURIComponent((tab && tab.favIconUrl) ?? "");
+  return (tab && tab.favIconUrl) ?? "";
 };
 
-const getPopup = async () => {
+export const getPopup = async () => {
   const windows = await ExtensionPlatform.getAllWindows();
   return windows
     ? windows.find((win) => {
@@ -66,81 +65,6 @@ const openPopUp = async (page: string) => {
   }
 };
 
-export const openConnectDAppPopUp = async (id: number, origin: string) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.dapp}?${params.toString()}`
-  );
-  return popupId;
-};
-
-export const openConnectUnlockPopUp = async () => {
-  await openPopUp(`/notifications${NotificationsRoutes.unlock}`);
-  return popupId;
-};
-
-export const openSwitchChainPopUp = async (
-  id: number,
-  origin: string,
-  network: string
-) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-    network: network,
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.network}?${params.toString()}`
-  );
-  return popupId;
-};
-
-export const openShowJettonPopUp = async (
-  id: number,
-  jetton: JettonParams,
-  origin: string
-) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-    address: encodeURIComponent(jetton.address),
-    symbol: encodeURIComponent(jetton.symbol ?? ""),
-    image: encodeURIComponent(jetton.image ?? ""),
-    name: encodeURIComponent(jetton.name ?? ""),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.jetton}?${params.toString()}`
-  );
-  return popupId;
-};
-
-export const openShowNftPopUp = async (
-  id: number,
-  nft: NftParams,
-  origin: string
-) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-    address: encodeURIComponent(nft.address),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.nft}?${params.toString()}`
-  );
-  return popupId;
-};
-
 export const closeCurrentPopUp = async (popupId: number | undefined) => {
   if (popupId) {
     try {
@@ -171,30 +95,7 @@ export const openSendTransactionPopUp = async (
   return popupId;
 };
 
-export const openRawSingPopUp = async (id: number, origin: string) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.raw}?${params.toString()}`
-  );
-
-  return popupId;
-};
-
-export const openPersonalSingPopUp = async (id: number, origin: string) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.personal}?${params.toString()}`
-  );
-
+export const openNotificationPopUp = async () => {
+  await openPopUp(AppRoute.notifications);
   return popupId;
 };
