@@ -14,6 +14,11 @@ const Block = styled.div`
 
 const Icon = styled.span`
   font-size: large;
+  margin: 0 5px;
+`;
+
+const Item = styled.div`
+  word-break: break-all;
 `;
 
 type Props = {
@@ -24,11 +29,11 @@ type Props = {
 export const AddressTransfer: FC<Props> = ({ left, right }) => {
   return (
     <Block>
-      {left}
+      <Item>{left}</Item>
       <Icon>
         <ArrowRightIcon />
       </Icon>
-      {right}
+      <Item>{right}</Item>
     </Block>
   );
 };

@@ -31,7 +31,7 @@ ExtensionPlatform.addOnRemovedListener((windowId) => {
 
 export const getActiveTabLogo = async () => {
   const [tab] = await ExtensionPlatform.getActiveTabs();
-  return encodeURIComponent((tab && tab.favIconUrl) ?? "");
+  return (tab && tab.favIconUrl) ?? "";
 };
 
 export const getPopup = async () => {

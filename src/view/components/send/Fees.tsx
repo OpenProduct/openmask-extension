@@ -9,9 +9,12 @@ export const Fees: FC<{ estimation?: EstimateFeeValues }> = ({
 }) => {
   if (!estimation) {
     return (
-      <TextLine>
-        <Dots>Loading</Dots>
-      </TextLine>
+      <>
+        <TextLine>Network fee estimation:</TextLine>
+        <TextLine>
+          <Dots>Loading</Dots>
+        </TextLine>
+      </>
     );
   }
   const totalTon = fromNano(
@@ -24,8 +27,11 @@ export const Fees: FC<{ estimation?: EstimateFeeValues }> = ({
   );
 
   return (
-    <TextLine>
-      Network: ~<b>{fiatFees.format(parseFloat(totalTon))} TON</b>
-    </TextLine>
+    <>
+      <TextLine>Network fee estimation:</TextLine>
+      <TextLine>
+        ~<b>{fiatFees.format(parseFloat(totalTon))} TON</b>
+      </TextLine>
+    </>
   );
 };

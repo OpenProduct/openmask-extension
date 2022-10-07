@@ -58,6 +58,7 @@ export const DeployContract: FC<
 
   const onBack = () => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   };
 
   const onDeploy = async () => {
@@ -74,7 +75,6 @@ export const DeployContract: FC<
       id,
       payload,
     });
-
     onClose();
   };
 
@@ -97,7 +97,7 @@ export const DeployContract: FC<
       <TextLine>
         <b>{data.amount} TON</b>
       </TextLine>
-      <TextLine>Network fee estimation:</TextLine>
+
       <Fees estimation={estimation} />
 
       <Label>Initial Code</Label>

@@ -97,7 +97,6 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Network fee estimation:</TextLine>
         <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
         <TextLine>
