@@ -47,6 +47,10 @@ const NotificationsIndex = () => {
   switch (data.kind) {
     case "deploy":
       return <DeployContract {...data} onClose={reloadNotification} />;
+    case "rawSign":
+      return <SignRaw {...data} onClose={reloadNotification} />;
+    case "personalSign":
+      return <div></div>;
     default:
       return <Loading />;
   }
@@ -61,7 +65,6 @@ export const NotificationsRouter = () => {
       <Route path={NotificationsRoutes.jetton} element={<ImportJetton />} />
       <Route path={NotificationsRoutes.nft} element={<ImportNft />} />
       <Route path={NotificationsRoutes.unlock} element={<Loading />} />
-      <Route path={NotificationsRoutes.raw} element={<SignRaw />} />
       <Route path={NotificationsRoutes.personal} element={<SignPersonal />} />
     </Routes>
   );

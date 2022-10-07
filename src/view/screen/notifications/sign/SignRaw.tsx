@@ -1,6 +1,7 @@
-import { useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { FC, useCallback } from "react";
 import styled from "styled-components";
+import { RawSignInputParams } from "../../../../libs/entries/transactionMessage";
+import { NotificationFields } from "../../../../libs/event";
 import ExtensionPlatform from "../../../../libs/service/extension";
 import {
   Body,
@@ -18,8 +19,7 @@ import {
 import { DAppBadge } from "../../../components/DAppBadge";
 import { LinkIcon } from "../../../components/Icons";
 import { sendBackground } from "../../../event";
-import { Loading } from "../../Loading";
-import { useSignData, useSignMutation } from "./api";
+import { useSignMutation } from "./api";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -38,34 +38,21 @@ const onLink = () =>
     url: "https://consensys.net/blog/metamask/the-seal-of-approval-know-what-youre-consenting-to-with-permissions-and-approvals-in-metamask/",
   });
 
-export const SignRaw = () => {
-  const [searchParams] = useSearchParams();
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
-
+export const SignRaw: FC<
+  NotificationFields<"rawSign", RawSignInputParams> & { onClose: () => void }
+> = ({ id, logo, origin, data, onClose }) => {
   const { mutateAsync, isLoading, error: rawSignError } = useSignMutation();
-  const { data, error, isFetching } = useSignData(id);
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   }, [id]);
 
-  useEffect(() => {
-    if (error) {
-      onBack();
-    }
-  }, [error]);
-
   const onSign = async () => {
-    const signature = await mutateAsync(data);
+    const signature = await mutateAsync(data.data);
     sendBackground.message("approveRequest", { id, payload: signature });
+    onClose();
   };
-
-  if (isFetching) {
-    return <Loading />;
-  }
 
   return (
     <Body>
@@ -88,7 +75,7 @@ export const SignRaw = () => {
       </WarningMessage>
 
       <Label>Message</Label>
-      <RawData>{data}</RawData>
+      <RawData>{data.data}</RawData>
 
       {rawSignError && <ErrorMessage>{rawSignError.message}</ErrorMessage>}
 

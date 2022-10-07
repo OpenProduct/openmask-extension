@@ -11,8 +11,9 @@ import memoryStore from "../../store/memoryStore";
 import { confirmWalletSeqNo, getActiveWallet } from "../walletService";
 import {
   closeCurrentPopUp,
+  getActiveTabLogo,
+  openNotificationPopUp,
   openPersonalSingPopUp,
-  openRawSingPopUp,
   openSendTransactionPopUp,
 } from "./notificationService";
 import {
@@ -66,26 +67,22 @@ export const signRawValue = async (
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
-  const current = memoryStore.getOperation();
-  if (current != null) {
-    throw new RuntimeError(
-      ErrorCode.unauthorize,
-      "Another operation in progress"
-    );
-  }
-
   await switchActiveAddress(origin, wallet);
 
-  memoryStore.setOperation({ kind: "sign", value: value.data });
-
-  const popupId = await openRawSingPopUp(id, origin);
+  memoryStore.addNotification({
+    kind: "rawSign",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: value,
+  });
 
   try {
-    const value = await waitApprove<string>(id, popupId);
-    return value;
+    const popupId = await openNotificationPopUp();
+    const signature = await waitApprove<string>(id, popupId);
+    return signature;
   } finally {
-    memoryStore.setOperation(null);
-    await closeCurrentPopUp(popupId);
+    memoryStore.removeNotification(id);
   }
 };
 

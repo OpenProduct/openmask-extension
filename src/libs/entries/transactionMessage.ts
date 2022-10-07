@@ -10,3 +10,7 @@ export interface DeployOutputParams {
   walletSeqNo: number;
   newContractAddress: string;
 }
+
+export interface RawSignInputParams {
+  data: string; // Cell boc hex
+}
