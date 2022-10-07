@@ -1,6 +1,7 @@
 import {
   Address,
   Dns,
+  EstimateFeeValues,
   HttpProvider,
   Method,
   toNano,
@@ -148,15 +149,8 @@ export const useSendMethod = (state: State, balance?: string) => {
   );
 };
 
-interface Estimation {
-  in_fwd_fee: number;
-  storage_fee: number;
-  gas_fee: number;
-  fwd_fee: number;
-}
-
 export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
-  return useQuery<Estimation>(
+  return useQuery<EstimateFeeValues>(
     [QueryType.estimation],
     async () => {
       const all_fees = await wmethod!.method.estimateFee();

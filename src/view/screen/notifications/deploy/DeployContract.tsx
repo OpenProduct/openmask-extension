@@ -1,6 +1,7 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import styled from "styled-components";
 import { DeployParams, NotificationFields } from "../../../../libs/event";
+import { AddressTransfer } from "../../../components/Address";
 import {
   Body,
   ButtonNegative,
@@ -14,6 +15,12 @@ import {
   TextLine,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
+import { Dots } from "../../../components/Dots";
+import { Fees } from "../../../components/send/Fees";
+import { WalletStateContext } from "../../../context";
+import { sendBackground } from "../../../event";
+import { useEstimateFee, useSendMutation } from "../../home/wallet/send/api";
+import { useDeployContractMutation } from "./api";
 
 const Label = styled.div`
   margin: ${(props) => props.theme.padding} 0 5px;
@@ -30,31 +37,60 @@ const RawData = styled.div`
 export const DeployContract: FC<
   NotificationFields<"deploy", DeployParams> & { onClose: () => void }
 > = ({ id, logo, origin, data, onClose }) => {
-  const onBack = () => {};
-  const onDeploy = () => {};
+  const wallet = useContext(WalletStateContext);
 
-  const isLoading = false;
+  const {
+    data: method,
+    isFetching: isValidating,
+    error: methodError,
+  } = useDeployContractMutation(data);
 
-  const rawSignError = null as Error | null;
+  const { data: estimation } = useEstimateFee(method);
+  const {
+    mutateAsync,
+    isLoading: isDeploying,
+    error: deployError,
+  } = useSendMutation();
 
-  const Fees = () => {
-    return <div></div>;
+  const onBack = () => {
+    sendBackground.message("rejectRequest", id);
   };
+
+  const onDeploy = async () => {
+    if (!method) return;
+
+    const seqNo = await mutateAsync(method);
+    sendBackground.message("approveRequest", {
+      id,
+      payload: {
+        walletSeqNo: seqNo,
+        newContractAddress: method.address.toString(true, true, true),
+      },
+    });
+    onClose();
+  };
+
+  const loading = isValidating || isDeploying;
 
   return (
     <Body>
       <Center>
         <DAppBadge logo={logo} origin={origin} />
         <H1>Deploy Smart Contract</H1>
-        <Text>Would you like to deploy data?</Text>
+        <Text>Would you like to deploy contract?</Text>
       </Center>
 
-      <TextLine>Network fee estimation:</TextLine>
-      <Fees />
+      <AddressTransfer
+        left={wallet.name}
+        right={method ? method.address.toString(true, true, true) : null}
+      />
+
       <TextLine>Forward amount:</TextLine>
       <TextLine>
         <b>{data.amount} TON</b>
       </TextLine>
+      <TextLine>Network fee estimation:</TextLine>
+      <Fees estimation={estimation} />
 
       <Label>Initial Code</Label>
       <RawData>{data.initCodeCell}</RawData>
@@ -69,15 +105,25 @@ export const DeployContract: FC<
         </>
       )}
 
-      {rawSignError && <ErrorMessage>{rawSignError.message}</ErrorMessage>}
+      {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
+      {deployError && <ErrorMessage>{deployError.message}</ErrorMessage>}
 
       <Gap />
       <ButtonRow>
-        <ButtonNegative onClick={onBack} disabled={isLoading}>
+        <ButtonNegative onClick={onBack} disabled={loading}>
           Cancel
         </ButtonNegative>
-        <ButtonPositive onClick={onDeploy} disabled={isLoading}>
-          Deploy
+        <ButtonPositive
+          onClick={onDeploy}
+          disabled={loading || deployError != null}
+        >
+          {isValidating ? (
+            <Dots>Validating</Dots>
+          ) : isDeploying ? (
+            <Dots>Deploying</Dots>
+          ) : (
+            "Deploy"
+          )}
         </ButtonPositive>
       </ButtonRow>
     </Body>
