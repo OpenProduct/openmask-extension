@@ -14,3 +14,7 @@ export interface DeployOutputParams {
 export interface RawSignInputParams {
   data: string; // Cell boc hex
 }
+
+export interface SwitchNetworkParams {
+  network: string;
+}

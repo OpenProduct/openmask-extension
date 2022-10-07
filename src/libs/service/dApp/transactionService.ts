@@ -5,11 +5,11 @@
  * @since: 0.6.1
  */
 
-import { TransactionParams } from "../../entries/transaction";
 import {
   DeployInputParams,
   DeployOutputParams,
-} from "../../entries/transactionMessage";
+} from "../../entries/notificationMessage";
+import { TransactionParams } from "../../entries/transaction";
 import { ErrorCode, RuntimeError } from "../../exception";
 import memoryStore from "../../store/memoryStore";
 import { confirmWalletSeqNo, getActiveWallet } from "../walletService";

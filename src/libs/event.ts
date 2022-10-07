@@ -1,5 +1,8 @@
+import {
+  DeployInputParams,
+  RawSignInputParams,
+} from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
-import { DeployInputParams, RawSignInputParams } from "./entries/transactionMessage";
 import { EventEmitter } from "./eventEmitter";
 
 export type IEventEmitter<T> = {
@@ -62,7 +65,8 @@ export type NotificationFields<Kind extends string, Value> = {
 export type NotificationData =
   | NotificationFields<"deploy", DeployInputParams>
   | NotificationFields<"rawSign", RawSignInputParams>
-  | NotificationFields<"personalSign", RawSignInputParams>;
+  | NotificationFields<"personalSign", RawSignInputParams>
+  | NotificationFields<"switchNetwork", SwitchNetworkParams>;
 
 export type UnfinishedOperation =
   | null

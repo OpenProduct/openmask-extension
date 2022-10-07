@@ -51,6 +51,8 @@ const NotificationsIndex = () => {
       return <SignRaw {...data} onClose={reloadNotification} />;
     case "personalSign":
       return <SignPersonal {...data} onClose={reloadNotification} />;
+    case "switchNetwork":
+      return <SwitchNetwork {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }
@@ -60,7 +62,6 @@ export const NotificationsRouter = () => {
   return (
     <Routes>
       <Route index element={<NotificationsIndex />} />
-      <Route path={NotificationsRoutes.network} element={<SwitchNetwork />} />
       <Route path={NotificationsRoutes.dapp} element={<ConnectDApp />} />
       <Route path={NotificationsRoutes.jetton} element={<ImportJetton />} />
       <Route path={NotificationsRoutes.nft} element={<ImportNft />} />
