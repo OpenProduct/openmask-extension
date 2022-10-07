@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
-import { DeployParams } from "../../../../libs/event";
+import { DeployInputParams } from "../../../../libs/entries/transactionMessage";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   TonProviderContext,
@@ -24,7 +24,7 @@ export interface WrapperDeployMethod extends WrapperMethod {
   address: Address;
 }
 
-export const useDeployContractMutation = (params?: DeployParams) => {
+export const useDeployContractMutation = (params?: DeployInputParams) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);

@@ -34,7 +34,7 @@ export const getActiveTabLogo = async () => {
   return encodeURIComponent((tab && tab.favIconUrl) ?? "");
 };
 
-const getPopup = async () => {
+export const getPopup = async () => {
   const windows = await ExtensionPlatform.getAllWindows();
   return windows
     ? windows.find((win) => {

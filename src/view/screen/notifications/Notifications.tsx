@@ -12,27 +12,32 @@ import { SignPersonal } from "./sign/PersonalSign";
 import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const NotificationsIndex = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
 
-  const reloadNotification = useCallback(() => {
+  const reloadNotification = useCallback(async (wait = true) => {
     setData(undefined);
-    askBackground<NotificationData | undefined>()
-      .message("getNotification")
-      .then((item) => {
-        if (item) {
-          setData(item);
-        } else {
-          sendBackground.message("closePopUp");
-        }
-      })
-      .catch(() => {
+    if (wait) {
+      await delay(200);
+    }
+    try {
+      const item = await askBackground<NotificationData | undefined>().message(
+        "getNotification"
+      );
+      if (item) {
+        setData(item);
+      } else {
         sendBackground.message("closePopUp");
-      });
+      }
+    } catch (e) {
+      sendBackground.message("closePopUp");
+    }
   }, []);
 
   useEffect(() => {
-    reloadNotification();
+    reloadNotification(false);
   }, []);
 
   if (!data) {

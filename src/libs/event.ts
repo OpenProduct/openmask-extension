@@ -1,4 +1,5 @@
 import { ProxyConfiguration } from "./entries/proxy";
+import { DeployInputParams } from "./entries/transactionMessage";
 import { EventEmitter } from "./eventEmitter";
 
 export type IEventEmitter<T> = {
@@ -50,14 +51,6 @@ interface SendNftOperation {
   params: Record<string, string>;
 }
 
-export interface DeployParams {
-  workchain?: number;
-  initDataCell: string;
-  initCodeCell: string;
-  initMessageCell?: string;
-  amount: string;
-}
-
 export type NotificationFields<Kind extends string, Value> = {
   kind: Kind;
   id: number;
@@ -67,7 +60,7 @@ export type NotificationFields<Kind extends string, Value> = {
 };
 
 export type NotificationData =
-  | NotificationFields<"deploy", DeployParams>
+  | NotificationFields<"deploy", DeployInputParams>
   | NotificationFields<"test", string>;
 
 export type UnfinishedOperation =

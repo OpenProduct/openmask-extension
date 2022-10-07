@@ -1,4 +1,4 @@
-import { DeployParams } from "../../event";
+import { DeployInputParams } from "../../entries/transactionMessage";
 import memoryStore from "../../store/memoryStore";
 import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import {
@@ -10,7 +10,7 @@ import {
 export const deploySmartContract = async (
   id: number,
   origin: string,
-  data: DeployParams,
+  data: DeployInputParams,
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
@@ -24,7 +24,10 @@ export const deploySmartContract = async (
     data,
   });
 
-  const popupId = await openNotificationPopUp();
-  const address = await waitApprove<string>(id, popupId);
-  return address;
+  try {
+    const popupId = await openNotificationPopUp();
+    return await waitApprove<DeployInputParams>(id, popupId);
+  } finally {
+    memoryStore.removeNotification(id);
+  }
 };

@@ -15,6 +15,7 @@ import {
 import { Logger } from "../logger";
 import { getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
+import { closeCurrentPopUp, getPopup } from "./dApp/notificationService";
 import {
   confirmWalletSeqNo,
   getActiveWallet,
@@ -119,6 +120,15 @@ popUpEventEmitter.on("chainChanged", (message) => {
   backgroundEventsEmitter.emit("chainChanged", message);
 });
 
+popUpEventEmitter.on("closePopUp", async (message) => {
+  try {
+    const popup = await getPopup();
+    await closeCurrentPopUp((popup && popup.id) || undefined);
+  } catch (e) {
+    Logger.error(e);
+  }
+});
+
 // Just Proxy messages to background service
 popUpEventEmitter.on("approveRequest", (message) => {
   backgroundEventsEmitter.emit("approveRequest", message);
@@ -135,4 +145,5 @@ popUpEventEmitter.on("accountsChanged", (message) => {
 popUpEventEmitter.on("proxyChanged", (message) => {
   backgroundEventsEmitter.emit("proxyChanged", message);
 });
+
 // End of proxy messages

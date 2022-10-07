@@ -5,13 +5,16 @@ const memoryStore = () => {
 
   let operation: UnfinishedOperation = null;
 
-  const notifications: NotificationData[] = [];
+  let notifications: NotificationData[] = [];
 
   return {
     getNotifications: () => notifications,
     addNotification: (item: NotificationData) => notifications.push(item),
     getNotification: () =>
       notifications.length ? notifications[0] : undefined,
+    removeNotification: (id: number) => {
+      notifications = notifications.filter((item) => item.id !== id);
+    },
 
     getOperation: () => operation,
     setOperation: (o: UnfinishedOperation) => {

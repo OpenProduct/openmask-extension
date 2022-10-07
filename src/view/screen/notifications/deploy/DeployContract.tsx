@@ -1,6 +1,10 @@
 import { FC, useContext } from "react";
 import styled from "styled-components";
-import { DeployParams, NotificationFields } from "../../../../libs/event";
+import {
+  DeployInputParams,
+  DeployOutputParams,
+} from "../../../../libs/entries/transactionMessage";
+import { NotificationFields } from "../../../../libs/event";
 import { AddressTransfer } from "../../../components/Address";
 import {
   Body,
@@ -35,7 +39,7 @@ const RawData = styled.div`
 `;
 
 export const DeployContract: FC<
-  NotificationFields<"deploy", DeployParams> & { onClose: () => void }
+  NotificationFields<"deploy", DeployInputParams> & { onClose: () => void }
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
 
@@ -59,14 +63,18 @@ export const DeployContract: FC<
   const onDeploy = async () => {
     if (!method) return;
 
-    const seqNo = await mutateAsync(method);
+    await mutateAsync(method);
+
+    const payload: DeployOutputParams = {
+      walletSeqNo: method.seqno,
+      newContractAddress: method.address.toString(true, true, true),
+    };
+
     sendBackground.message("approveRequest", {
       id,
-      payload: {
-        walletSeqNo: seqNo,
-        newContractAddress: method.address.toString(true, true, true),
-      },
+      payload,
     });
+
     onClose();
   };
 
