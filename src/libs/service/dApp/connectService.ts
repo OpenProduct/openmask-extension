@@ -17,7 +17,7 @@ import { getWalletsByOrigin } from "../walletService";
 import {
   closeCurrentPopUp,
   openConnectDAppPopUp,
-  openConnectUnlockPopUp,
+  openNotificationPopUp,
 } from "./notificationService";
 import {
   checkBaseDAppPermission,
@@ -78,7 +78,7 @@ export const connectDApp = async (
   if (memoryStore.isLock()) {
     const permissions = await getDAppPermissions(network, origin);
     if (!permissions.includes(Permission.locked)) {
-      const popupId = await openConnectUnlockPopUp();
+      const popupId = await openNotificationPopUp();
       try {
         await waitUnlock(popupId);
       } finally {

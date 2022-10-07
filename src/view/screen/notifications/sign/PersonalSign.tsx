@@ -1,5 +1,5 @@
 import { FC, useCallback } from "react";
-import { RawSignInputParams } from "../../../../libs/entries/transactionMessage";
+import { RawSignInputParams } from "../../../../libs/entries/notificationMessage";
 import { NotificationFields } from "../../../../libs/event";
 import { CodeBlock } from "../../../components/CodeBlock";
 import {

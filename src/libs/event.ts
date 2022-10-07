@@ -1,6 +1,8 @@
+import { JettonParams, NftParams } from "./entries/asset";
 import {
   DeployInputParams,
   RawSignInputParams,
+  SwitchNetworkParams,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
 import { EventEmitter } from "./eventEmitter";
@@ -66,7 +68,9 @@ export type NotificationData =
   | NotificationFields<"deploy", DeployInputParams>
   | NotificationFields<"rawSign", RawSignInputParams>
   | NotificationFields<"personalSign", RawSignInputParams>
-  | NotificationFields<"switchNetwork", SwitchNetworkParams>;
+  | NotificationFields<"switchNetwork", SwitchNetworkParams>
+  | NotificationFields<"importJetton", JettonParams>
+  | NotificationFields<"importNft", NftParams>;
 
 export type UnfinishedOperation =
   | null

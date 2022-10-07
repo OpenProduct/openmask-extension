@@ -4,8 +4,8 @@ import { Address, contractAddress } from "@openmask/web-sdk/build/utils";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
+import { DeployInputParams } from "../../../../libs/entries/notificationMessage";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
-import { DeployInputParams } from "../../../../libs/entries/transactionMessage";
 import { ErrorCode, RuntimeError } from "../../../../libs/exception";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {

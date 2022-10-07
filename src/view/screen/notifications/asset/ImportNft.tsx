@@ -1,10 +1,18 @@
 import { Address, NftData } from "@openmask/web-sdk";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   NftCollectionState,
   NftItemState,
+  NftParams,
 } from "../../../../libs/entries/asset";
+import { NotificationFields } from "../../../../libs/event";
 import {
   Body,
   ButtonNegative,
@@ -28,16 +36,12 @@ import {
 } from "../../home/wallet/assets/import/api";
 import { Loading, NotificationView } from "../../Loading";
 
-export const ImportNft = () => {
-  const [searchParams] = useSearchParams();
-
+export const ImportNft: FC<
+  NotificationFields<"importNft", NftParams> & {
+    onClose: () => void;
+  }
+> = ({ id, logo, origin, data: params, onClose }) => {
   const wallet = useContext(WalletStateContext);
-
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-  const address = decodeURIComponent(searchParams.get("address") ?? "");
-
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
 
   const [nftData, setNftData] = useState<NftData | null>(null);
   const [nftState, setNftState] = useState<NftItemState | null>(null);
@@ -64,7 +68,7 @@ export const ImportNft = () => {
 
   useEffect(() => {
     (async () => {
-      const data = await nftDataAsync(address);
+      const data = await nftDataAsync(params.address);
       setNftData(data);
 
       if (data.contentUri) {
@@ -102,24 +106,20 @@ export const ImportNft = () => {
     }
 
     await addNftAsync({
-      nftAddress: address,
+      nftAddress: params.address,
       nftData,
       state: nftState,
       collection: nftCollectionState,
     });
 
     sendBackground.message("approveRequest", { id, payload: undefined });
+    onClose();
   };
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   }, [id]);
-
-  useEffect(() => {
-    if (!address) {
-      onBack();
-    }
-  }, []);
 
   if (isLoading) {
     return <Loading />;

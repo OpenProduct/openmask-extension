@@ -3,7 +3,7 @@ import { FC, useContext } from "react";
 import {
   DeployInputParams,
   DeployOutputParams,
-} from "../../../../libs/entries/transactionMessage";
+} from "../../../../libs/entries/notificationMessage";
 import { NotificationFields } from "../../../../libs/event";
 import { AddressTransfer } from "../../../components/Address";
 import { CodeBlock } from "../../../components/CodeBlock";
