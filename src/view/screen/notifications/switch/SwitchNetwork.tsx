@@ -1,5 +1,6 @@
-import { useContext, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { FC, useContext } from "react";
+import { SwitchNetworkParams } from "../../../../libs/entries/notificationMessage";
+import { NotificationFields } from "../../../../libs/event";
 import { AddressTransfer } from "../../../components/Address";
 import {
   Body,
@@ -16,41 +17,31 @@ import { NetworkContext } from "../../../context";
 import { sendBackground } from "../../../event";
 import { useSwitchNetworkMutation } from "./api";
 
-export const SwitchNetwork = () => {
-  const [searchParams] = useSearchParams();
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
-
-  const network = searchParams.get("network");
+export const SwitchNetwork: FC<
+  NotificationFields<"switchNetwork", SwitchNetworkParams> & {
+    onClose: () => void;
+  }
+> = ({ id, logo, origin, data: { network }, onClose }) => {
   const current = useContext(NetworkContext);
 
-  useEffect(() => {
-    if (!network) {
-      sendBackground.message("rejectRequest", id);
-    }
-  }, []);
-
-  const { mutate, isLoading } = useSwitchNetworkMutation();
+  const { mutateAsync, isLoading } = useSwitchNetworkMutation();
   const onCancel = () => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   };
 
-  const onSwitch = () => {
-    mutate({ id, network: network! });
+  const onSwitch = async () => {
+    await mutateAsync({ id, network });
+    onClose();
   };
+
   return (
     <Body>
       <Center>
         <DAppBadge logo={logo} origin={origin} />
         <H1>Switch wallet network</H1>
         <Text>Allow this site to switch the network?</Text>
-
-        <Text>
-          This will switch the selected network within OpenMask to a previously
-          added network:
-        </Text>
+        <Text>This will switch the OpenMask network:</Text>
       </Center>
       <AddressTransfer left={current} right={network} />
       <Gap />

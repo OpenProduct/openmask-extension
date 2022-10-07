@@ -1,24 +1,24 @@
-import { fromNano } from "@openmask/web-sdk";
-import React, { FC, useCallback, useContext } from "react";
+import React, { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { NftItem } from "../../../../../../../libs/entries/asset";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
-    Body,
-    ButtonPositive,
-    ButtonRow,
-    ErrorMessage,
-    Gap,
-    TextLine
+  Body,
+  ButtonPositive,
+  ButtonRow,
+  ErrorMessage,
+  Gap,
+  TextLine,
 } from "../../../../../../components/Components";
 import { Dots } from "../../../../../../components/Dots";
+import { Fees } from "../../../../../../components/send/Fees";
 import {
-    SendCancelButton,
-    SendEditButton
+  SendCancelButton,
+  SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
-import { fiatFees, toShortAddress, toShortName } from "../../../../../../utils";
+import { fiatFees } from "../../../../../../utils";
 import { useEstimateFee, useSendMutation } from "../../../send/api";
 import { SendNftState, toSendNftState, useTransferNftMethod } from "./api";
 
@@ -74,25 +74,6 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
     onSend(seqNo);
   };
 
-  const Fees = useCallback(() => {
-    if (!data) {
-      return (
-        <TextLine>
-          <Dots>Loading</Dots>
-        </TextLine>
-      );
-    }
-    const totalTon = fromNano(
-      String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
-    );
-
-    return (
-      <TextLine>
-        Network: ~<b>{fiatFees.format(parseFloat(totalTon))} TON</b>
-      </TextLine>
-    );
-  }, [data]);
-
   const transaction = state.amount != "" ? parseFloat(state.amount) : 0.05;
 
   const disabled = isLoading || isFetching || error != null;
@@ -101,10 +82,7 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
     <>
       <EditButton />
       <Body>
-        <AddressTransfer
-          left={toShortName(wallet.name)}
-          right={toShortAddress(state.address)}
-        />
+        <AddressTransfer left={wallet.name} right={state.address} />
         <TextLine>SENDING NFT:</TextLine>
         <TextLine>
           <b>{nft.state?.name ?? "Unknown"}</b>
@@ -116,16 +94,15 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
           </>
         )}
 
-        <TextLine>Network fee estimation:</TextLine>
-        <Fees />
+        <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
         <TextLine>
           Max: ~<b>{fiatFees.format(transaction)} TON*</b>
         </TextLine>
         <Quote>
-          * The wallet sends an amount of TON to cover internal transaction and network
-          storage costs. The rest of the TON that will not be used will be
-          returned to the wallet.
+          * The wallet sends an amount of TON to cover internal transaction and
+          network storage costs. The rest of the TON that will not be used will
+          be returned to the wallet.
         </Quote>
 
         {error && <ErrorMessage>{error.message}</ErrorMessage>}

@@ -8,13 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
-import { ErrorCode, RuntimeError } from "../../../../../../../libs/exception";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
 } from "../../../../../../context";
+import { checkBalanceOrDie } from "../../../../../api";
 import { useNetworkConfig } from "../../../../api";
 import { getTransactionsParams, WrapperMethod } from "../../../send/api";
 import { NftItemStateContext } from "../context";
@@ -79,14 +79,7 @@ export const useTransferNftMethod = (
         ? toNano(state.forwardAmount)
         : new BN(1, 10);
 
-      if (balance) {
-        if (new BN(balance).cmp(amount) === -1) {
-          throw new RuntimeError(
-            ErrorCode.unexpectedParams,
-            "Don't enough Wallet balance"
-          );
-        }
-      }
+      await checkBalanceOrDie(balance, amount);
 
       const nftAddress = new Address(nft.address);
       const forwardPayload = new TextEncoder().encode(state.comment ?? "");

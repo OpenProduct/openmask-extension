@@ -1,6 +1,6 @@
-import React, { FC, useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { JettonState } from "../../../../libs/entries/asset";
+import React, { FC, useCallback } from "react";
+import { JettonParams, JettonState } from "../../../../libs/entries/asset";
+import { NotificationFields } from "../../../../libs/event";
 import {
   Body,
   ButtonBottomRow,
@@ -47,43 +47,33 @@ const JettonWallet: FC<JettonWalletProps> = React.memo(
   }
 );
 
-export const ImportJetton = () => {
-  const [searchParams] = useSearchParams();
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-  const address = decodeURIComponent(searchParams.get("address") ?? "");
-
+export const ImportJetton: FC<
+  NotificationFields<"importJetton", JettonParams> & {
+    onClose: () => void;
+  }
+> = ({ id, logo, origin, data: params, onClose }) => {
   const { data: wallets } = useOriginWallets(origin);
 
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
+  const { data, isFetching, error } = useJettonMinterData(params);
 
-  const { data, isFetching, error } = useJettonMinterData(
-    address,
-    searchParams
-  );
+  const { mutateAsync, isLoading, error: addError } = useAddJettonMutation(id);
 
-  const { mutate, isLoading, error: addError } = useAddJettonMutation(id);
-
-  const onAdd = () => {
+  const onAdd = async () => {
     if (!data) return;
-    mutate({
+    await mutateAsync({
       wallets,
       state: {
         state: data.state,
-        minterAddress: address,
+        minterAddress: params.address,
       },
     });
+    onClose();
   };
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   }, [id]);
-
-  useEffect(() => {
-    if (!address) {
-      onBack();
-    }
-  }, []);
 
   if (isFetching) {
     return <Loading />;
@@ -113,7 +103,7 @@ export const ImportJetton = () => {
             wallet={wallet}
             id={id}
             state={data.state}
-            jettonMinterAddress={address}
+            jettonMinterAddress={params.address}
           />
         ))}
       </Scroll>

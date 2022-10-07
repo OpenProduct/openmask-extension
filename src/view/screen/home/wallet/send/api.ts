@@ -1,27 +1,24 @@
 import {
   Address,
   Dns,
+  EstimateFeeValues,
   HttpProvider,
   Method,
   toNano,
   TransferParams,
 } from "@openmask/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { BN } from "bn.js";
 import { useContext } from "react";
-import * as tonMnemonic from "tonweb-mnemonic";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { SendMode } from "../../../../../libs/entries/tonSendMode";
 import { WalletState } from "../../../../../libs/entries/wallet";
-import { ErrorCode, RuntimeError } from "../../../../../libs/exception";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
 } from "../../../../context";
-import { decryptMnemonic } from "../../../api";
-import { askBackgroundPassword } from "../../../import/api";
+import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
 import { useNetworkConfig } from "../../api";
 
 export interface State {
@@ -60,13 +57,7 @@ export const getTransactionsParams = (
 ) => {
   return Promise.all([
     getToAddress(ton, config, toAddress),
-    (async () => {
-      const mnemonic = await decryptMnemonic(
-        wallet.mnemonic,
-        await askBackgroundPassword()
-      );
-      return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
-    })(),
+    getWalletKeyPair(wallet),
     ton.getSeqno(wallet.address),
   ] as const);
 };
@@ -110,14 +101,7 @@ export const useSendMethod = (state: State, balance?: string) => {
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
     async () => {
-      if (balance) {
-        if (new BN(balance).cmp(toNano(state.amount)) === -1) {
-          throw new RuntimeError(
-            ErrorCode.unexpectedParams,
-            "Don't enough wallet balance"
-          );
-        }
-      }
+      await checkBalanceOrDie(balance, toNano(state.amount));
 
       const [toAddress, keyPair, seqno] = await getTransactionsParams(
         ton,
@@ -148,15 +132,8 @@ export const useSendMethod = (state: State, balance?: string) => {
   );
 };
 
-interface Estimation {
-  in_fwd_fee: number;
-  storage_fee: number;
-  gas_fee: number;
-  fwd_fee: number;
-}
-
 export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
-  return useQuery<Estimation>(
+  return useQuery<EstimateFeeValues>(
     [QueryType.estimation],
     async () => {
       const all_fees = await wmethod!.method.estimateFee();

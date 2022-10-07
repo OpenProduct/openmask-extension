@@ -1,6 +1,7 @@
-import { useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import styled from "styled-components";
+import { FC, useCallback } from "react";
+import { RawSignInputParams } from "../../../../libs/entries/notificationMessage";
+import { NotificationFields } from "../../../../libs/event";
+import { CodeBlock } from "../../../components/CodeBlock";
 import {
   Body,
   ButtonNegative,
@@ -14,51 +15,34 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { sendBackground } from "../../../event";
-import { Loading } from "../../Loading";
-import { useSignData, useSignMutation } from "./api";
+import { useSignMutation } from "./api";
 
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
-
-const RawData = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
-
-export const SignPersonal = () => {
-  const [searchParams] = useSearchParams();
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
-
+export const SignPersonal: FC<
+  NotificationFields<"personalSign", RawSignInputParams> & {
+    onClose: () => void;
+  }
+> = ({ id, logo, origin, data, onClose }) => {
   const { mutateAsync, isLoading, error: rawSignError } = useSignMutation();
-  const { data, error, isFetching } = useSignData(id);
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   }, [id]);
 
-  useEffect(() => {
-    if (error) {
-      onBack();
-    }
-  }, [error]);
-
   const onSign = async () => {
-    if (!data) return;
-    const hex = Buffer.from(data, "utf8").toString("hex");
+    /**
+     * According: https://github.com/ton-foundation/specs/blob/main/specs/wtf-0002.md
+     */
+    const hex = Buffer.concat([
+      Buffer.from([0xff, 0xff]),
+      Buffer.from("ton-safe-sign-magic"),
+      Buffer.from(data.data, "utf8"),
+    ]).toString("hex");
+
     const signature = await mutateAsync(hex);
     sendBackground.message("approveRequest", { id, payload: signature });
+    onClose();
   };
-
-  if (isFetching) {
-    return <Loading />;
-  }
 
   return (
     <Body>
@@ -68,8 +52,7 @@ export const SignPersonal = () => {
         <Text>Would you like to sign data?</Text>
       </Center>
 
-      <Label>Message</Label>
-      <RawData>{data}</RawData>
+      <CodeBlock label="Message">{data.data}</CodeBlock>
 
       {rawSignError && <ErrorMessage>{rawSignError.message}</ErrorMessage>}
 

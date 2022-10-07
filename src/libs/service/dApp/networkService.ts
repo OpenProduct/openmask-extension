@@ -10,7 +10,8 @@ import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
 import { ErrorCode, EventError, RuntimeError } from "../../exception";
 import { getNetwork, QueryType, setStoreValue } from "../../store/browserStore";
-import { closeCurrentPopUp, openSwitchChainPopUp } from "./notificationService";
+import memoryStore from "../../store/memoryStore";
+import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import { getDAppPermissions, waitApprove } from "./utils";
 
 export const switchChain = async (
@@ -50,10 +51,18 @@ export const switchChain = async (
     throw new EventError();
   }
 
-  const popupId = await openSwitchChainPopUp(id, origin, network);
+  memoryStore.addNotification({
+    kind: "switchNetwork",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: { network },
+  });
+
   try {
-    await waitApprove(id, popupId);
+    const popupId = await openNotificationPopUp();
+    return await waitApprove(id, popupId);
   } finally {
-    await closeCurrentPopUp(popupId);
+    memoryStore.removeNotification(id);
   }
 };
