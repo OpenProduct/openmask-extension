@@ -1,12 +1,12 @@
 import { fromNano } from "@openmask/web-sdk";
 import { FC, useContext } from "react";
-import styled from "styled-components";
 import {
   DeployInputParams,
   DeployOutputParams,
 } from "../../../../libs/entries/transactionMessage";
 import { NotificationFields } from "../../../../libs/event";
 import { AddressTransfer } from "../../../components/Address";
+import { CodeBlock } from "../../../components/CodeBlock";
 import {
   Body,
   ButtonNegative,
@@ -27,18 +27,6 @@ import { sendBackground } from "../../../event";
 import { useBalance } from "../../home/api";
 import { useEstimateFee, useSendMutation } from "../../home/wallet/send/api";
 import { useDeployContractMutation, useSmartContractAddress } from "./api";
-
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
-
-const RawData = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
 
 export const DeployContract: FC<
   NotificationFields<"deploy", DeployInputParams> & { onClose: () => void }
@@ -105,17 +93,11 @@ export const DeployContract: FC<
 
       <Fees estimation={estimation} />
 
-      <Label>Initial Code</Label>
-      <RawData>{data.initCodeCell}</RawData>
-
-      <Label>Initial Data</Label>
-      <RawData>{data.initDataCell}</RawData>
+      <CodeBlock label="Initial Code">{data.initCodeCell}</CodeBlock>
+      <CodeBlock label="Initial Data">{data.initDataCell}</CodeBlock>
 
       {data.initMessageCell && (
-        <>
-          <Label>Initial Message</Label>
-          <RawData>{data.initMessageCell}</RawData>
-        </>
+        <CodeBlock label="Initial Message">{data.initMessageCell}</CodeBlock>
       )}
 
       {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}

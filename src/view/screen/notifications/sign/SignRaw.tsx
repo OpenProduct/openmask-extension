@@ -1,8 +1,8 @@
 import { FC, useCallback } from "react";
-import styled from "styled-components";
 import { RawSignInputParams } from "../../../../libs/entries/transactionMessage";
 import { NotificationFields } from "../../../../libs/event";
 import ExtensionPlatform from "../../../../libs/service/extension";
+import { CodeBlock } from "../../../components/CodeBlock";
 import {
   Body,
   ButtonNegative,
@@ -20,18 +20,6 @@ import { DAppBadge } from "../../../components/DAppBadge";
 import { LinkIcon } from "../../../components/Icons";
 import { sendBackground } from "../../../event";
 import { useSignMutation } from "./api";
-
-const Label = styled.div`
-  margin: ${(props) => props.theme.padding} 0 5px;
-`;
-
-const RawData = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
 
 const onLink = () =>
   ExtensionPlatform.openTab({
@@ -74,8 +62,7 @@ export const SignRaw: FC<
         </InlineLink>
       </WarningMessage>
 
-      <Label>Message</Label>
-      <RawData>{data.data}</RawData>
+      <CodeBlock label="Message">{data.data}</CodeBlock>
 
       {rawSignError && <ErrorMessage>{rawSignError.message}</ErrorMessage>}
 

@@ -24,10 +24,10 @@ import {
   getBalance,
   getConnectedWallets,
 } from "./dApp/connectService";
-import { deploySmartContract } from "./dApp/deployService";
 import { switchChain } from "./dApp/networkService";
 import {
   confirmAccountSeqNo,
+  deploySmartContract,
   sendTransaction,
   signPersonalValue,
   signRawValue,

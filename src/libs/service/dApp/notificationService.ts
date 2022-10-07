@@ -172,20 +172,6 @@ export const openSendTransactionPopUp = async (
   return popupId;
 };
 
-export const openPersonalSingPopUp = async (id: number, origin: string) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.personal}?${params.toString()}`
-  );
-
-  return popupId;
-};
-
 export const openNotificationPopUp = async () => {
   await openPopUp(AppRoute.notifications);
   return popupId;

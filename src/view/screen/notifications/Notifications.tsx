@@ -50,7 +50,7 @@ const NotificationsIndex = () => {
     case "rawSign":
       return <SignRaw {...data} onClose={reloadNotification} />;
     case "personalSign":
-      return <div></div>;
+      return <SignPersonal {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }
@@ -65,7 +65,6 @@ export const NotificationsRouter = () => {
       <Route path={NotificationsRoutes.jetton} element={<ImportJetton />} />
       <Route path={NotificationsRoutes.nft} element={<ImportNft />} />
       <Route path={NotificationsRoutes.unlock} element={<Loading />} />
-      <Route path={NotificationsRoutes.personal} element={<SignPersonal />} />
     </Routes>
   );
 };
