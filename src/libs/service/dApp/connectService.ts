@@ -16,7 +16,7 @@ import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
 import {
   closeCurrentPopUp,
-  openConnectDAppPopUp,
+  getActiveTabLogo,
   openNotificationPopUp,
 } from "./notificationService";
 import {
@@ -68,11 +68,19 @@ export const connectDApp = async (
   }
   const whitelist = await getConnections();
   if (whitelist[origin] == null) {
-    const popupId = await openConnectDAppPopUp(id, origin);
+    memoryStore.addNotification({
+      kind: "connectDApp",
+      id,
+      logo: await getActiveTabLogo(),
+      origin,
+      data: {},
+    });
+
     try {
+      const popupId = await openNotificationPopUp();
       await waitApprove(id, popupId);
     } finally {
-      await closeCurrentPopUp(popupId);
+      memoryStore.removeNotification(id);
     }
   }
   if (memoryStore.isLock()) {

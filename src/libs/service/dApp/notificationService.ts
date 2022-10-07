@@ -7,7 +7,6 @@
 
 import { fromNano } from "@openmask/web-sdk/build/utils/utils";
 import { AppRoute } from "../../../view/routes";
-import { NotificationsRoutes } from "../../../view/screen/notifications/route";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
@@ -64,19 +63,6 @@ const openPopUp = async (page: string) => {
 
     popupId = popupWindow.id;
   }
-};
-
-export const openConnectDAppPopUp = async (id: number, origin: string) => {
-  const params = new URLSearchParams({
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(
-    `/notifications${NotificationsRoutes.dapp}?${params.toString()}`
-  );
-  return popupId;
 };
 
 export const closeCurrentPopUp = async (popupId: number | undefined) => {

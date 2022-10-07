@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
 import { NotificationData } from "../../../libs/event";
 import { askBackground, sendBackground } from "../../event";
 import { Loading } from "../Loading";
@@ -7,14 +6,13 @@ import { ImportJetton } from "./asset/ImportJetton";
 import { ImportNft } from "./asset/ImportNft";
 import { ConnectDApp } from "./connect/ConnectDApp";
 import { DeployContract } from "./deploy/DeployContract";
-import { NotificationsRoutes } from "./route";
 import { SignPersonal } from "./sign/PersonalSign";
 import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const NotificationsIndex = () => {
+export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
 
   const reloadNotification = useCallback(async (wait = true) => {
@@ -57,16 +55,9 @@ const NotificationsIndex = () => {
       return <ImportJetton {...data} onClose={reloadNotification} />;
     case "importNft":
       return <ImportNft {...data} onClose={reloadNotification} />;
+    case "connectDApp":
+      return <ConnectDApp {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }
-};
-
-export const NotificationsRouter = () => {
-  return (
-    <Routes>
-      <Route index element={<NotificationsIndex />} />
-      <Route path={NotificationsRoutes.dapp} element={<ConnectDApp />} />
-    </Routes>
-  );
 };

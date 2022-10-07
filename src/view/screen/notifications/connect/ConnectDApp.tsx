@@ -1,11 +1,12 @@
 import { FC, useContext, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { ConnectDAppParams } from "../../../../libs/entries/notificationMessage";
 import {
   Permission,
   PermissionList,
 } from "../../../../libs/entries/permission";
 import { WalletState } from "../../../../libs/entries/wallet";
+import { NotificationFields } from "../../../../libs/event";
 import ExtensionPlatform from "../../../../libs/service/extension";
 import {
   Body,
@@ -75,18 +76,15 @@ const Wallet: FC<{
   );
 };
 
-export const ConnectDApp = () => {
-  const [searchParams] = useSearchParams();
-  const origin = decodeURIComponent(searchParams.get("origin") ?? "");
-  const logo = decodeURIComponent(searchParams.get("logo") ?? "");
-
-  const id = parseInt(searchParams.get("id") ?? "0", 10);
-
+export const ConnectDApp: FC<
+  NotificationFields<"connectDApp", ConnectDAppParams> & { onClose: () => void }
+> = ({ id, logo, origin, onClose }) => {
   const [permission, setPermission] = useState(false);
 
   useEffect(() => {
     if (!origin) {
       sendBackground.message("rejectRequest", id);
+      onClose();
     }
   }, []);
 
@@ -98,6 +96,7 @@ export const ConnectDApp = () => {
 
   const onCancel = () => {
     sendBackground.message("rejectRequest", id);
+    onClose();
   };
 
   const onNext = () => {
@@ -112,6 +111,7 @@ export const ConnectDApp = () => {
         logo={logo}
         id={id}
         onBack={() => setPermission(false)}
+        onOk={onClose}
       />
     );
   }
@@ -223,10 +223,11 @@ const PermissionView: FC<{
 
 interface ConfirmProps {
   id: number;
-  logo: string;
+  logo?: string;
   origin: string;
   addresses: string[];
   onBack: () => void;
+  onOk: () => void;
 }
 
 export const ConfirmPermission: FC<ConfirmProps> = ({
@@ -235,16 +236,25 @@ export const ConfirmPermission: FC<ConfirmProps> = ({
   origin,
   addresses,
   onBack,
+  onOk,
 }) => {
-  const { mutate, isLoading } = useAddConnectionMutation();
+  const { mutateAsync, isLoading } = useAddConnectionMutation();
 
   const [permissions, setPermissions] = useState<Permission[]>([
     Permission.base,
   ]);
 
-  const onConnect = () => {
-    mutate({ id, origin: origin!, wallets: addresses, logo, permissions });
+  const onConnect = async () => {
+    await mutateAsync({
+      id,
+      origin,
+      wallets: addresses,
+      logo: logo ?? null,
+      permissions,
+    });
+    onOk();
   };
+
   return (
     <Body>
       <Center>

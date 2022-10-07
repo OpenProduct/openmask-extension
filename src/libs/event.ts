@@ -1,5 +1,6 @@
 import { JettonParams, NftParams } from "./entries/asset";
 import {
+  ConnectDAppParams,
   DeployInputParams,
   RawSignInputParams,
   SwitchNetworkParams,
@@ -70,14 +71,14 @@ export type NotificationData =
   | NotificationFields<"personalSign", RawSignInputParams>
   | NotificationFields<"switchNetwork", SwitchNetworkParams>
   | NotificationFields<"importJetton", JettonParams>
-  | NotificationFields<"importNft", NftParams>;
+  | NotificationFields<"importNft", NftParams>
+  | NotificationFields<"connectDApp", ConnectDAppParams>;
 
 export type UnfinishedOperation =
   | null
   | { kind: "send"; value: SendOperation }
   | { kind: "sendJetton"; value: SendJettonOperation }
-  | { kind: "sendNft"; value: SendNftOperation }
-  | { kind: "sign"; value: string };
+  | { kind: "sendNft"; value: SendNftOperation };
 
 export interface PupUpEvents {
   isLock: void;

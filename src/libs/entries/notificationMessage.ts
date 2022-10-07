@@ -18,3 +18,5 @@ export interface RawSignInputParams {
 export interface SwitchNetworkParams {
   network: string;
 }
+
+export interface ConnectDAppParams {}
