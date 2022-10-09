@@ -30,7 +30,7 @@ export const usePersonalSignMutation = () => {
      * According: https://github.com/ton-foundation/specs/blob/main/specs/wtf-0002.md
      */
 
-    if (value.length >= 127) {
+    if (value.length + "ton-safe-sign-magic".length >= 127) {
       throw new Error("Too large personal message");
     }
 
