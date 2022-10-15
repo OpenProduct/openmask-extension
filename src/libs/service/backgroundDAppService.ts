@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openmask/web-sdk/build/utils/address";
+import { Address } from "@openproduct/web-sdk/build/cjs/utils/address";
 import browser from "webextension-polyfill";
 import { Connections } from "../entries/connection";
 import {

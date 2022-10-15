@@ -1,4 +1,4 @@
-import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
+import { TonHttpProvider } from "@openproduct/web-sdk/build/cjs/providers/httpProvider";
 import BN from "bn.js";
 import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
@@ -30,7 +30,7 @@ export const confirmWalletSeqNo = async (
   const network = await getNetwork();
   const config = getNetworkConfig(network);
 
-  const provider = new HttpProvider(config.rpcUrl, {
+  const provider = new TonHttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
   });
 

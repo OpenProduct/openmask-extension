@@ -1,9 +1,9 @@
-import { Address, fromNano } from "@openmask/web-sdk";
+import { Address, fromNano } from "@openproduct/web-sdk/build/cjs";
 import {
   JettonData,
   JettonMinterDao,
-} from "@openmask/web-sdk/build/contract/token/ft/jettonMinterDao";
-import { JettonWalletDao } from "@openmask/web-sdk/build/contract/token/ft/jettonWalletDao";
+} from "@openproduct/web-sdk/build/cjs/contract/token/ft/jettonMinterDao";
+import { JettonWalletDao } from "@openproduct/web-sdk/build/cjs/contract/token/ft/jettonWalletDao";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {

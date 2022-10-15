@@ -2,11 +2,11 @@ import {
   Address,
   Dns,
   EstimateFeeValues,
-  HttpProvider,
   Method,
   toNano,
+  TonHttpProvider,
   TransferParams,
-} from "@openmask/web-sdk";
+} from "@openproduct/web-sdk/build/cjs";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { NetworkConfig } from "../../../../../libs/entries/network";
@@ -50,7 +50,7 @@ export const stateToSearch = (state: State) => {
 };
 
 export const getTransactionsParams = (
-  ton: HttpProvider,
+  ton: TonHttpProvider,
   config: NetworkConfig,
   toAddress: string,
   wallet: WalletState
@@ -63,7 +63,7 @@ export const getTransactionsParams = (
 };
 
 export const getToAddress = async (
-  ton: HttpProvider,
+  ton: TonHttpProvider,
   config: NetworkConfig,
   toAddress: string
 ) => {

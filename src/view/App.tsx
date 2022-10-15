@@ -1,4 +1,8 @@
-import { ALL, hexToBytes, HttpProvider } from "@openmask/web-sdk";
+import {
+  ALL,
+  hexToBytes,
+  TonHttpProvider,
+} from "@openproduct/web-sdk/build/cjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
@@ -33,7 +37,7 @@ import defaultTheme from "./styles/defaultTheme";
 
 const ContentRouter: FC<{
   account: AccountState;
-  ton: HttpProvider;
+  ton: TonHttpProvider;
   lock: boolean;
   script: string | null;
   notification: boolean;
@@ -96,7 +100,7 @@ const App = () => {
   }, []);
 
   const tonProvider = useMemo(() => {
-    return new HttpProvider(config.rpcUrl, { apiKey: config.apiKey });
+    return new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey });
   }, [config]);
 
   if (isLoading || !data || !network || script === undefined) {

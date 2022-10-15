@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import HttpProvider from "@openmask/web-sdk/build/providers/httpProvider";
+import { TonHttpProvider } from "@openproduct/web-sdk/build/cjs/providers/httpProvider";
 import { getNetworkConfig } from "../../entries/network";
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
@@ -105,7 +105,7 @@ export const getBalance = async (
   const network = await getNetwork();
   const config = getNetworkConfig(network);
 
-  const provider = new HttpProvider(config.rpcUrl, {
+  const provider = new TonHttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
   });
 

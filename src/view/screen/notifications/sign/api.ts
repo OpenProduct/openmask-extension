@@ -1,4 +1,7 @@
-import { bytesToHex, hexToBytes } from "@openmask/web-sdk/build/utils/utils";
+import {
+  bytesToHex,
+  hexToBytes,
+} from "@openproduct/web-sdk/build/cjs/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import nacl from "tweetnacl";

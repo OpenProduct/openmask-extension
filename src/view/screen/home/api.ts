@@ -1,4 +1,4 @@
-import { Address } from "@openmask/web-sdk";
+import { Address } from "@openproduct/web-sdk/build/cjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
 import { getNetworkConfig } from "../../../libs/entries/network";

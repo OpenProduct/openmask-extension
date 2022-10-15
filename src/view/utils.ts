@@ -1,4 +1,4 @@
-import { fromNano } from "@openmask/web-sdk/build/utils/utils";
+import { fromNano } from "@openproduct/web-sdk/build/cjs/utils/utils";
 import { useMemo } from "react";
 
 const balanceFormat = new Intl.NumberFormat("en-US", {
