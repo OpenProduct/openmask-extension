@@ -1,4 +1,4 @@
-import { ALL } from "@openmask/web-sdk";
+import { ALL } from "@openproduct/web-sdk/build/cjs";
 import { Asset } from "./asset";
 
 export type WalletVersion = keyof typeof ALL;

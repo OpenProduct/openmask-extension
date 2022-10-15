@@ -1,4 +1,7 @@
-import { bytesToHex, hexToBytes } from "@openmask/web-sdk/build/utils/utils";
+import {
+  bytesToHex,
+  hexToBytes,
+} from "@openproduct/web-sdk/build/cjs/utils/utils";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import nacl from "tweetnacl";
@@ -12,6 +15,34 @@ export const useSignMutation = () => {
     if (!hex) {
       throw new Error("Missing sign data");
     }
+    const keyPair = await getWalletKeyPair(wallet);
+    const signature = nacl.sign.detached(hexToBytes(hex), keyPair.secretKey);
+    return bytesToHex(signature);
+  });
+};
+
+export const usePersonalSignMutation = () => {
+  const wallet = useContext(WalletStateContext);
+
+  return useMutation<string, Error, string | undefined>(async (value) => {
+    if (!value) {
+      throw new Error("Missing sign data");
+    }
+
+    /**
+     * According: https://github.com/ton-foundation/specs/blob/main/specs/wtf-0002.md
+     */
+
+    if (value.length + "ton-safe-sign-magic".length >= 127) {
+      throw new Error("Too large personal message");
+    }
+
+    const hex = Buffer.concat([
+      Buffer.from([0xff, 0xff]),
+      Buffer.from("ton-safe-sign-magic"),
+      Buffer.from(value, "utf8"),
+    ]).toString("hex");
+
     const keyPair = await getWalletKeyPair(wallet);
     const signature = nacl.sign.detached(hexToBytes(hex), keyPair.secretKey);
     return bytesToHex(signature);

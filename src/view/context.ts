@@ -1,4 +1,7 @@
-import { HttpProvider, WalletContract } from "@openmask/web-sdk";
+import {
+  TonHttpProvider,
+  WalletContract,
+} from "@openproduct/web-sdk/build/cjs";
 import React from "react";
 import { AccountState } from "../libs/entries/account";
 import { WalletState } from "../libs/entries/wallet";
@@ -15,6 +18,8 @@ export const WalletContractContext = React.createContext<WalletContract>(
 
 export const WalletAddressContext = React.createContext<string>(undefined!);
 
-export const TonProviderContext = React.createContext<HttpProvider>(undefined!);
+export const TonProviderContext = React.createContext<TonHttpProvider>(
+  undefined!
+);
 
 export const NetworkContext = React.createContext<string>(undefined!);

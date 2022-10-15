@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2022-10-15
+
+### Changed
+
+- Update `ton_personalSing` notification
+- Install web-sdk from npm registry
+
 ## [0.9.0] - 2022-10-08
 
 ### Changed
@@ -85,7 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.9.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.7.0...v0.7.1

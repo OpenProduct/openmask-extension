@@ -1,4 +1,4 @@
-import { ALL } from "@openmask/web-sdk";
+import { ALL } from "@openproduct/web-sdk/build/cjs";
 import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";

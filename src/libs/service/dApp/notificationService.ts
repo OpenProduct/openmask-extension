@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { fromNano } from "@openmask/web-sdk/build/utils/utils";
+import { fromNano } from "@openproduct/web-sdk/build/cjs/utils/utils";
 import { AppRoute } from "../../../view/routes";
 import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";

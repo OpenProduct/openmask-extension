@@ -1,6 +1,6 @@
-import { Contract, TransferParams } from "@openmask/web-sdk";
-import { Cell } from "@openmask/web-sdk/build/boc/cell";
-import { Address, contractAddress } from "@openmask/web-sdk/build/utils";
+import { Contract, TransferParams } from "@openproduct/web-sdk/build/cjs";
+import { Cell } from "@openproduct/web-sdk/build/cjs/boc/cell";
+import { Address, contractAddress } from "@openproduct/web-sdk/build/cjs/utils";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";

@@ -1,9 +1,9 @@
 import {
   Address,
-  HttpProvider,
   JettonMinterDao,
   JettonWalletDao,
-} from "@openmask/web-sdk";
+  TonHttpProvider,
+} from "@openproduct/web-sdk/build/cjs";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
@@ -19,7 +19,7 @@ import { saveAccountState } from "../../../api";
 const getJettonWalletAddress = async (
   client: QueryClient,
   network: string,
-  provider: HttpProvider,
+  provider: TonHttpProvider,
   jetton: JettonAsset,
   account: AccountState
 ): Promise<Address | null> => {

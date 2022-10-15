@@ -1,4 +1,4 @@
-import { fromNano } from "@openmask/web-sdk";
+import { fromNano } from "@openproduct/web-sdk/build/cjs";
 import { FC, useContext } from "react";
 import {
   DeployInputParams,

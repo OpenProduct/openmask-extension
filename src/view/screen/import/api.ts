@@ -1,4 +1,9 @@
-import { Address, ALL, bytesToHex, HttpProvider } from "@openmask/web-sdk";
+import {
+  Address,
+  ALL,
+  bytesToHex,
+  TonHttpProvider,
+} from "@openproduct/web-sdk/build/cjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
@@ -30,7 +35,7 @@ export const askBackgroundNotification = async () => {
 const lastWalletVersion = "v4R2";
 
 const createWallet = async (
-  ton: HttpProvider,
+  ton: TonHttpProvider,
   mnemonic: string,
   password: string,
   index: number
@@ -81,7 +86,7 @@ export const useCreateWalletMutation = () => {
 };
 
 const findContract = async (
-  ton: HttpProvider,
+  ton: TonHttpProvider,
   keyPair: tonMnemonic.KeyPair
 ): Promise<[WalletVersion, Address]> => {
   for (let [version, WalletClass] of Object.entries(ALL)) {
@@ -107,7 +112,7 @@ const findContract = async (
 };
 
 export const importWallet = async (
-  ton: HttpProvider,
+  ton: TonHttpProvider,
   mnemonic: string[],
   password: string,
   index: number

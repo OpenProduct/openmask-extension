@@ -15,14 +15,18 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { sendBackground } from "../../../event";
-import { useSignMutation } from "./api";
+import { usePersonalSignMutation } from "./api";
 
 export const SignPersonal: FC<
   NotificationFields<"personalSign", RawSignInputParams> & {
     onClose: () => void;
   }
 > = ({ id, logo, origin, data, onClose }) => {
-  const { mutateAsync, isLoading, error: rawSignError } = useSignMutation();
+  const {
+    mutateAsync,
+    isLoading,
+    error: rawSignError,
+  } = usePersonalSignMutation();
 
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
@@ -30,16 +34,7 @@ export const SignPersonal: FC<
   }, [id]);
 
   const onSign = async () => {
-    /**
-     * According: https://github.com/ton-foundation/specs/blob/main/specs/wtf-0002.md
-     */
-    const hex = Buffer.concat([
-      Buffer.from([0xff, 0xff]),
-      Buffer.from("ton-safe-sign-magic"),
-      Buffer.from(data.data, "utf8"),
-    ]).toString("hex");
-
-    const signature = await mutateAsync(hex);
+    const signature = await mutateAsync(data.data);
     sendBackground.message("approveRequest", { id, payload: signature });
     onClose();
   };
