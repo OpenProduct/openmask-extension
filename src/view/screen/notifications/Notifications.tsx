@@ -64,3 +64,5 @@ export const Notifications = () => {
       return <Loading />;
   }
 };
+
+export default Notifications;

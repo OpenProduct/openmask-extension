@@ -5,12 +5,16 @@ import { Body, H1, Text, TextLink } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
+import { ExperimentalSettings } from "./Experimental";
 import { GeneralSettings } from "./General";
+import { WebAuthnMigration } from "./webAuthn/WebAuthnMigration";
 import packageJson from "/package.json";
 
-enum SettingsRoutes {
+export enum SettingsRoutes {
   about = "/about",
   general = "/general",
+  experimental = "/experimental",
+  webauthn = "/webauthn",
   index = "/",
 }
 
@@ -32,6 +36,7 @@ interface SettingsLink {
 }
 const SETTINGS: SettingsLink[] = [
   { route: SettingsRoutes.general, name: "General" },
+  { route: SettingsRoutes.experimental, name: "Experimental" },
   { route: SettingsRoutes.about, name: "About" },
 ];
 
@@ -116,7 +121,14 @@ export const Settings = () => {
     <Routes>
       <Route path={SettingsRoutes.about} element={<AboutSettings />} />
       <Route path={SettingsRoutes.general} element={<GeneralSettings />} />
+      <Route path={SettingsRoutes.webauthn} element={<WebAuthnMigration />} />
+      <Route
+        path={SettingsRoutes.experimental}
+        element={<ExperimentalSettings />}
+      />
       <Route path={SettingsRoutes.index} element={<SettingsIndex />} />
     </Routes>
   );
 };
+
+export default Settings;

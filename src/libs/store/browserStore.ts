@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
+import { AuthConfiguration, DefaultAuthPasswordConfig } from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
 import {
@@ -10,6 +11,7 @@ import { checkForError } from "../utils";
 
 export enum QueryType {
   proxy = "proxy",
+  auth = "auth",
 
   price = "price",
 
@@ -62,6 +64,13 @@ export const getProxyConfiguration = () => {
   return getStoreValue<ProxyConfiguration>(
     QueryType.proxy,
     DisabledProxyConfiguration
+  );
+};
+
+export const getAuthConfiguration = () => {
+  return getStoreValue<AuthConfiguration>(
+    QueryType.auth,
+    DefaultAuthPasswordConfig
   );
 };
 
