@@ -64,7 +64,7 @@ export const WebAuthnMigration = () => {
     verificationReset();
 
     const result = await registrationAsync();
-    //await verificationAsync(result);
+    await verificationAsync(result);
     setDone(true);
   }, []);
 

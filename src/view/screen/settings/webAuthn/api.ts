@@ -1,20 +1,24 @@
-import { startAuthentication } from "@simplewebauthn/browser";
 import {
-  generateAuthenticationOptions,
-  VerifiedRegistrationResponse,
-  verifyAuthenticationResponse,
-} from "@simplewebauthn/server";
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
 import {
-  AuthenticatorDevice,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
   RegistrationCredentialJSON,
 } from "@simplewebauthn/typescript-types";
 import { useMutation } from "@tanstack/react-query";
+import base64url from "base64url";
 import crypto from "crypto";
 import browser from "webextension-polyfill";
 import { WebAuthn } from "../../../../libs/entries/auth";
 import { networkConfigs } from "../../../../libs/entries/network";
+import { getAuthenticationResponse } from "../../../../libs/service/webAuthn/getAuthenticationResponse";
+import { getRegistrationResponse } from "../../../../libs/service/webAuthn/getRegistrationResponse";
+import { ParsedAuthenticatorData } from "../../../../libs/service/webAuthn/helpers/parseAuthenticatorData";
 import { delay, reEncryptWallets } from "../../../../libs/state/accountService";
 import {
+  batchUpdateStore,
   getAccountState,
   QueryType,
 } from "../../../../libs/store/browserStore";
@@ -28,158 +32,98 @@ const getHost = () => {
   const url = new URL(browser.runtime.getURL("index.html"));
   const rpID = url.hostname;
 
-  const expectedOrigin = `chrome-extension://${rpID}`;
-  const expectedRPID = expectedOrigin;
   return {
     rpID,
-    expectedOrigin,
-    expectedRPID,
   };
 };
 
 export interface RegistrationResponse {
   password: string;
   credential: RegistrationCredentialJSON;
-  verification: VerifiedRegistrationResponse;
+  authenticator: ParsedAuthenticatorData;
 }
 
 export const useRegistrationMigration = () => {
-  return useMutation<void, Error, void>(async () => {
+  return useMutation<RegistrationResponse, Error, void>(async () => {
     const password = await askBackgroundPassword();
 
-    const { rpID, expectedOrigin, expectedRPID } = getHost();
+    const { rpID } = getHost();
 
-    const userID = crypto.randomBytes(32);
-    const challenge = crypto.randomBytes(32);
+    const userID = crypto.randomBytes(32).toString("hex");
+    const challenge = crypto.randomBytes(32).toString("hex");
 
-    const options: CredentialCreationOptions = {
-      publicKey: {
-        challenge: challenge,
-        rp: {
-          name: rpName,
-          id: rpID,
-        },
-        user: {
-          id: userID,
-          name: userName,
-          displayName: rpName,
-        },
-        pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 },
-        ],
+    const options: PublicKeyCredentialCreationOptionsJSON = {
+      challenge: challenge,
+      rp: {
+        name: rpName,
+        id: rpID,
       },
+      user: {
+        id: userID,
+        name: userName,
+        displayName: rpName,
+      },
+      pubKeyCredParams: [
+        { type: "public-key", alg: -7 },
+        { type: "public-key", alg: -257 },
+      ],
+      excludeCredentials: [],
     };
 
-    const result = await navigator.credentials.create(options);
+    const credential = await startRegistration(options);
 
-    if (!result) {
-      throw new Error("Unable to create credentials");
-    }
-    console.log(result);
-    // const options = generateRegistrationOptions({
-    //   rpName,
-    //   rpID,
-    //   userID,
-    //   userName,
-    //   userDisplayName: rpName,
-    //   excludeCredentials: [],
-    //   attestationType: "direct",
-    // });
+    console.log({ credential });
 
-    // const credential = await startRegistration(options);
+    const authenticator = await getRegistrationResponse(credential);
 
-    // const verification = await verifyRegistrationResponse({
-    //   credential: credential,
-    //   expectedChallenge: options.challenge,
-    //   expectedOrigin: expectedOrigin,
-    //   expectedRPID: expectedRPID,
-    // });
+    console.log({ authenticator });
 
-    // const { verified, registrationInfo } = verification;
-    // if (!verified || registrationInfo == undefined) {
-    //   throw new Error("The credential are not verified.");
-    // }
-
-    // return {
-    //   password,
-    //   credential,
-    //   verification,
-    // };
+    return {
+      password,
+      credential,
+      authenticator,
+    };
   });
 };
 
 export const useVerificationMigration = () => {
   return useMutation<void, Error, RegistrationResponse>(
-    async ({ credential, verification, password }) => {
-      const { expectedOrigin, expectedRPID } = getHost();
-
-      const { registrationInfo } = verification;
-      if (registrationInfo == undefined) {
-        throw new Error("The credential are not verified.");
-      }
-
+    async ({ credential, password, authenticator }) => {
       await delay(500);
 
-      console.log({ credential });
-      console.log({ registrationInfo });
+      const { credentialID, credentialPublicKey } = authenticator;
+      if (!credentialID || !credentialPublicKey) {
+        throw new Error("Invalid authenticator data");
+      }
 
-      const options = generateAuthenticationOptions({
+      const challenge = crypto.randomBytes(32).toString("hex");
+      const options: PublicKeyCredentialRequestOptionsJSON = {
+        challenge,
         allowCredentials: [
           {
-            id: registrationInfo.credentialID,
-            type: registrationInfo.credentialType,
+            id: base64url.encode(credentialID),
+            type: "public-key",
             transports: credential.transports,
           },
         ],
         userVerification: "required",
-      });
-
+      };
       const authentication = await startAuthentication(options);
 
+      console.log({ authentication });
+
       try {
-        //   const verified = await askBackground<boolean | Error>(
-        //     5 * 60 * 1000
-        //   ).message("verifyAuthentication", {
-        //     credential: authentication,
-        //     expectedChallenge: options.challenge,
-        //     expectedOrigin: expectedOrigin,
-        //     expectedRPID: expectedRPID,
-        //     authenticator: {
-        //       credentialPublicKey:
-        //         registrationInfo.credentialPublicKey.toString("base64"),
-        //       credentialID: registrationInfo.credentialID.toString("base64"),
-        //       counter: registrationInfo.counter,
-        //       transports: credential.transports,
-        //     },
-        //   });
-        const authenticator: AuthenticatorDevice = {
-          credentialPublicKey: registrationInfo.credentialPublicKey,
-          credentialID: registrationInfo.credentialID,
-          counter: registrationInfo.counter,
-          transports: credential.transports,
-        };
-
-        const authenticationResponse = await verifyAuthenticationResponse({
-          credential: authentication,
-          expectedChallenge: options.challenge,
-          expectedOrigin: expectedOrigin,
-          expectedRPID: expectedRPID,
-          authenticator,
-        });
-
-        const { verified } = authenticationResponse;
-        console.log({ verified });
+        const response = await getAuthenticationResponse(authentication);
+        console.log({ response });
       } catch (e) {
-        console.log({ e });
+        console.log(e);
       }
 
       const configuration: WebAuthn = {
         kind: "webauthn",
-        counter: registrationInfo.counter + 1,
-        credentialsId: registrationInfo.credentialID.toString("base64"),
-        credentialPublicKey:
-          registrationInfo.credentialPublicKey.toString("base64"),
+        credentialsId: base64url.encode(credentialID),
+        credentialPublicKey: base64url.encode(credentialPublicKey),
+        counter: authenticator.counter,
         transports: credential.transports,
       };
 
@@ -204,7 +148,7 @@ export const useVerificationMigration = () => {
 
       console.log(batchUpdate);
 
-      //await batchUpdateStore(batchUpdate);
+      await batchUpdateStore(batchUpdate);
     }
   );
 };

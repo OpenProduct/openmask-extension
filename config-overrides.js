@@ -6,11 +6,9 @@ module.exports = function override(config, env) {
 
   config.resolve.fallback = {
     ...config.resolve.fallback,
+    buffer: require.resolve("buffer"),
     crypto: require.resolve("crypto-browserify"),
     stream: require.resolve("stream-browserify"),
-    buffer: require.resolve("buffer"),
-    url: require.resolve("url/"),
-    util: require.resolve("util/"),
   };
   config.resolve.extensions = [...config.resolve.extensions, ".ts", ".js"];
   config.plugins = [
