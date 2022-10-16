@@ -1,19 +1,15 @@
-import {
-  startAuthentication,
-  startRegistration,
-} from "@simplewebauthn/browser";
+import { startAuthentication } from "@simplewebauthn/browser";
 import {
   generateAuthenticationOptions,
-  generateRegistrationOptions,
   VerifiedRegistrationResponse,
   verifyAuthenticationResponse,
-  verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 import {
   AuthenticatorDevice,
   RegistrationCredentialJSON,
 } from "@simplewebauthn/typescript-types";
 import { useMutation } from "@tanstack/react-query";
+import crypto from "crypto";
 import browser from "webextension-polyfill";
 import { WebAuthn } from "../../../../libs/entries/auth";
 import { networkConfigs } from "../../../../libs/entries/network";
@@ -40,17 +36,6 @@ const getHost = () => {
     expectedRPID,
   };
 };
-function getRandomString(length: number) {
-  var randomChars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var result = "";
-  for (var i = 0; i < length; i++) {
-    result += randomChars.charAt(
-      Math.floor(Math.random() * randomChars.length)
-    );
-  }
-  return result;
-}
 
 export interface RegistrationResponse {
   password: string;
@@ -59,41 +44,68 @@ export interface RegistrationResponse {
 }
 
 export const useRegistrationMigration = () => {
-  return useMutation<RegistrationResponse, Error, void>(async () => {
+  return useMutation<void, Error, void>(async () => {
     const password = await askBackgroundPassword();
 
     const { rpID, expectedOrigin, expectedRPID } = getHost();
 
-    const userID = getRandomString(30);
+    const userID = crypto.randomBytes(32);
+    const challenge = crypto.randomBytes(32);
 
-    const options = generateRegistrationOptions({
-      rpName,
-      rpID,
-      userID,
-      userName,
-      userDisplayName: rpName,
-      excludeCredentials: [],
-    });
-
-    const credential = await startRegistration(options);
-
-    const verification = await verifyRegistrationResponse({
-      credential: credential,
-      expectedChallenge: options.challenge,
-      expectedOrigin: expectedOrigin,
-      expectedRPID: expectedRPID,
-    });
-
-    const { verified, registrationInfo } = verification;
-    if (!verified || registrationInfo == undefined) {
-      throw new Error("The credential are not verified.");
-    }
-
-    return {
-      password,
-      credential,
-      verification,
+    const options: CredentialCreationOptions = {
+      publicKey: {
+        challenge: challenge,
+        rp: {
+          name: rpName,
+          id: rpID,
+        },
+        user: {
+          id: userID,
+          name: userName,
+          displayName: rpName,
+        },
+        pubKeyCredParams: [
+          { type: "public-key", alg: -7 },
+          { type: "public-key", alg: -257 },
+        ],
+      },
     };
+
+    const result = await navigator.credentials.create(options);
+
+    if (!result) {
+      throw new Error("Unable to create credentials");
+    }
+    console.log(result);
+    // const options = generateRegistrationOptions({
+    //   rpName,
+    //   rpID,
+    //   userID,
+    //   userName,
+    //   userDisplayName: rpName,
+    //   excludeCredentials: [],
+    //   attestationType: "direct",
+    // });
+
+    // const credential = await startRegistration(options);
+
+    // const verification = await verifyRegistrationResponse({
+    //   credential: credential,
+    //   expectedChallenge: options.challenge,
+    //   expectedOrigin: expectedOrigin,
+    //   expectedRPID: expectedRPID,
+    // });
+
+    // const { verified, registrationInfo } = verification;
+    // if (!verified || registrationInfo == undefined) {
+    //   throw new Error("The credential are not verified.");
+    // }
+
+    // return {
+    //   password,
+    //   credential,
+    //   verification,
+    // };
   });
 };
 

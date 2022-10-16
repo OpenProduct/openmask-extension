@@ -5,8 +5,6 @@
  * @since: 0.1.0
  */
 
-import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { AuthenticatorDevice } from "@simplewebauthn/typescript-types";
 import browser from "webextension-polyfill";
 import {
   BackgroundEvents,
@@ -128,44 +126,6 @@ popUpEventEmitter.on("closePopUp", async (message) => {
     await closeCurrentPopUp((popup && popup.id) || undefined);
   } catch (e) {
     Logger.error(e);
-  }
-});
-
-popUpEventEmitter.on("verifyAuthentication", async (message) => {
-  try {
-    const {
-      credential,
-      expectedChallenge,
-      expectedOrigin,
-      expectedRPID,
-      authenticator,
-    } = message.params;
-
-    const device: AuthenticatorDevice = {
-      credentialPublicKey: Buffer.from(
-        authenticator.credentialPublicKey,
-        "base64"
-      ),
-      credentialID: Buffer.from(authenticator.credentialID, "base64"),
-      counter: authenticator.counter,
-      transports: authenticator.transports,
-    };
-
-    const authenticationResponse = await verifyAuthenticationResponse({
-      credential,
-      expectedChallenge,
-      expectedOrigin,
-      expectedRPID,
-      authenticator: device,
-    });
-
-    console.log(authenticationResponse);
-
-    const { verified } = authenticationResponse;
-    sendResponseToPopUp(message.id, verified);
-  } catch (e) {
-    console.log(e);
-    sendResponseToPopUp(message.id, e);
   }
 });
 
