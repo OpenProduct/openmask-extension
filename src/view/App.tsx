@@ -26,6 +26,7 @@ import { Header } from "./screen/home/Header";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
 import { Unlock } from "./screen/unlock/Unlock";
+import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
 import defaultTheme from "./styles/defaultTheme";
 
 const ConnectWallet = React.lazy(() => import("./screen/import/ConnectWallet"));
@@ -124,6 +125,7 @@ const App = () => {
             script={script}
             notification={notification}
           />
+          <WebAuthnNotification />
         </TonProviderContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>

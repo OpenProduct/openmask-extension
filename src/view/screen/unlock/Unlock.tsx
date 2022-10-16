@@ -6,9 +6,8 @@ import {
   ButtonPositive,
   Center,
   H1,
-  Text,
 } from "../../components/Components";
-import { Fingerprint } from "../../components/Fingerprint";
+import { FingerprintIcon } from "../../components/Icons";
 import { InputField } from "../../components/InputField";
 import { LoadingLogo } from "../../components/Logo";
 import { Loading } from "../Loading";
@@ -36,27 +35,34 @@ export const Unlock = () => {
   return <UnlockByWebAuthn />;
 };
 
+const Block = styled.div`
+  height: 10px;
+`;
 const UnlockByWebAuthn = () => {
-  const { mutateAsync, reset } = useUnlockWebAuthnMutation();
+  const { mutateAsync, reset, isLoading } = useUnlockWebAuthnMutation();
 
+  const unlock = () => {
+    reset();
+    mutateAsync();
+  };
   useEffect(() => {
     delay(300).then(() => {
-      reset();
-      mutateAsync();
+      unlock();
     });
   }, []);
 
   return (
-    <Body>
+    <Body onSubmit={unlock}>
       <ButtonColumn>
         <LoadingLogo />
+        <Block />
         <Center>
           <H1>Welcome Back!</H1>
         </Center>
-        <Fingerprint size="small" />
-        <Center>
-          <Text>Verify your identity</Text>
-        </Center>
+        <Block />
+        <ButtonPositive type="submit" disabled={isLoading}>
+          Verify your identity <FingerprintIcon />
+        </ButtonPositive>
       </ButtonColumn>
     </Body>
   );

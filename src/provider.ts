@@ -1,5 +1,5 @@
+import { EventEmitter } from "./libs/entries/eventEmitter";
 import { OpenMaskApiMessage } from "./libs/entries/message";
-import { EventEmitter } from "./libs/eventEmitter";
 
 const seeIsEvent = (method: string) => {
   switch (method) {

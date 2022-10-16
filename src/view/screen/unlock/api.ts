@@ -1,15 +1,15 @@
 import { startAuthentication } from "@simplewebauthn/browser";
 import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import crypto from "crypto";
 import { decrypt } from "../../../libs/service/cryptoService";
 import { verifyAuthenticationResponse } from "../../../libs/service/webAuthn/getAuthenticationResponse";
 import {
   getAuthConfiguration,
   getScript,
-  QueryType,
   updateAuthCounter,
 } from "../../../libs/store/browserStore";
+import { getWebAuthnPassword } from "../../api";
 import { sendBackground } from "../../event";
 
 export const useUnlockMutation = () => {
@@ -27,9 +27,8 @@ export const useUnlockMutation = () => {
   });
 };
 
-export const useUnlockWebAuthnMutation = () => {
-  const client = useQueryClient();
-  return useMutation<void, Error, void>(async () => {
+export const useAuthenticationMutation = () => {
+  return useMutation<string, Error, void>(async () => {
     const data = await getAuthConfiguration();
     if (data.kind !== "webauthn") {
       throw new Error("Unexpected auth kind");
@@ -48,13 +47,21 @@ export const useUnlockWebAuthnMutation = () => {
     };
     const authentication = await startAuthentication(options);
 
-    const { newCounter } = await verifyAuthenticationResponse(
+    const { newCounter, signature } = await verifyAuthenticationResponse(
       authentication,
       data
     );
 
     await updateAuthCounter(data, newCounter);
-    sendBackground.message("tryToUnlock", "webauthn");
-    client.invalidateQueries([QueryType.auth]);
+
+    return signature;
+  });
+};
+
+export const useUnlockWebAuthnMutation = () => {
+  return useMutation<void, Error, void>(async () => {
+    await getWebAuthnPassword(async () => {
+      sendBackground.message("tryToUnlock", "webauthn");
+    });
   });
 };

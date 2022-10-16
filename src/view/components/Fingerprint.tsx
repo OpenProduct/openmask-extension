@@ -13,7 +13,7 @@ const Block = styled.div<{ size: string }>`
           height: 150px;
         `
       : css`
-          height: 90px;
+          height: 75px;
         `}}
 
 `;
@@ -25,8 +25,8 @@ const style: any = {
 const Icon = () => {
   return (
     <svg
-      width="70px"
-      height="70px"
+      width="65px"
+      height="65px"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       x="0px"

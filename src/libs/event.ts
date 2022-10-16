@@ -1,5 +1,5 @@
 import { JettonParams, NftParams } from "./entries/asset";
-import { VerifyAuthenticationResponseJSON } from "./entries/auth";
+import { EventEmitter, IEventEmitter } from "./entries/eventEmitter";
 import {
   ConnectDAppParams,
   DeployInputParams,
@@ -7,31 +7,6 @@ import {
   SwitchNetworkParams,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
-import { TransactionParams } from "./entries/transaction";
-import { EventEmitter } from "./eventEmitter";
-
-export type IEventEmitter<T> = {
-  on<Key extends string & keyof T>(
-    method: `${Key}`,
-    callback: (options: {
-      method: `${Key}`;
-      id?: number;
-      params: T[Key];
-    }) => void
-  ): void;
-  off<Key extends string & keyof T>(
-    eventName: `${Key}`,
-    callback: (options: {
-      method: `${Key}`;
-      id?: number;
-      params: T[Key];
-    }) => void
-  ): void;
-  emit<Key extends string & keyof T>(
-    eventName: `${Key}`,
-    params?: { method: `${Key}`; id?: number; params: T[Key] }
-  ): void;
-};
 
 export type PopUpEventEmitter = IEventEmitter<PupUpEvents>;
 export type BackgroundEventsEmitter = IEventEmitter<BackgroundEvents>;
@@ -106,8 +81,6 @@ export interface PupUpEvents {
 
   getNotification: void;
   closePopUp: number;
-
-  verifyAuthentication: VerifyAuthenticationResponseJSON;
 }
 
 export interface PayloadRequest<P = any> {
