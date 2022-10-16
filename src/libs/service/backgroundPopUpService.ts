@@ -5,6 +5,7 @@
  * @since: 0.1.0
  */
 
+import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import { AuthenticatorDevice } from "@simplewebauthn/typescript-types";
 import browser from "webextension-polyfill";
 import {
@@ -17,7 +18,6 @@ import { Logger } from "../logger";
 import { getNetwork } from "../store/browserStore";
 import memoryStore from "../store/memoryStore";
 import { closeCurrentPopUp, getPopup } from "./dApp/notificationService";
-import { verifyAuthenticationResponse } from "./popUp/verifyAuthenticationResponse";
 import {
   confirmWalletSeqNo,
   getActiveWallet,
@@ -159,9 +159,12 @@ popUpEventEmitter.on("verifyAuthentication", async (message) => {
       authenticator: device,
     });
 
+    console.log(authenticationResponse);
+
     const { verified } = authenticationResponse;
     sendResponseToPopUp(message.id, verified);
   } catch (e) {
+    console.log(e);
     sendResponseToPopUp(message.id, e);
   }
 });

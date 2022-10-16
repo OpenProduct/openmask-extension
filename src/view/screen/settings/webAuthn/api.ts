@@ -6,9 +6,13 @@ import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
   VerifiedRegistrationResponse,
+  verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import { RegistrationCredentialJSON } from "@simplewebauthn/typescript-types";
+import {
+  AuthenticatorDevice,
+  RegistrationCredentialJSON,
+} from "@simplewebauthn/typescript-types";
 import { useMutation } from "@tanstack/react-query";
 import browser from "webextension-polyfill";
 import { WebAuthn } from "../../../../libs/entries/auth";
@@ -18,7 +22,6 @@ import {
   getAccountState,
   QueryType,
 } from "../../../../libs/store/browserStore";
-import { askBackground } from "../../../event";
 import { askBackgroundPassword } from "../../import/api";
 
 const rpName = "OpenMask Wallet";
@@ -63,10 +66,6 @@ export const useRegistrationMigration = () => {
 
     const userID = getRandomString(30);
 
-    const supportedAlgorithmIDs = [
-      -8, // EdDSA
-      -257, // RSASSA-PKCS1-v1_5 w/ SHA-256
-    ];
     const options = generateRegistrationOptions({
       rpName,
       rpID,
@@ -74,7 +73,6 @@ export const useRegistrationMigration = () => {
       userName,
       userDisplayName: rpName,
       excludeCredentials: [],
-      supportedAlgorithmIDs,
     });
 
     const credential = await startRegistration(options);
@@ -127,43 +125,41 @@ export const useVerificationMigration = () => {
 
       const authentication = await startAuthentication(options);
 
-      const verified = await askBackground<boolean | Error>().message(
-        "verifyAuthentication",
-        {
+      try {
+        //   const verified = await askBackground<boolean | Error>(
+        //     5 * 60 * 1000
+        //   ).message("verifyAuthentication", {
+        //     credential: authentication,
+        //     expectedChallenge: options.challenge,
+        //     expectedOrigin: expectedOrigin,
+        //     expectedRPID: expectedRPID,
+        //     authenticator: {
+        //       credentialPublicKey:
+        //         registrationInfo.credentialPublicKey.toString("base64"),
+        //       credentialID: registrationInfo.credentialID.toString("base64"),
+        //       counter: registrationInfo.counter,
+        //       transports: credential.transports,
+        //     },
+        //   });
+        const authenticator: AuthenticatorDevice = {
+          credentialPublicKey: registrationInfo.credentialPublicKey,
+          credentialID: registrationInfo.credentialID,
+          counter: registrationInfo.counter,
+          transports: credential.transports,
+        };
+
+        const authenticationResponse = await verifyAuthenticationResponse({
           credential: authentication,
           expectedChallenge: options.challenge,
           expectedOrigin: expectedOrigin,
           expectedRPID: expectedRPID,
-          authenticator: {
-            credentialPublicKey:
-              registrationInfo.credentialPublicKey.toString("base64"),
-            credentialID: registrationInfo.credentialID.toString("base64"),
-            counter: registrationInfo.counter,
-            transports: credential.transports,
-          },
-        }
-      );
-      //   const authenticator: AuthenticatorDevice = {
-      //     credentialPublicKey: registrationInfo.credentialPublicKey,
-      //     credentialID: registrationInfo.credentialID,
-      //     counter: registrationInfo.counter,
-      //     transports: credential.transports,
-      //   };
+          authenticator,
+        });
 
-      //   const authenticationResponse = await verifyAuthenticationResponse({
-      //     credential: authentication,
-      //     expectedChallenge: options.challenge,
-      //     expectedOrigin: expectedOrigin,
-      //     expectedRPID: expectedRPID,
-      //     authenticator,
-      //   });
-
-      //   const { authenticationInfo, verified } = authenticationResponse;
-      if (verified instanceof Error) {
-        throw verified;
-      }
-      if (!verified) {
-        throw new Error("The credential are not verified.");
+        const { verified } = authenticationResponse;
+        console.log({ verified });
+      } catch (e) {
+        console.log({ e });
       }
 
       const configuration: WebAuthn = {
