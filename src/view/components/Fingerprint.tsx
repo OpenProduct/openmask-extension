@@ -1,10 +1,21 @@
-import styled from "styled-components";
+import { FC } from "react";
+import styled, { css } from "styled-components";
 
-const Block = styled.div`
-  height: 150px;
+const Block = styled.div<{ size: string }>`
+ 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  ${(props) =>
+    props.size == "normal"
+      ? css`
+          height: 150px;
+        `
+      : css`
+          height: 90px;
+        `}}
+
 `;
 
 const style: any = {
@@ -128,9 +139,9 @@ const Icon = () => {
     </svg>
   );
 };
-export const Fingerprint = () => {
+export const Fingerprint: FC<{ size?: string }> = ({ size = "normal" }) => {
   return (
-    <Block>
+    <Block size={size}>
       <Icon />
     </Block>
   );

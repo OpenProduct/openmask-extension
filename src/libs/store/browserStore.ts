@@ -1,6 +1,10 @@
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
-import { AuthConfiguration, DefaultAuthPasswordConfig } from "../entries/auth";
+import {
+  AuthConfiguration,
+  DefaultAuthPasswordConfig,
+  WebAuthn,
+} from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
 import {
@@ -88,6 +92,10 @@ export const getAccountState = (network?: string) => {
     defaultAccountState,
     network
   );
+};
+
+export const updateAuthCounter = (value: WebAuthn, newCounter: number) => {
+  return setStoreValue(QueryType.auth, { ...value, counter: newCounter });
 };
 
 export const setProxyConfiguration = (value: ProxyConfiguration) => {
