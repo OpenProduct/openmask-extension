@@ -5,7 +5,7 @@ import browser from "webextension-polyfill";
 import { AccountState } from "../../libs/entries/account";
 import { WalletState } from "../../libs/entries/wallet";
 import { ErrorCode, RuntimeError } from "../../libs/exception";
-import { decrypt } from "../../libs/service/cryptoService";
+import { decryptMnemonic } from "../../libs/state/accountService";
 import { QueryType } from "../../libs/store/browserStore";
 import { checkForError } from "../../libs/utils";
 import { askBackgroundPassword } from "./import/api";
@@ -24,18 +24,6 @@ export const saveAccountState = async (
   }
   client.setQueryData([network, QueryType.account], value);
   await client.invalidateQueries([network, value.activeWallet]);
-};
-
-export const validateMnemonic = (mnemonic: string[]) => {
-  if (!tonMnemonic.validateMnemonic(mnemonic) || mnemonic.length !== 24) {
-    throw new Error("Mnemonic is not valid");
-  }
-};
-
-export const decryptMnemonic = async (mnemonic: string, password: string) => {
-  const worlds = await decrypt(mnemonic, password);
-  validateMnemonic(worlds.split(" "));
-  return worlds;
 };
 
 export const checkBalanceOrDie = (balance: string | undefined, amount: BN) => {

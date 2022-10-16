@@ -10,13 +10,14 @@ import * as tonMnemonic from "tonweb-mnemonic";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import { NotificationData } from "../../../libs/event";
 import { encrypt } from "../../../libs/service/cryptoService";
+import { validateMnemonic } from "../../../libs/state/accountService";
 import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
 } from "../../context";
 import { askBackground } from "../../event";
-import { saveAccountState, validateMnemonic } from "../api";
+import { saveAccountState } from "../api";
 
 export const askBackgroundPassword = async () => {
   const password = await askBackground<string | null>().message("getPassword");

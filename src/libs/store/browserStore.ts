@@ -129,3 +129,13 @@ export const setNetworkStoreValue = async <T>(
     throw err;
   }
 };
+
+export const batchUpdateStore = async (
+  values: Record<string, any>
+): Promise<void> => {
+  await browser.storage.local.set(values);
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+};

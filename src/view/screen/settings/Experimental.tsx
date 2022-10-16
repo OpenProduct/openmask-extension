@@ -35,7 +35,7 @@ export const WebAuthn = () => {
         disabled={isEnabled}
         onClick={() => navigate(`..${SettingsRoutes.webauthn}`)}
       >
-        Enable Biometric Auth
+        Enable Biometric Authentication
       </ButtonNegative>
       <Quote>
         Enable biometric wallet authentication with WebAuthn. WebAuthn is a

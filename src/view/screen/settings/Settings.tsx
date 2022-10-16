@@ -7,7 +7,7 @@ import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
 import { ExperimentalSettings } from "./Experimental";
 import { GeneralSettings } from "./General";
-import { WebAuthnMigration } from "./webAuthn/WebAuthnMigration";
+import { WebAuthnMigration } from "./webAuthn/WebAuthnMigrationEnable";
 import packageJson from "/package.json";
 
 export enum SettingsRoutes {

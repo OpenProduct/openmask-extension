@@ -1,4 +1,5 @@
 import { JettonParams, NftParams } from "./entries/asset";
+import { VerifyAuthenticationResponseJSON } from "./entries/auth";
 import {
   ConnectDAppParams,
   DeployInputParams,
@@ -105,6 +106,8 @@ export interface PupUpEvents {
 
   getNotification: void;
   closePopUp: number;
+
+  verifyAuthentication: VerifyAuthenticationResponseJSON;
 }
 
 export interface PayloadRequest<P = any> {

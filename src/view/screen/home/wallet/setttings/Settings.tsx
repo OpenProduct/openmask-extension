@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { WalletState, WalletVersion } from "../../../../../libs/entries/wallet";
+import { decryptMnemonic } from "../../../../../libs/state/accountService";
 import {
   Body,
   ButtonDanger,
@@ -23,7 +24,6 @@ import { HomeButton } from "../../../../components/HomeButton";
 import { ArrowDownIcon, DeleteIcon } from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
-import { decryptMnemonic } from "../../../api";
 import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 
 const Text = styled.div`
