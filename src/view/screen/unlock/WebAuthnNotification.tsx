@@ -94,7 +94,7 @@ export const WebAuthnNotification = () => {
             id: messageId,
             params: password,
           });
-          setResult("Success");
+          setResult("Verified");
         })
         .catch((error) => {
           popUpInternalEventEmitter.emit("response", {

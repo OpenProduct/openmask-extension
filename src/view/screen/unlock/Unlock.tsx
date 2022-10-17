@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import { delay } from "../../../libs/state/accountService";
 import {
@@ -23,7 +23,7 @@ const Body = styled.form`
   padding: 0 ${(props) => props.theme.padding};
 `;
 
-export const Unlock = () => {
+export const Unlock: FC<{ justOpen: boolean }> = ({ justOpen }) => {
   const { data } = useAuthConfiguration();
 
   if (!data) {
@@ -32,30 +32,32 @@ export const Unlock = () => {
   if (data.kind === "password") {
     return <UnlockByPassword />;
   }
-  return <UnlockByWebAuthn />;
+  return <UnlockByWebAuthn justOpen={justOpen} />;
 };
 
 const Block = styled.div`
-  height: 10px;
+  height: 40px;
 `;
-const UnlockByWebAuthn = () => {
+const UnlockByWebAuthn: FC<{ justOpen: boolean }> = ({ justOpen }) => {
   const { mutateAsync, reset, isLoading } = useUnlockWebAuthnMutation();
 
   const unlock = () => {
     reset();
     mutateAsync();
   };
+
   useEffect(() => {
-    delay(300).then(() => {
-      unlock();
-    });
+    if (justOpen) {
+      delay(100).then(() => {
+        unlock();
+      });
+    }
   }, []);
 
   return (
     <Body onSubmit={unlock}>
       <ButtonColumn>
         <LoadingLogo />
-        <Block />
         <Center>
           <H1>Welcome Back!</H1>
         </Center>

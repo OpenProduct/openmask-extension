@@ -19,6 +19,7 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "./context";
+import { useInitialRendering } from "./hooks/useInitialRendering";
 import { any, AppRoute } from "./routes";
 
 import { Header } from "./screen/home/Header";
@@ -45,7 +46,8 @@ const ContentRouter: FC<{
   lock: boolean;
   script: string | null;
   notification: boolean;
-}> = ({ account, ton, lock, script, notification }) => {
+  justOpen: boolean;
+}> = ({ account, ton, lock, script, notification, justOpen }) => {
   const location = useLocation();
 
   const wallet = account.wallets.find(
@@ -64,7 +66,7 @@ const ContentRouter: FC<{
   }, [wallet, ton]);
 
   if (script != null && lock) {
-    return <Unlock />;
+    return <Unlock justOpen={justOpen} />;
   }
   if (
     account.wallets.length === 0 &&
@@ -100,6 +102,7 @@ const App = () => {
   const { isLoading, data } = useAccountState();
 
   const config = getNetworkConfig(network);
+  const justOpen = useInitialRendering();
 
   const notification = useMemo(() => {
     return window.location.hash.includes(AppRoute.notifications);
@@ -124,6 +127,7 @@ const App = () => {
             lock={lock}
             script={script}
             notification={notification}
+            justOpen={justOpen}
           />
           <WebAuthnNotification />
         </TonProviderContext.Provider>
