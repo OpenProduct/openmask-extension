@@ -6,7 +6,7 @@ import { Body, ButtonNegative, H1 } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { AppRoute } from "../../routes";
 import { useAuthConfiguration } from "./api";
-import { SettingsRoutes } from "./Settings";
+import { SettingsRoutes } from "./route";
 
 const Quote = styled.div`
   padding: 5px 0;
@@ -29,21 +29,31 @@ export const WebAuthn = () => {
     );
   }
 
-  return (
-    <>
+  if (isEnabled) {
+    return (
       <ButtonNegative
-        disabled={isEnabled}
-        onClick={() => navigate(`..${SettingsRoutes.webauthn}`)}
+        onClick={() => navigate(`..${SettingsRoutes.disableWebAuthn}`)}
       >
-        Enable Biometric Authentication
+        Disable Biometric Authentication
       </ButtonNegative>
-      <Quote>
-        Enable biometric wallet authentication with WebAuthn. WebAuthn is a
-        browser API that enables the use of physical, cryptographically-secure
-        hardware "authenticators" to provide stronger replacements to passwords.
-      </Quote>
-    </>
-  );
+    );
+  } else {
+    return (
+      <>
+        <ButtonNegative
+          onClick={() => navigate(`..${SettingsRoutes.enableWebAuthn}`)}
+        >
+          Enable Biometric Authentication
+        </ButtonNegative>
+        <Quote>
+          Enable biometric wallet authentication with WebAuthn. WebAuthn is a
+          browser API that enables the use of physical, cryptographically-secure
+          hardware "authenticators" to provide stronger replacements to
+          passwords.
+        </Quote>
+      </>
+    );
+  }
 };
 
 export const ExperimentalSettings = () => {

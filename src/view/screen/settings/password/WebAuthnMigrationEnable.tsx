@@ -15,7 +15,11 @@ import {
 import { Fingerprint } from "../../../components/Fingerprint";
 import { sendBackground } from "../../../event";
 import { AppRoute } from "../../../routes";
-import { useRegistrationMigration, useVerificationMigration } from "./api";
+import {
+  useChangePasswordMigration,
+  useRegistrationMigration,
+  useVerificationMigration,
+} from "./api";
 
 const Note = () => {
   return (
@@ -37,7 +41,8 @@ const Note = () => {
     </>
   );
 };
-export const WebAuthnMigration = () => {
+
+export const WebAuthnEnableMigration = () => {
   const navigate = useNavigate();
 
   const [start, setStart] = useState(false);
@@ -57,14 +62,23 @@ export const WebAuthnMigration = () => {
     isLoading: isVerification,
   } = useVerificationMigration();
 
+  const {
+    mutateAsync: changeAsync,
+    error: changeError,
+    reset: changeReset,
+    isLoading: isChanging,
+  } = useChangePasswordMigration();
+
   const onRegistration = useCallback(async () => {
     setStart(true);
 
     registrationReset();
     verificationReset();
+    changeReset();
 
     const result = await registrationAsync();
-    await verificationAsync(result);
+    const props = await verificationAsync(result);
+    await changeAsync(props);
     setDone(true);
   }, []);
 
@@ -77,7 +91,10 @@ export const WebAuthnMigration = () => {
   }, []);
 
   const disabledCancel =
-    start && registrationError == null && verificationError == null;
+    start &&
+    registrationError == null &&
+    verificationError == null &&
+    changeError == null;
 
   return (
     <Body>
@@ -92,7 +109,7 @@ export const WebAuthnMigration = () => {
           <Fingerprint />
         </div>
       )}
-      {isVerification && (
+      {(isVerification || isChanging) && (
         <div>
           <Center>
             <Text>Step 2 of 2 - Verification</Text>
@@ -115,6 +132,7 @@ export const WebAuthnMigration = () => {
       {verificationError && (
         <ErrorMessage>{verificationError.message}</ErrorMessage>
       )}
+      {changeError && <ErrorMessage>{changeError.message}</ErrorMessage>}
 
       {!isDone && (
         <ButtonRow>

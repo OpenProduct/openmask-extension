@@ -3,11 +3,9 @@ import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescrip
 import { useMutation } from "@tanstack/react-query";
 import crypto from "crypto";
 import { decrypt } from "../../../libs/service/cryptoService";
-import { verifyAuthenticationResponse } from "../../../libs/service/webAuthn/getAuthenticationResponse";
 import {
   getAuthConfiguration,
   getScript,
-  updateAuthCounter,
 } from "../../../libs/store/browserStore";
 import { getWebAuthnPassword } from "../../api";
 import { sendBackground } from "../../event";
@@ -38,7 +36,7 @@ export const useAuthenticationMutation = () => {
       challenge,
       allowCredentials: [
         {
-          id: data.credentialsId,
+          id: "",
           type: "public-key",
           transports: data.transports,
         },
@@ -47,14 +45,7 @@ export const useAuthenticationMutation = () => {
     };
     const authentication = await startAuthentication(options);
 
-    const { newCounter, signature } = await verifyAuthenticationResponse(
-      authentication,
-      data
-    );
-
-    await updateAuthCounter(data, newCounter);
-
-    return signature;
+    return authentication.response.signature;
   });
 };
 

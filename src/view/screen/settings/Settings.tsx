@@ -7,16 +7,10 @@ import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
 import { ExperimentalSettings } from "./Experimental";
 import { GeneralSettings } from "./General";
-import { WebAuthnMigration } from "./webAuthn/WebAuthnMigrationEnable";
+import { WebAuthnDisableMigration } from "./password/WebAuthnMigrationDisable";
+import { WebAuthnEnableMigration } from "./password/WebAuthnMigrationEnable";
+import { SettingsRoutes } from "./route";
 import packageJson from "/package.json";
-
-export enum SettingsRoutes {
-  about = "/about",
-  general = "/general",
-  experimental = "/experimental",
-  webauthn = "/webauthn",
-  index = "/",
-}
 
 const Item = styled.div`
   font-size: large;
@@ -121,7 +115,14 @@ export const Settings = () => {
     <Routes>
       <Route path={SettingsRoutes.about} element={<AboutSettings />} />
       <Route path={SettingsRoutes.general} element={<GeneralSettings />} />
-      <Route path={SettingsRoutes.webauthn} element={<WebAuthnMigration />} />
+      <Route
+        path={SettingsRoutes.enableWebAuthn}
+        element={<WebAuthnEnableMigration />}
+      />
+      <Route
+        path={SettingsRoutes.disableWebAuthn}
+        element={<WebAuthnDisableMigration />}
+      />
       <Route
         path={SettingsRoutes.experimental}
         element={<ExperimentalSettings />}

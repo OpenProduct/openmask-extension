@@ -173,11 +173,11 @@ export const getAppPassword = async (
   }
 };
 
-export const getWebAuthnPassword = async (
-  useAction: (password: string) => Promise<void>
+export const getWebAuthnPassword = async <R>(
+  useAction: (password: string) => Promise<R>
 ) => {
   const id = Date.now();
-  return new Promise((resolve, reject) => {
+  return new Promise<R>((resolve, reject) => {
     popUpInternalEventEmitter.emit("getWebAuthn", {
       method: "getWebAuthn",
       id,
@@ -195,7 +195,7 @@ export const getWebAuthnPassword = async (
 
         if (typeof params === "string") {
           Promise.all([useAction(params), delay(500)])
-            .then(() => resolve(undefined))
+            .then(([result]) => resolve(result))
             .catch((e) => reject(e));
         } else {
           reject(params);
