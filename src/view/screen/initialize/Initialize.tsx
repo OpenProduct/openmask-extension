@@ -6,10 +6,9 @@ import {
   ButtonNegative,
   ButtonPositive,
   Container,
-  ErrorText,
   H1,
-  Input,
 } from "../../components/Components";
+import { InputField } from "../../components/InputField";
 import { LoadingLogo } from "../../components/Logo";
 import { AppRoute } from "../../routes";
 import { ConnectRoutes } from "../import/ConnectWallet";
@@ -70,22 +69,24 @@ export const CreatePassword = () => {
       <H1>Create Password</H1>
       <ButtonColumn>
         <div>
-          <label>New password</label>
-          <Input
+          <InputField
+            label="New password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+
         <div>
-          <label>Confirm password</label>
-          <Input
+          <InputField
+            label="Confirm password"
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
+            error={error}
           />
-          {error && <ErrorText>{error.message}</ErrorText>}
         </div>
+
         <ButtonPositive onClick={onCreate} disabled={isLoading}>
           Create
         </ButtonPositive>

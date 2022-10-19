@@ -16,3 +16,5 @@ export const ConnectWallet = () => {
     </Routes>
   );
 };
+
+export default ConnectWallet;

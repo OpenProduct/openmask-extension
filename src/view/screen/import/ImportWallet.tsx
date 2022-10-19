@@ -43,10 +43,15 @@ const ImportMnemonic = () => {
       />
       {error && <ErrorMessage>{error.message}</ErrorMessage>}
       <ButtonBottomRow>
-        <ButtonNegative onClick={() => navigate(AppRoute.home)}>
+        <ButtonNegative
+          disabled={isLoading}
+          onClick={() => navigate(AppRoute.home)}
+        >
           Cancel
         </ButtonNegative>
-        <ButtonPositive onClick={onConnect}>Connect</ButtonPositive>
+        <ButtonPositive disabled={isLoading} onClick={onConnect}>
+          Connect
+        </ButtonPositive>
       </ButtonBottomRow>
     </Body>
   );

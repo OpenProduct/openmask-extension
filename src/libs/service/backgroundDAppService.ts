@@ -6,7 +6,13 @@
  */
 
 import { Address } from "@openproduct/web-sdk/build/cjs/utils/address";
+import Joi from "joi";
 import browser from "webextension-polyfill";
+import {
+  AssetParams,
+  JettonParamsSchema,
+  NftParamsSchema,
+} from "../entries/asset";
 import { Connections } from "../entries/connection";
 import {
   DAppMessage,
@@ -110,19 +116,23 @@ const validateWalletAddress = (
   }
 };
 
-// const DataParamsSchema = Joi.object<{ data: string }>({
-//   data: Joi.string().required(),
-// });
-// const StringSchema = Joi.string().required();
-// const NumberSchema = Joi.number().required();
+const DataParamsSchema = Joi.object<{ data: string }>({
+  data: Joi.string().required(),
+});
+const StringSchema = Joi.string().required();
+const NumberSchema = Joi.number().required();
 
-// const validateAssetParams = async (value: any): Promise<AssetParams> => {
-//   if (value.kind === "jetton") {
-//     return await JettonParamsSchema.validateAsync(value);
-//   } else {
-//     return await NftParamsSchema.validateAsync(value);
-//   }
-// };
+const validateAssetParams = async (value: any): Promise<AssetParams> => {
+  try {
+    if (value.type === "jetton") {
+      return await JettonParamsSchema.validateAsync(value);
+    } else {
+      return await NftParamsSchema.validateAsync(value);
+    }
+  } catch (e) {
+    throw new RuntimeError(ErrorCode.unexpectedParams, (e as Error).message);
+  }
+};
 
 const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
   const origin = decodeURIComponent(message.origin);
@@ -194,7 +204,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
         message.id,
         origin,
         message.event,
-        message.params[0],
+        await validateAssetParams(message.params[0]),
         validateWalletAddress(message.params[1])
       );
     }
