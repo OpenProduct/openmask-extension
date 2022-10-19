@@ -19,7 +19,6 @@ import {
   OpenMaskApiEvent,
   OpenMaskApiResponse,
 } from "../entries/message";
-import { DeployInputParamsSchema } from "../entries/notificationMessage";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
@@ -123,21 +122,15 @@ const DataParamsSchema = Joi.object<{ data: string }>({
 const StringSchema = Joi.string().required();
 const NumberSchema = Joi.number().required();
 
-export const wrapError = async <R, T>(
-  value: R,
-  validation: (value: R) => Promise<T>
-): Promise<T> => {
+const validateAssetParams = async (value: any): Promise<AssetParams> => {
   try {
-    return await validation(value);
+    if (value.type === "jetton") {
+      return await JettonParamsSchema.validateAsync(value);
+    } else {
+      return await NftParamsSchema.validateAsync(value);
+    }
   } catch (e) {
     throw new RuntimeError(ErrorCode.unexpectedParams, (e as Error).message);
-  }
-};
-const validateAssetParams = async (value: any): Promise<AssetParams> => {
-  if (value.type === "jetton") {
-    return await JettonParamsSchema.validateAsync(value);
-  } else {
-    return await NftParamsSchema.validateAsync(value);
   }
 };
 
@@ -175,9 +168,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return signRawValue(
         message.id,
         origin,
-        await wrapError(message.params[0], (value) =>
-          DataParamsSchema.validateAsync(value)
-        ),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -185,9 +176,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return signPersonalValue(
         message.id,
         origin,
-        await wrapError(message.params[0], (value) =>
-          DataParamsSchema.validateAsync(value)
-        ),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -196,9 +185,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return deploySmartContract(
         message.id,
         origin,
-        await wrapError(message.params[0], (value) =>
-          DeployInputParamsSchema.validateAsync(value)
-        ),
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }
@@ -217,7 +204,7 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
         message.id,
         origin,
         message.event,
-        await wrapError(message.params[0], validateAssetParams),
+        await validateAssetParams(message.params[0]),
         validateWalletAddress(message.params[1])
       );
     }
