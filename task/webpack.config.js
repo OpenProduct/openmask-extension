@@ -1,9 +1,9 @@
 const path = require("path");
-const { DefinePlugin } = require("webpack");
+const { ProvidePlugin, EnvironmentPlugin } = require("webpack");
 
 module.exports = [
   {
-    target: "node",
+    target: "browserslist",
     mode: "production",
     entry: "./src/background.ts",
     module: {
@@ -17,20 +17,23 @@ module.exports = [
     },
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
+      fallback: {
+        buffer: require.resolve("buffer"),
+      },
     },
     output: {
       filename: "background.js",
       path: path.resolve(__dirname, "../build"),
     },
     plugins: [
-      new DefinePlugin({
-        "process.env.REACT_APP_TONCENTER_API_KEY": JSON.stringify(
-          process.env.REACT_APP_TONCENTER_API_KEY || ""
-        ),
-        "process.env.REACT_APP_TONCENTER_TESTNET_API_KEY": JSON.stringify(
-          process.env.REACT_APP_TONCENTER_TESTNET_API_KEY || ""
-        ),
+      new ProvidePlugin({
+        Buffer: ["buffer", "Buffer"],
+        process: "process/browser",
       }),
+      new EnvironmentPlugin([
+        "REACT_APP_TONCENTER_API_KEY",
+        "REACT_APP_TONCENTER_TESTNET_API_KEY",
+      ]),
     ],
   },
   {

@@ -45,3 +45,5 @@ export const Home = () => {
     </WalletAddressContext.Provider>
   );
 };
+
+export default Home;
