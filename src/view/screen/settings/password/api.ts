@@ -6,6 +6,7 @@ import { networkConfigs } from "../../../../libs/entries/network";
 import { encrypt } from "../../../../libs/service/cryptoService";
 import { delay, reEncryptWallets } from "../../../../libs/state/accountService";
 import {
+  batchUpdateStore,
   getAccountState,
   QueryType,
 } from "../../../../libs/store/browserStore";
@@ -96,7 +97,7 @@ export const useRegistrationMigration = () => {
           id: rpID,
         },
         user: {
-          id: crypto.randomBytes(32),
+          id: password,
           name: userName,
           displayName: rpName,
         },
@@ -263,11 +264,11 @@ export const useChangePasswordMigration = () => {
 
       console.log(batchUpdate);
 
-      /// await batchUpdateStore(batchUpdate);
+      await batchUpdateStore(batchUpdate);
 
-      // await Promise.all(
-      //   Object.keys(batchUpdate).map((key) => client.invalidateQueries([key]))
-      // );
+      await Promise.all(
+        Object.keys(batchUpdate).map((key) => client.invalidateQueries([key]))
+      );
     }
   );
 };

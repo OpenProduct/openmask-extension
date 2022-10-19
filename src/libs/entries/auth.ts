@@ -1,5 +1,3 @@
-import { AuthenticatorTransportFuture } from "@simplewebauthn/typescript-types";
-
 export type AuthConfiguration = AuthPassword | WebAuthn;
 
 export interface AuthPassword {
@@ -9,7 +7,7 @@ export interface AuthPassword {
 export interface WebAuthn {
   kind: "webauthn";
   credentialId: string;
-  transports?: AuthenticatorTransportFuture[];
+  transports?: AuthenticatorTransport[];
 }
 
 export const DefaultAuthPasswordConfig: AuthPassword = {

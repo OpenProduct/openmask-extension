@@ -1,5 +1,3 @@
-import { startAuthentication } from "@simplewebauthn/browser";
-import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import { useMutation } from "@tanstack/react-query";
 import crypto from "crypto";
 import { decrypt } from "../../../libs/service/cryptoService";
@@ -31,21 +29,30 @@ export const useAuthenticationMutation = () => {
     if (data.kind !== "webauthn") {
       throw new Error("Unexpected auth kind");
     }
-    const challenge = crypto.randomBytes(32).toString("hex");
-    const options: PublicKeyCredentialRequestOptionsJSON = {
-      challenge,
-      allowCredentials: [
-        {
-          id: "",
-          type: "public-key",
-          transports: data.transports,
-        },
-      ],
-      userVerification: "required",
-    };
-    const authentication = await startAuthentication(options);
 
-    return authentication.response.signature;
+    const options: CredentialRequestOptions = {
+      publicKey: {
+        challenge: crypto.randomBytes(32),
+        allowCredentials: [
+          {
+            id: Buffer.from(data.credentialId, "hex"),
+            type: "public-key",
+            transports: data.transports,
+          },
+        ],
+        userVerification: "required",
+      },
+    };
+
+    const assertion = (await navigator.credentials.get(
+      options
+    )) as PublicKeyCredential;
+
+    const response = assertion.response as AuthenticatorAssertionResponse;
+    if (!response.userHandle) {
+      throw new Error("missing userHandle");
+    }
+    return Buffer.from(response.userHandle).toString("hex");
   });
 };
 
