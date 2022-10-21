@@ -7,7 +7,7 @@ import {
   NftCollectionDao,
   NftContentDao,
   NftData,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {

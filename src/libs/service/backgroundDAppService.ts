@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openproduct/web-sdk/build/cjs/utils/address";
+import { Address } from "@openproduct/web-sdk";
 import Joi from "joi";
 import browser from "webextension-polyfill";
 import {

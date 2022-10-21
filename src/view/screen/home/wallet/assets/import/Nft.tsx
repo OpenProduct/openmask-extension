@@ -1,4 +1,4 @@
-import { Address, NftData } from "@openproduct/web-sdk/build/cjs";
+import { Address, NftData } from "@openproduct/web-sdk";
 import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";

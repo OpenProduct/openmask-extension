@@ -1,7 +1,4 @@
-import {
-  TonHttpProvider,
-  WalletContract,
-} from "@openproduct/web-sdk/build/cjs";
+import { TonHttpProvider, WalletContract } from "@openproduct/web-sdk";
 import React from "react";
 import { AccountState } from "../libs/entries/account";
 import { WalletState } from "../libs/entries/wallet";

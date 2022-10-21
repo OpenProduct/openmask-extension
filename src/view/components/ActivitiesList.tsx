@@ -1,4 +1,4 @@
-import { base64ToBytes } from "@openproduct/web-sdk/build/cjs";
+import { base64ToBytes } from "@openproduct/web-sdk";
 import React, { FC } from "react";
 import styled from "styled-components";
 import {

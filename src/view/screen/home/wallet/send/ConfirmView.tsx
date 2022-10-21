@@ -1,4 +1,4 @@
-import { fromNano } from "@openproduct/web-sdk/build/cjs/utils/utils";
+import { fromNano } from "@openproduct/web-sdk";
 import React, { FC, useCallback, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";

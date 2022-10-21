@@ -1,4 +1,4 @@
-import { Address, NftData } from "@openproduct/web-sdk/build/cjs";
+import { Address, NftData } from "@openproduct/web-sdk";
 import {
   FC,
   useCallback,

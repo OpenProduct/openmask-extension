@@ -3,7 +3,7 @@ import {
   nftTransferBody,
   toNano,
   TransferParams,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";

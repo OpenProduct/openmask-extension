@@ -1,4 +1,4 @@
-import { EstimateFeeValues, fromNano } from "@openproduct/web-sdk/build/cjs";
+import { EstimateFeeValues, fromNano } from "@openproduct/web-sdk";
 import { FC } from "react";
 import { fiatFees } from "../../utils";
 import { TextLine } from "../Components";

@@ -1,4 +1,4 @@
-import { TonHttpProvider } from "@openproduct/web-sdk/build/cjs/providers/httpProvider";
+import { TonHttpProvider } from "@openproduct/web-sdk";
 import BN from "bn.js";
 import { getNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";

@@ -6,7 +6,7 @@ import {
   TonDns,
   TonHttpProvider,
   TransferParams,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { NetworkConfig } from "../../../../../libs/entries/network";

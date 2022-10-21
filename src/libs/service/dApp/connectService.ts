@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { TonHttpProvider } from "@openproduct/web-sdk/build/cjs/providers/httpProvider";
+import { TonHttpProvider } from "@openproduct/web-sdk";
 import { getNetworkConfig } from "../../entries/network";
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
