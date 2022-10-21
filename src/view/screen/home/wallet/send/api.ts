@@ -1,9 +1,9 @@
 import {
   Address,
-  Dns,
   EstimateFeeValues,
   Method,
   toNano,
+  TonDns,
   TonHttpProvider,
   TransferParams,
 } from "@openproduct/web-sdk/build/cjs";
@@ -73,7 +73,7 @@ export const getToAddress = async (
   toAddress = toAddress.toLowerCase();
 
   if (toAddress.endsWith(".ton")) {
-    const dns = new Dns(ton, { rootDnsAddress: config.rootDnsAddress });
+    const dns = new TonDns(ton, { rootDnsAddress: config.rootDnsAddress });
     const address = await dns.getWalletAddress(toAddress);
     if (!address) {
       throw new Error("Invalid address");
