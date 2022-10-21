@@ -155,7 +155,12 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     }
 
     case "ton_sendTransaction": {
-      return sendTransaction(message.id, origin, message.params[0]);
+      return sendTransaction(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     case "ton_confirmWalletSeqNo": {
       return confirmAccountSeqNo(
