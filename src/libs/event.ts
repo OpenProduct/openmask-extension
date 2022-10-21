@@ -6,6 +6,7 @@ import {
   SwitchNetworkParams,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
+import { TransactionParams } from "./entries/transaction";
 import { EventEmitter } from "./eventEmitter";
 
 export type IEventEmitter<T> = {
@@ -72,7 +73,8 @@ export type NotificationData =
   | NotificationFields<"switchNetwork", SwitchNetworkParams>
   | NotificationFields<"importJetton", JettonParams>
   | NotificationFields<"importNft", NftParams>
-  | NotificationFields<"connectDApp", ConnectDAppParams>;
+  | NotificationFields<"connectDApp", ConnectDAppParams>
+  | NotificationFields<"sendTransaction", TransactionParams>;
 
 export type UnfinishedOperation =
   | null

@@ -5,9 +5,7 @@
  * @since: 0.1.0
  */
 
-import { fromNano } from "@openproduct/web-sdk";
 import { AppRoute } from "../../../view/routes";
-import { TransactionParams } from "../../entries/transaction";
 import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
 import ExtensionPlatform from "../extension";
@@ -73,26 +71,6 @@ export const closeCurrentPopUp = async (popupId: number | undefined) => {
       Logger.error(e);
     }
   }
-};
-
-export const openSendTransactionPopUp = async (
-  id: number,
-  origin: string,
-  props: TransactionParams
-) => {
-  const params = new URLSearchParams({
-    address: encodeURIComponent(props.to),
-    amount: encodeURIComponent(fromNano(props.value).toString()),
-    comment: props.data ? encodeURIComponent(props.data) : "", // Data could large then url fit
-    submit: "1",
-    id: String(id),
-    origin: encodeURIComponent(origin),
-    logo: await getActiveTabLogo(),
-  });
-
-  await openPopUp(`/send?${params.toString()}`);
-
-  return popupId;
 };
 
 export const openNotificationPopUp = async () => {

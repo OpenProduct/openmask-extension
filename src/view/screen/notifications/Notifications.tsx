@@ -6,6 +6,7 @@ import { ImportJetton } from "./asset/ImportJetton";
 import { ImportNft } from "./asset/ImportNft";
 import { ConnectDApp } from "./connect/ConnectDApp";
 import { DeployContract } from "./deploy/DeployContract";
+import { SendTransaction } from "./send/SendTransaction";
 import { SignPersonal } from "./sign/PersonalSign";
 import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
@@ -57,6 +58,8 @@ export const Notifications = () => {
       return <ImportNft {...data} onClose={reloadNotification} />;
     case "connectDApp":
       return <ConnectDApp {...data} onClose={reloadNotification} />;
+    case "sendTransaction":
+      return <SendTransaction {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }

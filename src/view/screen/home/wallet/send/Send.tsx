@@ -15,7 +15,7 @@ import { SendSuccessView } from "../../../../components/send/SendSuccessView";
 import { WalletAddressContext, WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { formatTonValue } from "../../../../utils";
-import { State, stateToSearch, toState } from "./api";
+import { stateToSearch, toState, TransactionState } from "./api";
 import { ConfirmView } from "./ConfirmView";
 
 const MaxRow = styled.div`
@@ -41,8 +41,8 @@ interface Props {
 
 interface InputProps {
   balance?: string;
-  state: State;
-  onChange: (field: Partial<State>) => void;
+  state: TransactionState;
+  onChange: (field: Partial<TransactionState>) => void;
   onSend: () => void;
 }
 
@@ -83,14 +83,14 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
 
       <InputField
         label="Comment (optional)"
-        value={state.comment}
-        onChange={(e) => onChange({ comment: e.target.value })}
+        value={state.data as string}
+        onChange={(e) => onChange({ data: e.target.value })}
       />
 
       <Gap />
 
       <ButtonBottomRow>
-        <SendCancelButton transactionId={state.id} />
+        <SendCancelButton />
         <ButtonPositive onClick={onSend}>Next</ButtonPositive>
       </ButtonBottomRow>
     </Body>
@@ -123,7 +123,7 @@ export const Send: FC<Props> = ({ price, balance }) => {
   }, [setSearchParams, state]);
 
   const onChange = useCallback(
-    (field: Partial<State>) => {
+    (field: Partial<TransactionState>) => {
       const params = stateToSearch({ ...state, ...field });
 
       sendBackground.message("storeOperation", {
@@ -137,19 +137,9 @@ export const Send: FC<Props> = ({ price, balance }) => {
   );
 
   const onSend = useCallback(
-    (seqNo: number, transactionId?: string) => {
+    (seqNo: number) => {
       const params = { seqNo: String(seqNo) };
-
-      if (transactionId) {
-        // if transaction init from dApp, return approve
-        sendBackground.message("approveRequest", {
-          id: Number(transactionId),
-          payload: seqNo,
-        });
-      } else {
-        sendBackground.message("storeOperation", null);
-      }
-
+      sendBackground.message("storeOperation", null);
       setSearchParams(params);
     },
     [setSearchParams]

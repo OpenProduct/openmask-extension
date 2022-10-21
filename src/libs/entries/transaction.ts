@@ -63,7 +63,7 @@ export interface TonWebTransactionMessageText {
 
 export interface TransactionParams {
   value: string;
-  from?: string;
   to: string;
+  dataType?: "hex" | "base64" | "boc";
   data: string;
 }
