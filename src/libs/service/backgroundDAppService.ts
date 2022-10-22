@@ -5,7 +5,7 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openproduct/web-sdk/build/cjs/utils/address";
+import { Address } from "@openproduct/web-sdk";
 import Joi from "joi";
 import browser from "webextension-polyfill";
 import {
@@ -144,10 +144,10 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
 
     case "wallet_requestAccounts":
     case "ton_requestAccounts": {
-      return connectDApp(message.id, origin, message.event);
+      return connectDApp(message.id, origin, message.event, message.params[0]);
     }
     case "ton_getAccounts": {
-      return getConnectedWallets(origin, await getNetwork());
+      return getConnectedWallets(origin, await getNetwork(), message.params[0]);
     }
 
     case "ton_getBalance": {
@@ -155,7 +155,12 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     }
 
     case "ton_sendTransaction": {
-      return sendTransaction(message.id, origin, message.params[0]);
+      return sendTransaction(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     case "ton_confirmWalletSeqNo": {
       return confirmAccountSeqNo(

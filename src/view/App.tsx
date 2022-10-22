@@ -1,8 +1,4 @@
-import {
-  ALL,
-  hexToBytes,
-  TonHttpProvider,
-} from "@openproduct/web-sdk/build/cjs";
+import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";

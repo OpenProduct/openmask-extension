@@ -1,4 +1,4 @@
-import { JettonData } from "@openproduct/web-sdk/build/cjs";
+import { JettonData } from "@openproduct/web-sdk";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";

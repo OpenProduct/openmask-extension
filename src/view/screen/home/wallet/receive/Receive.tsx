@@ -1,4 +1,4 @@
-import { formatTransferUrl } from "@openproduct/web-sdk/build/cjs";
+import { formatTransferUrl } from "@openproduct/web-sdk";
 import { FC, useContext } from "react";
 import QRCode from "react-qr-code";
 import { Route, Routes, useNavigate } from "react-router-dom";

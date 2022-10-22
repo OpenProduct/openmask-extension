@@ -13,12 +13,7 @@ import { TransactionParams } from "../../entries/transaction";
 import { ErrorCode, RuntimeError } from "../../exception";
 import memoryStore from "../../store/memoryStore";
 import { confirmWalletSeqNo, getActiveWallet } from "../walletService";
-import {
-  closeCurrentPopUp,
-  getActiveTabLogo,
-  openNotificationPopUp,
-  openSendTransactionPopUp,
-} from "./notificationService";
+import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import {
   checkBaseDAppPermission,
   switchActiveAddress,
@@ -40,7 +35,8 @@ export const confirmAccountSeqNo = async (
 export const sendTransaction = async (
   id: number,
   origin: string,
-  params: TransactionParams
+  params: TransactionParams,
+  wallet?: string
 ) => {
   await checkBaseDAppPermission(origin);
   const current = memoryStore.getOperation();
@@ -51,15 +47,22 @@ export const sendTransaction = async (
     );
   }
 
-  await switchActiveAddress(origin, params.from);
+  await switchActiveAddress(origin, wallet);
 
-  const popupId = await openSendTransactionPopUp(id, origin, params);
+  memoryStore.addNotification({
+    kind: "sendTransaction",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: params,
+  });
+
   try {
+    const popupId = await openNotificationPopUp();
     const seqNo = await waitApprove<number>(id, popupId);
     return seqNo;
   } finally {
-    memoryStore.setOperation(null);
-    await closeCurrentPopUp(popupId);
+    memoryStore.removeNotification(id);
   }
 };
 

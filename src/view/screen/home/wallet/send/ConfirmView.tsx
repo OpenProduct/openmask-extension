@@ -1,8 +1,9 @@
-import { fromNano } from "@openproduct/web-sdk/build/cjs/utils/utils";
+import { fromNano } from "@openproduct/web-sdk";
 import React, { FC, useCallback, useContext } from "react";
-import { useSearchParams } from "react-router-dom";
+import { URLSearchParamsInit, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { AddressTransfer } from "../../../../components/Address";
+import { CodeBlock } from "../../../../components/CodeBlock";
 import {
   Body,
   ButtonPositive,
@@ -19,8 +20,8 @@ import {
 import { WalletStateContext } from "../../../../context";
 import { fiatFees } from "../../../../utils";
 import {
-  State,
   toState,
+  TransactionState,
   useEstimateFee,
   useSendMethod,
   useSendMutation,
@@ -30,7 +31,7 @@ const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const onEdit = () => {
     const state = toState(searchParams);
-    setSearchParams({ ...state }); // Remove submit flag from params
+    setSearchParams({ ...state } as URLSearchParamsInit); // Remove submit flag from params
   };
   return <SendEditButton onEdit={onEdit} />;
 });
@@ -48,10 +49,10 @@ const Comment = styled.div`
 `;
 
 interface ConfirmProps {
-  state: State;
+  state: TransactionState;
   price?: number;
   balance?: string;
-  onSend: (seqNo: number, transactionId?: string) => void;
+  onSend: (seqNo: number) => void;
 }
 
 export const ConfirmView: FC<ConfirmProps> = ({
@@ -60,15 +61,21 @@ export const ConfirmView: FC<ConfirmProps> = ({
   price,
   onSend,
 }) => {
-  const { data: method, error, isFetching } = useSendMethod(state, balance);
+  const wallet = useContext(WalletStateContext);
+
+  const {
+    data: method,
+    error: methodError,
+    isFetching,
+  } = useSendMethod(state, balance);
   const { data } = useEstimateFee(method);
 
-  const { mutateAsync, isLoading } = useSendMutation();
+  const { mutateAsync, error: sendError, isLoading } = useSendMutation();
 
   const onConfirm = async () => {
     if (!method) return;
     const seqNo = await mutateAsync(method);
-    onSend(seqNo, state.id);
+    onSend(seqNo);
   };
 
   const Fees = useCallback(() => {
@@ -99,33 +106,32 @@ export const ConfirmView: FC<ConfirmProps> = ({
     ? ` (USD ${fiatFees.format(parseFloat(state.amount) * price)}$)`
     : "";
 
-  const wallet = useContext(WalletStateContext);
-
-  const disabled = isLoading || isFetching || error != null;
+  const disabled =
+    isLoading || isFetching || methodError != null || sendError != null;
 
   return (
     <>
       <EditButton />
       <Body>
         <AddressTransfer left={wallet.name} right={state.address} />
-        <TextLine>SENDING:{state.origin ? ` (${state.origin})` : ""}</TextLine>
+        <TextLine>SENDING:</TextLine>
         <TextLine>
           <b>{state.amount} TON</b> <Fiat>{inFiat}</Fiat>
         </TextLine>
-        {state.comment && (
-          <>
-            <TextLine>Comment:</TextLine>
-            <Comment>{state.comment}</Comment>
-          </>
-        )}
 
         <TextLine>Network fee estimation:</TextLine>
         <Fees />
-        {error && <ErrorMessage>{error.message}</ErrorMessage>}
+
+        {state.data && (
+          <CodeBlock label="Comment">{String(state.data)}</CodeBlock>
+        )}
+
+        {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
+        {sendError && <ErrorMessage>{sendError.message}</ErrorMessage>}
         <Gap />
 
         <ButtonRow>
-          <SendCancelButton disabled={isLoading} transactionId={state.id} />
+          <SendCancelButton disabled={isLoading} />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
             {isFetching ? <Dots>Validating</Dots> : "Confirm"}
           </ButtonPositive>

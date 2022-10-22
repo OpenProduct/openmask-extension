@@ -3,7 +3,7 @@ import {
   ALL,
   bytesToHex,
   TonHttpProvider,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";

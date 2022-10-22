@@ -1,4 +1,4 @@
-import { ALL, hexToBytes } from "@openproduct/web-sdk/build/cjs";
+import { ALL, hexToBytes } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";

@@ -6,7 +6,7 @@
  * @since: 0.8.0
  */
 
-import { NftData } from "@openproduct/web-sdk/build/cjs/contract/token/nft/nftContractDao";
+import { NftData } from "@openproduct/web-sdk";
 import { AccountState } from "../entries/account";
 import {
   Asset,

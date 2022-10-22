@@ -1,12 +1,13 @@
 import {
   Address,
-  Dns,
+  Cell,
   EstimateFeeValues,
   Method,
   toNano,
+  TonDns,
   TonHttpProvider,
   TransferParams,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { NetworkConfig } from "../../../../../libs/entries/network";
@@ -21,28 +22,24 @@ import {
 import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
 import { useNetworkConfig } from "../../api";
 
-export interface State {
+export interface TransactionState {
   address: string;
   amount: string;
   max: string;
-  comment: string;
-  // Transaction id. Define if transaction init from dApp,
-  id?: string;
-  origin?: string;
+  data: string | Uint8Array | Cell;
+  hex?: string;
 }
 
-export const toState = (searchParams: URLSearchParams): State => {
+export const toState = (searchParams: URLSearchParams): TransactionState => {
   return {
     address: decodeURIComponent(searchParams.get("address") ?? ""),
     amount: decodeURIComponent(searchParams.get("amount") ?? ""),
     max: searchParams.get("max") ?? "",
-    comment: decodeURIComponent(searchParams.get("comment") ?? ""),
-    id: searchParams.get("id") ?? undefined,
-    origin: decodeURIComponent(searchParams.get("origin") ?? ""),
+    data: decodeURIComponent(searchParams.get("data") ?? ""),
   };
 };
 
-export const stateToSearch = (state: State) => {
+export const stateToSearch = (state: TransactionState) => {
   return Object.entries(state).reduce((acc, [key, value]) => {
     acc[key] = encodeURIComponent(value);
     return acc;
@@ -73,7 +70,7 @@ export const getToAddress = async (
   toAddress = toAddress.toLowerCase();
 
   if (toAddress.endsWith(".ton")) {
-    const dns = new Dns(ton, { rootDnsAddress: config.rootDnsAddress });
+    const dns = new TonDns(ton, { rootDnsAddress: config.rootDnsAddress });
     const address = await dns.getWalletAddress(toAddress);
     if (!address) {
       throw new Error("Invalid address");
@@ -92,7 +89,7 @@ export interface WrapperMethod {
   seqno: number;
 }
 
-export const useSendMethod = (state: State, balance?: string) => {
+export const useSendMethod = (state?: TransactionState, balance?: string) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
@@ -101,6 +98,10 @@ export const useSendMethod = (state: State, balance?: string) => {
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
     async () => {
+      if (!state) {
+        throw new Error("Missing send state");
+      }
+
       await checkBalanceOrDie(balance, toNano(state.amount));
 
       const [toAddress, keyPair, seqno] = await getTransactionsParams(
@@ -120,7 +121,7 @@ export const useSendMethod = (state: State, balance?: string) => {
         toAddress,
         amount: toNano(state.amount),
         seqno: seqno,
-        payload: state.comment,
+        payload: state.data,
         sendMode,
       };
 
@@ -128,7 +129,7 @@ export const useSendMethod = (state: State, balance?: string) => {
 
       return { method, seqno };
     },
-    { enabled: balance != null }
+    { enabled: balance != null && state != null }
   );
 };
 

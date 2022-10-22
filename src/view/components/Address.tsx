@@ -18,7 +18,7 @@ const Icon = styled.span`
 `;
 
 const Item = styled.div`
-  min-width: 70px;
+  min-width: 80px;
   word-break: break-all;
 `;
 

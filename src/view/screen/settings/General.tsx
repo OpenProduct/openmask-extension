@@ -65,13 +65,13 @@ const ProxySelect = () => {
         </InlineLink>
         <br />
         <br />
-        The foundation site:{" "}
+        TON search engine:{" "}
         <InlineLink
           onClick={() =>
-            ExtensionPlatform.openTab({ url: "http://foundation.ton" })
+            ExtensionPlatform.openTab({ url: "http://searching.ton" })
           }
         >
-          http://foundation.ton <LinkIcon />
+          http://searching.ton <LinkIcon />
         </InlineLink>
       </Quote>
       {error && <ErrorMessage>{error.message}</ErrorMessage>}

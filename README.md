@@ -1,5 +1,6 @@
 # OpenMask Browser Extension
 
+[![Telegram Channel](https://badgen.net/badge/follow/@OpenProduct/blue?icon=telegram)](https://t.me/openproduct)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 
 OpenMask Browser Extension is a non-custodial crypto wallet and gateway to blockchain dApps.

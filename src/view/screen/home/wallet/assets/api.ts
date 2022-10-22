@@ -3,7 +3,7 @@ import {
   JettonMinterDao,
   JettonWalletDao,
   TonHttpProvider,
-} from "@openproduct/web-sdk/build/cjs";
+} from "@openproduct/web-sdk";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";

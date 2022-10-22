@@ -1,8 +1,10 @@
-import { Method } from "@openproduct/web-sdk/build/cjs/contract/contract";
-import { jettonTransferBody } from "@openproduct/web-sdk/build/cjs/contract/token/ft/utils";
-import { TransferParams } from "@openproduct/web-sdk/build/cjs/contract/wallet/walletContract";
-import Address from "@openproduct/web-sdk/build/cjs/utils/address";
-import { toNano } from "@openproduct/web-sdk/build/cjs/utils/utils";
+import {
+  Address,
+  jettonTransferBody,
+  Method,
+  toNano,
+  TransferParams,
+} from "@openproduct/web-sdk";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
