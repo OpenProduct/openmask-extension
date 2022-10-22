@@ -144,10 +144,10 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
 
     case "wallet_requestAccounts":
     case "ton_requestAccounts": {
-      return connectDApp(message.id, origin, message.event);
+      return connectDApp(message.id, origin, message.event, message.params[0]);
     }
     case "ton_getAccounts": {
-      return getConnectedWallets(origin, await getNetwork());
+      return getConnectedWallets(origin, await getNetwork(), message.params[0]);
     }
 
     case "ton_getBalance": {
