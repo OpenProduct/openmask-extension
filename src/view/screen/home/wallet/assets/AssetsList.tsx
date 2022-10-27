@@ -62,9 +62,13 @@ const NftRowView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
     if (asset.state?.image) {
       return asset.state?.image;
     }
-    const item = asset.items.find((item) => item.state?.image);
+    const item = asset.items.find(
+      (item) => item.state && "image" in item.state
+    );
     if (item) {
-      return item.state?.image;
+      return (
+        (item.state && "image" in item.state && item.state.image) || undefined
+      );
     }
     return undefined;
   }, [asset]);

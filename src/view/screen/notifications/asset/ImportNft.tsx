@@ -30,6 +30,7 @@ import { WalletStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
 import {
   useAddNftMutation,
+  useDomainNftMutation,
   useNftCollectionDataMutation,
   useNftContentMutation,
   useNftDataMutation,
@@ -62,29 +63,39 @@ export const ImportNft: FC<
   const {
     mutateAsync: addNftAsync,
     reset: resetAdd,
-    error: addNftError,
     isLoading: isAddLoading,
   } = useAddNftMutation();
+
+  const { mutateAsync: domainNftStateAsync, isLoading: isDomainLoading } =
+    useDomainNftMutation();
 
   useEffect(() => {
     (async () => {
       const data = await nftDataAsync(params.address);
       setNftData(data);
 
-      if (data.contentUri) {
-        const state = await nftStateAsync(data.contentUri);
-        setNftState(state);
-      }
       if (data.collectionAddress) {
         const collection = await nftCollectionStateAsync(
           data.collectionAddress
         );
         setNftCollectionState(collection);
+
+        const state = await domainNftStateAsync({
+          collection,
+          address: params.address,
+        });
+        if (state) setNftState(state);
+      }
+
+      if (data.contentUri) {
+        const state = await nftStateAsync(data.contentUri);
+        setNftState(state);
       }
     })();
   }, []);
 
-  const isLoading = isDataLoading || isStateLoading || isCollectionLoading;
+  const isLoading =
+    isDataLoading || isStateLoading || isCollectionLoading || isDomainLoading;
 
   const isOwnNft = useMemo(() => {
     if (!nftData) return false;

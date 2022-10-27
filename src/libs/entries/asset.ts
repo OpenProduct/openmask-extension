@@ -53,10 +53,18 @@ export interface JettonAsset {
   walletAddress?: string;
 }
 
-export interface NftItemState {
+export type NftItemState = ImageNftState | DomainNftState;
+
+export interface ImageNftState {
   image: string;
   name?: string;
   description?: string;
+}
+
+export interface DomainNftState {
+  name?: string;
+  root: string;
+  domain: string;
 }
 
 export const NftItemStateSchema = Joi.object<NftItemState>({
