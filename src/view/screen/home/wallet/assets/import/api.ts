@@ -1,5 +1,6 @@
 import {
   Address,
+  Cell,
   fromNano,
   JettonData,
   JettonMinterDao,
@@ -11,6 +12,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {
+  DomainNftState,
   JettonState,
   JettonStateSchema,
   NftCollectionState,
@@ -139,4 +141,32 @@ export const useAddNftMutation = () => {
     const value = addNftToWallet(account, options);
     await saveAccountState(network, client, value);
   });
+};
+
+interface DomainNftProps {
+  collection: NftCollectionState;
+  address: string;
+}
+export const useDomainNftMutation = () => {
+  const provider = useContext(TonProviderContext);
+
+  return useMutation<NftItemState | undefined, Error, DomainNftProps>(
+    async ({ collection, address }) => {
+      if (collection.name === "TON DNS Domains") {
+        /**
+         * https://github.com/ton-blockchain/dns-contract/blob/8864d3f6e1743910dc6ec6708540806283df09c4/func/nft-item.fc#L280
+         */
+        const result: Cell = await provider.call2(address, "get_domain");
+
+        const nft: DomainNftState = {
+          name: collection.name,
+          root: "ton",
+          domain: Buffer.from(result.bits.array).toString(),
+        };
+        return nft;
+      }
+
+      return undefined;
+    }
+  );
 };

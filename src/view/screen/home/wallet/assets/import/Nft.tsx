@@ -21,6 +21,7 @@ import { WalletStateContext } from "../../../../../context";
 import { AppRoute } from "../../../../../routes";
 import {
   useAddNftMutation,
+  useDomainNftMutation,
   useNftCollectionDataMutation,
   useNftContentMutation,
   useNftDataMutation,
@@ -62,13 +63,20 @@ export const ImportNft = () => {
   } = useNftCollectionDataMutation();
 
   const {
+    mutateAsync: domainNftStateAsync,
+    error: domainNftError,
+    isLoading: isDomainLoading,
+  } = useDomainNftMutation();
+
+  const {
     mutateAsync: addNftAsync,
     error: addNftError,
     reset: resetAdd,
     isLoading: isAddLoading,
   } = useAddNftMutation();
 
-  const isLoading = isDataLoading || isStateLoading || isCollectionLoading;
+  const isLoading =
+    isDataLoading || isStateLoading || isCollectionLoading || isDomainLoading;
 
   const isOwnNft = useMemo(() => {
     if (!nftData) return false;
@@ -88,13 +96,16 @@ export const ImportNft = () => {
     const data = await nftDataAsync(address);
     setNftData(data);
 
-    if (data.contentUri) {
-      const state = await nftStateAsync(data.contentUri);
-      setNftState(state);
-    }
     if (data.collectionAddress) {
       const collection = await nftCollectionStateAsync(data.collectionAddress);
       setNftCollectionState(collection);
+
+      const state = await domainNftStateAsync({ collection, address });
+      if (state) setNftState(state);
+    }
+    if (data.contentUri) {
+      const state = await nftStateAsync(data.contentUri);
+      setNftState(state);
     }
   };
 
@@ -156,6 +167,9 @@ export const ImportNft = () => {
         {nftDataError && <ErrorMessage>{nftDataError.message}</ErrorMessage>}
         {nftStateError && <ErrorMessage>{nftStateError.message}</ErrorMessage>}
         {addNftError && <ErrorMessage>{addNftError.message}</ErrorMessage>}
+        {domainNftError && (
+          <ErrorMessage>{domainNftError.message}</ErrorMessage>
+        )}
 
         <Gap />
         <ButtonColumn>

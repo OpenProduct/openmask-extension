@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 import { NftItemState } from "../../libs/entries/asset";
 import { ipfsProxy } from "../../libs/service/requestService";
@@ -21,17 +21,36 @@ const NftImage = styled.img`
   max-width: 100%;
 `;
 
+const Domain = styled.span`
+  font-size: large;
+  font-weight: bold;
+  display: inline-block;
+  margin: ${(props) => props.theme.padding} 0;
+`;
+
 export const NftPayload: FC<{ state?: NftItemState | null }> = React.memo(
   ({ state }) => {
-    const image = useMemo(() => {
-      if (state) {
-        return ipfsProxy(state.image);
-      }
-    }, [state]);
     if (!state) {
       return (
         <Block>
           <Text>Missing NFT content</Text>
+        </Block>
+      );
+    }
+
+    if ("domain" in state) {
+      return (
+        <Block>
+          {state.name && (
+            <Text>
+              <b>{state.name}</b>
+            </Text>
+          )}
+          <ImageWrapper>
+            <Domain>
+              {state.domain}.{state.root}
+            </Domain>
+          </ImageWrapper>
         </Block>
       );
     }
@@ -44,7 +63,7 @@ export const NftPayload: FC<{ state?: NftItemState | null }> = React.memo(
           </Text>
         )}
         <ImageWrapper>
-          <NftImage src={image} alt="NFT image" />
+          <NftImage src={ipfsProxy(state.image)} alt="NFT image" />
         </ImageWrapper>
         {state.description && <Text>{state.description}</Text>}
       </Block>

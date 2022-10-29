@@ -43,23 +43,28 @@ export const NftList: FC<{ asset: NftAsset }> = ({ asset }) => {
       <Body>
         <H1>{asset.state?.name ?? "Collection"}</H1>
         <Grid>
-          {asset.items.map((item) => {
-            if (!item.state) {
+          {asset.items.map(({ state, address }) => {
+            if (!state) {
               return (
-                <Item key={item.address}>
+                <Item key={address}>
                   <TextLine>Missing NFT data</TextLine>
                 </Item>
               );
             } else {
               return (
                 <Item
-                  key={item.address}
-                  onClick={() =>
-                    navigate(`./${encodeURIComponent(item.address)}`)
-                  }
+                  key={address}
+                  onClick={() => navigate(`./${encodeURIComponent(address)}`)}
                 >
-                  {item.state?.name && <TextLine>{item.state?.name}</TextLine>}
-                  <ItemImage src={item.state?.image} alt="NFT image" />
+                  {state.name && <TextLine>{state.name}</TextLine>}
+                  {"image" in state && (
+                    <ItemImage src={state.image} alt="NFT image" />
+                  )}
+                  {"domain" in state && (
+                    <>
+                      {state.domain}.{state.root}
+                    </>
+                  )}
                 </Item>
               );
             }

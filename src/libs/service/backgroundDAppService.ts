@@ -150,6 +150,12 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return getConnectedWallets(origin, await getNetwork(), message.params[0]);
     }
 
+    case "ton_requestWallets": {
+      return connectDApp(message.id, origin, message.event, {
+        publicKey: true,
+      });
+    }
+
     case "ton_getBalance": {
       return getBalance(origin, validateWalletAddress(message.params[0]));
     }
