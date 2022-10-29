@@ -1,4 +1,4 @@
-import { Address, NftData } from "@openproduct/web-sdk";
+import { NftData } from "@openproduct/web-sdk";
 import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -6,6 +6,7 @@ import {
   NftCollectionState,
   NftItemState,
 } from "../../../../../../libs/entries/asset";
+import { seeIfSameAddress } from "../../../../../../libs/service/nftService";
 import {
   Body,
   ButtonColumn,
@@ -80,14 +81,7 @@ export const ImportNft = () => {
 
   const isOwnNft = useMemo(() => {
     if (!nftData) return false;
-
-    const walletAddress = new Address(wallet.address).toString(
-      true,
-      true,
-      true
-    );
-    const nftOwner = nftData.ownerAddress?.toString(true, true, true);
-    return walletAddress == nftOwner;
+    return seeIfSameAddress(wallet.address, nftData.ownerAddress);
   }, [wallet, nftData]);
 
   const onSearch = async () => {

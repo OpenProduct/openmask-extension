@@ -3,12 +3,23 @@ import {
   base64ToBytes,
   Cell,
   fromNano,
+  NftData,
   Slice,
+  TonHttpProvider,
 } from "@openproduct/web-sdk";
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
+import { useContext } from "react";
+import { NftItemState } from "../../../../libs/entries/asset";
 import { TransactionParams } from "../../../../libs/entries/transaction";
+import { WalletState } from "../../../../libs/entries/wallet";
+import {
+  getNftData,
+  getNftItemState,
+  seeIfSameAddress,
+} from "../../../../libs/service/nftService";
 import { QueryType } from "../../../../libs/store/browserStore";
+import { TonProviderContext, WalletStateContext } from "../../../context";
 import { TransactionState } from "../../home/wallet/send/api";
 
 const toDataCell = (params: TransactionParams) => {
@@ -77,6 +88,49 @@ const seeIfSendNftTransaction = (payload: Cell): false | NftTransferState => {
   }
 };
 
+export const toNftTransferState = async (
+  provider: TonHttpProvider,
+  wallet: WalletState,
+  state: TransactionState,
+  data: Cell
+): Promise<NftTransactionState | undefined> => {
+  const nftTransfer = seeIfSendNftTransaction(data);
+  if (!nftTransfer) {
+    return undefined;
+  }
+
+  try {
+    const nftDate = await getNftData(provider, state.address);
+
+    const isOwnNft = seeIfSameAddress(wallet.address, nftDate.ownerAddress);
+
+    const nftItemState = nftDate.contentUri
+      ? await getNftItemState(nftDate.contentUri)
+      : null;
+
+    const result: NftTransactionState = {
+      kind: "nft",
+      nftTransfer,
+      nftDate,
+      nftItemState,
+      isOwnNft,
+      state,
+    };
+    return result;
+  } catch (e) {
+    return undefined;
+  }
+};
+
+export interface NftTransactionState {
+  kind: "nft";
+  state: TransactionState;
+  nftTransfer: NftTransferState;
+  nftDate: NftData;
+  nftItemState: NftItemState | null;
+  isOwnNft: boolean;
+}
+
 export interface NftTransferState {
   queryId: BN;
   newOwnerAddress: Address;
@@ -86,14 +140,20 @@ export interface NftTransferState {
   forwardPayload: Cell;
 }
 
-export type ParsedTransactionState =
-  | { kind: "simple"; state: TransactionState }
-  | { kind: "nft"; state: TransactionState; nftTransfer: NftTransferState };
+export interface PureTransactionState {
+  kind: "pure";
+  state: TransactionState;
+}
+
+export type ParsedTransactionState = PureTransactionState | NftTransactionState;
 
 export const useSendTransactionState = (params: TransactionParams) => {
+  const provider = useContext(TonProviderContext);
+  const wallet = useContext(WalletStateContext);
+
   return useQuery<ParsedTransactionState, Error>(
-    [QueryType.transactions, params],
-    () => {
+    [QueryType.transactions, wallet.address, params],
+    async () => {
       const dataCell = toDataCell(params);
 
       const state: TransactionState = {
@@ -104,18 +164,18 @@ export const useSendTransactionState = (params: TransactionParams) => {
         hex: params.data,
       };
 
-      const nftTransfer = seeIfSendNftTransaction(dataCell);
-      if (nftTransfer) {
-        const result: ParsedTransactionState = {
-          kind: "nft",
-          nftTransfer,
-          state,
-        };
-        return result;
+      const nftState = await toNftTransferState(
+        provider,
+        wallet,
+        state,
+        dataCell
+      );
+      if (nftState) {
+        return nftState;
       }
 
       const result: ParsedTransactionState = {
-        kind: "simple",
+        kind: "pure",
         state,
       };
       return result;

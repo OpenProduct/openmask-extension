@@ -6,7 +6,6 @@ import {
   JettonMinterDao,
   JettonWalletDao,
   NftCollectionDao,
-  NftContentDao,
   NftData,
 } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,8 +17,11 @@ import {
   NftCollectionState,
   NftCollectionStateSchema,
   NftItemState,
-  NftItemStateSchema,
 } from "../../../../../../libs/entries/asset";
+import {
+  getNftData,
+  getNftItemState,
+} from "../../../../../../libs/service/nftService";
 import { requestJson } from "../../../../../../libs/service/requestService";
 import {
   AddJettonProps,
@@ -102,18 +104,13 @@ export const useAddJettonMutation = () => {
 
 export const useNftDataMutation = () => {
   const provider = useContext(TonProviderContext);
-  return useMutation<NftData, Error, string>(async (nftAddress) => {
-    const address = new Address(nftAddress);
-    const dao = new NftContentDao(provider, address);
-    return await dao.getData();
-  });
+  return useMutation<NftData, Error, string>((nftAddress) =>
+    getNftData(provider, nftAddress)
+  );
 };
 
 export const useNftContentMutation = () => {
-  return useMutation<NftItemState, Error, string>(async (jsonUrl) => {
-    const state = await requestJson<NftItemState>(jsonUrl!);
-    return await NftItemStateSchema.validateAsync(state);
-  });
+  return useMutation<NftItemState, Error, string>(getNftItemState);
 };
 
 export const useNftCollectionDataMutation = () => {
