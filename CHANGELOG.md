@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2022-10-29
+
+### Fixed
+
+- Fixed sending `boc` or `hex` payload via `ton_sendTransaction` method
+
 ## [0.11.0] - 2022-10-28
 
 ### Add
@@ -133,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.0...HEAD
+[0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.0...v0.10.1

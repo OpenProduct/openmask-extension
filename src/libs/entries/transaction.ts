@@ -65,5 +65,5 @@ export interface TransactionParams {
   value: string;
   to: string;
   dataType?: "hex" | "base64" | "boc";
-  data: string;
+  data?: string;
 }

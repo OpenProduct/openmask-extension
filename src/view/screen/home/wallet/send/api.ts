@@ -26,7 +26,7 @@ export interface TransactionState {
   address: string;
   amount: string;
   max: string;
-  data: string | Uint8Array | Cell;
+  data: string | Uint8Array | Cell | undefined;
   hex?: string;
 }
 
@@ -121,7 +121,7 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
         toAddress,
         amount: toNano(state.amount),
         seqno: seqno,
-        payload: state.data,
+        payload: state.data ?? "",
         sendMode,
       };
 
