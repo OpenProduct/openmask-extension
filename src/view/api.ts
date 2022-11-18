@@ -161,15 +161,15 @@ export const useInitialRedirect = (
   }, []);
 };
 
-export const getAppPassword = async (
-  useAction: (password: string) => Promise<void>
+export const getAppPassword = async <R>(
+  useAction: (password: string) => Promise<R>
 ) => {
   const config = await getAuthConfiguration();
   if (config.kind === "password") {
     const password = await askBackgroundPassword();
-    await useAction(password);
+    return await useAction(password);
   } else {
-    await getWebAuthnPassword(useAction);
+    return await getWebAuthnPassword(useAction);
   }
 };
 

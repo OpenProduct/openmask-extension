@@ -8,7 +8,7 @@ import { ErrorCode, RuntimeError } from "../../libs/exception";
 import { decryptMnemonic } from "../../libs/state/accountService";
 import { QueryType } from "../../libs/store/browserStore";
 import { checkForError } from "../../libs/utils";
-import { askBackgroundPassword } from "./import/api";
+import { getAppPassword } from "../api";
 
 export const saveAccountState = async (
   network: string,
@@ -38,9 +38,8 @@ export const checkBalanceOrDie = (balance: string | undefined, amount: BN) => {
 };
 
 export const getWalletKeyPair = async (wallet: WalletState) => {
-  const mnemonic = await decryptMnemonic(
-    wallet.mnemonic,
-    await askBackgroundPassword()
-  );
-  return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
+  return getAppPassword(async (password) => {
+    const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
+    return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
+  });
 };
