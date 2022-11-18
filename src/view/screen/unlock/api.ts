@@ -23,7 +23,7 @@ export const useUnlockMutation = () => {
   });
 };
 
-export const useAuthenticationMutation = () => {
+export const useAuthenticationMutation = (signal: AbortSignal) => {
   return useMutation<string, Error, void>(async () => {
     const data = await getAuthConfiguration();
     if (data.kind !== "webauthn") {
@@ -42,11 +42,16 @@ export const useAuthenticationMutation = () => {
         ],
         userVerification: "required",
       },
+      signal,
     };
 
     const assertion = (await navigator.credentials.get(
       options
     )) as PublicKeyCredential;
+
+    if (signal.aborted) {
+      throw new Error("Cancel verification");
+    }
 
     const response = assertion.response as AuthenticatorAssertionResponse;
     if (!response.userHandle) {

@@ -135,6 +135,6 @@ export const useSendJettonMethod = (
 
       return { method, seqno };
     },
-    { enabled: balance != null }
+    { enabled: balance != null, retry: 1 }
   );
 };
