@@ -1,7 +1,7 @@
-import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Logger } from "../../../libs/logger";
 import { Body, ButtonNegative, H1 } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
 import { AppRoute } from "../../routes";
@@ -11,6 +11,16 @@ import { SettingsRoutes } from "./route";
 const Quote = styled.div`
   padding: 5px 0;
 `;
+
+function browserSupportsWebAuthn() {
+  if (window.PublicKeyCredential) {
+    Logger.log("Supported.");
+    return true;
+  } else {
+    Logger.log("Not supported.");
+    return false;
+  }
+}
 
 export const WebAuthn = () => {
   const navigate = useNavigate();

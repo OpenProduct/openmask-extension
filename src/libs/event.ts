@@ -7,6 +7,7 @@ import {
   SwitchNetworkParams,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
+import { TransactionParams } from "./entries/transaction";
 
 export type PopUpEventEmitter = IEventEmitter<PupUpEvents>;
 export type BackgroundEventsEmitter = IEventEmitter<BackgroundEvents>;
