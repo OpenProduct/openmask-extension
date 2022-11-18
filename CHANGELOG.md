@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2022-11-18
+
+### Add
+
+- Add webAuthn authorization
+
 ## [0.12.0] - 2022-10-29
 
 ### Fixed
@@ -139,8 +145,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.0...HEAD
-[0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...v0.12.0
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.0...v0.10.1

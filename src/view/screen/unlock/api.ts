@@ -50,7 +50,7 @@ export const useAuthenticationMutation = (signal: AbortSignal) => {
     )) as PublicKeyCredential;
 
     if (signal.aborted) {
-      throw new Error("Cancel verification");
+      throw new Error("Verification canceled");
     }
 
     const response = assertion.response as AuthenticatorAssertionResponse;
