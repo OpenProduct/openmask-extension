@@ -103,6 +103,6 @@ export const useDeployContractMutation = (
 
       return { method, seqno };
     },
-    { enabled: params != null && balance != null, retry: 1 }
+    { enabled: params != null && balance != null, retry: 0 }
   );
 };

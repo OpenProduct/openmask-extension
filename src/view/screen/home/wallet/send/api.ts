@@ -129,7 +129,7 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
 
       return { method, seqno };
     },
-    { enabled: balance != null && state != null, retry: 1 }
+    { enabled: balance != null && state != null, retry: 0 }
   );
 };
 
