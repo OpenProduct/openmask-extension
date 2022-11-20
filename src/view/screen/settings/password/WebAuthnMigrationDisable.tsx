@@ -81,7 +81,7 @@ export const WebAuthnDisableMigration = () => {
           <Fingerprint />
         </div>
       )}
-      {oldPassword && (
+      {oldPassword && !isDone && (
         <div>
           <Center>
             <Text>Step 2 of 2 - New Password</Text>
