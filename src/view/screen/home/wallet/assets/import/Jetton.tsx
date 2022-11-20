@@ -9,21 +9,14 @@ import {
   ButtonColumn,
   ButtonPositive,
   ErrorMessage,
-  ErrorText,
   Gap,
-  Input,
 } from "../../../../../components/Components";
 import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { InputField } from "../../../../../components/InputField";
 import { JettonRow } from "../../../../../components/JettonRow";
 import { AppRoute } from "../../../../../routes";
-import {
-  useAddJettonMutation,
-  useJettonMinterMutation,
-  useJettonNameMutation,
-  useJettonWalletMutation,
-} from "./api";
+import { useAddJettonMutation, useJettonFullData } from "./api";
 import { AssetsTabs } from "./Tabs";
 
 const Label = styled.div`
@@ -56,14 +49,14 @@ export const ImportJetton = () => {
   const [minter, setMinter] = useState("");
 
   const [symbol, setSymbol] = useState("");
-  const [symbolError, setSymbolError] = useState("");
+  const [symbolError, setSymbolError] = useState<Error | undefined>(undefined);
 
   const {
-    mutateAsync: jettonDataAsync,
+    mutateAsync: jettonFullDataAsync,
     isLoading: isDataLoading,
     error: errorMinter,
-    reset: resetMinter,
-  } = useJettonMinterMutation();
+    reset: resetFullData,
+  } = useJettonFullData();
 
   const {
     mutateAsync: addJettonAsync,
@@ -72,24 +65,13 @@ export const ImportJetton = () => {
     error: errorAdd,
   } = useAddJettonMutation();
 
-  const { mutateAsync: jettonNameAsync, isLoading: isNameLoading } =
-    useJettonNameMutation();
-
-  const { mutateAsync: jettonWalletAsync, isLoading: isWalletLoading } =
-    useJettonWalletMutation();
-
   const onSearch = useCallback(async () => {
-    resetMinter();
-    const data = await jettonDataAsync(minter);
+    resetFullData();
+    const { data, wallet, name } = await jettonFullDataAsync(minter);
     setJetton(data);
-
-    await Promise.all([
-      jettonWalletAsync(minter).then((wallet) => setJettonWallet(wallet)),
-      jettonNameAsync(data.jettonContentUri).then((name) =>
-        setJettonName(name)
-      ),
-    ]);
-  }, [resetMinter, jettonDataAsync, setJetton, setJettonName, minter]);
+    setJettonWallet(wallet);
+    setJettonName(name);
+  }, [resetFullData, jettonFullDataAsync, setJetton, setJettonName, minter]);
 
   const onAdd = async () => {
     if (jetton == null) return;
@@ -103,7 +85,7 @@ export const ImportJetton = () => {
     } else {
       const error = toSymbolError(symbol);
       if (error) {
-        setSymbolError(error);
+        setSymbolError(new Error(error));
         return;
       }
 
@@ -122,7 +104,7 @@ export const ImportJetton = () => {
     navigate(AppRoute.home);
   };
 
-  const isLoading = isDataLoading || isNameLoading || isWalletLoading;
+  const isLoading = isDataLoading;
 
   const Button = () => {
     if (isLoading || isAddLoading) {
@@ -163,15 +145,13 @@ export const ImportJetton = () => {
         />
 
         {!isLoading && jetton != null && jettonName == null && (
-          <>
-            <Label>Jetton Symbol</Label>
-            <Input
-              disabled={isAddLoading}
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value)}
-            />
-            {symbolError && <ErrorText>{symbolError}</ErrorText>}
-          </>
+          <InputField
+            label="Jetton Symbol"
+            disabled={isAddLoading}
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+            error={symbolError}
+          />
         )}
 
         {!isLoading && jetton != null && (

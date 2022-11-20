@@ -41,7 +41,7 @@ const JettonWallet: FC<JettonWalletProps> = React.memo(
     return (
       <>
         <Text>Wallet: {toShortAddress(wallet)}</Text>
-        <JettonRow state={state} balance={jettonBallance} />
+        <JettonRow state={state} balance={jettonBallance?.balance} />
       </>
     );
   }

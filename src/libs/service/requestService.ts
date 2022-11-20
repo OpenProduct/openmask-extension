@@ -4,6 +4,7 @@ export const ipfsProxy = (url: string) => {
   }
   return url;
 };
+
 export const requestJson = async <T>(
   jsonDataUrl: string,
   timeout = 15000

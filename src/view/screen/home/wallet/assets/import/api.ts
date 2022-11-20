@@ -1,10 +1,6 @@
 import {
   Address,
   Cell,
-  fromNano,
-  JettonData,
-  JettonMinterDao,
-  JettonWalletDao,
   NftCollectionDao,
   NftContentDao,
   NftData,
@@ -13,8 +9,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {
   DomainNftState,
-  JettonState,
-  JettonStateSchema,
   NftCollectionState,
   NftCollectionStateSchema,
   NftItemState,
@@ -26,8 +20,11 @@ import {
   addJettonToWallet,
   AddNftProps,
   addNftToWallet,
-  JettonWalletData,
 } from "../../../../../../libs/state/assetService";
+import {
+  getJettonFullData,
+  JettonFullData,
+} from "../../../../../../libs/state/jettonService";
 import {
   AccountStateContext,
   NetworkContext,
@@ -36,55 +33,12 @@ import {
 } from "../../../../../context";
 import { saveAccountState } from "../../../../api";
 
-export const useJettonMinterMutation = () => {
-  const provider = useContext(TonProviderContext);
-  return useMutation<JettonData, Error, string>(
-    async (jettonMinterAddress: string) => {
-      const dap = new JettonMinterDao(
-        provider,
-        new Address(jettonMinterAddress)
-      );
-
-      return await dap.getJettonData();
-    }
-  );
-};
-
-export const useJettonNameMutation = () => {
-  return useMutation<JettonState, Error, string | null>(async (jsonDataUrl) => {
-    let state: Partial<JettonState> = {};
-    if (jsonDataUrl) {
-      state = await requestJson<Partial<JettonState>>(jsonDataUrl);
-    }
-
-    return await JettonStateSchema.validateAsync(state);
-  });
-};
-
-export const useJettonWalletMutation = () => {
-  const provider = useContext(TonProviderContext);
+export const useJettonFullData = () => {
+  const client = useContext(TonProviderContext);
   const wallet = useContext(WalletStateContext);
-
-  return useMutation<JettonWalletData, Error, string>(
-    async (jettonMinterAddress) => {
-      const minter = new JettonMinterDao(
-        provider,
-        new Address(jettonMinterAddress)
-      );
-
-      const jettonWalletAddress = await minter.getJettonWalletAddress(
-        new Address(wallet.address)
-      );
-      if (!jettonWalletAddress) {
-        throw new Error("Missing jetton wallet address.");
-      }
-
-      const dao = new JettonWalletDao(provider, jettonWalletAddress);
-      const data = await dao.getData();
-      return {
-        balance: fromNano(data.balance),
-        address: jettonWalletAddress.toString(true, true, true),
-      };
+  return useMutation<JettonFullData, Error, string>(
+    (jettonMinterAddress: string) => {
+      return getJettonFullData(client, wallet.address, jettonMinterAddress);
     }
   );
 };
