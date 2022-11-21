@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support onchain jetton data
 
+### Fixed
+
+- Update loading from ipfs
+
 ## [0.12.0] - 2022-10-29
 
 ### Fixed
