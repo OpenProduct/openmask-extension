@@ -6,6 +6,7 @@ export interface AuthPassword {
 
 export interface WebAuthn {
   kind: "webauthn";
+  type: "largeBlob" | "credBlob" | "userHandle";
   credentialId: string;
   transports?: AuthenticatorTransport[];
 }

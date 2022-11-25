@@ -17,6 +17,7 @@ import { sendBackground } from "../../../event";
 import { AppRoute } from "../../../routes";
 import {
   useChangePasswordMigration,
+  useLargeBlobMigration,
   useRegistrationMigration,
   useVerificationMigration,
 } from "./api";
@@ -35,8 +36,8 @@ const Note = () => {
         access to wallets.
       </Text>
       <Text>
-        Enabling the feature required to enter biometrics two times. First for
-        registration and second for verification access.
+        Enabling the feature required to enter biometrics two or there times.
+        For registration and for verification access.
       </Text>
     </>
   );
@@ -45,6 +46,7 @@ const Note = () => {
 export const WebAuthnEnableMigration = () => {
   const navigate = useNavigate();
 
+  const [total, setTotal] = useState(2);
   const [start, setStart] = useState(false);
   const [isDone, setDone] = useState(false);
 
@@ -54,6 +56,13 @@ export const WebAuthnEnableMigration = () => {
     reset: registrationReset,
     isLoading: isRegistration,
   } = useRegistrationMigration();
+
+  const {
+    mutateAsync: largeBlobAsync,
+    error: largeBlobError,
+    reset: largeBlobReset,
+    isLoading: isLargeBlob,
+  } = useLargeBlobMigration();
 
   const {
     mutateAsync: verificationAsync,
@@ -73,10 +82,15 @@ export const WebAuthnEnableMigration = () => {
     setStart(true);
 
     registrationReset();
+    largeBlobReset();
     verificationReset();
     changeReset();
 
     const result = await registrationAsync();
+    if (result.type === "largeBlob") {
+      setTotal(3);
+      await largeBlobAsync(result);
+    }
     const props = await verificationAsync(result);
     await changeAsync(props);
     setDone(true);
@@ -109,10 +123,20 @@ export const WebAuthnEnableMigration = () => {
           <Fingerprint />
         </div>
       )}
+      {isLargeBlob && (
+        <div>
+          <Center>
+            <Text>Step 2 of 3 - Store</Text>
+          </Center>
+          <Fingerprint />
+        </div>
+      )}
       {(isVerification || isChanging) && (
         <div>
           <Center>
-            <Text>Step 2 of 2 - Verification</Text>
+            <Text>
+              Step {total} of {total} - Verification
+            </Text>
           </Center>
           <Fingerprint />
         </div>
@@ -133,6 +157,7 @@ export const WebAuthnEnableMigration = () => {
         <ErrorMessage>{verificationError.message}</ErrorMessage>
       )}
       {changeError && <ErrorMessage>{changeError.message}</ErrorMessage>}
+      {largeBlobError && <ErrorMessage>{largeBlobError.message}</ErrorMessage>}
 
       {!isDone && (
         <ButtonRow>

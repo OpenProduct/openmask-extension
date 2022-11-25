@@ -41,6 +41,12 @@ export const useAuthenticationMutation = (signal: AbortSignal) => {
           },
         ],
         userVerification: "required",
+        extensions: {
+          getCredBlob: true,
+          largeBlob: {
+            read: true,
+          },
+        },
       },
       signal,
     };
@@ -54,10 +60,16 @@ export const useAuthenticationMutation = (signal: AbortSignal) => {
     }
 
     const response = assertion.response as AuthenticatorAssertionResponse;
-    if (!response.userHandle) {
-      throw new Error("missing userHandle");
+
+    const extensions = assertion.getClientExtensionResults();
+    if (data.type == "userHandle") {
+      if (!response.userHandle) {
+        throw new Error("missing userHandle");
+      }
+      return Buffer.from(response.userHandle).toString("hex");
+    } else {
+      return Buffer.from(extensions.largeBlob?.blob ?? "").toString("hex");
     }
-    return Buffer.from(response.userHandle).toString("hex");
   });
 };
 

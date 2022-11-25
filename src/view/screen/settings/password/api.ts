@@ -28,6 +28,7 @@ declare global {
 
   interface AuthenticationExtensionsClientOutputs {
     largeBlob?: {
+      supported?: boolean;
       written?: boolean;
       blob?: Uint8Array;
     };
@@ -42,29 +43,7 @@ declare global {
 }
 
 const rpName = "OpenMask Wallet";
-
 const userName = "wallet@openmask.app";
-
-export const supportedCOSEAlgorithmIdentifiers: COSEAlgorithmIdentifier[] = [
-  // EdDSA (In first position to encourage authenticators to use this over ES256)
-  -8,
-  // ECDSA w/ SHA-256
-  -7,
-  // ECDSA w/ SHA-512
-  -36,
-  // RSASSA-PSS w/ SHA-256
-  -37,
-  // RSASSA-PSS w/ SHA-384
-  -38,
-  // RSASSA-PSS w/ SHA-512
-  -39,
-  // RSASSA-PKCS1-v1_5 w/ SHA-256
-  -257,
-  // RSASSA-PKCS1-v1_5 w/ SHA-384
-  -258,
-  // RSASSA-PKCS1-v1_5 w/ SHA-512
-  -259,
-];
 
 const getHost = () => {
   const url = new URL(browser.runtime.getURL("index.html"));
@@ -77,7 +56,12 @@ const getHost = () => {
 
 export interface RegistrationResponse {
   oldPassword: string;
-  password: string;
+  type: "largeBlob" | "credBlob" | "userHandle";
+  password: {
+    largeBlob: string;
+    credBlob: string;
+    userHandle: string;
+  };
   credential: PublicKeyCredential;
 }
 
@@ -87,7 +71,9 @@ export const useRegistrationMigration = () => {
 
     const { rpID } = getHost();
 
-    const password = crypto.randomBytes(32);
+    const userHandle = crypto.randomBytes(32);
+    const credBlob = crypto.randomBytes(32);
+    const largeBlob = crypto.randomBytes(64);
 
     const options: CredentialCreationOptions = {
       publicKey: {
@@ -97,7 +83,7 @@ export const useRegistrationMigration = () => {
           id: rpID,
         },
         user: {
-          id: password,
+          id: userHandle,
           name: userName,
           displayName: rpName,
         },
@@ -107,10 +93,9 @@ export const useRegistrationMigration = () => {
         ],
         authenticatorSelection: {
           requireResidentKey: true,
-          //userVerification: "required",
         },
         extensions: {
-          credBlob: password,
+          credBlob: credBlob,
           largeBlob: {
             support: "preferred",
           },
@@ -135,17 +120,75 @@ export const useRegistrationMigration = () => {
 
     console.log(extensions);
 
-    return {
+    const type = extensions.largeBlob?.supported
+      ? "largeBlob"
+      : extensions.credBlob
+      ? "credBlob"
+      : "userHandle";
+
+    const response: RegistrationResponse = {
       oldPassword,
-      password: password.toString("hex"),
+      type,
+      password: {
+        largeBlob: largeBlob.toString("hex"),
+        credBlob: credBlob.toString("hex"),
+        userHandle: userHandle.toString("hex"),
+      },
       credential,
     };
+    return response;
   });
+};
+
+export const useLargeBlobMigration = () => {
+  return useMutation<void, Error, RegistrationResponse>(
+    async ({ credential, password }) => {
+      await delay(300);
+
+      const transports =
+        credential.response &&
+        credential.response.getTransports &&
+        credential.response.getTransports();
+
+      const options: CredentialRequestOptions = {
+        publicKey: {
+          challenge: crypto.randomBytes(32),
+          allowCredentials: [
+            {
+              id: credential.rawId,
+              type: "public-key",
+              transports,
+            },
+          ],
+          userVerification: "required",
+          extensions: {
+            largeBlob: {
+              write: new Uint8Array(Buffer.from(password.largeBlob, "hex")),
+            },
+          },
+        },
+      };
+
+      const assertion = (await navigator.credentials.get(
+        options
+      )) as PublicKeyCredential;
+
+      if (!assertion) {
+        throw new Error("Missing authentication");
+      }
+
+      const extensions = assertion.getClientExtensionResults();
+
+      if (!extensions.largeBlob?.written) {
+        throw new Error("Failed write large blob");
+      }
+    }
+  );
 };
 
 export const useVerificationMigration = () => {
   return useMutation<ChangePasswordProps, Error, RegistrationResponse>(
-    async ({ credential, oldPassword, password }) => {
+    async ({ credential, oldPassword, password, type }) => {
       await delay(300);
 
       const transports =
@@ -169,7 +212,7 @@ export const useVerificationMigration = () => {
           extensions: {
             getCredBlob: true,
             largeBlob: {
-              write: Buffer.from(password, "hex"),
+              read: true,
             },
           },
         },
@@ -191,28 +234,58 @@ export const useVerificationMigration = () => {
 
       console.log(extensions);
 
-      if (!response.userHandle) {
-        throw new Error("Missing stored userHandle");
+      let result: string | undefined = undefined;
+      switch (type) {
+        case "largeBlob": {
+          if (!extensions.largeBlob?.blob) {
+            throw new Error("Missing stored largeBlob");
+          }
+          if (
+            !Buffer.from(password.largeBlob, "hex").equals(
+              Buffer.from(extensions.largeBlob?.blob)
+            )
+          ) {
+            throw new Error("Stored blob not equals passed blob");
+          }
+          result = password.largeBlob;
+          break;
+        }
+        case "userHandle": {
+          if (!response.userHandle) {
+            throw new Error("Missing stored userHandle");
+          }
+          if (
+            !Buffer.from(password.userHandle, "hex").equals(
+              Buffer.from(response.userHandle)
+            )
+          ) {
+            throw new Error("Stored blob not equals passed blob");
+          }
+          result = password.userHandle;
+          break;
+        }
       }
 
-      if (
-        !Buffer.from(password, "hex").equals(Buffer.from(response.userHandle))
-      ) {
-        throw new Error("Stored blob not equals passed blob");
+      if (!result) {
+        throw new Error("Missing stored blob");
       }
 
       const configuration: WebAuthn = {
         kind: "webauthn",
+        type,
         credentialId,
         transports,
       };
 
-      return {
+      console.log(configuration);
+
+      const props: ChangePasswordProps = {
         oldPassword: oldPassword,
-        password: password,
-        confirm: password,
+        password: result,
+        confirm: result,
         configuration,
       };
+      return props;
     }
   );
 };
