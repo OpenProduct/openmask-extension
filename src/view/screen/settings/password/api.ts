@@ -3,6 +3,7 @@ import crypto from "crypto";
 import browser from "webextension-polyfill";
 import { AuthConfiguration, WebAuthn } from "../../../../libs/entries/auth";
 import { networkConfigs } from "../../../../libs/entries/network";
+import { Logger } from "../../../../libs/logger";
 import { encrypt } from "../../../../libs/service/cryptoService";
 import { delay, reEncryptWallets } from "../../../../libs/state/accountService";
 import {
@@ -114,11 +115,11 @@ export const useRegistrationMigration = () => {
       throw new Error("Missing credential");
     }
 
-    console.log({ credential });
+    Logger.log({ credential });
 
     const extensions = credential.getClientExtensionResults();
 
-    console.log(extensions);
+    Logger.log(extensions);
 
     const type = extensions.largeBlob?.supported
       ? "largeBlob"
@@ -228,11 +229,11 @@ export const useVerificationMigration = () => {
 
       const response = assertion.response as AuthenticatorAssertionResponse;
 
-      console.log(assertion);
+      Logger.log(assertion);
 
       const extensions = assertion.getClientExtensionResults();
 
-      console.log(extensions);
+      Logger.log(extensions);
 
       let result: string | undefined = undefined;
       switch (type) {
@@ -277,7 +278,7 @@ export const useVerificationMigration = () => {
         transports,
       };
 
-      console.log(configuration);
+      Logger.log(configuration);
 
       const props: ChangePasswordProps = {
         oldPassword: oldPassword,
@@ -317,25 +318,25 @@ export const useChangePasswordMigration = () => {
       const accounts = await Promise.all(
         networkConfigs.map(async (network) => {
           const account = await getAccountState(network.name);
-          console.log(account);
+          Logger.log(account);
           return [
             `${network.name}_${QueryType.account}`,
             await reEncryptWallets(account, oldPassword, password),
           ] as const;
         })
       );
-      console.log(accounts);
+      Logger.log(accounts);
 
       const script = await encrypt(password, password);
 
-      console.log(script);
+      Logger.log(script);
 
       const batchUpdate = Object.assign(Object.fromEntries(accounts), {
         [QueryType.auth]: configuration,
         [QueryType.script]: script,
       });
 
-      console.log(batchUpdate);
+      Logger.log(batchUpdate);
 
       await batchUpdateStore(batchUpdate);
 

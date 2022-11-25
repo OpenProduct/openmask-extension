@@ -15,6 +15,7 @@ import {
   TonHttpProvider,
 } from "@openproduct/web-sdk";
 import { JettonState, JettonStateSchema } from "../entries/asset";
+import { Logger } from "../logger";
 import { requestJson } from "../service/requestService";
 import { JettonWalletData } from "./assetService";
 
@@ -38,11 +39,11 @@ export const getJettonFullData = async (
 
   const [wallet, name] = await Promise.all([
     getJettonWalletData(provider, minter, walletAddress).catch((e) => {
-      console.log(e);
+      Logger.log(e);
       return null;
     }),
     getJettonNameState(data).catch((e) => {
-      console.log(e);
+      Logger.log(e);
       return null;
     }),
   ] as const);
