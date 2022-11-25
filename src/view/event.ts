@@ -1,11 +1,11 @@
 import browser from "webextension-polyfill";
+import { EventEmitter } from "../libs/entries/eventEmitter";
 import {
   AppEvent,
   AskProcessor,
   PopUpEventEmitter,
   RESPONSE,
 } from "../libs/event";
-import { EventEmitter } from "../libs/eventEmitter";
 import { Logger } from "../libs/logger";
 
 let port: browser.Runtime.Port;

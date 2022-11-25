@@ -10,13 +10,15 @@ import * as tonMnemonic from "tonweb-mnemonic";
 import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
 import { NotificationData } from "../../../libs/event";
 import { encrypt } from "../../../libs/service/cryptoService";
+import { validateMnemonic } from "../../../libs/state/accountService";
+import { getAppPassword } from "../../api";
 import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
 } from "../../context";
 import { askBackground } from "../../event";
-import { saveAccountState, validateMnemonic } from "../api";
+import { saveAccountState } from "../api";
 
 export const askBackgroundPassword = async () => {
   const password = await askBackground<string | null>().message("getPassword");
@@ -67,21 +69,21 @@ export const useCreateWalletMutation = () => {
   const client = useQueryClient();
 
   return useMutation<void, Error, string>(async (mnemonic) => {
-    const password = await askBackgroundPassword();
+    return getAppPassword(async (password) => {
+      const wallet = await createWallet(
+        ton,
+        mnemonic,
+        password,
+        account.wallets.length + 1
+      );
 
-    const wallet = await createWallet(
-      ton,
-      mnemonic,
-      password,
-      account.wallets.length + 1
-    );
-
-    const value = {
-      ...account,
-      wallets: [...account.wallets, wallet],
-      activeWallet: wallet.address,
-    };
-    await saveAccountState(network, client, value);
+      const value = {
+        ...account,
+        wallets: [...account.wallets, wallet],
+        activeWallet: wallet.address,
+      };
+      await saveAccountState(network, client, value);
+    });
   });
 };
 
@@ -138,26 +140,26 @@ export const useImportWalletMutation = () => {
   const data = useContext(AccountStateContext);
 
   return useMutation<void, Error, string>(async (value) => {
-    const password = await askBackgroundPassword();
+    return getAppPassword(async (password) => {
+      const mnemonic = value.trim().split(" ");
+      validateMnemonic(mnemonic);
 
-    const mnemonic = value.trim().split(" ");
-    validateMnemonic(mnemonic);
-
-    const wallet = await importWallet(
-      ton,
-      mnemonic,
-      password,
-      data.wallets.length + 1
-    );
-    if (data.wallets.some((w) => w.address === wallet.address)) {
-      throw new Error("Wallet already connect");
-    }
-    const wallets = data.wallets.concat([wallet]);
-    const state = {
-      ...data,
-      wallets,
-      activeWallet: wallet.address,
-    };
-    await saveAccountState(network, client, state);
+      const wallet = await importWallet(
+        ton,
+        mnemonic,
+        password,
+        data.wallets.length + 1
+      );
+      if (data.wallets.some((w) => w.address === wallet.address)) {
+        throw new Error("Wallet already connect");
+      }
+      const wallets = data.wallets.concat([wallet]);
+      const state = {
+        ...data,
+        wallets,
+        activeWallet: wallet.address,
+      };
+      await saveAccountState(network, client, state);
+    });
   });
 };

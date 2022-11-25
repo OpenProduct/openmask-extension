@@ -1,6 +1,6 @@
 {
   "name": "@openmask/extension",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
   "dependencies": {
@@ -9,12 +9,14 @@
     "bn.js": "4.11.6",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.2",
+    "crypto-browserify": "^3.12.0",
     "joi": "^17.6.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-qr-code": "^2.0.8",
     "react-router-dom": "^6.4.0",
+    "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.5",
     "tonweb-mnemonic": "^1.0.1",
     "tweetnacl": "^1.0.3",

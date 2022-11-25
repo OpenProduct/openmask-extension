@@ -1,6 +1,6 @@
 import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FC, useMemo } from "react";
+import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { AccountState } from "../libs/entries/account";
@@ -19,17 +19,26 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "./context";
+import { useInitialRendering } from "./hooks/useInitialRendering";
 import { any, AppRoute } from "./routes";
-import { Connections } from "./screen/connections/Connections";
+
 import { Header } from "./screen/home/Header";
-import { Home } from "./screen/home/Home";
-import { ConnectWallet } from "./screen/import/ConnectWallet";
+
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { Loading } from "./screen/Loading";
-import { Notifications } from "./screen/notifications/Notifications";
-import { Settings } from "./screen/settings/Settings";
 import { Unlock } from "./screen/unlock/Unlock";
+import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
 import defaultTheme from "./styles/defaultTheme";
+
+const ConnectWallet = React.lazy(() => import("./screen/import/ConnectWallet"));
+const Connections = React.lazy(
+  () => import("./screen/connections/Connections")
+);
+const Home = React.lazy(() => import("./screen/home/Home"));
+const Settings = React.lazy(() => import("./screen/settings/Settings"));
+const Notifications = React.lazy(
+  () => import("./screen/notifications/Notifications")
+);
 
 const ContentRouter: FC<{
   account: AccountState;
@@ -37,7 +46,8 @@ const ContentRouter: FC<{
   lock: boolean;
   script: string | null;
   notification: boolean;
-}> = ({ account, ton, lock, script, notification }) => {
+  justOpen: boolean;
+}> = ({ account, ton, lock, script, notification, justOpen }) => {
   const location = useLocation();
 
   const wallet = account.wallets.find(
@@ -56,7 +66,7 @@ const ContentRouter: FC<{
   }, [wallet, ton]);
 
   if (script != null && lock) {
-    return <Unlock />;
+    return <Unlock justOpen={justOpen} />;
   }
   if (
     account.wallets.length === 0 &&
@@ -71,13 +81,15 @@ const ContentRouter: FC<{
   return (
     <WalletStateContext.Provider value={wallet!}>
       <WalletContractContext.Provider value={walletContract!}>
-        <Routes>
-          <Route path={AppRoute.notifications} element={<Notifications />} />
-          <Route path={any(AppRoute.settings)} element={<Settings />} />
-          <Route path={AppRoute.connections} element={<Connections />} />
-          <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path={AppRoute.notifications} element={<Notifications />} />
+            <Route path={any(AppRoute.settings)} element={<Settings />} />
+            <Route path={AppRoute.connections} element={<Connections />} />
+            <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
       </WalletContractContext.Provider>
     </WalletStateContext.Provider>
   );
@@ -90,6 +102,7 @@ const App = () => {
   const { isLoading, data } = useAccountState();
 
   const config = getNetworkConfig(network);
+  const justOpen = useInitialRendering();
 
   const notification = useMemo(() => {
     return window.location.hash.includes(AppRoute.notifications);
@@ -114,7 +127,9 @@ const App = () => {
             lock={lock}
             script={script}
             notification={notification}
+            justOpen={justOpen}
           />
+          <WebAuthnNotification />
         </TonProviderContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>

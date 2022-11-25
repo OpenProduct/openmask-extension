@@ -1,5 +1,10 @@
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
+import {
+  AuthConfiguration,
+  DefaultAuthPasswordConfig,
+  WebAuthn,
+} from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
 import {
@@ -10,6 +15,7 @@ import { checkForError } from "../utils";
 
 export enum QueryType {
   proxy = "proxy",
+  auth = "auth",
 
   price = "price",
 
@@ -65,6 +71,13 @@ export const getProxyConfiguration = () => {
   );
 };
 
+export const getAuthConfiguration = () => {
+  return getStoreValue<AuthConfiguration>(
+    QueryType.auth,
+    DefaultAuthPasswordConfig
+  );
+};
+
 export const getConnections = (network?: string) => {
   return getNetworkStoreValue<Connections>(
     QueryType.connection,
@@ -79,6 +92,10 @@ export const getAccountState = (network?: string) => {
     defaultAccountState,
     network
   );
+};
+
+export const updateAuthCounter = (value: WebAuthn, newCounter: number) => {
+  return setStoreValue(QueryType.auth, { ...value, counter: newCounter });
 };
 
 export const setProxyConfiguration = (value: ProxyConfiguration) => {
@@ -115,6 +132,16 @@ export const setNetworkStoreValue = async <T>(
 ) => {
   const network = networkValue ?? (await getNetwork());
   await browser.storage.local.set({ [`${network}_${query}`]: value });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+};
+
+export const batchUpdateStore = async (
+  values: Record<string, any>
+): Promise<void> => {
+  await browser.storage.local.set(values);
   const err = checkForError();
   if (err) {
     throw err;

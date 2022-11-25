@@ -110,6 +110,7 @@ export const useTransferNftMethod = (
       const method = contract.transfer(params);
 
       return { method, seqno };
-    }
+    },
+    { retry: 1 }
   );
 };
