@@ -10,6 +10,8 @@ export interface JettonParams {
   image?: string;
   // A jetton name
   name?: string;
+  // A jetton decimals
+  decimals?: string;
 }
 
 export const JettonParamsSchema = Joi.object<JettonParams>({
@@ -18,6 +20,7 @@ export const JettonParamsSchema = Joi.object<JettonParams>({
   symbol: Joi.string(),
   image: Joi.string(),
   name: Joi.string(),
+  decimals: Joi.string(),
 });
 
 export interface NftParams {
@@ -38,6 +41,7 @@ export interface JettonState {
   name: string;
   image?: string;
   description?: string;
+  decimals?: string;
 }
 
 export const JettonStateSchema = Joi.object<JettonState>({
@@ -45,6 +49,7 @@ export const JettonStateSchema = Joi.object<JettonState>({
   symbol: Joi.string().required(),
   description: Joi.string(),
   image: Joi.string(),
+  decimals: Joi.string(),
 }).unknown();
 
 export interface JettonAsset {
