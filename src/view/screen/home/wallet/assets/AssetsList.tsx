@@ -30,6 +30,7 @@ const JettonRowView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
     <AssetJettonView
       name={asset.state.symbol}
       logoUrl={asset.state.image}
+      decimals={asset.state.decimals}
       balance={data}
       onShow={() =>
         navigate(

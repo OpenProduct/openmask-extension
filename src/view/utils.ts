@@ -14,6 +14,10 @@ export const formatTonValue = (value: string): string => {
   return balanceFormat.format(numberTonValue(value));
 };
 
+export const formatCoinValue = (value: string): string => {
+  return balanceFormat.format(parseFloat(value));
+};
+
 export const toShortAddress = (address: string): string => {
   return address.slice(0, 4) + "...." + address.slice(-4);
 };
@@ -29,6 +33,16 @@ const fiatFormat = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
+
+export const useCoinFiat = (balance?: string, price?: number) => {
+  return useMemo(() => {
+    if (price && balance) {
+      return `${fiatFormat.format(parseFloat(balance) * price)}`;
+    } else {
+      return undefined;
+    }
+  }, [price, balance]);
+};
 
 export const useTonFiat = (balance?: string, price?: number) => {
   return useMemo(() => {

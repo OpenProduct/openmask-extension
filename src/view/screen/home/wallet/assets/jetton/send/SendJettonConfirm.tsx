@@ -1,3 +1,4 @@
+import BN from "bn.js";
 import React, { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
@@ -46,7 +47,7 @@ const Quote = styled.div`
 interface ConfirmProps {
   jetton: JettonAsset;
   state: SendJettonState;
-  balance?: string;
+  balance?: BN;
   onSend: (seqNo: number, transactionId?: string) => void;
 }
 

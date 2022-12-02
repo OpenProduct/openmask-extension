@@ -10,6 +10,7 @@ import BN from "bn.js";
 import { useContext } from "react";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
+import { toCoinValue } from "../../../../../../../libs/state/decimalsService";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
@@ -77,9 +78,9 @@ interface WrapperMethod {
 }
 
 export const useSendJettonMethod = (
-  { walletAddress }: JettonAsset,
+  jetton: JettonAsset,
   state: SendJettonState,
-  balance: string | undefined
+  balance: BN | undefined
 ) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
@@ -89,12 +90,14 @@ export const useSendJettonMethod = (
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
     async () => {
-      await checkBalanceOrDie(balance, toNano(state.amount));
+      const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
 
-      if (!walletAddress) {
+      await checkBalanceOrDie(balance, jettonAmount);
+
+      if (!jetton.walletAddress) {
         throw new Error("Jetton Wallet Not Found.");
       }
-      const jettonWalletAddress = new Address(walletAddress);
+      const jettonWalletAddress = new Address(jetton.walletAddress);
 
       const [toAddress, keyPair, seqno] = await getTransactionsParams(
         ton,
@@ -117,7 +120,7 @@ export const useSendJettonMethod = (
       const payload = jettonTransferBody({
         toAddress: new Address(toAddress),
         responseAddress: new Address(wallet.address),
-        jettonAmount: toNano(state.amount),
+        jettonAmount,
         forwardAmount,
         forwardPayload,
       });

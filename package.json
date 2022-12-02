@@ -1,6 +1,6 @@
 {
   "name": "@openmask/extension",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
   "dependencies": {
@@ -10,6 +10,7 @@
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.2",
     "crypto-browserify": "^3.12.0",
+    "ethjs-unit": "^0.1.6",
     "joi": "^17.6.1",
     "process": "^0.11.10",
     "react": "^18.2.0",

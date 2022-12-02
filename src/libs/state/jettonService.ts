@@ -8,16 +8,15 @@
 
 import {
   Address,
-  fromNano,
   JettonData,
   JettonMinterDao,
   JettonWalletDao,
   TonHttpProvider,
 } from "@openproduct/web-sdk";
 import { JettonState, JettonStateSchema } from "../entries/asset";
-import { Logger } from "../logger";
 import { requestJson } from "../service/requestService";
 import { JettonWalletData } from "./assetService";
+import { formatAmountValue } from "./decimalsService";
 
 export interface JettonFullData {
   data: JettonData;
@@ -37,16 +36,14 @@ export const getJettonFullData = async (
 
   const data = await minter.getJettonData();
 
-  const [wallet, name] = await Promise.all([
-    getJettonWalletData(provider, minter, walletAddress).catch((e) => {
-      Logger.log(e);
-      return null;
-    }),
-    getJettonNameState(data).catch((e) => {
-      Logger.log(e);
-      return null;
-    }),
-  ] as const);
+  const name = await getJettonNameState(data).catch((e) => null);
+
+  const wallet = await getJettonWalletData(
+    provider,
+    minter,
+    walletAddress,
+    name
+  ).catch((e) => null);
 
   return { data, wallet, name };
 };
@@ -54,7 +51,8 @@ export const getJettonFullData = async (
 export const getJettonWalletData = async (
   provider: TonHttpProvider,
   minter: JettonMinterDao,
-  walletAddress: string
+  walletAddress: string,
+  jetton?: JettonState | null
 ): Promise<JettonWalletData> => {
   const jettonWalletAddress = await minter.getJettonWalletAddress(
     new Address(walletAddress)
@@ -65,8 +63,11 @@ export const getJettonWalletData = async (
 
   const dao = new JettonWalletDao(provider, jettonWalletAddress);
   const data = await dao.getData();
+
+  const decimals = parseInt(jetton?.decimals ?? "9");
+
   return {
-    balance: fromNano(data.balance),
+    balance: formatAmountValue(data.balance, decimals),
     address: jettonWalletAddress.toString(true, true, true),
   };
 };

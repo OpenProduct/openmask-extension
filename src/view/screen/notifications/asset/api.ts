@@ -76,7 +76,8 @@ export const useJettonMinterData = (params: JettonParams) => {
 export const useJettonWalletBalance = (
   id: number,
   jettonMinterAddress: string,
-  walletAddress: string
+  walletAddress: string,
+  data: JettonState
 ) => {
   const provider = useContext(TonProviderContext);
   return useQuery(
@@ -87,7 +88,7 @@ export const useJettonWalletBalance = (
         new Address(jettonMinterAddress)
       );
 
-      return getJettonWalletData(provider, minter, walletAddress);
+      return getJettonWalletData(provider, minter, walletAddress, data);
     }
   );
 };

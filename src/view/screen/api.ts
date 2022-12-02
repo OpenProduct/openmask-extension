@@ -26,7 +26,10 @@ export const saveAccountState = async (
   await client.invalidateQueries([network, value.activeWallet]);
 };
 
-export const checkBalanceOrDie = (balance: string | undefined, amount: BN) => {
+export const checkBalanceOrDie = (
+  balance: string | BN | undefined,
+  amount: BN
+) => {
   if (balance) {
     if (new BN(balance).cmp(amount) === -1) {
       throw new RuntimeError(

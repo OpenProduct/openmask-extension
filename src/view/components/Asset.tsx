@@ -1,7 +1,9 @@
+import BN from "bn.js";
 import { FC, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { ipfsProxy } from "../../libs/service/requestService";
-import { formatTonValue, useTonFiat } from "../utils";
+import { formatAmountValue } from "../../libs/state/decimalsService";
+import { formatCoinValue, useCoinFiat } from "../utils";
 import { Gap } from "./Components";
 import { ArrowForwardIcon, BaseLogoIcon } from "./Icons";
 
@@ -14,7 +16,8 @@ export interface AssetProps {
 }
 
 export interface AssetJettonProps extends AssetProps {
-  balance?: string;
+  decimals?: number | string;
+  balance?: string | BN;
   price?: number;
 }
 
@@ -87,14 +90,18 @@ const Round = styled.img`
 export const AssetJettonView: FC<AssetJettonProps> = ({
   name,
   balance,
+  decimals,
   price,
   ...props
 }) => {
-  const fiat = useTonFiat(balance, price);
-
   const formatted = useMemo(() => {
-    return balance ? formatTonValue(balance) : "0";
+    if (!balance) {
+      return "0";
+    }
+    return formatCoinValue(formatAmountValue(balance, decimals));
   }, [balance]);
+
+  const fiat = useCoinFiat(formatted, price);
 
   return <AssetItemView name={`${formatted} ${name}`} fiat={fiat} {...props} />;
 };
