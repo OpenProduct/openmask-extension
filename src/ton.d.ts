@@ -12,11 +12,13 @@ interface ITonProvider {
   >;
   nextJsonRpcId: number;
   destroy: () => void;
+  tonconnect: TonConnectBridge;
 }
 
 declare global {
   interface Window {
     ton: ITonProvider;
+    openMask: ITonProvider;
     tonProtocolVersion: number;
   }
 }

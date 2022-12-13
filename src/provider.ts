@@ -1,5 +1,6 @@
 import { EventEmitter } from "./libs/entries/eventEmitter";
 import { OpenMaskApiMessage } from "./libs/entries/message";
+import { TonConnect, TonConnectBridge } from "./libs/tonconnect";
 
 const seeIsEvent = (method: string) => {
   switch (method) {
@@ -10,7 +11,8 @@ const seeIsEvent = (method: string) => {
       return false;
   }
 };
-class TonProvider extends EventEmitter {
+
+export class TonProvider extends EventEmitter {
   isOpenMask = true;
 
   targetOrigin = "*";
@@ -22,6 +24,8 @@ class TonProvider extends EventEmitter {
       reject: (reason?: any) => void;
     }
   > = {};
+
+  public tonconnect: TonConnectBridge;
 
   constructor(ton = window.ton) {
     super();
@@ -38,6 +42,8 @@ class TonProvider extends EventEmitter {
     }
 
     window.addEventListener("message", this.onMessage);
+
+    this.tonconnect = new TonConnect(this, ton?.tonconnect);
   }
 
   isConnected = () => {
@@ -136,6 +142,7 @@ const havePrevInstance = !!window.ton;
 
 window.tonProtocolVersion = 1;
 window.ton = new TonProvider();
+window.openMask = window.ton;
 
 if (!havePrevInstance) {
   window.dispatchEvent(new Event("tonready"));
