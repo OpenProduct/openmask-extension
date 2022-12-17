@@ -109,7 +109,7 @@ export interface TonConnectTransactionPayloadMessage {
   address: string;
   amount: string;
   payload?: string;
-  initState?: string;
+  stateInit?: string;
 }
 
 // interface TonConnectTransactionPayload {

@@ -54,6 +54,11 @@ export const getDeviceInfo = (): DeviceInfo => {
 
 type ConnectEvent = ConnectEventSuccess | ConnectEventError;
 
+interface DisconnectEvent {
+  type: "disconnect";
+  payload: {};
+}
+
 type ConnectEventSuccess = {
   event: "connect";
   payload: {
@@ -103,12 +108,12 @@ interface WalletResponseError {
   id: string;
 }
 
+type WalletEventName = "connect" | "connect_error" | "disconnect";
+
 interface WalletEvent {
   event: WalletEventName;
   payload?: unknown; // "<event-payload>"; // specific payload for each event
 }
-
-type WalletEventName = "connect" | "connect_error" | "disconnect";
 
 export interface TonConnectBridge {
   deviceInfo: DeviceInfo; // see Requests/Responses spec
@@ -183,6 +188,10 @@ export class TonConnect implements TonConnectBridge {
 
   disconnect = async () => {
     await this.provider.send(`tonConnect_disconnect`);
+    return this.notify<WalletEvent>({
+      event: "disconnect",
+      payload: {},
+    });
   };
 
   restoreConnection = async (): Promise<ConnectEvent> => {
@@ -227,7 +236,7 @@ export class TonConnect implements TonConnectBridge {
     };
   };
 
-  notify = (event: ConnectEvent) => {
+  notify = <E extends ConnectEvent | WalletEvent>(event: E): E => {
     this.callbacks.forEach((item) => item(event));
     return event;
   };

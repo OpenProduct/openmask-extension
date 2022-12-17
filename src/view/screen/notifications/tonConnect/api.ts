@@ -1,13 +1,24 @@
-import { ALL, hexToBytes } from "@openproduct/web-sdk";
+import {
+  Address,
+  ALL,
+  base64ToBytes,
+  Cell,
+  hexToBytes,
+  TransferParams,
+} from "@openproduct/web-sdk";
 import { useMutation } from "@tanstack/react-query";
+import BN from "bn.js";
 import { useContext } from "react";
+import { KeyPair } from "tonweb-mnemonic/dist/types";
 import {
   TonAddressItemReply,
   TonConnectItemReply,
   TonConnectNETWORK,
   TonConnectRequest,
+  TonConnectTransactionPayloadMessage,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
+import { SendMode } from "../../../../libs/entries/tonSendMode";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -17,8 +28,12 @@ import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
+  WalletContractContext,
+  WalletStateContext,
 } from "../../../context";
 import { sendBackground } from "../../../event";
+import { getWalletKeyPair } from "../../api";
+import { WrapperMethod } from "../../home/wallet/send/api";
 
 interface ConnectParams {
   origin: string;
@@ -77,4 +92,44 @@ export const useAddConnectionMutation = () => {
       sendBackground.message("approveRequest", { id, payload });
     }
   );
+};
+
+export const useKeyPairMutation = () => {
+  const wallet = useContext(WalletStateContext);
+
+  return useMutation<KeyPair, Error>(() => {
+    return getWalletKeyPair(wallet);
+  });
+};
+
+export const useSendMutation = () => {
+  const contract = useContext(WalletContractContext);
+  const wallet = useContext(WalletStateContext);
+  const ton = useContext(TonProviderContext);
+
+  return useMutation<
+    WrapperMethod,
+    Error,
+    { state: TonConnectTransactionPayloadMessage; keyPair: KeyPair }
+  >(async ({ state, keyPair }) => {
+    const seqno = await ton.getSeqno(wallet.address);
+
+    const params: TransferParams = {
+      secretKey: keyPair.secretKey,
+      toAddress: new Address(state.address),
+      amount: new BN(state.amount, 10),
+      seqno: seqno,
+      payload: state.payload
+        ? Cell.oneFromBoc(base64ToBytes(state.payload))
+        : new Cell(),
+      stateInit: state.stateInit
+        ? Cell.oneFromBoc(base64ToBytes(state.stateInit))
+        : undefined,
+      sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    };
+
+    const method = contract.transfer(params);
+
+    return { method, seqno };
+  });
 };

@@ -6,6 +6,7 @@ import {
   RawSignInputParams,
   SwitchNetworkParams,
   TonConnectRequest,
+  TonConnectTransactionPayload,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
 import { TransactionParams } from "./entries/transaction";
@@ -53,7 +54,8 @@ export type NotificationData =
   | NotificationFields<"importNft", NftParams>
   | NotificationFields<"connectDApp", ConnectDAppParams>
   | NotificationFields<"sendTransaction", TransactionParams>
-  | NotificationFields<"tonConnectRequest", TonConnectRequest>;
+  | NotificationFields<"tonConnectRequest", TonConnectRequest>
+  | NotificationFields<"tonConnectSend", TonConnectTransactionPayload>;
 
 export type UnfinishedOperation =
   | null

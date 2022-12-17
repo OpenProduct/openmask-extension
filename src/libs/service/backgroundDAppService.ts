@@ -34,6 +34,7 @@ import { switchChain } from "./dApp/networkService";
 import {
   tonConnectDisconnect,
   tonConnectRequest,
+  tonConnectTransaction,
 } from "./dApp/tonConnectService";
 import {
   confirmAccountSeqNo,
@@ -229,6 +230,9 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
     }
     case "tonConnect_disconnect": {
       return tonConnectDisconnect(message.id, origin);
+    }
+    case "tonConnect_sendTransaction": {
+      return tonConnectTransaction(message.id, origin, message.params[0]);
     }
     default:
       throw new RuntimeError(
