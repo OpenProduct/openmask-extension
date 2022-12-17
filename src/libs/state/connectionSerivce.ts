@@ -69,6 +69,17 @@ export const revokeDAppAccess = (
   return connections;
 };
 
+export const revokeAllDAppAccess = (
+  connections: Connections,
+  origin: string
+): Connections => {
+  if (!connections[origin]) {
+    return connections;
+  }
+  delete connections[origin];
+  return connections;
+};
+
 export const updateWalletAddress = (
   connections: Connections,
   oldAddress: string,

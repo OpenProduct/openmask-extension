@@ -11,6 +11,7 @@ import { SendTransaction } from "./send/SendTransaction";
 import { SignPersonal } from "./sign/PersonalSign";
 import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
+import { ConnectRequest } from "./tonConnect/Connect";
 
 export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
@@ -59,6 +60,8 @@ export const Notifications = () => {
       return <ConnectDApp {...data} onClose={reloadNotification} />;
     case "sendTransaction":
       return <SendTransaction {...data} onClose={reloadNotification} />;
+    case "tonConnectRequest":
+      return <ConnectRequest {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }

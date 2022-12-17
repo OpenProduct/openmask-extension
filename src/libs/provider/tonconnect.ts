@@ -69,6 +69,7 @@ type ConnectEventError = {
     message: string;
   };
 };
+
 const formatConnectEventError = (error: TonConnectError): ConnectEventError => {
   return {
     event: "connect_error",
@@ -179,6 +180,11 @@ export class TonConnect implements TonConnectBridge {
       }
     }
   };
+
+  disconnect = async () => {
+    await this.provider.send(`tonConnect_disconnect`);
+  };
+
   restoreConnection = async (): Promise<ConnectEvent> => {
     if (!this.lastTonMessage || !this.lastTonProtocolVersion) {
       return this.notify(

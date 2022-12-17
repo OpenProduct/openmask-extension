@@ -32,6 +32,10 @@ import {
 } from "./dApp/connectService";
 import { switchChain } from "./dApp/networkService";
 import {
+  tonConnectDisconnect,
+  tonConnectRequest,
+} from "./dApp/tonConnectService";
+import {
   confirmAccountSeqNo,
   deploySmartContract,
   sendTransaction,
@@ -218,6 +222,18 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
         await validateAssetParams(message.params[0]),
         validateWalletAddress(message.params[1])
       );
+    }
+
+    case "tonConnect_connect": {
+      return tonConnectRequest(
+        message.id,
+        origin,
+        message.event,
+        message.params[0]
+      );
+    }
+    case "tonConnect_disconnect": {
+      return tonConnectDisconnect(message.id, origin);
     }
     default:
       throw new RuntimeError(
