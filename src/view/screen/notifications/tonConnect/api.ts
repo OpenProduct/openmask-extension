@@ -2,20 +2,25 @@ import {
   Address,
   ALL,
   base64ToBytes,
+  bytesToBase64,
   Cell,
   hexToBytes,
+  sha256_sync,
   TransferParams,
 } from "@openproduct/web-sdk";
 import { useMutation } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
+import nacl from "tweetnacl";
 import {
   TonAddressItemReply,
   TonConnectItemReply,
   TonConnectNETWORK,
   TonConnectRequest,
   TonConnectTransactionPayloadMessage,
+  TonProofItem,
+  TonProofItemReplySuccess,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
@@ -42,6 +47,66 @@ interface ConnectParams {
   logo: string | null;
   data: TonConnectRequest;
 }
+
+const tonConnectSignature = (
+  keyPair: KeyPair,
+  item: TonProofItem,
+  origin: string,
+  wallet: string
+): TonProofItemReplySuccess => {
+  const timestamp = BigInt(Math.round(Date.now() / 1000));
+  const timestampBuffer = Buffer.allocUnsafe(8);
+  timestampBuffer.writeBigInt64LE(timestamp);
+
+  const domainBuffer = Buffer.from(new URL(origin).origin);
+  const domainLengthBuffer = Buffer.allocUnsafe(4);
+  domainLengthBuffer.writeInt32LE(domainBuffer.byteLength);
+
+  const address = new Address(wallet);
+
+  const addressWorkchainBuffer = Buffer.allocUnsafe(4);
+  addressWorkchainBuffer.writeInt32BE(address.wc);
+
+  const addressBuffer = Buffer.concat([
+    addressWorkchainBuffer,
+    Buffer.from(address.hashPart),
+  ]);
+
+  const messageBuffer = Buffer.concat([
+    Buffer.from("ton-proof-item-v2/", "utf8"),
+    addressBuffer,
+    domainLengthBuffer,
+    domainBuffer,
+    timestampBuffer,
+    Buffer.from(item.payload),
+  ]);
+
+  const bufferToSign = Buffer.concat([
+    Buffer.from("ffff", "hex"),
+    Buffer.from("ton-connect", "utf8"),
+    Buffer.from(sha256_sync(messageBuffer)),
+  ]);
+
+  const signature = nacl.sign.detached(
+    Buffer.from(sha256_sync(bufferToSign)),
+    keyPair.secretKey
+  );
+
+  const result: TonProofItemReplySuccess = {
+    name: "ton_proof",
+    proof: {
+      timestamp: timestamp.toString(), // 64-bit unix epoch time of the signing operation (seconds)
+      domain: {
+        lengthBytes: domainBuffer.byteLength, // AppDomain Length
+        value: domainBuffer.toString("utf8"), // app domain name (as url part, without encoding)
+      },
+      signature: bytesToBase64(signature), // base64-encoded signature
+      payload: item.payload, // payload from the request
+    },
+  };
+
+  return result;
+};
 
 export const useAddConnectionMutation = () => {
   const network = useContext(NetworkContext);
@@ -80,6 +145,11 @@ export const useAddConnectionMutation = () => {
           };
           payload.push(result);
         } else if (item.name === "ton_proof") {
+          const keyPair = await getWalletKeyPair(walletState);
+
+          payload.push(
+            tonConnectSignature(keyPair, item, origin, walletState.address)
+          );
         }
       }
 

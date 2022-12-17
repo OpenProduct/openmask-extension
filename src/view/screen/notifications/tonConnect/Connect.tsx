@@ -136,7 +136,7 @@ export const ConnectRequest: FC<
         <ButtonPositive onClick={onConnect} disabled={isLoading}>
           {isLoading ? (
             <Dots>Loading</Dots>
-          ) : isSignature ? (
+          ) : !isSignature ? (
             "Connect"
           ) : (
             <>
