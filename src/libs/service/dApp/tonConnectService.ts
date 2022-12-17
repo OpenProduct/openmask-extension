@@ -15,7 +15,6 @@ import { waitApprove } from "./utils";
 export const tonConnectRequest = async (
   id: number,
   origin: string,
-  isEvent: boolean,
   data: TonConnectRequest
 ) => {
   memoryStore.addNotification({
