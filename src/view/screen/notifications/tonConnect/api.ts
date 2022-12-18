@@ -24,6 +24,7 @@ import {
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
+import { TonWebTransaction } from "../../../../libs/entries/transaction";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -201,5 +202,17 @@ export const useSendMutation = () => {
     const method = contract.transfer(params);
 
     return { method, seqno };
+  });
+};
+
+export const useLastBocMutation = () => {
+  const ton = useContext(TonProviderContext);
+  const wallet = useContext(WalletStateContext);
+  return useMutation(async () => {
+    const [tx]: [TonWebTransaction] = await ton.getTransactions(
+      wallet.address,
+      1
+    );
+    return tx.data;
   });
 };

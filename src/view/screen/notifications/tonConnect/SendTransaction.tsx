@@ -1,5 +1,9 @@
 import { FC, useState } from "react";
-import { TonConnectTransactionPayload } from "../../../../libs/entries/notificationMessage";
+import styled from "styled-components";
+import {
+  TonConnectTransactionPayload,
+  TonConnectTransactionPayloadMessage,
+} from "../../../../libs/entries/notificationMessage";
 import { NotificationFields } from "../../../../libs/event";
 import { delay } from "../../../../libs/state/accountService";
 import {
@@ -12,11 +16,63 @@ import {
   Gap,
   H1,
   Text,
+  TextLine,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { Dots } from "../../../components/Dots";
+import { CheckIcon, SpinnerIcon, TimeIcon } from "../../../components/Icons";
 import { askBackground, sendBackground } from "../../../event";
-import { useKeyPairMutation, useSendMutation } from "./api";
+import { formatTonValue, toShortAddress } from "../../../utils";
+import { useKeyPairMutation, useLastBocMutation, useSendMutation } from "./api";
+
+interface PayloadMessage extends TonConnectTransactionPayloadMessage {
+  isSend?: boolean;
+  isConfirmed?: boolean;
+}
+
+const Row = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.padding};
+  margin: 5px ${(props) => props.theme.padding};
+  border-bottom: 1px solid ${(props) => props.theme.darkGray};
+  align-items: center;
+`;
+
+const Icon = styled.span`
+  font-size: 200%;
+`;
+
+const Blue = styled.span`
+  color: ${(props) => props.theme.blueTon};
+`;
+
+const TransactionItem: FC<{ message: PayloadMessage }> = ({ message }) => {
+  return (
+    <Row>
+      <Icon>
+        {message.isConfirmed ? (
+          <Blue>
+            <CheckIcon />
+          </Blue>
+        ) : message.isSend ? (
+          <Blue>
+            <SpinnerIcon />
+          </Blue>
+        ) : (
+          <TimeIcon />
+        )}
+      </Icon>
+
+      <div>
+        <TextLine>SENDING:</TextLine>
+        <TextLine>
+          <b>{formatTonValue(message.amount)} TON</b> to{" "}
+          {toShortAddress(message.address || "", 6)}
+        </TextLine>
+      </div>
+    </Row>
+  );
+};
 
 const timeout = 60 * 1000; // 60 sec
 
@@ -25,11 +81,14 @@ export const ConnectSendTransaction: FC<
     onClose: () => void;
   }
 > = ({ id, logo, origin, onClose, data }) => {
-  const [status, setStatus] = useState("");
   const [isSending, setSending] = useState(false);
+
+  const [error, setError] = useState<Error | null>(null);
+  const [items, setItems] = useState<PayloadMessage[]>(data.messages);
 
   const { mutateAsync: getKeyPair, error: keyPairError } = useKeyPairMutation();
   const { mutateAsync, reset, error: sendError } = useSendMutation();
+  const { mutateAsync: getLastBoc } = useLastBocMutation();
 
   const onCancel = () => {
     sendBackground.message("rejectRequest", id);
@@ -39,27 +98,44 @@ export const ConnectSendTransaction: FC<
   const onConfirm = async () => {
     setSending(true);
     try {
+      const now = Date.now() / 1000;
+      if (now > data.valid_until) {
+        throw new Error("Transaction expired");
+      }
       const keyPair = await getKeyPair();
-      setStatus(`keyPair`);
-      for (let state of data.messages) {
+      for (let state of items) {
         reset();
         const send = await mutateAsync({ state, keyPair });
-        setStatus(`send ${JSON.stringify(state)}`);
+
+        setItems((s) =>
+          s.map((item) =>
+            item === state ? (state = { ...state, isSend: true }) : item
+          )
+        );
+
         await send.method.send();
         await askBackground<void>(timeout).message("confirmSeqNo", send.seqno);
-        setStatus(`confirm ${send.seqno}`);
-        await delay(1000);
+
+        setItems((s) =>
+          s.map((item) =>
+            item === state ? (state = { ...state, isConfirmed: true }) : item
+          )
+        );
       }
 
-      sendBackground.message("approveRequest", { id, payload: "success" });
+      const payload = await getLastBoc().catch(() => "");
+
+      sendBackground.message("approveRequest", { id, payload });
+      await delay(500);
       onClose();
     } catch (e) {
+      setError(e as Error);
       setSending(false);
     }
   };
 
   const disabledCancel = isSending;
-  const disabledConfig = isSending;
+  const disabledConfirm = isSending || error != null;
   return (
     <Body>
       <Center>
@@ -72,9 +148,13 @@ export const ConnectSendTransaction: FC<
         <Text>Would you like to send transaction?</Text>
       </Center>
 
-      {status && <ErrorMessage>{status}</ErrorMessage>}
+      {items.map((message, index) => (
+        <TransactionItem key={index} message={message} />
+      ))}
+
       {sendError && <ErrorMessage>{sendError.message}</ErrorMessage>}
       {keyPairError && <ErrorMessage>{keyPairError.message}</ErrorMessage>}
+      {error && <ErrorMessage>{error.message}</ErrorMessage>}
 
       <Gap />
 
@@ -82,7 +162,7 @@ export const ConnectSendTransaction: FC<
         <ButtonNegative onClick={onCancel} disabled={disabledCancel}>
           Cancel
         </ButtonNegative>
-        <ButtonPositive onClick={onConfirm} disabled={disabledConfig}>
+        <ButtonPositive onClick={onConfirm} disabled={disabledConfirm}>
           {isSending ? <Dots>Sending</Dots> : "Confirm"}
         </ButtonPositive>
       </ButtonRow>
