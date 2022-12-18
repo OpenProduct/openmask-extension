@@ -18,8 +18,8 @@ export const formatCoinValue = (value: string): string => {
   return balanceFormat.format(parseFloat(value));
 };
 
-export const toShortAddress = (address: string): string => {
-  return address.slice(0, 4) + "...." + address.slice(-4);
+export const toShortAddress = (address: string, length = 4): string => {
+  return address.slice(0, length) + "...." + address.slice(-length);
 };
 
 export const toShortName = (name: string): string => {
