@@ -20,7 +20,12 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { Dots } from "../../../components/Dots";
-import { CheckIcon, SpinnerIcon, TimeIcon } from "../../../components/Icons";
+import {
+  CheckIcon,
+  FingerprintIcon,
+  SpinnerIcon,
+  TimeIcon,
+} from "../../../components/Icons";
 import { askBackground, sendBackground } from "../../../event";
 import { formatTonValue, toShortAddress } from "../../../utils";
 import { useKeyPairMutation, useLastBocMutation, useSendMutation } from "./api";
@@ -163,7 +168,13 @@ export const ConnectSendTransaction: FC<
           Cancel
         </ButtonNegative>
         <ButtonPositive onClick={onConfirm} disabled={disabledConfirm}>
-          {isSending ? <Dots>Sending</Dots> : "Confirm"}
+          {isSending ? (
+            <Dots>Sending</Dots>
+          ) : (
+            <>
+              Confirm <FingerprintIcon />
+            </>
+          )}
         </ButtonPositive>
       </ButtonRow>
     </Body>
