@@ -144,6 +144,13 @@ export class TonConnect implements TonConnectBridge {
       this.callbacks = tonconnect.callbacks;
       this.lastTonProtocolVersion = tonconnect.lastTonProtocolVersion;
       this.lastTonMessage = tonconnect.lastTonMessage;
+    } else {
+      provider.on("chainChanged", () => {
+        this.notify({
+          event: "disconnect",
+          payload: {},
+        });
+      });
     }
   }
 
