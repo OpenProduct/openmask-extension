@@ -55,11 +55,11 @@ const tonConnectSignature = (
   origin: string,
   wallet: string
 ): TonProofItemReplySuccess => {
-  const timestamp = BigInt(Math.round(Date.now() / 1000));
+  const timestamp = Math.round(Date.now() / 1000);
   const timestampBuffer = Buffer.allocUnsafe(8);
-  timestampBuffer.writeBigInt64LE(timestamp);
+  timestampBuffer.writeBigInt64LE(BigInt(timestamp));
 
-  const domainBuffer = Buffer.from(new URL(origin).origin);
+  const domainBuffer = Buffer.from(new URL(origin).host);
   const domainLengthBuffer = Buffer.allocUnsafe(4);
   domainLengthBuffer.writeInt32LE(domainBuffer.byteLength);
 
@@ -96,7 +96,7 @@ const tonConnectSignature = (
   const result: TonProofItemReplySuccess = {
     name: "ton_proof",
     proof: {
-      timestamp: timestamp.toString(), // 64-bit unix epoch time of the signing operation (seconds)
+      timestamp: timestamp, // 64-bit unix epoch time of the signing operation (seconds)
       domain: {
         lengthBytes: domainBuffer.byteLength, // AppDomain Length
         value: domainBuffer.toString("utf8"), // app domain name (as url part, without encoding)

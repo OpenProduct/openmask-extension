@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2022-12-27
+
+### Fixed
+
+- Fix Ton Connect TonProof result
+
 ## [0.14.0] - 2022-12-18
 
 ### Add
@@ -168,7 +174,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.1...HEAD
+[0.14.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.1...v0.13.0
