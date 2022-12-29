@@ -6,6 +6,7 @@ import { any, AppRoute } from "../../routes";
 import { useBalance, useCoinPrice } from "./api";
 import { AssetsRouter } from "./wallet/assets/Assets";
 import { ReceiveRouter } from "./wallet/receive/Receive";
+import { SwapRouter } from "./wallet/receive/Swap";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";
 import { WalletHome, WalletInfo } from "./wallet/Wallet";
@@ -33,6 +34,7 @@ export const Home = () => {
             path={any(AppRoute.send)}
             element={<Send price={price} balance={balance} />}
           />
+          <Route path={any(AppRoute.swap)} element={<SwapRouter />} />
           <Route path={any(AppRoute.receive)} element={<ReceiveRouter />} />
           <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
           <Route path={any(AppRoute.assets)} element={<AssetsRouter />} />

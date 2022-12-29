@@ -7,6 +7,7 @@ export enum AppRoute {
   home = "/",
   receive = "/receive",
   send = "/send",
+  swap = "/swap",
   activities = "/activities",
   assets = "/assets",
   wallet = "/wallet",

@@ -6,7 +6,12 @@ import {
   BallanceButtonRow,
 } from "../../../components/BalanceButton";
 import { Container } from "../../../components/Components";
-import { ReceiveIcon, SendIcon, TonIcon } from "../../../components/Icons";
+import {
+  ReceiveIcon,
+  SendIcon,
+  SwapIcon,
+  TonIcon,
+} from "../../../components/Icons";
 import { AppRoute } from "../../../routes";
 import { formatTonValue } from "../../../utils";
 import { Fiat } from "./Fiat";
@@ -56,6 +61,9 @@ export const Balance: FC<BalanceProps> = ({ balance, price }) => {
         </BallanceButton>
         <BallanceButton label="Send" onClick={() => navigate(AppRoute.send)}>
           <SendIcon />
+        </BallanceButton>
+        <BallanceButton label="Swap" onClick={() => navigate(AppRoute.swap)}>
+          <SwapIcon />
         </BallanceButton>
       </BallanceButtonRow>
     </Block>
