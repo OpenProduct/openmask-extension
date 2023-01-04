@@ -19,7 +19,11 @@ import {
   LinkIcon,
   TonIcon,
 } from "../../../../components/Icons";
-import { WalletAddressContext, WalletStateContext } from "../../../../context";
+import {
+  NetworkContext,
+  WalletAddressContext,
+  WalletStateContext,
+} from "../../../../context";
 import { useCopyToClipboard } from "../../../../hooks/useCopyToClipbpard";
 
 const Body = styled(Container)`
@@ -60,6 +64,7 @@ const NetworkLogo = styled.span`
 const ReceiveIndex = () => {
   const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
+  const network = useContext(NetworkContext);
   const address = new Address(wallet.address).toString(true, true, true);
   return (
     <div>
@@ -70,10 +75,12 @@ const ReceiveIndex = () => {
         </Row>
         <Text>
           MixPay supports users paying cross-wallet, cross-chain and
-          cross-crypto to buy TON. Payment bue ETH, BTC, BNB, TRON end other
+          cross-crypto to buy TON. Payment in ETH, BTC, BNB, TRON and other
           networks.
         </Text>
         <ButtonNegative
+          title={network != "mainnet" ? "Please switch to mainnet!" : undefined}
+          disabled={network != "mainnet"}
           onClick={() =>
             ExtensionPlatform.openTab({
               url: `https://cryptogas.shop/ton?ref=${process.env.REACT_APP_MIXIN_ID}&address=${address}`,

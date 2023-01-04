@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.4] - 2023-01-03
+
+### Fixed
+
+- Fix typos and add network warning
+
 ## [0.14.3] - 2022-12-29
 
 ### Add
@@ -186,7 +192,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.3...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.4...HEAD
+[0.14.4]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.0...v0.14.1
