@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.6] - 2023-01-06
+
+### Fixed
+
+- Update TonConnect 2.0 - reconnect method and device detection
+- Update provider to not destroy provider by other wallets
+
 ## [0.14.5] - 2023-01-04
 
 ### Fixed

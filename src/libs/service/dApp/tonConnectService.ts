@@ -7,6 +7,7 @@ import {
   TonConnectRequest,
   TonConnectTransactionPayload,
 } from "../../entries/notificationMessage";
+import { ErrorCode, RuntimeError } from "../../exception";
 import { revokeAllDAppAccess } from "../../state/connectionSerivce";
 import {
   getAccountState,
@@ -23,13 +24,21 @@ import {
   waitApprove,
 } from "./utils";
 
-const tonReconnect = async (origin: string): Promise<TonConnectItemReply[]> => {
+export const tonReConnectRequest = async (
+  origin: string
+): Promise<TonConnectItemReply[]> => {
   const network = await getNetwork();
   const [walletAddress] = await getWalletsByOrigin(origin, network);
+  if (!walletAddress) {
+    throw new RuntimeError(ErrorCode.unauthorize, "Missing connected wallet");
+  }
   const account = await getAccountState(network);
   const [walletState] = account.wallets.filter(
     (wallet) => wallet.address === walletAddress
   );
+  if (!walletAddress) {
+    throw new RuntimeError(ErrorCode.unauthorize, "Missing wallet state");
+  }
 
   const config = getNetworkConfig(network);
 
@@ -83,7 +92,7 @@ export const tonConnectRequest = async (
       memoryStore.removeNotification(id);
     }
   } else {
-    return tonReconnect(origin);
+    return tonReConnectRequest(origin);
   }
 };
 

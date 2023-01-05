@@ -1,3 +1,4 @@
+import { OpenMaskError } from "../entries/message";
 import {
   TonConnectItemReply,
   TonConnectRequest,
@@ -18,19 +19,25 @@ export type DeviceInfo = {
 };
 
 function getPlatform(): DeviceInfo["platform"] {
-  var userAgent = window.navigator.userAgent,
-    platform =
-      (window.navigator as any)?.userAgentData?.platform ||
-      window.navigator.platform,
-    macosPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"],
-    windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"],
-    iosPlatforms = ["iPhone", "iPad", "iPod"],
-    os: DeviceInfo["platform"] | null = null;
+  const platform =
+    (window.navigator as any)?.userAgentData?.platform ||
+    window.navigator.platform;
+
+  const userAgent = window.navigator.userAgent;
+
+  const macosPlatforms = ["macOS", "Macintosh", "MacIntel", "MacPPC", "Mac68K"];
+  const windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"];
+  const iphonePlatforms = ["iPhone"];
+  const iosPlatforms = ["iPad", "iPod"];
+
+  let os: DeviceInfo["platform"] | null = null;
 
   if (macosPlatforms.indexOf(platform) !== -1) {
     os = "mac";
+  } else if (iphonePlatforms.indexOf(platform) !== -1) {
+    os = "iphone";
   } else if (iosPlatforms.indexOf(platform) !== -1) {
-    os = "mac";
+    os = "ipad";
   } else if (windowsPlatforms.indexOf(platform) !== -1) {
     os = "windows";
   } else if (/Android/.test(userAgent)) {
@@ -130,20 +137,26 @@ export interface TonConnectBridge {
 
 type TonConnectCallback = (event: WalletEvent) => void;
 
+const mapErrorCode = (code?: number) => {
+  switch (code) {
+    case 1001:
+      return 100;
+    case 1002:
+      return 300;
+    default:
+      return 0;
+  }
+};
 export class TonConnect implements TonConnectBridge {
-  lastTonProtocolVersion: number | undefined;
-  lastTonMessage: TonConnectRequest | undefined;
   callbacks: TonConnectCallback[] = [];
 
   deviceInfo: DeviceInfo = getDeviceInfo();
   protocolVersion = 2;
-  isWalletBrowser = true;
+  isWalletBrowser = false;
 
   constructor(private provider: TonProvider, tonconnect?: TonConnect) {
     if (tonconnect) {
       this.callbacks = tonconnect.callbacks;
-      this.lastTonProtocolVersion = tonconnect.lastTonProtocolVersion;
-      this.lastTonMessage = tonconnect.lastTonMessage;
     } else {
       provider.on("chainChanged", () => {
         this.notify({
@@ -161,12 +174,10 @@ export class TonConnect implements TonConnectBridge {
     if (protocolVersion > this.protocolVersion) {
       return this.notify(
         formatConnectEventError(
-          new TonConnectError("Unsupported protocol version")
+          new TonConnectError("Unsupported protocol version", 1)
         )
       );
     }
-    this.lastTonProtocolVersion = protocolVersion;
-    this.lastTonMessage = message;
     try {
       const items = await this.provider.send<TonConnectItemReply[]>(
         "tonConnect_connect",
@@ -186,7 +197,10 @@ export class TonConnect implements TonConnectBridge {
       } else {
         return this.notify(
           formatConnectEventError(
-            new TonConnectError((e as Error).message ?? "Unknown error")
+            new TonConnectError(
+              (e as OpenMaskError).message ?? "Unknown error",
+              mapErrorCode((e as OpenMaskError).code)
+            )
           )
         );
       }
@@ -202,17 +216,29 @@ export class TonConnect implements TonConnectBridge {
   };
 
   restoreConnection = async (): Promise<ConnectEvent> => {
-    if (!this.lastTonMessage || !this.lastTonProtocolVersion) {
-      return this.notify(
-        formatConnectEventError(
-          new TonConnectError("Missing connection message")
-        )
+    try {
+      const items = await this.provider.send<TonConnectItemReply[]>(
+        "tonConnect_reconnect",
+        [{ name: "ton_addr" }]
       );
-    } else {
-      return await this.connect(
-        this.lastTonProtocolVersion,
-        this.lastTonMessage
-      );
+
+      return this.notify({
+        event: "connect",
+        payload: {
+          items: items,
+          device: getDeviceInfo(),
+        },
+      });
+    } catch (e) {
+      if (e instanceof TonConnectError) {
+        return this.notify(formatConnectEventError(e));
+      } else {
+        return this.notify(
+          formatConnectEventError(
+            new TonConnectError((e as Error).message ?? "Unknown error")
+          )
+        );
+      }
     }
   };
 

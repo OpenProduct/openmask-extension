@@ -12,6 +12,7 @@ interface ITonProvider {
   >;
   nextJsonRpcId: number;
   destroy: () => void;
+  destroyOpenMask: () => void;
 }
 
 declare global {

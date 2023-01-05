@@ -35,9 +35,8 @@ export class TonProvider extends EventEmitter {
     this.isConnected().catch((e) => console.error(e));
 
     if (ton) {
-      ton.destroy();
+      ton.destroyOpenMask();
     }
-
     window.addEventListener("message", this.onMessage);
   }
 
@@ -128,7 +127,8 @@ export class TonProvider extends EventEmitter {
   addEventListener = this.on;
   removeEventListener = this.off;
 
-  destroy() {
+  destroy() {}
+  destroyOpenMask() {
     window.removeEventListener("message", this.onMessage);
   }
 }
