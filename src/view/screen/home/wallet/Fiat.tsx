@@ -14,5 +14,5 @@ export const Fiat: FC<{ balance?: string; price?: number }> = ({
   price,
 }) => {
   const value = useTonFiat(balance, price);
-  return <Price>USD {value ?? "-"}$</Price>;
+  return <Price>{value ?? "-"}</Price>;
 };

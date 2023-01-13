@@ -96,7 +96,7 @@ export const useJettonWalletBalance = (jetton: JettonAsset) => {
 
       const dao = new JettonWalletDao(provider, jettonWalletAddress);
       const data = await dao.getData();
-      return data.balance;
+      return data.balance.toString();
     }
   );
 };

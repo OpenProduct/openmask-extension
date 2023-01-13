@@ -80,7 +80,7 @@ interface WrapperMethod {
 export const useSendJettonMethod = (
   jetton: JettonAsset,
   state: SendJettonState,
-  balance: BN | undefined
+  balance: string | undefined
 ) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);

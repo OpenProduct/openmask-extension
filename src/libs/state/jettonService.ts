@@ -81,5 +81,12 @@ export const getJettonNameState = async (data: JettonData) => {
   } else if (jettonContent) {
     state = jettonContent;
   }
+  if (state.name) {
+    state.name = state.name.replace(/\0.*$/g, ""); // remove null bytes
+  }
+  if (state.decimals && typeof state.decimals == "number") {
+    state.decimals = String(state.decimals);
+  }
+
   return await JettonStateSchema.validateAsync(state);
 };

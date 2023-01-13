@@ -1,7 +1,7 @@
 import { fromNano } from "@openproduct/web-sdk";
 import { useMemo } from "react";
 
-const balanceFormat = new Intl.NumberFormat("en-US", {
+export const balanceFormat = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 4,
 });
@@ -29,9 +29,11 @@ export const toShortName = (name: string): string => {
   return name;
 };
 
-const fiatFormat = new Intl.NumberFormat("en-US", {
+export const fiatFormat = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 2,
+  style: "currency",
+  currency: "USD",
 });
 
 export const useCoinFiat = (balance?: string, price?: number) => {

@@ -2,6 +2,8 @@ import { Address } from "@openproduct/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
 import { getNetworkConfig } from "../../../libs/entries/network";
+import { DexStocks } from "../../../libs/entries/stock";
+import { getCachedDeDustStock } from "../../../libs/service/dexService";
 import { QueryType } from "../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -58,6 +60,18 @@ export const useCoinPrice = (enabled: boolean) => {
 
       const data = await result.json();
       return data[tonId][currency];
+    },
+    { enabled }
+  );
+};
+
+export const useDexStock = (enabled: boolean) => {
+  return useQuery<DexStocks>(
+    [QueryType.stock],
+    async () => {
+      const dedust = await getCachedDeDustStock();
+
+      return { dedust };
     },
     { enabled }
   );

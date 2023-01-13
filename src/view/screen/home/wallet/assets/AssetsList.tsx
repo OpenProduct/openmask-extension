@@ -1,7 +1,9 @@
+import BigNumber from "bignumber.js";
 import React, { FC, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
+import { AppStock, DexStocks } from "../../../../../libs/entries/stock";
 import ExtensionPlatform from "../../../../../libs/service/extension";
 import { seeIfJettonAsset } from "../../../../../libs/state/assetService";
 import { AssetItemView, AssetJettonView } from "../../../../components/Asset";
@@ -22,16 +24,42 @@ const Line = styled(Text)`
   padding: 10px 0 5px;
 `;
 
-const JettonRowView: FC<{ asset: JettonAsset }> = React.memo(({ asset }) => {
+const JettonRowView: FC<{
+  asset: JettonAsset;
+  stocks?: DexStocks;
+  tonPrice?: number;
+}> = React.memo(({ asset, stocks, tonPrice }) => {
   const navigate = useNavigate();
   const { data } = useJettonWalletBalance(asset);
+
+  const jettonStocks = useMemo(() => {
+    const result = [] as AppStock[];
+    if (stocks) {
+      const stock: AppStock | undefined =
+        stocks.dedust[asset.state.symbol.replace(/\0.*$/g, "")]; // For old saved jettons ....
+      if (stock) {
+        result.push(stock);
+      }
+    }
+    return result;
+  }, [stocks, asset]);
+
+  const price = useMemo(() => {
+    const [stock] = jettonStocks;
+    if (!stock || !tonPrice) return undefined;
+    return new BigNumber(stock.price).multipliedBy(tonPrice).toNumber();
+  }, [tonPrice, jettonStocks]);
 
   return (
     <AssetJettonView
       name={asset.state.symbol}
       logoUrl={asset.state.image}
-      decimals={asset.state.decimals}
+      decimals={
+        asset.state.decimals ? parseInt(asset.state.decimals) : undefined
+      }
       balance={data}
+      price={price}
+      stocks={jettonStocks}
       onShow={() =>
         navigate(
           AppRoute.assets +
@@ -93,10 +121,11 @@ const NftRowView: FC<{ asset: NftAsset }> = React.memo(({ asset }) => {
   );
 });
 
-export const AssetsList: FC<{ balance?: string; price?: number }> = ({
-  balance,
-  price,
-}) => {
+export const AssetsList: FC<{
+  balance?: string;
+  price?: number;
+  stocks?: DexStocks;
+}> = ({ balance, price, stocks }) => {
   const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
 
@@ -110,7 +139,7 @@ export const AssetsList: FC<{ balance?: string; price?: number }> = ({
       />
       {(wallet.assets ?? []).map((asset) =>
         seeIfJettonAsset(asset) ? (
-          <JettonRowView asset={asset} />
+          <JettonRowView asset={asset} stocks={stocks} tonPrice={price} />
         ) : (
           <NftRowView asset={asset} />
         )

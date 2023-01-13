@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import BN from "bn.js";
 const ethunit = require("ethjs-unit");
 
@@ -13,6 +14,13 @@ const map: Record<string, string> = {
   "1000000000000000000000000": "mether",
   "1000000000000000000000000000": "gether",
   "1000000000000000000000000000000": "tether",
+};
+
+export const formatDecimals = (
+  amount: BigNumber.Value,
+  decimals: number = 9
+): number => {
+  return new BigNumber(amount).div(Math.pow(10, decimals)).toNumber();
 };
 
 export const formatAmountValue = (

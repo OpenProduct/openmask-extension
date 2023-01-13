@@ -18,6 +18,7 @@ export enum QueryType {
   auth = "auth",
 
   price = "price",
+  stock = "stock",
 
   script = "script",
   network = "network",
@@ -108,6 +109,55 @@ export const setAccountState = (value: AccountState, network?: string) => {
 
 export const setConnections = (value: Connections, network?: string) => {
   return setNetworkStoreValue(QueryType.connection, value, network);
+};
+
+interface BrowserCache<T> {
+  timeout: number;
+  data: T;
+}
+
+const removeCachedStoreValue = async (query: string) => {
+  await browser.storage.local.remove(`catch_${query}`);
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+};
+
+export const getCachedStoreValue = async <T>(
+  query: string
+): Promise<T | null> => {
+  return browser.storage.local
+    .get(`catch_${query}`)
+    .then<T | null>(async (result) => {
+      const err = checkForError();
+      if (err) {
+        throw err;
+      }
+
+      const data: BrowserCache<T> | undefined = result[`catch_${query}`];
+      if (!data) return null;
+      if (data.timeout < Date.now()) {
+        await removeCachedStoreValue(query);
+        return null;
+      } else {
+        return data.data;
+      }
+    });
+};
+
+const tenMin = 10 * 60 * 1000;
+
+export const setCachedStoreValue = async <T>(
+  query: string,
+  data: T,
+  timeout: number = Date.now() + tenMin
+) => {
+  await browser.storage.local.set({ [`catch_${query}`]: { data, timeout } });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
 };
 
 export const getNetworkStoreValue = async <T>(

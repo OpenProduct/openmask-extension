@@ -1,11 +1,12 @@
 {
   "name": "@openmask/extension",
-  "version": "0.14.6",
+  "version": "0.14.7",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
   "dependencies": {
     "@openproduct/web-sdk": "^0.21.0",
     "@tanstack/react-query": "^4.3.4",
+    "bignumber.js": "^9.1.1",
     "bn.js": "4.11.6",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.2",

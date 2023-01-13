@@ -2,7 +2,7 @@ const ifpsProtocol = "ipfs://";
 
 export const ipfsProxy = (url: string) => {
   if (url.startsWith(ifpsProtocol)) {
-    return url.replace(ifpsProtocol, "https://ipfs.fleek.co/ipfs/");
+    return url.replace(ifpsProtocol, "https://ipfs.io/ipfs/");
   }
   return url;
 };
@@ -15,7 +15,11 @@ const requestURL = async <T>(
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
-    const response = await fetch(jsonDataUrl, { signal: controller.signal });
+    const response = await fetch(jsonDataUrl, {
+      signal: controller.signal,
+      redirect: "follow",
+      method: "GET",
+    });
 
     clearTimeout(id);
 
@@ -30,14 +34,19 @@ const requestIPFS = async <T>(
   timeout: number
 ): Promise<T> => {
   try {
-    const url = jsonDataUrl.replace(ifpsProtocol, "https://ipfs.io/ipfs/");
+    const url = ipfsProxy(jsonDataUrl);
     return await requestURL(url, timeout);
   } catch (e) {
-    const url = jsonDataUrl.replace(
-      ifpsProtocol,
-      "https://ipfs.fleek.co/ipfs/"
-    );
-    return await requestURL(url, timeout);
+    try {
+      const url = jsonDataUrl.replace(ifpsProtocol, "http://dweb.link/ipfs/");
+      return await requestURL(url, timeout);
+    } catch (e) {
+      const url = jsonDataUrl.replace(
+        ifpsProtocol,
+        "https://cf-ipfs.com/ipfs/"
+      );
+      return await requestURL(url, timeout);
+    }
   }
 };
 

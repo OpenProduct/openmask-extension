@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.7] - 2023-01-13
+
+### Add
+
+- Add jetton fiat amount from DeDust.io
+
+### Fixed
+
+- Fixed loading jetton state
+
 ## [0.14.6] - 2023-01-06
 
 ### Fixed
@@ -205,7 +215,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.5...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.7...HEAD
+[0.14.7]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.6...v0.14.7
+[0.14.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.2...v0.14.3
