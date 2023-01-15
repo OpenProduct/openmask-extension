@@ -18,7 +18,7 @@ import { WalletStateContext } from "../../../../context";
 import { AppRoute } from "../../../../routes";
 import { useJettonWalletBalance } from "./api";
 import { AssetRoutes } from "./route";
-import packageJson from "/package.json";
+import packageJson from "../../../../../../package.json";
 
 const Line = styled(Text)`
   padding: 10px 0 5px;

@@ -142,3 +142,55 @@ export const deploySmartContract = async (
     memoryStore.removeNotification(id);
   }
 };
+
+export const decryptMessage = async (
+  id: number,
+  origin: string,
+  value: { data: string },
+  wallet?: string
+) => {
+  await checkBaseDAppPermission(origin, wallet);
+  await switchActiveAddress(origin, wallet);
+
+  memoryStore.addNotification({
+    kind: "decryptMessage",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: value,
+  });
+
+  try {
+    const popupId = await openNotificationPopUp();
+    const message = await waitApprove<string>(id, popupId);
+    return message;
+  } finally {
+    memoryStore.removeNotification(id);
+  }
+};
+
+export const encryptMessage = async (
+  id: number,
+  origin: string,
+  value: { data: string },
+  wallet?: string
+) => {
+  await checkBaseDAppPermission(origin, wallet);
+  await switchActiveAddress(origin, wallet);
+
+  memoryStore.addNotification({
+    kind: "encryptMessage",
+    id,
+    logo: await getActiveTabLogo(),
+    origin,
+    data: value,
+  });
+
+  try {
+    const popupId = await openNotificationPopUp();
+    const message = await waitApprove<string>(id, popupId);
+    return message;
+  } finally {
+    memoryStore.removeNotification(id);
+  }
+};

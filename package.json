@@ -22,6 +22,7 @@
     "styled-components": "^5.3.5",
     "tonweb-mnemonic": "^1.0.1",
     "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
     "web-vitals": "^2.1.4",
     "webextension-polyfill": "^0.10.0"
   },

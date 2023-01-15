@@ -55,7 +55,9 @@ export type NotificationData =
   | NotificationFields<"connectDApp", ConnectDAppParams>
   | NotificationFields<"sendTransaction", TransactionParams>
   | NotificationFields<"tonConnectRequest", TonConnectRequest>
-  | NotificationFields<"tonConnectSend", TonConnectTransactionPayload>;
+  | NotificationFields<"tonConnectSend", TonConnectTransactionPayload>
+  | NotificationFields<"decryptMessage", any>
+  | NotificationFields<"encryptMessage", any>;
 
 export type UnfinishedOperation =
   | null

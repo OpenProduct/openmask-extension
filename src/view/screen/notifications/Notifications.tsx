@@ -13,6 +13,8 @@ import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
 import { ConnectRequest } from "./tonConnect/Connect";
 import { ConnectSendTransaction } from "./tonConnect/SendTransaction";
+import { DecryptMessage } from "./crypto/DecryptMessage";
+import {EncryptMessage} from "./crypto/EncryptMessage";
 
 export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
@@ -65,6 +67,10 @@ export const Notifications = () => {
       return <ConnectRequest {...data} onClose={reloadNotification} />;
     case "tonConnectSend":
       return <ConnectSendTransaction {...data} onClose={reloadNotification} />;
+    case "decryptMessage":
+      return <DecryptMessage {...data} onClose={reloadNotification} />;
+    case "encryptMessage":
+      return <EncryptMessage {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }
