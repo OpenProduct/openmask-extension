@@ -70,7 +70,7 @@ export const useDecryptMutation = () => {
 
     const message = messageWithNonceAsUint8Array.slice(
       nacl.box.nonceLength,
-      options.message.length
+      messageWithNonceAsUint8Array.length
     );
 
     const senderPublicKey = options.senderPublicKey ? base64ToBytes(options.senderPublicKey) : keyPair.publicKey;
