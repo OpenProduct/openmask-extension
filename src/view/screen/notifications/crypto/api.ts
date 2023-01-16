@@ -1,12 +1,13 @@
 import { useContext } from "react";
-import {TonProviderContext, WalletStateContext} from "../../../context";
+import { TonProviderContext, WalletStateContext } from "../../../context";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import { getWalletKeyPair } from "../../api";
 import nacl, { randomBytes } from "tweetnacl";
-import {base64ToBytes, concatBytes} from "@openproduct/web-sdk";
+import { base64ToBytes, bytesToHex, concatBytes } from "@openproduct/web-sdk";
 import { decodeBase64, encodeBase64 } from "tweetnacl-util";
 import { DecryptMessageInputParams, EncryptMessageInputParams } from "../../../../libs/entries/notificationMessage";
 import { findContract } from "../../../utils";
+import { getSharedSecret } from "@noble/ed25519";
 
 const newNonce = () => randomBytes(nacl.box.nonceLength);
 
@@ -38,7 +39,7 @@ export const useEncryptMutation = () => {
 
     const messageAsButtes = base64ToBytes(options.message);
     const receiverPublicKey = options.receiverPublicKey ? base64ToBytes(options.receiverPublicKey) : keyPair.publicKey;
-    const sharedKey = nacl.box.before(receiverPublicKey, keyPair.secretKey.slice(0, 32));
+    const sharedKey = await getSharedSecret(bytesToHex(keyPair.secretKey.slice(0, 32)), bytesToHex(receiverPublicKey));
 
     const encrypted = nacl.box.after(
       messageAsButtes,
@@ -74,7 +75,7 @@ export const useDecryptMutation = () => {
     );
 
     const senderPublicKey = options.senderPublicKey ? base64ToBytes(options.senderPublicKey) : keyPair.publicKey;
-    const sharedKey = nacl.box.before(senderPublicKey, keyPair.secretKey.slice(0, 32));
+    const sharedKey = await getSharedSecret(bytesToHex(keyPair.secretKey.slice(0, 32)), bytesToHex(senderPublicKey));
 
     const decrypted = nacl.box.open.after(
       message,
