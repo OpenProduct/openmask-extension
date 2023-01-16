@@ -1,5 +1,6 @@
-import { fromNano } from "@openproduct/web-sdk";
+import { Address, ALL, fromNano, TonHttpProvider } from "@openproduct/web-sdk";
 import { useMemo } from "react";
+import { WalletVersion } from "../libs/entries/wallet";
 
 export const balanceFormat = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
@@ -60,3 +61,31 @@ export const fiatFees = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 4,
 });
+
+export const lastWalletVersion = "v4R2";
+
+export const findContract = async (
+  ton: TonHttpProvider,
+  publicKey: Uint8Array,
+): Promise<[WalletVersion, Address]> => {
+  for (let [version, WalletClass] of Object.entries(ALL)) {
+    const wallet = new WalletClass(ton, {
+      publicKey,
+      wc: 0,
+    });
+
+    const walletAddress = await wallet.getAddress();
+    const balance = await ton.getBalance(walletAddress.toString());
+    if (balance !== "0") {
+      return [version, walletAddress] as [WalletVersion, Address];
+    }
+  }
+
+  const WalletClass = ALL[lastWalletVersion];
+  const walletContract = new WalletClass(ton, {
+    publicKey,
+    wc: 0,
+  });
+  const address = await walletContract.getAddress();
+  return [lastWalletVersion, address];
+};

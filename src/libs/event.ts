@@ -1,8 +1,8 @@
 import { JettonParams, NftParams } from "./entries/asset";
 import { EventEmitter, IEventEmitter } from "./entries/eventEmitter";
 import {
-  ConnectDAppParams,
-  DeployInputParams,
+  ConnectDAppParams, DecryptMessageInputParams,
+  DeployInputParams, EncryptMessageInputParams,
   RawSignInputParams,
   SwitchNetworkParams,
   TonConnectRequest,
@@ -56,8 +56,8 @@ export type NotificationData =
   | NotificationFields<"sendTransaction", TransactionParams>
   | NotificationFields<"tonConnectRequest", TonConnectRequest>
   | NotificationFields<"tonConnectSend", TonConnectTransactionPayload>
-  | NotificationFields<"decryptMessage", any>
-  | NotificationFields<"encryptMessage", any>;
+  | NotificationFields<"decryptMessage", DecryptMessageInputParams>
+  | NotificationFields<"encryptMessage", EncryptMessageInputParams>;
 
 export type UnfinishedOperation =
   | null

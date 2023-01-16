@@ -112,6 +112,16 @@ export interface TonConnectTransactionPayloadMessage {
   stateInit?: string;
 }
 
+export type EncryptMessageInputParams = {
+  message: string;
+  receiverPublicKey?: string;
+}
+
+export type DecryptMessageInputParams = {
+  message: string;
+  senderPublicKey?: string;
+}
+
 // interface TonConnectTransactionPayload {
 //   valid_until: 1658253458;
 //   messages: [

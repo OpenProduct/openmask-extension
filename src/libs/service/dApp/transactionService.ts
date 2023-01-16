@@ -6,8 +6,9 @@
  */
 
 import {
+  DecryptMessageInputParams,
   DeployInputParams,
-  DeployOutputParams,
+  DeployOutputParams, EncryptMessageInputParams,
 } from "../../entries/notificationMessage";
 import { TransactionParams } from "../../entries/transaction";
 import { ErrorCode, RuntimeError } from "../../exception";
@@ -146,7 +147,7 @@ export const deploySmartContract = async (
 export const decryptMessage = async (
   id: number,
   origin: string,
-  value: { data: string },
+  value: DecryptMessageInputParams,
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
@@ -172,7 +173,7 @@ export const decryptMessage = async (
 export const encryptMessage = async (
   id: number,
   origin: string,
-  value: { data: string },
+  value: EncryptMessageInputParams,
   wallet?: string
 ) => {
   await checkBaseDAppPermission(origin, wallet);
