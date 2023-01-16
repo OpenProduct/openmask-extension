@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.8] - 2023-01-15
+
+### Fixed
+
+- Show mnemonic view for webauthn auth
+
 ## [0.14.7] - 2023-01-13
 
 ### Add
@@ -215,7 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.7...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.8...HEAD
+[0.14.8]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.7...v0.14.8
 [0.14.7]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.6...v0.14.7
 [0.14.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.4...v0.14.5
