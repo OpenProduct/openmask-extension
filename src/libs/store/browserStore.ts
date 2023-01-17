@@ -79,11 +79,23 @@ export const getAuthConfiguration = () => {
   );
 };
 
-export const getConnections = (network?: string) => {
-  return getNetworkStoreValue<Connections>(
-    QueryType.connection,
-    defaultConnections,
-    network
+// Hack to fix bug with empty connect list
+const filterConnection = (connection: Connections): Connections => {
+  return Object.entries(connection).reduce((acc, [origin, connection]) => {
+    if (Object.keys(connection.connect).length > 0) {
+      acc[origin] = connection;
+    }
+    return acc;
+  }, {} as Connections);
+};
+
+export const getConnections = async (network?: string) => {
+  return filterConnection(
+    await getNetworkStoreValue<Connections>(
+      QueryType.connection,
+      defaultConnections,
+      network
+    )
   );
 };
 
@@ -108,7 +120,11 @@ export const setAccountState = (value: AccountState, network?: string) => {
 };
 
 export const setConnections = (value: Connections, network?: string) => {
-  return setNetworkStoreValue(QueryType.connection, value, network);
+  return setNetworkStoreValue(
+    QueryType.connection,
+    filterConnection(value),
+    network
+  );
 };
 
 interface BrowserCache<T> {
