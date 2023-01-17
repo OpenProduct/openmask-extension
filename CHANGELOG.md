@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2023-01-17
+
+### Add
+
+- Add `ton_decryptMessage` and `ton_encryptMessage` methods and notification views
+
+### Fixed
+
+- Bug with connection and empty connection list
+
 ## [0.14.8] - 2023-01-15
 
 ### Fixed
@@ -221,7 +231,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.8...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.8...v0.15.0
 [0.14.8]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.7...v0.14.8
 [0.14.7]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.6...v0.14.7
 [0.14.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.5...v0.14.6
