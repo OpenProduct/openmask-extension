@@ -10,7 +10,7 @@ import { GeneralSettings } from "./General";
 import { WebAuthnDisableMigration } from "./password/WebAuthnMigrationDisable";
 import { WebAuthnEnableMigration } from "./password/WebAuthnMigrationEnable";
 import { SettingsRoutes } from "./route";
-import packageJson from "/package.json";
+import packageJson from "../../../../package.json";
 
 const Item = styled.div`
   font-size: large;

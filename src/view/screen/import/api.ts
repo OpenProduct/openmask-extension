@@ -1,5 +1,4 @@
 import {
-  Address,
   ALL,
   bytesToHex,
   TonHttpProvider,
@@ -7,7 +6,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
-import { WalletState, WalletVersion } from "../../../libs/entries/wallet";
+import { WalletState } from "../../../libs/entries/wallet";
 import { NotificationData } from "../../../libs/event";
 import { encrypt } from "../../../libs/service/cryptoService";
 import { validateMnemonic } from "../../../libs/state/accountService";
@@ -19,6 +18,7 @@ import {
 } from "../../context";
 import { askBackground } from "../../event";
 import { saveAccountState } from "../api";
+import { findContract, lastWalletVersion } from "../../utils";
 
 export const askBackgroundPassword = async () => {
   const password = await askBackground<string | null>().message("getPassword");
@@ -33,8 +33,6 @@ export const askBackgroundNotification = async () => {
     "getNotification"
   );
 };
-
-const lastWalletVersion = "v4R2";
 
 const createWallet = async (
   ton: TonHttpProvider,
@@ -87,32 +85,6 @@ export const useCreateWalletMutation = () => {
   });
 };
 
-const findContract = async (
-  ton: TonHttpProvider,
-  keyPair: tonMnemonic.KeyPair
-): Promise<[WalletVersion, Address]> => {
-  for (let [version, WalletClass] of Object.entries(ALL)) {
-    const wallet = new WalletClass(ton, {
-      publicKey: keyPair.publicKey,
-      wc: 0,
-    });
-
-    const walletAddress = await wallet.getAddress();
-    const balance = await ton.getBalance(walletAddress.toString());
-    if (balance !== "0") {
-      return [version, walletAddress] as [WalletVersion, Address];
-    }
-  }
-
-  const WalletClass = ALL[lastWalletVersion];
-  const walletContract = new WalletClass(ton, {
-    publicKey: keyPair.publicKey,
-    wc: 0,
-  });
-  const address = await walletContract.getAddress();
-  return [lastWalletVersion, address];
-};
-
 export const importWallet = async (
   ton: TonHttpProvider,
   mnemonic: string[],
@@ -121,7 +93,7 @@ export const importWallet = async (
 ): Promise<WalletState> => {
   const encryptedMnemonic = await encrypt(mnemonic.join(" "), password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
-  const [version, address] = await findContract(ton, keyPair);
+  const [version, address] = await findContract(ton, keyPair.publicKey);
 
   return {
     name: `Account ${index}`,
