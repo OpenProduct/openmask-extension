@@ -1,8 +1,10 @@
 import { JettonParams, NftParams } from "./entries/asset";
 import { EventEmitter, IEventEmitter } from "./entries/eventEmitter";
 import {
-  ConnectDAppParams, DecryptMessageInputParams,
-  DeployInputParams, EncryptMessageInputParams,
+  ConnectDAppParams,
+  DecryptMessageInputParams,
+  DeployInputParams,
+  EncryptMessageInputParams,
   RawSignInputParams,
   SwitchNetworkParams,
   TonConnectRequest,

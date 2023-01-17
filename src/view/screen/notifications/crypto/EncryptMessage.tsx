@@ -1,17 +1,27 @@
+import { FC, useCallback } from "react";
+import { EncryptMessageInputParams } from "../../../../libs/entries/notificationMessage";
+import { NotificationFields } from "../../../../libs/event";
+import { AddressBlock } from "../../../components/AddressBlock";
 import {
-  Body, ButtonNegative, ButtonPositive,
-  ButtonRow, Center, Gap, H1, Text
+  Body,
+  ButtonNegative,
+  ButtonPositive,
+  ButtonRow,
+  Center,
+  Gap,
+  H1,
+  Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
-import { FC, useCallback } from "react";
-import { NotificationFields } from "../../../../libs/event";
+import { FingerprintIcon } from "../../../components/Icons";
 import { sendBackground } from "../../../event";
+import { useAuthConfiguration } from "../../settings/api";
 import { useEncryptMutation, useGetAddress } from "./api";
-import { EncryptMessageInputParams } from "../../../../libs/entries/notificationMessage";
-import { AddressBlock } from "../../../components/AddressBlock";
 
 export const EncryptMessage: FC<
-  NotificationFields<"encryptMessage", EncryptMessageInputParams> & { onClose: () => void }
+  NotificationFields<"encryptMessage", EncryptMessageInputParams> & {
+    onClose: () => void;
+  }
 > = ({ id, logo, origin, data, onClose }) => {
   const onBack = useCallback(() => {
     sendBackground.message("rejectRequest", id);
@@ -19,34 +29,45 @@ export const EncryptMessage: FC<
   }, [id]);
 
   const { isLoading, mutateAsync } = useEncryptMutation();
-  const { isLoading: loadingReceiver, data: receiverAddress } = useGetAddress(data.receiverPublicKey);
+  const { isLoading: loadingReceiver, data: receiverAddress } = useGetAddress(
+    data.receiverPublicKey
+  );
+
+  const { data: auth } = useAuthConfiguration();
+  const isWebAuth = auth?.kind == "webauthn";
+
   const onEncrypt = async () => {
     const decryptedMessage = await mutateAsync({
       message: data.message,
-      receiverPublicKey: data.receiverPublicKey
+      receiverPublicKey: data.receiverPublicKey,
     });
     sendBackground.message("approveRequest", { id, payload: decryptedMessage });
     onClose();
   };
 
-  return(<Body>
-    <Center>
-      <DAppBadge logo={logo} origin={origin} />
-      <H1>Encrypt message</H1>
-      <Text>Would you like to encrypt data?</Text>
-    </Center>
+  return (
+    <Body>
+      <Center>
+        <DAppBadge logo={logo} origin={origin} />
+        <H1>Encrypt message</H1>
+        <Text>Would you like to encrypt data?</Text>
+      </Center>
 
-    <AddressBlock label="Receiver" address={receiverAddress}/>
+      <AddressBlock label="Receiver" address={receiverAddress} />
 
-    <Gap />
+      <Gap />
 
-    <ButtonRow>
-      <ButtonNegative onClick={onBack} disabled={isLoading}>
-        Cancel
-      </ButtonNegative>
-      <ButtonPositive onClick={onEncrypt} disabled={isLoading}>
-        Encrypt
-      </ButtonPositive>
-    </ButtonRow>
-  </Body>);
+      <ButtonRow>
+        <ButtonNegative onClick={onBack} disabled={isLoading}>
+          Cancel
+        </ButtonNegative>
+        <ButtonPositive
+          onClick={onEncrypt}
+          disabled={isLoading || loadingReceiver}
+        >
+          Encrypt {isWebAuth && <FingerprintIcon />}
+        </ButtonPositive>
+      </ButtonRow>
+    </Body>
+  );
 };

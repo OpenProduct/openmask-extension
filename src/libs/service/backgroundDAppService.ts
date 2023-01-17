@@ -38,8 +38,10 @@ import {
   tonReConnectRequest,
 } from "./dApp/tonConnectService";
 import {
-  confirmAccountSeqNo, decryptMessage,
-  deploySmartContract, encryptMessage,
+  confirmAccountSeqNo,
+  decryptMessage,
+  deploySmartContract,
+  encryptMessage,
   sendTransaction,
   signPersonalValue,
   signRawValue,
@@ -239,12 +241,20 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return tonConnectTransaction(message.id, origin, message.params[0]);
     }
     case "ton_decryptMessage": {
-      return decryptMessage(message.id, origin, message.params[0],
-        validateWalletAddress(message.params[1]))
+      return decryptMessage(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     case "ton_encryptMessage": {
-      return encryptMessage(message.id, origin, message.params[0],
-        validateWalletAddress(message.params[1]))
+      return encryptMessage(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
     }
     default:
       throw new RuntimeError(

@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import React, { FC, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import packageJson from "../../../../../../package.json";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import { AppStock, DexStocks } from "../../../../../libs/entries/stock";
 import ExtensionPlatform from "../../../../../libs/service/extension";
@@ -18,7 +19,6 @@ import { WalletStateContext } from "../../../../context";
 import { AppRoute } from "../../../../routes";
 import { useJettonWalletBalance } from "./api";
 import { AssetRoutes } from "./route";
-import packageJson from "../../../../../../package.json";
 
 const Line = styled(Text)`
   padding: 10px 0 5px;
