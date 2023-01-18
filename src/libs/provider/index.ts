@@ -38,7 +38,7 @@ export class TonProvider extends EventEmitter {
       ton.destroyOpenMask();
     }
     if (ton && ton.isTonWallet) {
-      ton._destroy();
+      ton._destroy && ton._destroy();
       window.ton = this;
     }
     window.addEventListener("message", this.onMessage);
