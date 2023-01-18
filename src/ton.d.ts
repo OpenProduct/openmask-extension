@@ -1,6 +1,9 @@
 export {};
 
 interface ITonProvider {
+  isOpenMask?: boolean;
+  isTonWallet?: boolean;
+
   nextJsonRpcId;
   callbacks: Record<string, any>;
   promises: Record<
@@ -11,7 +14,7 @@ interface ITonProvider {
     }
   >;
   nextJsonRpcId: number;
-  destroy: () => void;
+  _destroy: () => void;
   destroyOpenMask: () => void;
 }
 

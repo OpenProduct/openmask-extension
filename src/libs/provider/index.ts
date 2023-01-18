@@ -26,7 +26,7 @@ export class TonProvider extends EventEmitter {
 
   constructor(ton = window.ton) {
     super();
-    if (ton) {
+    if (ton && ton.isOpenMask) {
       this.nextJsonRpcId = ton.nextJsonRpcId;
       this.promises = ton.promises;
       this.callbacks = ton.callbacks;
@@ -34,8 +34,12 @@ export class TonProvider extends EventEmitter {
 
     this.isConnected().catch((e) => console.error(e));
 
-    if (ton) {
+    if (ton && ton.isOpenMask) {
       ton.destroyOpenMask();
+    }
+    if (ton && ton.isTonWallet) {
+      ton._destroy();
+      window.ton = this;
     }
     window.addEventListener("message", this.onMessage);
   }
@@ -127,7 +131,7 @@ export class TonProvider extends EventEmitter {
   addEventListener = this.on;
   removeEventListener = this.off;
 
-  destroy() {}
+  _destroy() {}
   destroyOpenMask() {
     window.removeEventListener("message", this.onMessage);
   }
