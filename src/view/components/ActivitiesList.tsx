@@ -3,7 +3,7 @@ import React, { FC } from "react";
 import styled from "styled-components";
 import {
   TonWebTransaction,
-  TonWebTransactionMessage,
+  TonWebTransactionMessageWithDecryptedPayload, TonWebTransactionWithDecryptedPayload,
 } from "../../libs/entries/transaction";
 import ExtensionPlatform from "../../libs/service/extension";
 import { useNetworkConfig } from "../screen/home/api";
@@ -63,10 +63,15 @@ const Comment = styled.div`
   word-break: break-all;
 `;
 
-const getComment = (msg: TonWebTransactionMessage) => {
+const getComment = (msg: TonWebTransactionMessageWithDecryptedPayload) => {
   if (!msg.msg_data) return "";
-  if (msg.msg_data["@type"] !== "msg.dataText") return "";
-  const base64 = msg.msg_data.text;
+  let base64 = "";
+  if (msg.msg_data["@type"] === "msg.dataRaw" && msg.msg_data.decrypted_payload) {
+    base64 = msg.msg_data.decrypted_payload;
+  }
+  if(msg.msg_data["@type"] === "msg.dataText") {
+    base64 = msg.msg_data.text;
+  }
   return new TextDecoder().decode(base64ToBytes(base64));
 };
 
@@ -118,7 +123,7 @@ const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
 export interface ActivitiesProps {
   isLoading: boolean;
   address?: string;
-  data?: TonWebTransaction[];
+  data?: TonWebTransactionWithDecryptedPayload[];
 }
 
 export const ActivitiesList: FC<ActivitiesProps> = ({

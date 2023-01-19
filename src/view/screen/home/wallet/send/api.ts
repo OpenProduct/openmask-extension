@@ -1,8 +1,8 @@
 import {
-  Address,
-  Cell,
+  Address, base64ToBytes, bytesToBase64, bytesToHex,
+  Cell, concatBytes,
   EstimateFeeValues,
-  Method,
+  Method, stringToBase64,
   toNano,
   TonDns,
   TonHttpProvider,
@@ -19,8 +19,10 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../../../context";
-import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
+import {checkBalanceOrDie, getPublicKey, getWalletKeyPair} from "../../../api";
 import { useNetworkConfig } from "../../api";
+import { getSharedSecret } from "@noble/ed25519";
+import nacl, { randomBytes } from "tweetnacl";
 
 export interface TransactionState {
   address: string;
@@ -28,6 +30,7 @@ export interface TransactionState {
   max: string;
   data: string | Uint8Array | Cell | undefined;
   hex?: string;
+  isEncrypt?: boolean;
 }
 
 export const toState = (searchParams: URLSearchParams): TransactionState => {
@@ -36,12 +39,18 @@ export const toState = (searchParams: URLSearchParams): TransactionState => {
     amount: decodeURIComponent(searchParams.get("amount") ?? ""),
     max: searchParams.get("max") ?? "",
     data: decodeURIComponent(searchParams.get("data") ?? ""),
+    isEncrypt: searchParams.get("isEncrypt") === "1",
   };
 };
 
 export const stateToSearch = (state: TransactionState) => {
   return Object.entries(state).reduce((acc, [key, value]) => {
-    acc[key] = encodeURIComponent(value);
+    if(typeof value === "boolean" && value) {
+      acc[key] = "1";
+    }
+    if(typeof value !== "boolean") {
+      acc[key] = encodeURIComponent(value);
+    }
     return acc;
   }, {} as Record<string, string>);
 };
@@ -111,6 +120,32 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
         wallet
       );
 
+      let payload = state.data || "";
+
+      if(state.isEncrypt && state.data && typeof state.data === "string") {
+        const receiverPublicKey = await getPublicKey(ton, toAddress);
+        const sharedKey = await getSharedSecret(bytesToHex(keyPair.secretKey.slice(0, 32)), receiverPublicKey);
+        console.log("sharedKey", bytesToBase64(sharedKey));
+        const nonce = randomBytes(nacl.box.nonceLength);
+        console.log("nonce", bytesToBase64(nonce));
+        const encrypted = nacl.box.after(
+          base64ToBytes(stringToBase64(state.data)),
+          nonce,
+          sharedKey
+        );
+
+        console.log("encrypted", bytesToBase64(encrypted));
+
+        if (!encrypted) {
+          throw new Error(
+            "Encryption error"
+          );
+        }
+
+        payload = concatBytes(nonce, encrypted);
+        console.log("payload", bytesToBase64(payload))
+      }
+
       const sendMode =
         state.max === "1"
           ? SendMode.CARRRY_ALL_REMAINING_BALANCE
@@ -121,7 +156,7 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
         toAddress,
         amount: toNano(state.amount),
         seqno: seqno,
-        payload: state.data ?? "",
+        payload,
         sendMode,
       };
 

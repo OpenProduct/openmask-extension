@@ -9,6 +9,7 @@ import { decryptMnemonic } from "../../libs/state/accountService";
 import { QueryType } from "../../libs/store/browserStore";
 import { checkForError } from "../../libs/utils";
 import { getAppPassword } from "../api";
+import { TonHttpProvider } from "@openproduct/web-sdk";
 
 export const saveAccountState = async (
   network: string,
@@ -45,4 +46,13 @@ export const getWalletKeyPair = async (wallet: WalletState) => {
     const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
     return await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
   });
+};
+
+export const getPublicKey = async (ton: TonHttpProvider, address: string): Promise<string> => {
+  const walletPubKeyBN =  await ton.call2(address, "get_public_key");
+  let walletPubKeyHex = walletPubKeyBN.toString(16);
+  if (walletPubKeyHex.length % 2 !== 0) {
+    walletPubKeyHex = '0' + walletPubKeyHex;
+  }
+  return walletPubKeyHex;
 };

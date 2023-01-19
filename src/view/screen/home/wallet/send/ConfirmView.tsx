@@ -31,7 +31,9 @@ const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const onEdit = () => {
     const state = toState(searchParams);
-    setSearchParams({ ...state } as URLSearchParamsInit); // Remove submit flag from params
+    setSearchParams({ ...state,
+      isEncrypt: state.isEncrypt ? "1" : ""
+    } as URLSearchParamsInit); // Remove submit flag from params
   };
   return <SendEditButton onEdit={onEdit} />;
 });
