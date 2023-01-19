@@ -12,7 +12,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { SendMode } from "../../../../../libs/entries/tonSendMode";
-import { WalletState } from "../../../../../libs/entries/wallet";
+import { WalletInfo, WalletState } from "../../../../../libs/entries/wallet";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   TonProviderContext,
@@ -123,18 +123,22 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
       let payload = state.data || "";
 
       if(state.isEncrypt && state.data && typeof state.data === "string") {
+        const walletInfo: WalletInfo = await ton.getWalletInfo(toAddress);
+
+        if(!walletInfo.wallet) {
+          throw new Error(
+            "The recipient is not a wallet"
+          );
+        }
+
         const receiverPublicKey = await getPublicKey(ton, toAddress);
         const sharedKey = await getSharedSecret(bytesToHex(keyPair.secretKey.slice(0, 32)), receiverPublicKey);
-        console.log("sharedKey", bytesToBase64(sharedKey));
         const nonce = randomBytes(nacl.box.nonceLength);
-        console.log("nonce", bytesToBase64(nonce));
         const encrypted = nacl.box.after(
           base64ToBytes(stringToBase64(state.data)),
           nonce,
           sharedKey
         );
-
-        console.log("encrypted", bytesToBase64(encrypted));
 
         if (!encrypted) {
           throw new Error(
@@ -143,7 +147,6 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
         }
 
         payload = concatBytes(nonce, encrypted);
-        console.log("payload", bytesToBase64(payload))
       }
 
       const sendMode =
