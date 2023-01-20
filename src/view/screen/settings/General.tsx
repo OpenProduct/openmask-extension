@@ -13,7 +13,7 @@ import { DropDownList } from "../../components/DropDown";
 import { HomeButton } from "../../components/HomeButton";
 import { ArrowDownIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute } from "../../routes";
-import { useProxyConfiguration, useUpdateProxyMutation } from "./apit";
+import { useProxyConfiguration, useUpdateProxyMutation } from "./api";
 
 const Quote = styled.div`
   padding: 5px 0;

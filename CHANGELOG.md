@@ -7,6 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2023-01-18
+
+### Fixed
+
+- Fix ton provider concurrent with ton wallet
+
+## [0.15.0] - 2023-01-17
+
+### Add
+
+- Add `ton_decryptMessage` and `ton_encryptMessage` methods and notification views
+
+### Fixed
+
+- Bug with connection and empty connection list
+
+## [0.14.8] - 2023-01-15
+
+### Fixed
+
+- Show mnemonic view for webauthn auth
+
+## [0.14.7] - 2023-01-13
+
+### Add
+
+- Add jetton fiat amount from DeDust.io
+
+### Fixed
+
+- Fixed loading jetton state
+
+## [0.14.6] - 2023-01-06
+
+### Fixed
+
+- Update TonConnect 2.0 - reconnect method and device detection
+- Update provider to not destroy provider by other wallets
+
+## [0.14.5] - 2023-01-04
+
+### Fixed
+
+- Update TonConnect 2.0 - reconnect method
+
+## [0.14.4] - 2023-01-03
+
+### Fixed
+
+- Fix typos and add network warning
+
+## [0.14.3] - 2022-12-29
+
+### Add
+
+- Add link to DeDust.io
+
+## [0.14.2] - 2022-12-29
+
+### Add
+
+- Add link to CryptoGas.shop
+
+## [0.14.1] - 2022-12-27
+
+### Fixed
+
+- Fix Ton Connect TonProof result
+
+## [0.14.0] - 2022-12-18
+
+### Add
+
+- Ton Connect Authorization
+- Ton Connect Send Transaction
+
+## [0.13.1] - 2022-12-02
+
+### Fixed
+
+- Fixed jetton decimals count
+
+## [0.13.0] - 2022-11-25
+
+### Add
+
+- Add webAuthn authorization
+
+## [0.12.1] - 2022-11-21
+
+### Add
+
+- Add support onchain jetton data
+
+### Fixed
+
+- Update loading from ipfs
+
 ## [0.12.0] - 2022-10-29
 
 ### Fixed
@@ -139,8 +237,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.0...HEAD
-[0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...v0.12.0
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.15.1...HEAD
+[0.15.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.8...v0.15.0
+[0.14.8]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.7...v0.14.8
+[0.14.7]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.6...v0.14.7
+[0.14.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.5...v0.14.6
+[0.14.5]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.4...v0.14.5
+[0.14.4]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.13.1...v0.14.0
+[0.13.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.1...v0.13.0
+[0.12.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.10.0...v0.10.1

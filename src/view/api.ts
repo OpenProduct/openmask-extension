@@ -5,7 +5,10 @@ import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../libs/entries/account";
 import { UnfinishedOperation } from "../libs/event";
 import { Logger } from "../libs/logger";
+import { popUpInternalEventEmitter } from "../libs/popUpEvent";
+import { delay } from "../libs/state/accountService";
 import {
+  getAuthConfiguration,
   getNetwork,
   getNetworkStoreValue,
   getScript,
@@ -18,6 +21,7 @@ import { AppRoute } from "./routes";
 import { JettonRoute } from "./screen/home/wallet/assets/jetton/route";
 import { NftItemRoute } from "./screen/home/wallet/assets/nft/router";
 import { AssetRoutes } from "./screen/home/wallet/assets/route";
+import { askBackgroundPassword } from "./screen/import/api";
 
 export const useNetwork = () => {
   return useQuery([QueryType.network], () => getNetwork());
@@ -155,4 +159,50 @@ export const useInitialRedirect = (
         }
       });
   }, []);
+};
+
+export const getAppPassword = async <R>(
+  useAction: (password: string) => Promise<R>
+) => {
+  const config = await getAuthConfiguration();
+  if (config.kind === "password") {
+    const password = await askBackgroundPassword();
+    return await useAction(password);
+  } else {
+    return await getWebAuthnPassword(useAction);
+  }
+};
+
+export const getWebAuthnPassword = async <R>(
+  useAction: (password: string) => Promise<R>
+) => {
+  const id = Date.now();
+  return new Promise<R>((resolve, reject) => {
+    popUpInternalEventEmitter.emit("getWebAuthn", {
+      method: "getWebAuthn",
+      id,
+      params: undefined,
+    });
+
+    const onCallback = (message: {
+      method: "response";
+      id?: number | undefined;
+      params: string | Error;
+    }) => {
+      if (message.id === id) {
+        const { params } = message;
+        popUpInternalEventEmitter.off("response", onCallback);
+
+        if (typeof params === "string") {
+          Promise.all([useAction(params), delay(500)])
+            .then(([result]) => resolve(result))
+            .catch((e) => reject(e));
+        } else {
+          reject(params);
+        }
+      }
+    };
+
+    popUpInternalEventEmitter.on("response", onCallback);
+  });
 };

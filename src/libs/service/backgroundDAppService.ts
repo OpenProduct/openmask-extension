@@ -32,8 +32,16 @@ import {
 } from "./dApp/connectService";
 import { switchChain } from "./dApp/networkService";
 import {
+  tonConnectDisconnect,
+  tonConnectRequest,
+  tonConnectTransaction,
+  tonReConnectRequest,
+} from "./dApp/tonConnectService";
+import {
   confirmAccountSeqNo,
+  decryptMessage,
   deploySmartContract,
+  encryptMessage,
   sendTransaction,
   signPersonalValue,
   signRawValue,
@@ -216,6 +224,35 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
         origin,
         message.event,
         await validateAssetParams(message.params[0]),
+        validateWalletAddress(message.params[1])
+      );
+    }
+
+    case "tonConnect_connect": {
+      return tonConnectRequest(message.id, origin, message.params[0]);
+    }
+    case "tonConnect_reconnect": {
+      return tonReConnectRequest(origin);
+    }
+    case "tonConnect_disconnect": {
+      return tonConnectDisconnect(message.id, origin);
+    }
+    case "tonConnect_sendTransaction": {
+      return tonConnectTransaction(message.id, origin, message.params[0]);
+    }
+    case "ton_decryptMessage": {
+      return decryptMessage(
+        message.id,
+        origin,
+        message.params[0],
+        validateWalletAddress(message.params[1])
+      );
+    }
+    case "ton_encryptMessage": {
+      return encryptMessage(
+        message.id,
+        origin,
+        message.params[0],
         validateWalletAddress(message.params[1])
       );
     }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { NotificationData } from "../../../libs/event";
+import { delay } from "../../../libs/state/accountService";
 import { askBackground, sendBackground } from "../../event";
 import { Loading } from "../Loading";
 import { ImportJetton } from "./asset/ImportJetton";
@@ -10,8 +11,10 @@ import { SendTransaction } from "./send/SendTransaction";
 import { SignPersonal } from "./sign/PersonalSign";
 import { SignRaw } from "./sign/SignRaw";
 import { SwitchNetwork } from "./switch/SwitchNetwork";
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { ConnectRequest } from "./tonConnect/Connect";
+import { ConnectSendTransaction } from "./tonConnect/SendTransaction";
+import { DecryptMessage } from "./crypto/DecryptMessage";
+import {EncryptMessage} from "./crypto/EncryptMessage";
 
 export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
@@ -60,7 +63,17 @@ export const Notifications = () => {
       return <ConnectDApp {...data} onClose={reloadNotification} />;
     case "sendTransaction":
       return <SendTransaction {...data} onClose={reloadNotification} />;
+    case "tonConnectRequest":
+      return <ConnectRequest {...data} onClose={reloadNotification} />;
+    case "tonConnectSend":
+      return <ConnectSendTransaction {...data} onClose={reloadNotification} />;
+    case "decryptMessage":
+      return <DecryptMessage {...data} onClose={reloadNotification} />;
+    case "encryptMessage":
+      return <EncryptMessage {...data} onClose={reloadNotification} />;
     default:
       return <Loading />;
   }
 };
+
+export default Notifications;

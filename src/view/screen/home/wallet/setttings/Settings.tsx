@@ -3,6 +3,8 @@ import { useContext, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { WalletState, WalletVersion } from "../../../../../libs/entries/wallet";
+import { decryptMnemonic } from "../../../../../libs/state/accountService";
+import { getWebAuthnPassword } from "../../../../api";
 import {
   Body,
   ButtonDanger,
@@ -20,10 +22,14 @@ import {
 } from "../../../../components/Components";
 import { DropDownList } from "../../../../components/DropDown";
 import { HomeButton } from "../../../../components/HomeButton";
-import { ArrowDownIcon, DeleteIcon } from "../../../../components/Icons";
+import {
+  ArrowDownIcon,
+  DeleteIcon,
+  FingerprintIcon,
+} from "../../../../components/Icons";
 import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
-import { decryptMnemonic } from "../../../api";
+import { useAuthConfiguration } from "../../../settings/api";
 import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 
 const Text = styled.div`
@@ -122,13 +128,22 @@ const SettingsMnemonic = () => {
   const [mnemonic, setMnemonic] = useState("");
   const [error, setError] = useState(false);
 
+  const { data } = useAuthConfiguration();
+  const isWebAuth = data?.kind == "webauthn";
+
   const isShow = mnemonic !== "";
 
   const onNext = async () => {
     if (isShow) return;
 
     try {
-      setMnemonic(await decryptMnemonic(wallet.mnemonic, value));
+      if (isWebAuth) {
+        getWebAuthnPassword(async (password) => {
+          setMnemonic(await decryptMnemonic(wallet.mnemonic, password));
+        });
+      } else {
+        setMnemonic(await decryptMnemonic(wallet.mnemonic, value));
+      }
     } catch (e) {
       setError(true);
     }
@@ -148,7 +163,7 @@ const SettingsMnemonic = () => {
       </ErrorMessage>
       {isShow ? (
         <Textarea disabled rows={9} value={mnemonic} />
-      ) : (
+      ) : !isWebAuth ? (
         <div>
           <label>Enter password to continue</label>
           <Input
@@ -158,7 +173,7 @@ const SettingsMnemonic = () => {
           />
           {error && <ErrorText>Invalid Password</ErrorText>}
         </div>
-      )}
+      ) : undefined}
 
       <Gap />
       <ButtonRow>
@@ -166,7 +181,7 @@ const SettingsMnemonic = () => {
           Cancel
         </ButtonNegative>
         <ButtonPositive onClick={onNext} disabled={isShow}>
-          Show
+          Show {isWebAuth && <FingerprintIcon />}
         </ButtonPositive>
       </ButtonRow>
     </Body>

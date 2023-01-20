@@ -1,10 +1,4 @@
-import {
-  Address,
-  fromNano,
-  JettonData,
-  JettonMinterDao,
-  JettonWalletDao,
-} from "@openproduct/web-sdk";
+import { Address, JettonData, JettonMinterDao } from "@openproduct/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import {
@@ -13,8 +7,11 @@ import {
   JettonState,
   JettonStateSchema,
 } from "../../../../libs/entries/asset";
-import { requestJson } from "../../../../libs/service/requestService";
 import { seeIfJettonAsset } from "../../../../libs/state/assetService";
+import {
+  getJettonNameState,
+  getJettonWalletData,
+} from "../../../../libs/state/jettonService";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -41,21 +38,18 @@ export const useOriginWallets = (origin: string) => {
   );
 };
 
-const getJettonName = async (
-  jsonDataUrl: string | null,
-  params: JettonParams
-) => {
-  let state: Partial<JettonState> = {};
-  if (jsonDataUrl) {
-    state = await requestJson<Partial<JettonState>>(jsonDataUrl);
-  } else {
-    state = {
+const getJettonName = async (data: JettonData, params: JettonParams) => {
+  try {
+    return await getJettonNameState(data);
+  } catch (e) {
+    const state = {
       symbol: params.symbol,
       image: params.image,
       name: params.name,
+      decimals: params.decimals,
     };
+    return await JettonStateSchema.validateAsync(state);
   }
-  return await JettonStateSchema.validateAsync(state);
 };
 
 export interface JettonMinterData {
@@ -68,11 +62,11 @@ export const useJettonMinterData = (params: JettonParams) => {
   return useQuery<JettonMinterData, Error>(
     [QueryType.jetton, params.address],
     async () => {
-      const dap = new JettonMinterDao(provider, new Address(params.address));
+      const dao = new JettonMinterDao(provider, new Address(params.address));
 
-      const data = await dap.getJettonData();
+      const data = await dao.getJettonData();
 
-      const state = await getJettonName(data.jettonContentUri, params);
+      const state = await getJettonName(data, params);
 
       return { data, state };
     }
@@ -82,7 +76,8 @@ export const useJettonMinterData = (params: JettonParams) => {
 export const useJettonWalletBalance = (
   id: number,
   jettonMinterAddress: string,
-  walletAddress: string
+  walletAddress: string,
+  data: JettonState
 ) => {
   const provider = useContext(TonProviderContext);
   return useQuery(
@@ -93,16 +88,7 @@ export const useJettonWalletBalance = (
         new Address(jettonMinterAddress)
       );
 
-      const jettonWalletAddress = await minter.getJettonWalletAddress(
-        new Address(walletAddress)
-      );
-      if (!jettonWalletAddress) {
-        throw new Error("Missing jetton wallet address.");
-      }
-
-      const dao = new JettonWalletDao(provider, jettonWalletAddress);
-      const data = await dao.getData();
-      return fromNano(data.balance);
+      return getJettonWalletData(provider, minter, walletAddress, data);
     }
   );
 };

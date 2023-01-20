@@ -1,3 +1,26 @@
+export type IEventEmitter<T> = {
+  on<Key extends string & keyof T>(
+    method: `${Key}`,
+    callback: (options: {
+      method: `${Key}`;
+      id?: number;
+      params: T[Key];
+    }) => void
+  ): void;
+  off<Key extends string & keyof T>(
+    eventName: `${Key}`,
+    callback: (options: {
+      method: `${Key}`;
+      id?: number;
+      params: T[Key];
+    }) => void
+  ): void;
+  emit<Key extends string & keyof T>(
+    eventName: `${Key}`,
+    params?: { method: `${Key}`; id?: number; params: T[Key] }
+  ): void;
+};
+
 export class EventEmitter {
   callbacks: { [s: string]: ((...args: any[]) => void)[] } = {};
 

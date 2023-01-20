@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { formatAmountValue } from "../../../../../../libs/state/decimalsService";
 import {
   BallanceBlock,
   BallanceButton,
@@ -9,7 +10,6 @@ import {
 import { ReceiveIcon, SendIcon } from "../../../../../components/Icons";
 import { JettonLogo } from "../../../../../components/JettonRow";
 import { relative } from "../../../../../routes";
-import { formatTonValue } from "../../../../../utils";
 import { useJettonWalletBalance } from "../api";
 import { JettonStateContext } from "./context";
 import { JettonRoute } from "./route";
@@ -29,7 +29,7 @@ export const JettonBalance = () => {
 
   const { data: balance } = useJettonWalletBalance(state);
   const formatted = useMemo(() => {
-    return balance ? formatTonValue(balance) : "-";
+    return balance ? formatAmountValue(balance, state.state.decimals) : "-";
   }, [balance]);
 
   return (

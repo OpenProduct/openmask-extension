@@ -1,5 +1,10 @@
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
+import {
+  AuthConfiguration,
+  DefaultAuthPasswordConfig,
+  WebAuthn,
+} from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
 import { networkConfigs } from "../entries/network";
 import {
@@ -10,8 +15,10 @@ import { checkForError } from "../utils";
 
 export enum QueryType {
   proxy = "proxy",
+  auth = "auth",
 
   price = "price",
+  stock = "stock",
 
   script = "script",
   network = "network",
@@ -65,11 +72,30 @@ export const getProxyConfiguration = () => {
   );
 };
 
-export const getConnections = (network?: string) => {
-  return getNetworkStoreValue<Connections>(
-    QueryType.connection,
-    defaultConnections,
-    network
+export const getAuthConfiguration = () => {
+  return getStoreValue<AuthConfiguration>(
+    QueryType.auth,
+    DefaultAuthPasswordConfig
+  );
+};
+
+// Hack to fix bug with empty connect list
+const filterConnection = (connection: Connections): Connections => {
+  return Object.entries(connection).reduce((acc, [origin, connection]) => {
+    if (Object.keys(connection.connect).length > 0) {
+      acc[origin] = connection;
+    }
+    return acc;
+  }, {} as Connections);
+};
+
+export const getConnections = async (network?: string) => {
+  return filterConnection(
+    await getNetworkStoreValue<Connections>(
+      QueryType.connection,
+      defaultConnections,
+      network
+    )
   );
 };
 
@@ -81,6 +107,10 @@ export const getAccountState = (network?: string) => {
   );
 };
 
+export const updateAuthCounter = (value: WebAuthn, newCounter: number) => {
+  return setStoreValue(QueryType.auth, { ...value, counter: newCounter });
+};
+
 export const setProxyConfiguration = (value: ProxyConfiguration) => {
   return setStoreValue(QueryType.proxy, value);
 };
@@ -90,7 +120,60 @@ export const setAccountState = (value: AccountState, network?: string) => {
 };
 
 export const setConnections = (value: Connections, network?: string) => {
-  return setNetworkStoreValue(QueryType.connection, value, network);
+  return setNetworkStoreValue(
+    QueryType.connection,
+    filterConnection(value),
+    network
+  );
+};
+
+interface BrowserCache<T> {
+  timeout: number;
+  data: T;
+}
+
+const removeCachedStoreValue = async (query: string) => {
+  await browser.storage.local.remove(`catch_${query}`);
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+};
+
+export const getCachedStoreValue = async <T>(
+  query: string
+): Promise<T | null> => {
+  return browser.storage.local
+    .get(`catch_${query}`)
+    .then<T | null>(async (result) => {
+      const err = checkForError();
+      if (err) {
+        throw err;
+      }
+
+      const data: BrowserCache<T> | undefined = result[`catch_${query}`];
+      if (!data) return null;
+      if (data.timeout < Date.now()) {
+        await removeCachedStoreValue(query);
+        return null;
+      } else {
+        return data.data;
+      }
+    });
+};
+
+const tenMin = 10 * 60 * 1000;
+
+export const setCachedStoreValue = async <T>(
+  query: string,
+  data: T,
+  timeout: number = Date.now() + tenMin
+) => {
+  await browser.storage.local.set({ [`catch_${query}`]: { data, timeout } });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
 };
 
 export const getNetworkStoreValue = async <T>(
@@ -115,6 +198,16 @@ export const setNetworkStoreValue = async <T>(
 ) => {
   const network = networkValue ?? (await getNetwork());
   await browser.storage.local.set({ [`${network}_${query}`]: value });
+  const err = checkForError();
+  if (err) {
+    throw err;
+  }
+};
+
+export const batchUpdateStore = async (
+  values: Record<string, any>
+): Promise<void> => {
+  await browser.storage.local.set(values);
   const err = checkForError();
   if (err) {
     throw err;

@@ -36,7 +36,9 @@ export const SendTransaction: FC<
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
 
-  const { data: balance } = useBalance(wallet.address);
+  const { data: balance, isFetching: isBalanceFetching } = useBalance(
+    wallet.address
+  );
   const { data: state, isFetching: isPreValidating } =
     useSendTransactionState(data);
 
@@ -46,7 +48,7 @@ export const SendTransaction: FC<
     isFetching: isPostValidating,
   } = useSendMethod(state, balance);
 
-  const isValidating = isPreValidating || isPostValidating;
+  const isValidating = isPreValidating || isPostValidating || isBalanceFetching;
 
   const { data: estimation } = useEstimateFee(method);
 
@@ -79,6 +81,9 @@ export const SendTransaction: FC<
 
   const loading = isValidating || isSending;
 
+  const disabledCancel = loading && methodError == null && sendError == null;
+  const disabledConfig = loading || methodError != null || sendError != null;
+
   return (
     <Body>
       <Center>
@@ -103,13 +108,10 @@ export const SendTransaction: FC<
       <Gap />
 
       <ButtonRow>
-        <ButtonNegative onClick={onBack} disabled={loading}>
+        <ButtonNegative onClick={onBack} disabled={disabledCancel}>
           Cancel
         </ButtonNegative>
-        <ButtonPositive
-          onClick={onConfirm}
-          disabled={loading || methodError != null || sendError != null}
-        >
+        <ButtonPositive onClick={onConfirm} disabled={disabledConfig}>
           {isValidating ? (
             <Dots>Validating</Dots>
           ) : isSending ? (

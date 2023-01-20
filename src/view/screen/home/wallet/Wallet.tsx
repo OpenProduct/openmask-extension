@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled, { css } from "styled-components";
+import { DexStocks } from "../../../../libs/entries/stock";
 import { Badge, Container } from "../../../components/Components";
 import { ConnectBadge } from "../../../components/ConnectBadge";
 import { Tabs } from "../../../components/Tabs";
@@ -65,7 +66,8 @@ const tabs = ["Assets", "Activity"];
 export const WalletHome: FC<{
   price?: number;
   balance?: string;
-}> = ({ price, balance }) => {
+  stocks?: DexStocks;
+}> = ({ price, balance, stocks }) => {
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -89,7 +91,9 @@ export const WalletHome: FC<{
         <Route path={AppRoute.activities} element={<Activities />} />
         <Route
           path="*"
-          element={<AssetsList balance={balance} price={price} />}
+          element={
+            <AssetsList balance={balance} price={price} stocks={stocks} />
+          }
         />
       </Routes>
     </>

@@ -1,5 +1,6 @@
 # OpenMask Browser Extension
 
+[![Based on TON](https://img.shields.io/badge/Based%20on-TON-blue)](https://ton.org/)
 [![Telegram Channel](https://badgen.net/badge/follow/@OpenProduct/blue?icon=telegram)](https://t.me/openproduct)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 

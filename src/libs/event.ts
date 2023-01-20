@@ -1,36 +1,17 @@
 import { JettonParams, NftParams } from "./entries/asset";
+import { EventEmitter, IEventEmitter } from "./entries/eventEmitter";
 import {
   ConnectDAppParams,
+  DecryptMessageInputParams,
   DeployInputParams,
+  EncryptMessageInputParams,
   RawSignInputParams,
   SwitchNetworkParams,
+  TonConnectRequest,
+  TonConnectTransactionPayload,
 } from "./entries/notificationMessage";
 import { ProxyConfiguration } from "./entries/proxy";
 import { TransactionParams } from "./entries/transaction";
-import { EventEmitter } from "./eventEmitter";
-
-export type IEventEmitter<T> = {
-  on<Key extends string & keyof T>(
-    method: `${Key}`,
-    callback: (options: {
-      method: `${Key}`;
-      id?: number;
-      params: T[Key];
-    }) => void
-  ): void;
-  off<Key extends string & keyof T>(
-    eventName: `${Key}`,
-    callback: (options: {
-      method: `${Key}`;
-      id?: number;
-      params: T[Key];
-    }) => void
-  ): void;
-  emit<Key extends string & keyof T>(
-    eventName: `${Key}`,
-    params?: { method: `${Key}`; id?: number; params: T[Key] }
-  ): void;
-};
 
 export type PopUpEventEmitter = IEventEmitter<PupUpEvents>;
 export type BackgroundEventsEmitter = IEventEmitter<BackgroundEvents>;
@@ -74,7 +55,11 @@ export type NotificationData =
   | NotificationFields<"importJetton", JettonParams>
   | NotificationFields<"importNft", NftParams>
   | NotificationFields<"connectDApp", ConnectDAppParams>
-  | NotificationFields<"sendTransaction", TransactionParams>;
+  | NotificationFields<"sendTransaction", TransactionParams>
+  | NotificationFields<"tonConnectRequest", TonConnectRequest>
+  | NotificationFields<"tonConnectSend", TonConnectTransactionPayload>
+  | NotificationFields<"decryptMessage", DecryptMessageInputParams>
+  | NotificationFields<"encryptMessage", EncryptMessageInputParams>;
 
 export type UnfinishedOperation =
   | null
