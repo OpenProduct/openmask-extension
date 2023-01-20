@@ -12,3 +12,17 @@ export interface WalletState {
   isBounceable: boolean;
   assets?: Asset[];
 }
+
+export interface WalletInfo {
+  account_state: string;
+  balance: string;
+  last_transaction_id: {
+    ["@type"]: string;
+    hash: string;
+    lt: string;
+  }
+  seqno: number
+  wallet: boolean;
+  wallet_id: number;
+  wallet_type: string;
+}
