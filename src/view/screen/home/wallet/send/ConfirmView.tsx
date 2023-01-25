@@ -31,8 +31,9 @@ const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const onEdit = () => {
     const state = toState(searchParams);
-    setSearchParams({ ...state,
-      isEncrypt: state.isEncrypt ? "1" : ""
+    setSearchParams({
+      ...state,
+      isEncrypt: state.isEncrypt ? "1" : "",
     } as URLSearchParamsInit); // Remove submit flag from params
   };
   return <SendEditButton onEdit={onEdit} />;
@@ -125,7 +126,11 @@ export const ConfirmView: FC<ConfirmProps> = ({
         <Fees />
 
         {state.data && (
-          <CodeBlock label="Comment">{String(state.data)}</CodeBlock>
+          <CodeBlock
+            label={state.isEncrypt ? "E2E Encrypted Message" : "Public Message"}
+          >
+            {String(state.data)}
+          </CodeBlock>
         )}
 
         {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
