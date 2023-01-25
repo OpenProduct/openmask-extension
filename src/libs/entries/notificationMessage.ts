@@ -107,7 +107,7 @@ export interface TonConnectTransactionPayload {
 
 export interface TonConnectTransactionPayloadMessage {
   address: string;
-  amount: string;
+  amount: string | number;
   payload?: string;
   stateInit?: string;
 }
@@ -115,12 +115,12 @@ export interface TonConnectTransactionPayloadMessage {
 export type EncryptMessageInputParams = {
   message: string;
   receiverPublicKey?: string;
-}
+};
 
 export type DecryptMessageInputParams = {
   message: string;
   senderPublicKey?: string;
-}
+};
 
 // interface TonConnectTransactionPayload {
 //   valid_until: 1658253458;
