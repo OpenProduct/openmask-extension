@@ -36,6 +36,8 @@ export enum QueryType {
   estimation = "estimation",
 
   method = "method",
+  encryptedPayload = "encrypted_payload",
+  publicKey = "public_key"
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {

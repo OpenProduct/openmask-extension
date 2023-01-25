@@ -54,6 +54,8 @@ export interface TonWebTransactionMessageRaw {
   "@type": "msg.dataRaw";
   body: string;
   init_state: string;
+
+  openmask_decrypted_payload?: string;
 }
 
 export interface TonWebTransactionMessageText {

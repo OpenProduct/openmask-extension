@@ -11,14 +11,13 @@ import {
 import { TonProviderContext, WalletStateContext } from "../../../context";
 import { findContract } from "../../../utils";
 import { getWalletKeyPair } from "../../api";
-
-const newNonce = () => randomBytes(nacl.box.nonceLength);
+import {QueryType} from "../../../../libs/store/browserStore";
 
 export const useGetAddress = (publicKey: string | undefined) => {
   const ton = useContext(TonProviderContext);
   const wallet = useContext(WalletStateContext);
 
-  return useQuery<string>(["GetAddressFromPublicKey"], async () => {
+  return useQuery<string>([publicKey, QueryType.publicKey], async () => {
     if (!publicKey) {
       return wallet.address;
     }
@@ -38,9 +37,9 @@ export const useEncryptMutation = () => {
       }
 
       const keyPair = await getWalletKeyPair(wallet);
-      const nonce = newNonce();
+      const nonce = randomBytes(nacl.box.nonceLength);
 
-      const messageAsButtes = base64ToBytes(options.message);
+      const messageAsBytes = base64ToBytes(options.message);
       const receiverPublicKey = options.receiverPublicKey
         ? base64ToBytes(options.receiverPublicKey)
         : keyPair.publicKey;
@@ -49,7 +48,7 @@ export const useEncryptMutation = () => {
         bytesToHex(receiverPublicKey)
       );
 
-      const encrypted = nacl.box.after(messageAsButtes, nonce, sharedKey);
+      const encrypted = nacl.box.after(messageAsBytes, nonce, sharedKey);
 
       if (!encrypted) {
         throw new Error("Encryption error");

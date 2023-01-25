@@ -10,7 +10,7 @@ import {
   Center,
   Gap,
   H1,
-  Text
+  Text,
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { FingerprintIcon } from "../../../components/Icons";
