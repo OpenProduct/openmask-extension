@@ -1,5 +1,3 @@
-import { Replace } from "./common";
-
 export interface TonWebTransaction {
   "@type": "raw.transaction";
   data: string;
@@ -12,8 +10,6 @@ export interface TonWebTransaction {
   in_msg: TonWebTransactionInMessage;
 }
 
-export type TonWebTransactionWithDecryptedPayload = Replace<Replace<TonWebTransaction, "in_msg", TonWebTransactionInMessageWithDecryptedPayload>, "out_msgs", TonWebTransactionOutMessageWithDecryptedPayload[]>
-
 export interface TonWebTransactionId {
   "@type": "internal.transactionId";
   lt: string;
@@ -23,10 +19,6 @@ export interface TonWebTransactionId {
 export type TonWebTransactionMessage =
   | TonWebTransactionInMessage
   | TonWebTransactionOutMessage;
-
-export type TonWebTransactionMessageWithDecryptedPayload =
-  | TonWebTransactionInMessageWithDecryptedPayload
-  | TonWebTransactionOutMessageWithDecryptedPayload;
 
 export interface TonWebTransactionInMessage {
   "@type": "raw.message";
@@ -41,8 +33,6 @@ export interface TonWebTransactionInMessage {
   msg_data: TonWebTransactionMessageData;
 }
 
-export type TonWebTransactionInMessageWithDecryptedPayload = Replace<TonWebTransactionInMessage, "msg_data", TonWebTransactionMessageDataWithDecryptedPayload>
-
 export interface TonWebTransactionOutMessage {
   "@type": "raw.message";
   body_hash: string;
@@ -56,25 +46,16 @@ export interface TonWebTransactionOutMessage {
   value: string;
 }
 
-export type TonWebTransactionOutMessageWithDecryptedPayload = Replace<TonWebTransactionOutMessage, "msg_data", TonWebTransactionMessageDataWithDecryptedPayload>
-
 export type TonWebTransactionMessageData =
   | TonWebTransactionMessageRaw
   | TonWebTransactionMessageText;
-
-export type TonWebTransactionMessageDataWithDecryptedPayload =
-  | TonWebTransactionDecryptedMessageRaw
-  | TonWebTransactionMessageText;
-
 
 export interface TonWebTransactionMessageRaw {
   "@type": "msg.dataRaw";
   body: string;
   init_state: string;
-}
 
-export interface TonWebTransactionDecryptedMessageRaw extends TonWebTransactionMessageRaw {
-  decrypted_payload? :string;
+  openmask_decrypted_payload?: string;
 }
 
 export interface TonWebTransactionMessageText {

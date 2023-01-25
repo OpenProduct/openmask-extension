@@ -1,9 +1,9 @@
 import { base64ToBytes } from "@openproduct/web-sdk";
-import React, { FC } from "react";
+import React, { FC, useMemo } from "react";
 import styled from "styled-components";
 import {
   TonWebTransaction,
-  TonWebTransactionMessageWithDecryptedPayload, TonWebTransactionWithDecryptedPayload,
+  TonWebTransactionMessage,
 } from "../../libs/entries/transaction";
 import ExtensionPlatform from "../../libs/service/extension";
 import { useNetworkConfig } from "../screen/home/api";
@@ -55,6 +55,13 @@ export const ActivityMessage = styled.div`
   border-bottom: 2px solid ${(props) => props.theme.gray};
 `;
 
+const CommentLabel = styled.div`
+  margin-bottom: 5px;
+  color: ${(props) => props.theme.darkGray};
+  font-weight: bold;
+  font-size: 0.75rem;
+`;
+
 const Comment = styled.div`
   margin-top: ${(props) => props.theme.padding};
   padding: 5px 10px;
@@ -63,16 +70,40 @@ const Comment = styled.div`
   word-break: break-all;
 `;
 
-const getComment = (msg: TonWebTransactionMessageWithDecryptedPayload) => {
-  if (!msg.msg_data) return "";
-  let base64 = "";
-  if (msg.msg_data["@type"] === "msg.dataRaw" && msg.msg_data.decrypted_payload) {
-    base64 = msg.msg_data.decrypted_payload;
+const decodeText = (value: string): string => {
+  return new TextDecoder().decode(base64ToBytes(value));
+};
+
+const CommentBlock: FC<{ msg: TonWebTransactionMessage }> = ({ msg }) => {
+  const [hasComment, encrypted, value] = useMemo(() => {
+    if (
+      msg.msg_data["@type"] === "msg.dataRaw" &&
+      msg.msg_data.openmask_decrypted_payload
+    ) {
+      return [
+        true,
+        true,
+        decodeText(msg.msg_data.openmask_decrypted_payload),
+      ] as const;
+    }
+    if (msg.msg_data["@type"] === "msg.dataText") {
+      return [true, false, decodeText(msg.msg_data.text)] as const;
+    }
+    return [false, false, ""] as const;
+  }, [msg]);
+
+  if (!hasComment) return <></>;
+
+  if (encrypted) {
+    return (
+      <Comment>
+        <CommentLabel>E2E encrypted message</CommentLabel>
+        {value}
+      </Comment>
+    );
+  } else {
+    return <Comment>{value}</Comment>;
   }
-  if(msg.msg_data["@type"] === "msg.dataText") {
-    base64 = msg.msg_data.text;
-  }
-  return new TextDecoder().decode(base64ToBytes(base64));
 };
 
 const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
@@ -92,7 +123,7 @@ const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
               <span>{toShortAddress(out.destination)}</span>
               <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
-            {getComment(out) && <Comment>{getComment(out)}</Comment>}
+            <CommentBlock msg={out} />
           </Text>
         </Block>
       ))}
@@ -110,9 +141,7 @@ const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
               <span>{toShortAddress(item.in_msg.source)}</span>
               <span>{new Date(item.utime * 1000).toLocaleString()}</span>
             </Line>
-            {getComment(item.in_msg) && (
-              <Comment>{getComment(item.in_msg)}</Comment>
-            )}
+            <CommentBlock msg={item.in_msg} />
           </Text>
         </Block>
       )}
@@ -123,7 +152,7 @@ const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
 export interface ActivitiesProps {
   isLoading: boolean;
   address?: string;
-  data?: TonWebTransactionWithDecryptedPayload[];
+  data?: TonWebTransaction[];
 }
 
 export const ActivitiesList: FC<ActivitiesProps> = ({
