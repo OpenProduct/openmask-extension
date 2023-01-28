@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2023-01-28
+
+### Add
+
+- Add link to tegro.finance
+
 ## [0.16.0] - 2023-01-25
 
 ### Add

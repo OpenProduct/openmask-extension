@@ -57,6 +57,25 @@ const SwapIndex = () => {
           Continue to DeDust.io <LinkIcon />
         </ButtonNegative>
       </Source>
+      <Source>
+        <Row>
+          <img
+            src="https://tegro.finance/assets/images/logotype.svg"
+            width="30"
+          />
+          <SubTitle>tegro.finance</SubTitle>
+        </Row>
+        <Text>DEX on The Open Network from tegro.money</Text>
+        <ButtonNegative
+          onClick={() =>
+            ExtensionPlatform.openTab({
+              url: `https://tegro.finance/swap?utm_source=openmask.app`,
+            })
+          }
+        >
+          Continue to tegro.finance <LinkIcon />
+        </ButtonNegative>
+      </Source>
     </div>
   );
 };
