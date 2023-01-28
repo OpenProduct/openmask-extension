@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2023-01-28
+
+### Fixed
+
+- Display errors for invalid notification data
+
 ## [0.16.1] - 2023-01-28
 
 ### Add
