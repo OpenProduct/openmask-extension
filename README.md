@@ -38,3 +38,11 @@ Compressed builds can be found in `/build` once they're built.
 ## Other Docs
 
 - [How to add custom build to Chrome](https://github.com/MetaMask/metamask-extension/blob/develop/docs/add-to-chrome.md)
+
+
+## Donations and rewards
+
+OpenMask TON wallet for donations and rewards:
+
+EQCV4FC_GjwyRDx4RAfI9-f1z3Tfi6JBxEOHol8SUpI2xTxT
+
