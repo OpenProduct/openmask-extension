@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.3] - 2023-02-09
+
+### Add
+
+- Add Wallet info to TonConnect Provider
+
 ## [0.16.2] - 2023-01-28
 
 ### Fixed
@@ -261,7 +267,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.2...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.3...HEAD
+[0.16.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.15.2...v0.16.0
