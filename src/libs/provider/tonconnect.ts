@@ -122,8 +122,16 @@ interface WalletEvent {
   payload?: unknown; // "<event-payload>"; // specific payload for each event
 }
 
+export interface WalletInfo {
+  name: string;
+  image: string;
+  tondns?: string;
+  about_url: string;
+}
+
 export interface TonConnectBridge {
   deviceInfo: DeviceInfo; // see Requests/Responses spec
+  walletInfo?: WalletInfo;
   protocolVersion: number; // max supported Ton Connect version (e.g. 2)
   isWalletBrowser: boolean; // if the page is opened into wallet's browser
   connect(
@@ -151,6 +159,12 @@ export class TonConnect implements TonConnectBridge {
   callbacks: TonConnectCallback[] = [];
 
   deviceInfo: DeviceInfo = getDeviceInfo();
+  walletInfo: WalletInfo = {
+    name: "OpenMask",
+    image:
+      "https://raw.githubusercontent.com/OpenProduct/openmask-extension/main/public/openmask-logo-288.png",
+    about_url: "https://www.openmask.app/",
+  };
   protocolVersion = 2;
   isWalletBrowser = false;
 
