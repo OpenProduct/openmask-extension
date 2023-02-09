@@ -274,7 +274,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wallets settings to manage version and bounceable address type
 
 [unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.0...HEAD
-[0.16.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.3...v0.17.0
+[0.17.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.3...v0.17.0
 [0.16.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.0...v0.16.1
