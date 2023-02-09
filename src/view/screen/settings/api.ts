@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useContext } from "react";
 import { AuthConfiguration } from "../../../libs/entries/auth";
+import {
+  createCustomNetworkConfig,
+  NetworkConfig,
+  replaceNetworkConfig,
+  selectNetworkConfig,
+} from "../../../libs/entries/network";
 import {
   DisabledProxyConfiguration,
   ProxyConfiguration,
@@ -9,8 +16,10 @@ import {
   getAuthConfiguration,
   getProxyConfiguration,
   QueryType,
+  setNetworkConfig,
   setProxyConfiguration,
 } from "../../../libs/store/browserStore";
+import { NetworksContext } from "../../context";
 import { sendBackground } from "../../event";
 
 export const useAuthConfiguration = () => {
@@ -43,5 +52,25 @@ export const useUpdateProxyMutation = () => {
     sendBackground.message("proxyChanged", configuration);
 
     await client.invalidateQueries([QueryType.proxy]);
+  });
+};
+
+export const useNetworkMutation = (networkName: string) => {
+  const client = useQueryClient();
+  const networks = useContext(NetworksContext);
+
+  return useMutation<void, Error, Partial<NetworkConfig>>(async (config) => {
+    const current = selectNetworkConfig(networkName, networks);
+    if ("isCustom" in config) {
+      const nextConfig = config.isCustom
+        ? createCustomNetworkConfig(current)
+        : selectNetworkConfig(networkName);
+      await setNetworkConfig(replaceNetworkConfig(nextConfig, networks));
+    } else {
+      const nextConfig = { ...current, ...config };
+      await setNetworkConfig(replaceNetworkConfig(nextConfig, networks));
+    }
+
+    await client.invalidateQueries([QueryType.networkConfig]);
   });
 };

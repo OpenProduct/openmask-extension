@@ -1,7 +1,7 @@
 import { FC, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { NetworkConfig, networkConfigs } from "../../../libs/entries/network";
+import { NetworkConfig } from "../../../libs/entries/network";
 import { WalletState } from "../../../libs/entries/wallet";
 import ExtensionPlatform from "../../../libs/service/extension";
 import { QueryType } from "../../../libs/store/browserStore";
@@ -9,7 +9,11 @@ import { useMutateStore } from "../../api";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
 import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
-import { AccountStateContext, NetworkContext } from "../../context";
+import {
+  AccountStateContext,
+  NetworkContext,
+  NetworksContext,
+} from "../../context";
 import { sendBackground } from "../../event";
 import { AppRoute } from "../../routes";
 import { formatTonValue } from "../../utils";
@@ -74,6 +78,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const navigate = useNavigate();
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);
+  const networks = useContext(NetworksContext);
 
   const { mutateAsync: mutateNetwork } = useMutateStore<string>(
     QueryType.network
@@ -122,7 +127,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
     <Head>
       <img src="tonmask-logo.svg" width="38" height="38" alt="OpenMask Logo" />
       <DropDownList
-        options={networkConfigs}
+        options={networks}
         renderOption={(c) => c.name}
         onSelect={onChain}
       >

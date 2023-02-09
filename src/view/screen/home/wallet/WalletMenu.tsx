@@ -10,7 +10,7 @@ import {
 } from "../../../components/DropDown";
 import { LinkIcon, MoreIcon } from "../../../components/Icons";
 import { AppRoute } from "../../../routes";
-import { useNetworkConfig } from "../api";
+import { useSelectedNetworkConfig } from "../api";
 
 const Menu = styled.div`
   position: absolute;
@@ -19,7 +19,7 @@ const Menu = styled.div`
 
 export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
   const navigate = useNavigate();
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
   const location = useLocation();
 
   return (
@@ -32,11 +32,11 @@ export const WalletMenu: FC<{ address: string }> = React.memo(({ address }) => {
                 onClick={() => {
                   onClose();
                   ExtensionPlatform.openTab({
-                    url: `${config.scanUrl}/address/${address}`,
+                    url: `${config.scanUrl}${address}`,
                   });
                 }}
               >
-                Open Wallet tonscan.org <LinkIcon />
+                Open Wallet in explorer <LinkIcon />
               </ListItem>
               <ListItem
                 onClick={() => {

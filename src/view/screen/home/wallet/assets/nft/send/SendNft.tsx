@@ -22,7 +22,7 @@ import { SendLoadingView } from "../../../../../../components/send/SendLoadingVi
 import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
 import { AppRoute } from "../../../../../../routes";
-import { useBalance, useNetworkConfig } from "../../../../api";
+import { useBalance, useSelectedNetworkConfig } from "../../../../api";
 import { useHideNftMutation } from "../api";
 import { NftItemStateContext, NftStateContext } from "../context";
 import { SendNftState, stateToSearch, toSendNftState } from "./api";
@@ -40,7 +40,7 @@ const SuccessView: FC<SuccessProps> = ({
   walletAddress,
 }) => {
   const navigate = useNavigate();
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   const {
     mutateAsync: hideNftMutationAsync,
@@ -68,11 +68,11 @@ const SuccessView: FC<SuccessProps> = ({
         <ButtonNegative
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `${config.scanUrl}/address/${walletAddress}`,
+              url: `${config.scanUrl}${walletAddress}`,
             });
           }}
         >
-          View on tonscan.org <LinkIcon />
+          View in explorer <LinkIcon />
         </ButtonNegative>
         <ButtonPositive onClick={onHide}>
           Hide NFT <DeleteIcon />

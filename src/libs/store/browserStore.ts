@@ -6,7 +6,7 @@ import {
   WebAuthn,
 } from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
-import { networkConfigs } from "../entries/network";
+import { defaultNetworkConfigs, NetworkConfig } from "../entries/network";
 import {
   DisabledProxyConfiguration,
   ProxyConfiguration,
@@ -22,6 +22,7 @@ export enum QueryType {
 
   script = "script",
   network = "network",
+  networkConfig = "networkConfig",
   connection = "connection",
   tabs = "tabs",
 
@@ -37,7 +38,7 @@ export enum QueryType {
 
   method = "method",
   encryptedPayload = "encrypted_payload",
-  publicKey = "public_key"
+  publicKey = "public_key",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
@@ -64,7 +65,15 @@ export const getScript = () => {
 };
 
 export const getNetwork = () => {
-  return getStoreValue(QueryType.network, networkConfigs[0].name);
+  return getStoreValue(QueryType.network, defaultNetworkConfigs[0].name);
+};
+
+export const getNetworkConfig = () => {
+  return getStoreValue(QueryType.networkConfig, defaultNetworkConfigs);
+};
+
+export const setNetworkConfig = (value: NetworkConfig[]) => {
+  return setStoreValue(QueryType.networkConfig, value);
 };
 
 export const getProxyConfiguration = () => {

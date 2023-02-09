@@ -1,13 +1,14 @@
 import { Address } from "@openproduct/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
-import { getNetworkConfig } from "../../../libs/entries/network";
+import { selectNetworkConfig } from "../../../libs/entries/network";
 import { DexStocks } from "../../../libs/entries/stock";
 import { getCachedDeDustStock } from "../../../libs/service/dexService";
 import { QueryType } from "../../../libs/store/browserStore";
 import {
   AccountStateContext,
   NetworkContext,
+  NetworksContext,
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
@@ -77,9 +78,10 @@ export const useDexStock = (enabled: boolean) => {
   );
 };
 
-export const useNetworkConfig = () => {
+export const useSelectedNetworkConfig = () => {
   const network = useContext(NetworkContext);
+  const networks = useContext(NetworksContext);
   return useMemo(() => {
-    return getNetworkConfig(network);
-  }, [network]);
+    return selectNetworkConfig(network, networks);
+  }, [network, networks]);
 };

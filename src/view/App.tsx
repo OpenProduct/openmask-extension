@@ -4,17 +4,19 @@ import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { AccountState } from "../libs/entries/account";
-import { getNetworkConfig } from "../libs/entries/network";
+import { selectNetworkConfig } from "../libs/entries/network";
 import {
   useAccountState,
   useInitialRedirect,
   useLock,
   useNetwork,
+  useNetworkConfig,
   useScript,
 } from "./api";
 import {
   AccountStateContext,
   NetworkContext,
+  NetworksContext,
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
@@ -99,9 +101,10 @@ const App = () => {
   const lock = useLock();
   const { data: script } = useScript();
   const { data: network } = useNetwork();
+  const { data: networks } = useNetworkConfig();
   const { isLoading, data } = useAccountState();
 
-  const config = getNetworkConfig(network);
+  const config = selectNetworkConfig(network, networks);
   const justOpen = useInitialRendering();
 
   const notification = useMemo(() => {
@@ -112,25 +115,27 @@ const App = () => {
     return new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey });
   }, [config]);
 
-  if (isLoading || !data || !network || script === undefined) {
+  if (isLoading || !data || !network || !networks || script === undefined) {
     return <Loading />;
   }
 
   return (
     <AccountStateContext.Provider value={data}>
       <NetworkContext.Provider value={network}>
-        <TonProviderContext.Provider value={tonProvider}>
-          <Header lock={lock || notification} />
-          <ContentRouter
-            account={data}
-            ton={tonProvider}
-            lock={lock}
-            script={script}
-            notification={notification}
-            justOpen={justOpen}
-          />
-          <WebAuthnNotification />
-        </TonProviderContext.Provider>
+        <NetworksContext.Provider value={networks}>
+          <TonProviderContext.Provider value={tonProvider}>
+            <Header lock={lock || notification} />
+            <ContentRouter
+              account={data}
+              ton={tonProvider}
+              lock={lock}
+              script={script}
+              notification={notification}
+              justOpen={justOpen}
+            />
+            <WebAuthnNotification />
+          </TonProviderContext.Provider>
+        </NetworksContext.Provider>
       </NetworkContext.Provider>
     </AccountStateContext.Provider>
   );

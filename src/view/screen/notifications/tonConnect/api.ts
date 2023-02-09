@@ -13,10 +13,10 @@ import BN from "bn.js";
 import { useContext } from "react";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
+import { selectNetworkConfig } from "../../../../libs/entries/network";
 import {
   TonAddressItemReply,
   TonConnectItemReply,
-  TonConnectNETWORK,
   TonConnectRequest,
   TonConnectTransactionPayloadMessage,
   TonProofItem,
@@ -33,6 +33,7 @@ import {
 import {
   AccountStateContext,
   NetworkContext,
+  NetworksContext,
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
@@ -111,12 +112,13 @@ const tonConnectSignature = (
 
 export const useAddConnectionMutation = () => {
   const network = useContext(NetworkContext);
-
+  const networks = useContext(NetworksContext);
   const account = useContext(AccountStateContext);
   const ton = useContext(TonProviderContext);
 
   return useMutation<void, Error, ConnectParams>(
     async ({ origin, wallet, id, logo, data }) => {
+      const currentNetwork = selectNetworkConfig(network, networks);
       const walletState = account.wallets.find(
         (item) => item.address === wallet
       );
@@ -138,10 +140,7 @@ export const useAddConnectionMutation = () => {
           const result: TonAddressItemReply = {
             name: "ton_addr",
             address: address.toString(false),
-            network:
-              network == "mainnet"
-                ? TonConnectNETWORK.MAINNET
-                : TonConnectNETWORK.TESTNET,
+            network: currentNetwork.id,
             walletStateInit: stateInit.toBase64(),
           };
           payload.push(result);

@@ -18,7 +18,7 @@ import {
   WalletStateContext,
 } from "../../../../../../context";
 import { checkBalanceOrDie } from "../../../../../api";
-import { useNetworkConfig } from "../../../../api";
+import { useSelectedNetworkConfig } from "../../../../api";
 import { getTransactionsParams } from "../../../send/api";
 
 export interface SendJettonState {
@@ -85,7 +85,7 @@ export const useSendJettonMethod = (
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],

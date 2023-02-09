@@ -1,6 +1,6 @@
 import { TonHttpProvider } from "@openproduct/web-sdk";
 import BN from "bn.js";
-import { getNetworkConfig } from "../entries/network";
+import { selectNetworkConfig } from "../entries/network";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
@@ -8,6 +8,7 @@ import {
   getAccountState,
   getConnections,
   getNetwork,
+  getNetworkConfig,
 } from "../store/browserStore";
 
 export const getActiveWallet = async () => {
@@ -28,7 +29,8 @@ export const confirmWalletSeqNo = async (
   activeWallet: string
 ) => {
   const network = await getNetwork();
-  const config = getNetworkConfig(network);
+  const networks = await getNetworkConfig();
+  const config = selectNetworkConfig(network, networks);
 
   const provider = new TonHttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,

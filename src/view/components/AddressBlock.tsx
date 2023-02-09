@@ -1,7 +1,7 @@
 import { FC } from "react";
 import ExtensionPlatform from "../../libs/service/extension";
 import { useCopyToClipboard } from "../hooks/useCopyToClipbpard";
-import { useNetworkConfig } from "../screen/home/api";
+import { useSelectedNetworkConfig } from "../screen/home/api";
 import { toShortAddress } from "../utils";
 import { ButtonNegative, InlineLink, Text } from "./Components";
 import { CheckIcon, CopyIcon, LinkIcon } from "./Icons";
@@ -22,7 +22,7 @@ const AddressLine: FC<{ address: string }> = ({ address }) => {
 };
 
 export const AddressBlock: FC<AddressBlockProps> = ({ label, address }) => {
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   return (
     <>
@@ -32,11 +32,11 @@ export const AddressBlock: FC<AddressBlockProps> = ({ label, address }) => {
           <InlineLink
             onClick={() =>
               ExtensionPlatform.openTab({
-                url: `${config.scanUrl}/address/${address}`,
+                url: `${config.scanUrl}${address}`,
               })
             }
           >
-            Open tonscan.org <LinkIcon />
+            Open explorer <LinkIcon />
           </InlineLink>
         )}
       </Text>

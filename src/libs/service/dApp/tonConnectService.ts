@@ -1,9 +1,8 @@
 import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
-import { getNetworkConfig } from "../../entries/network";
+import { selectNetworkConfig } from "../../entries/network";
 import {
   TonAddressItemReply,
   TonConnectItemReply,
-  TonConnectNETWORK,
   TonConnectRequest,
   TonConnectTransactionPayload,
 } from "../../entries/notificationMessage";
@@ -13,6 +12,7 @@ import {
   getAccountState,
   getConnections,
   getNetwork,
+  getNetworkConfig,
   setConnections,
 } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
@@ -40,7 +40,8 @@ export const tonReConnectRequest = async (
     throw new RuntimeError(ErrorCode.unauthorize, "Missing wallet state");
   }
 
-  const config = getNetworkConfig(network);
+  const networks = await getNetworkConfig();
+  const config = selectNetworkConfig(network, networks);
 
   const provider = new TonHttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,
@@ -56,10 +57,7 @@ export const tonReConnectRequest = async (
   const result: TonAddressItemReply = {
     name: "ton_addr",
     address: address.toString(false),
-    network:
-      network == "mainnet"
-        ? TonConnectNETWORK.MAINNET
-        : TonConnectNETWORK.TESTNET,
+    network: config.id,
     walletStateInit: stateInit.toBase64(),
   };
 

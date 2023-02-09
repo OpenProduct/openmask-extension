@@ -1,6 +1,7 @@
 import { TonHttpProvider, WalletContract } from "@openproduct/web-sdk";
 import React from "react";
 import { AccountState } from "../libs/entries/account";
+import { NetworkConfig } from "../libs/entries/network";
 import { WalletState } from "../libs/entries/wallet";
 
 export const AccountStateContext = React.createContext<AccountState>(
@@ -20,3 +21,4 @@ export const TonProviderContext = React.createContext<TonHttpProvider>(
 );
 
 export const NetworkContext = React.createContext<string>(undefined!);
+export const NetworksContext = React.createContext<NetworkConfig[]>(undefined!);

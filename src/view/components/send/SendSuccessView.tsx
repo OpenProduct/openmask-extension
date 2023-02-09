@@ -2,7 +2,7 @@ import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import ExtensionPlatform from "../../../libs/service/extension";
 import { AppRoute } from "../../routes";
-import { useNetworkConfig } from "../../screen/home/api";
+import { useSelectedNetworkConfig } from "../../screen/home/api";
 import {
   Body,
   ButtonColumn,
@@ -26,7 +26,7 @@ export const SendSuccessView: FC<Props> = ({
   homeRoute = AppRoute.home,
 }) => {
   const navigate = useNavigate();
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   return (
     <Body>
@@ -40,11 +40,11 @@ export const SendSuccessView: FC<Props> = ({
         <ButtonNegative
           onClick={() => {
             ExtensionPlatform.openTab({
-              url: `${config.scanUrl}/address/${address}`,
+              url: `${config.scanUrl}${address}`,
             });
           }}
         >
-          View on tonscan.org <LinkIcon />
+          View in explorer <LinkIcon />
         </ButtonNegative>
         <ButtonPositive
           onClick={() => {

@@ -6,7 +6,7 @@ import {
   TonWebTransactionMessage,
 } from "../../libs/entries/transaction";
 import ExtensionPlatform from "../../libs/service/extension";
-import { useNetworkConfig } from "../screen/home/api";
+import { useSelectedNetworkConfig } from "../screen/home/api";
 import { formatTonValue, toShortAddress } from "../utils";
 import { ButtonLink } from "./Components";
 import { LinkIcon, ReceiveIcon, SendIcon } from "./Icons";
@@ -160,7 +160,7 @@ export const ActivitiesList: FC<ActivitiesProps> = ({
   data,
   address,
 }) => {
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   return (
     <>
@@ -173,11 +173,11 @@ export const ActivitiesList: FC<ActivitiesProps> = ({
           <ButtonLink
             onClick={() =>
               ExtensionPlatform.openTab({
-                url: `${config.scanUrl}/address/${address}`,
+                url: `${config.scanUrl}${address}`,
               })
             }
           >
-            View more on tonscan.org <LinkIcon />
+            View more in explorer <LinkIcon />
           </ButtonLink>
         </Row>
       )}

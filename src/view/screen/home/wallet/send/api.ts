@@ -1,8 +1,13 @@
+import { getSharedSecret } from "@noble/ed25519";
 import {
-  Address, base64ToBytes, bytesToBase64, bytesToHex,
-  Cell, concatBytes,
+  Address,
+  base64ToBytes,
+  bytesToHex,
+  Cell,
+  concatBytes,
   EstimateFeeValues,
-  Method, stringToBase64,
+  Method,
+  stringToBase64,
   toNano,
   TonDns,
   TonHttpProvider,
@@ -10,6 +15,7 @@ import {
 } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
+import nacl, { randomBytes } from "tweetnacl";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { SendMode } from "../../../../../libs/entries/tonSendMode";
 import { WalletInfo, WalletState } from "../../../../../libs/entries/wallet";
@@ -19,10 +25,12 @@ import {
   WalletContractContext,
   WalletStateContext,
 } from "../../../../context";
-import {checkBalanceOrDie, getPublicKey, getWalletKeyPair} from "../../../api";
-import { useNetworkConfig } from "../../api";
-import { getSharedSecret } from "@noble/ed25519";
-import nacl, { randomBytes } from "tweetnacl";
+import {
+  checkBalanceOrDie,
+  getPublicKey,
+  getWalletKeyPair,
+} from "../../../api";
+import { useSelectedNetworkConfig } from "../../api";
 
 export interface TransactionState {
   address: string;
@@ -45,10 +53,10 @@ export const toState = (searchParams: URLSearchParams): TransactionState => {
 
 export const stateToSearch = (state: TransactionState) => {
   return Object.entries(state).reduce((acc, [key, value]) => {
-    if(typeof value === "boolean" && value) {
+    if (typeof value === "boolean" && value) {
       acc[key] = "1";
     }
-    if(typeof value !== "boolean") {
+    if (typeof value !== "boolean") {
       acc[key] = encodeURIComponent(value);
     }
     return acc;
@@ -78,7 +86,7 @@ export const getToAddress = async (
   }
   toAddress = toAddress.toLowerCase();
 
-  if (toAddress.endsWith(".ton")) {
+  if (toAddress.endsWith(".ton") || toAddress.endsWith(".t.me")) {
     const dns = new TonDns(ton, { rootDnsAddress: config.rootDnsAddress });
     const address = await dns.getWalletAddress(toAddress);
     if (!address) {
@@ -102,7 +110,7 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   return useQuery<WrapperMethod, Error>(
     [QueryType.method, wallet.address, state],
@@ -122,17 +130,18 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
 
       let payload = state.data || "";
 
-      if(state.isEncrypt && state.data && typeof state.data === "string") {
+      if (state.isEncrypt && state.data && typeof state.data === "string") {
         const walletInfo: WalletInfo = await ton.getWalletInfo(toAddress);
 
-        if(!walletInfo.wallet) {
-          throw new Error(
-            "The recipient is not a wallet"
-          );
+        if (!walletInfo.wallet) {
+          throw new Error("The recipient is not a wallet");
         }
 
         const receiverPublicKey = await getPublicKey(ton, toAddress);
-        const sharedKey = await getSharedSecret(bytesToHex(keyPair.secretKey.slice(0, 32)), receiverPublicKey);
+        const sharedKey = await getSharedSecret(
+          bytesToHex(keyPair.secretKey.slice(0, 32)),
+          receiverPublicKey
+        );
         const nonce = randomBytes(nacl.box.nonceLength);
         const encrypted = nacl.box.after(
           base64ToBytes(stringToBase64(state.data)),
@@ -141,9 +150,7 @@ export const useSendMethod = (state?: TransactionState, balance?: string) => {
         );
 
         if (!encrypted) {
-          throw new Error(
-            "Encryption error"
-          );
+          throw new Error("Encryption error");
         }
 
         payload = concatBytes(nonce, encrypted);

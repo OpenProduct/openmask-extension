@@ -15,7 +15,7 @@ import {
   WalletStateContext,
 } from "../../../../../../context";
 import { checkBalanceOrDie } from "../../../../../api";
-import { useNetworkConfig } from "../../../../api";
+import { useSelectedNetworkConfig } from "../../../../api";
 import { getTransactionsParams, WrapperMethod } from "../../../send/api";
 import { NftItemStateContext } from "../context";
 
@@ -67,7 +67,7 @@ export const useTransferNftMethod = (
   const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
   const ton = useContext(TonProviderContext);
-  const config = useNetworkConfig();
+  const config = useSelectedNetworkConfig();
 
   const nft = useContext(NftItemStateContext);
 

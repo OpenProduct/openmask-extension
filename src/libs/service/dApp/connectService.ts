@@ -6,7 +6,7 @@
  */
 
 import { TonHttpProvider } from "@openproduct/web-sdk";
-import { getNetworkConfig } from "../../entries/network";
+import { selectNetworkConfig } from "../../entries/network";
 import {
   ConnectDAppOutputParams,
   ConnectDAppParams,
@@ -19,6 +19,7 @@ import {
   getAccountState,
   getConnections,
   getNetwork,
+  getNetworkConfig,
 } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
@@ -133,7 +134,8 @@ export const getBalance = async (
 ) => {
   await checkBaseDAppPermission(origin, wallet);
   const network = await getNetwork();
-  const config = getNetworkConfig(network);
+  const networks = await getNetworkConfig();
+  const config = selectNetworkConfig(network, networks);
 
   const provider = new TonHttpProvider(config.rpcUrl, {
     apiKey: config.apiKey,

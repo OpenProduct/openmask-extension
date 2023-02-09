@@ -1,5 +1,6 @@
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import packageJson from "../../../../package.json";
 import ExtensionPlatform from "../../../libs/service/extension";
 import { Body, H1, Text, TextLink } from "../../components/Components";
 import { HomeButton } from "../../components/HomeButton";
@@ -7,10 +8,10 @@ import { ArrowForwardIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
 import { ExperimentalSettings } from "./Experimental";
 import { GeneralSettings } from "./General";
+import { NetworkSettings } from "./Network";
 import { WebAuthnDisableMigration } from "./password/WebAuthnMigrationDisable";
 import { WebAuthnEnableMigration } from "./password/WebAuthnMigrationEnable";
 import { SettingsRoutes } from "./route";
-import packageJson from "../../../../package.json";
 
 const Item = styled.div`
   font-size: large;
@@ -30,6 +31,7 @@ interface SettingsLink {
 }
 const SETTINGS: SettingsLink[] = [
   { route: SettingsRoutes.general, name: "General" },
+  { route: SettingsRoutes.network, name: "Networks" },
   { route: SettingsRoutes.experimental, name: "Experimental" },
   { route: SettingsRoutes.about, name: "About" },
 ];
@@ -115,6 +117,7 @@ export const Settings = () => {
     <Routes>
       <Route path={SettingsRoutes.about} element={<AboutSettings />} />
       <Route path={SettingsRoutes.general} element={<GeneralSettings />} />
+      <Route path={SettingsRoutes.network} element={<NetworkSettings />} />
       <Route
         path={SettingsRoutes.enableWebAuthn}
         element={<WebAuthnEnableMigration />}

@@ -5,11 +5,15 @@
  * @since: 0.1.0
  */
 
-import { networkConfigs } from "../../entries/network";
 import { Permission } from "../../entries/permission";
 import { backgroundEventsEmitter } from "../../event";
 import { ErrorCode, EventError, RuntimeError } from "../../exception";
-import { getNetwork, QueryType, setStoreValue } from "../../store/browserStore";
+import {
+  getNetwork,
+  getNetworkConfig,
+  QueryType,
+  setStoreValue,
+} from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
 import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import { getDAppPermissions, waitApprove } from "./utils";
@@ -27,7 +31,8 @@ export const switchChain = async (
       `Wallet already use "${network}" network`
     );
   }
-  if (networkConfigs.find((item) => item.name === network) == null) {
+  const networks = await getNetworkConfig();
+  if (networks.find((item) => item.name === network) == null) {
     throw new RuntimeError(
       ErrorCode.unexpectedParams,
       `Wallet don't have configuration for "${network}" network`

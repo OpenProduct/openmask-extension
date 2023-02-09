@@ -2,13 +2,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import crypto from "crypto";
 import browser from "webextension-polyfill";
 import { AuthConfiguration, WebAuthn } from "../../../../libs/entries/auth";
-import { networkConfigs } from "../../../../libs/entries/network";
 import { Logger } from "../../../../libs/logger";
 import { encrypt } from "../../../../libs/service/cryptoService";
 import { delay, reEncryptWallets } from "../../../../libs/state/accountService";
 import {
   batchUpdateStore,
   getAccountState,
+  getNetworkConfig,
   QueryType,
 } from "../../../../libs/store/browserStore";
 import { getWebAuthnPassword } from "../../../api";
@@ -314,9 +314,10 @@ export const useChangePasswordMigration = () => {
       if (password.length <= 5) {
         throw new Error("Password too short");
       }
+      const networks = await getNetworkConfig();
 
       const accounts = await Promise.all(
-        networkConfigs.map(async (network) => {
+        networks.map(async (network) => {
           const account = await getAccountState(network.name);
           Logger.log(account);
           return [

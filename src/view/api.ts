@@ -10,6 +10,7 @@ import { delay } from "../libs/state/accountService";
 import {
   getAuthConfiguration,
   getNetwork,
+  getNetworkConfig,
   getNetworkStoreValue,
   getScript,
   QueryType,
@@ -22,6 +23,10 @@ import { JettonRoute } from "./screen/home/wallet/assets/jetton/route";
 import { NftItemRoute } from "./screen/home/wallet/assets/nft/router";
 import { AssetRoutes } from "./screen/home/wallet/assets/route";
 import { askBackgroundPassword } from "./screen/import/api";
+
+export const useNetworkConfig = () => {
+  return useQuery([QueryType.networkConfig], () => getNetworkConfig());
+};
 
 export const useNetwork = () => {
   return useQuery([QueryType.network], () => getNetwork());
