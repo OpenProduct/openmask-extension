@@ -9,8 +9,6 @@
 import browser from "webextension-polyfill";
 import { ProxyConfiguration } from "../entries/proxy";
 import { backgroundEventsEmitter } from "../event";
-import { Logger } from "../logger";
-import { getProxyConfiguration } from "../store/browserStore";
 
 export const subscriptionProxyNotifications = () => {
   backgroundEventsEmitter.on("proxyChanged", (configuration) => {
@@ -18,14 +16,14 @@ export const subscriptionProxyNotifications = () => {
   });
 };
 
-export const initBrowserProxy = async () => {
-  try {
-    const configuration = await getProxyConfiguration();
-    updateProxySetting(configuration);
-  } catch (e) {
-    Logger.error(e);
-  }
-};
+// export const initBrowserProxy = async () => {
+//   try {
+//     const configuration = await getProxyConfiguration();
+//     updateProxySetting(configuration);
+//   } catch (e) {
+//     Logger.error(e);
+//   }
+// };
 
 /**
  * Sample PROXY_PAC_SCRIPT example
