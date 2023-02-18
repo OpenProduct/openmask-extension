@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
 import { selectNetworkConfig } from "../libs/entries/network";
 import {
@@ -17,6 +18,7 @@ import {
   AccountStateContext,
   NetworkContext,
   NetworksContext,
+  TonClientContext,
   TonProviderContext,
   WalletContractContext,
   WalletStateContext,
@@ -111,8 +113,11 @@ const App = () => {
     return window.location.hash.includes(AppRoute.notifications);
   }, []);
 
-  const tonProvider = useMemo(() => {
-    return new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey });
+  const [tonProvider, tonClient] = useMemo(() => {
+    return [
+      new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey }),
+      new TonClient({ endpoint: config.rpcUrl, apiKey: config.apiKey }),
+    ] as const;
   }, [config]);
 
   if (isLoading || !data || !network || !networks || script === undefined) {
@@ -124,16 +129,18 @@ const App = () => {
       <NetworkContext.Provider value={network}>
         <NetworksContext.Provider value={networks}>
           <TonProviderContext.Provider value={tonProvider}>
-            <Header lock={lock || notification} />
-            <ContentRouter
-              account={data}
-              ton={tonProvider}
-              lock={lock}
-              script={script}
-              notification={notification}
-              justOpen={justOpen}
-            />
-            <WebAuthnNotification />
+            <TonClientContext.Provider value={tonClient}>
+              <Header lock={lock || notification} />
+              <ContentRouter
+                account={data}
+                ton={tonProvider}
+                lock={lock}
+                script={script}
+                notification={notification}
+                justOpen={justOpen}
+              />
+              <WebAuthnNotification />
+            </TonClientContext.Provider>
           </TonProviderContext.Provider>
         </NetworksContext.Provider>
       </NetworkContext.Provider>

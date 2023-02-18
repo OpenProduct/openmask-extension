@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.2] - 2023-02-18
+
+### Add
+
+- Send multiple transaction via Ton Connect
+
 ## [0.17.1] - 2023-02-14
 
 ### Fixed
@@ -279,7 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.1...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.2...HEAD
+[0.17.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.3...v0.17.0
 [0.16.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.16.2...v0.16.3

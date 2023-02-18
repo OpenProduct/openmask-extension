@@ -1,18 +1,15 @@
 import {
-  Address,
   ALL,
-  base64ToBytes,
   bytesToBase64,
-  Cell,
   hexToBytes,
   sha256_sync,
-  TransferParams,
 } from "@openproduct/web-sdk";
 import { useMutation } from "@tanstack/react-query";
-import BN from "bn.js";
 import { useContext } from "react";
+import { Address, Cell, fromNano, internal, toNano } from "ton-core";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
+import { getWalletContract } from "../../../../libs/core";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
 import {
   TonAddressItemReply,
@@ -24,7 +21,6 @@ import {
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
 import { SendMode } from "../../../../libs/entries/tonSendMode";
-import { TonWebTransaction } from "../../../../libs/entries/transaction";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -34,13 +30,12 @@ import {
   AccountStateContext,
   NetworkContext,
   NetworksContext,
+  TonClientContext,
   TonProviderContext,
-  WalletContractContext,
   WalletStateContext,
 } from "../../../context";
 import { sendBackground } from "../../../event";
 import { getWalletKeyPair } from "../../api";
-import { WrapperMethod } from "../../home/wallet/send/api";
 
 interface ConnectParams {
   origin: string;
@@ -64,15 +59,12 @@ const tonConnectSignature = (
   const domainLengthBuffer = Buffer.allocUnsafe(4);
   domainLengthBuffer.writeInt32LE(domainBuffer.byteLength);
 
-  const address = new Address(wallet);
+  const address = Address.parse(wallet);
 
   const addressWorkchainBuffer = Buffer.allocUnsafe(4);
-  addressWorkchainBuffer.writeInt32BE(address.wc);
+  addressWorkchainBuffer.writeInt32BE(address.workChain);
 
-  const addressBuffer = Buffer.concat([
-    addressWorkchainBuffer,
-    Buffer.from(address.hashPart),
-  ]);
+  const addressBuffer = Buffer.concat([addressWorkchainBuffer, address.hash]);
 
   const messageBuffer = Buffer.concat([
     Buffer.from("ton-proof-item-v2/", "utf8"),
@@ -172,46 +164,57 @@ export const useKeyPairMutation = () => {
   });
 };
 
+const toInit = (stateInit?: string) => {
+  if (!stateInit) {
+    return undefined;
+  }
+  const initSlice = Cell.fromBase64(stateInit).asSlice();
+  return {
+    code: initSlice.loadRef(),
+    data: initSlice.loadRef(),
+  };
+};
 export const useSendMutation = () => {
-  const contract = useContext(WalletContractContext);
   const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
+  const client = useContext(TonClientContext);
 
   return useMutation<
-    WrapperMethod,
+    void,
     Error,
-    { state: TonConnectTransactionPayloadMessage; keyPair: KeyPair }
+    { state: TonConnectTransactionPayloadMessage[]; keyPair: KeyPair }
   >(async ({ state, keyPair }) => {
-    const seqno = await ton.getSeqno(wallet.address);
+    const walletContract = getWalletContract(wallet);
+    const contract = client.open(walletContract);
 
-    const params: TransferParams = {
-      secretKey: keyPair.secretKey,
-      toAddress: new Address(state.address),
-      amount: new BN(state.amount, 10),
+    const seqno = await contract.getSeqno();
+
+    const transfer = walletContract.createTransfer({
+      secretKey: Buffer.from(keyPair.secretKey),
       seqno: seqno,
-      payload: state.payload
-        ? Cell.oneFromBoc(base64ToBytes(state.payload))
-        : new Cell(),
-      stateInit: state.stateInit
-        ? Cell.oneFromBoc(base64ToBytes(state.stateInit))
-        : undefined,
       sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-    };
+      messages: state.map((item) =>
+        internal({
+          to: item.address,
+          value: toNano(fromNano(item.amount)),
+          bounce: false,
+          init: toInit(item.stateInit),
+          body: item.payload ? Cell.fromBase64(item.payload) : undefined,
+        })
+      ),
+    });
 
-    const method = contract.transfer(params);
-
-    return { method, seqno };
+    await client.sendExternalMessage(walletContract, transfer);
   });
 };
 
 export const useLastBocMutation = () => {
-  const ton = useContext(TonProviderContext);
   const wallet = useContext(WalletStateContext);
+  const client = useContext(TonClientContext);
+
   return useMutation(async () => {
-    const [tx]: [TonWebTransaction] = await ton.getTransactions(
-      wallet.address,
-      1
-    );
-    return tx.data;
+    const [tx] = await client.getTransactions(Address.parse(wallet.address), {
+      limit: 1,
+    });
+    return tx.stateUpdate.newHash.toString();
   });
 };

@@ -26,7 +26,7 @@ import {
   SpinnerIcon,
   TimeIcon,
 } from "../../../components/Icons";
-import { askBackground, sendBackground } from "../../../event";
+import { sendBackground } from "../../../event";
 import { formatTonValue, toShortAddress } from "../../../utils";
 import { useKeyPairMutation, useLastBocMutation, useSendMutation } from "./api";
 
@@ -79,8 +79,6 @@ const TransactionItem: FC<{ message: PayloadMessage }> = ({ message }) => {
   );
 };
 
-const timeout = 60 * 1000; // 60 sec
-
 export const ConnectSendTransaction: FC<
   NotificationFields<"tonConnectSend", TonConnectTransactionPayload> & {
     onClose: () => void;
@@ -103,30 +101,18 @@ export const ConnectSendTransaction: FC<
   const onConfirm = async () => {
     setSending(true);
     try {
+      reset();
       const now = Date.now() / 1000;
       if (now > data.valid_until) {
         throw new Error("Transaction expired");
       }
       const keyPair = await getKeyPair();
-      for (let state of items) {
-        reset();
-        const send = await mutateAsync({ state, keyPair });
 
-        setItems((s) =>
-          s.map((item) =>
-            item === state ? (state = { ...state, isSend: true }) : item
-          )
-        );
+      setItems((s) => s.map((item) => ({ ...item, isSend: true })));
 
-        await send.method.send();
-        await askBackground<void>(timeout).message("confirmSeqNo", send.seqno);
+      await mutateAsync({ state: items, keyPair });
 
-        setItems((s) =>
-          s.map((item) =>
-            item === state ? (state = { ...state, isConfirmed: true }) : item
-          )
-        );
-      }
+      setItems((s) => s.map((item) => ({ ...item, isConfirmed: true })));
 
       const payload = await getLastBoc().catch(() => "");
 
