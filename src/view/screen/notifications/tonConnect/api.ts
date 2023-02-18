@@ -192,15 +192,17 @@ export const useSendMutation = () => {
       secretKey: Buffer.from(keyPair.secretKey),
       seqno: seqno,
       sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-      messages: state.map((item) =>
-        internal({
+      messages: state.map((item) => {
+        return internal({
           to: item.address,
           value: toNano(fromNano(item.amount)),
-          bounce: false,
+          bounce: Address.isFriendly(item.address)
+            ? Address.parseFriendly(item.address).isBounceable
+            : false,
           init: toInit(item.stateInit),
           body: item.payload ? Cell.fromBase64(item.payload) : undefined,
-        })
-      ),
+        });
+      }),
     });
 
     await client.sendExternalMessage(walletContract, transfer);
