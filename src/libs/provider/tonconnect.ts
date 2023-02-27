@@ -1,7 +1,7 @@
 import { OpenMaskError } from "../entries/message";
 import {
   TonConnectItemReply,
-  TonConnectRequest,
+  TonConnectRequest
 } from "../entries/notificationMessage";
 import { TonConnectError } from "../exception";
 import { TonProvider } from "../provider";
@@ -94,9 +94,14 @@ const formatConnectEventError = (error: TonConnectError): ConnectEventError => {
 
 export type TonConnectAppRequest = TonConnectSendTransactionRequest;
 
+export type TonConnectAccount = {
+  address: string; // '<wc>:<hex>'
+  network: string; // '-239' for the mainnet and '-3' for the testnet
+};
+
 export interface TonConnectSendTransactionRequest {
   method: "sendTransaction";
-  params: [string]; // json string TonConnectTransactionPayload
+  params: [string, string]; // json string TonConnectTransactionPayload, json string TonConnectAccount
   return: "back" | "none" | string;
   id: number;
 }

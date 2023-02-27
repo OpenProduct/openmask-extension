@@ -7,6 +7,7 @@ import {
   TonConnectTransactionPayload,
 } from "../../entries/notificationMessage";
 import { ErrorCode, RuntimeError } from "../../exception";
+import { TonConnectAccount } from "../../provider/tonconnect";
 import { revokeAllDAppAccess } from "../../state/connectionSerivce";
 import {
   getAccountState,
@@ -103,8 +104,11 @@ export const tonConnectDisconnect = async (id: number, origin: string) => {
 export const tonConnectTransaction = async (
   id: number,
   origin: string,
-  data: TonConnectTransactionPayload
+  data: TonConnectTransactionPayload,
+  account: TonConnectAccount | undefined
 ) => {
+  console.log(account);
+
   await checkBaseDAppPermission(origin);
   await switchActiveAddress(origin);
 

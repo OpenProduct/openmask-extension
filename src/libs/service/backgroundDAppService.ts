@@ -238,7 +238,12 @@ const handleDAppMessage = async (message: DAppMessage): Promise<unknown> => {
       return tonConnectDisconnect(message.id, origin);
     }
     case "tonConnect_sendTransaction": {
-      return tonConnectTransaction(message.id, origin, message.params[0]);
+      return tonConnectTransaction(
+        message.id,
+        origin,
+        message.params[0],
+        message.params[1]
+      );
     }
     case "ton_decryptMessage": {
       return decryptMessage(
