@@ -10,7 +10,7 @@ import { backgroundEventsEmitter } from "../../event";
 import { Logger } from "../../logger";
 import ExtensionPlatform from "../extension";
 
-const NOTIFICATION_HEIGHT = 620;
+const NOTIFICATION_HEIGHT = 650;
 const NOTIFICATION_WIDTH = 380;
 
 let popupId: number | undefined = undefined;
