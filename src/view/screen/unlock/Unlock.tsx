@@ -15,7 +15,7 @@ import { useAuthConfiguration } from "../settings/api";
 import { useUnlockMutation, useUnlockWebAuthnMutation } from "./api";
 
 const Body = styled.form`
-  min-height: 100vh;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
