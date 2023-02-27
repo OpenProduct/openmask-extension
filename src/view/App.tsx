@@ -163,6 +163,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#root {
+  overflow: hidden;
+}
 `;
 
 const Container = styled.div`
