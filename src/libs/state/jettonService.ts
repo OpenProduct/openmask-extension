@@ -39,16 +39,18 @@ export const getJettonFullData = async (
   const name = await getJettonNameState(data).catch((e) => null);
 
   const wallet = await getJettonWalletData(
+    jettonMinterAddress,
     provider,
     minter,
     walletAddress,
     name
-  ).catch((e) => null);
+  );
 
   return { data, wallet, name };
 };
 
 export const getJettonWalletData = async (
+  jettonMinterAddress: string,
   provider: TonHttpProvider,
   minter: JettonMinterDao,
   walletAddress: string,
@@ -63,6 +65,16 @@ export const getJettonWalletData = async (
 
   const dao = new JettonWalletDao(provider, jettonWalletAddress);
   const data = await dao.getData();
+
+  if (!data.jettonMinterAddress) {
+    throw new Error("Missing jetton minter address.");
+  }
+  if (
+    data.jettonMinterAddress?.toString(true, true, true) !==
+    new Address(jettonMinterAddress).toString(true, true, true)
+  ) {
+    throw new Error("Jetton minter address not match.");
+  }
 
   const decimals = parseInt(jetton?.decimals ?? "9");
 

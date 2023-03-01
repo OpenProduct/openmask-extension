@@ -88,7 +88,13 @@ export const useJettonWalletBalance = (
         new Address(jettonMinterAddress)
       );
 
-      return getJettonWalletData(provider, minter, walletAddress, data);
+      return getJettonWalletData(
+        jettonMinterAddress,
+        provider,
+        minter,
+        walletAddress,
+        data
+      );
     }
   );
 };
