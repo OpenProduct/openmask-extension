@@ -156,6 +156,17 @@ export const ReceiveCoin: FC<ReceiveProps> = ({ symbol = "TON" }) => {
   );
 };
 
+export const ReceiveTonPage = () => {
+  return (
+    <>
+      <HomeButton />
+      <Body>
+        <ReceiveCoin />
+      </Body>
+    </>
+  );
+};
+
 export const ReceiveRouter = () => {
   return (
     <>

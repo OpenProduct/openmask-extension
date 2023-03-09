@@ -1,8 +1,8 @@
 import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { DexStocks } from "../../../../libs/entries/stock";
-import { Badge, Container } from "../../../components/Components";
+import { Container } from "../../../components/Components";
 import { ConnectBadge } from "../../../components/ConnectBadge";
 import { Tabs } from "../../../components/Tabs";
 import { WalletStateContext } from "../../../context";
@@ -22,31 +22,6 @@ const Block = styled(Container)`
   background: ${(props) => props.theme.lightGray};
   position: relative;
   padding: 5px ${(props) => props.theme.padding};
-`;
-
-const Connect = styled(Badge)`
-  position: absolute;
-  left: ${(props) => props.theme.padding};
-  padding: 5px 8px;
-  font-size: smaller;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Dot = styled.div<{ isConnected: boolean }>`
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  
-  ${(props) =>
-    props.isConnected
-      ? css`
-          background: green;
-        `
-      : css`
-          background: red;
-        `}}
 `;
 
 export const WalletInfo = () => {

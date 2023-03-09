@@ -8,6 +8,7 @@ const Column = styled.div`
   gap: 5px;
   align-items: center;
   cursor: pointer;
+  width: 45px;
 `;
 
 const Text = styled.span`

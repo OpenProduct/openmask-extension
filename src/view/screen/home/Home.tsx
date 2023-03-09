@@ -5,7 +5,7 @@ import { WalletAddressContext, WalletStateContext } from "../../context";
 import { any, AppRoute } from "../../routes";
 import { useBalance, useCoinPrice, useDexStock } from "./api";
 import { AssetsRouter } from "./wallet/assets/Assets";
-import { ReceiveRouter } from "./wallet/receive/Receive";
+import { ReceiveRouter, ReceiveTonPage } from "./wallet/receive/Receive";
 import { SwapRouter } from "./wallet/receive/Swap";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";
@@ -35,7 +35,8 @@ export const Home = () => {
             element={<Send price={price} balance={balance} />}
           />
           <Route path={any(AppRoute.swap)} element={<SwapRouter />} />
-          <Route path={any(AppRoute.receive)} element={<ReceiveRouter />} />
+          <Route path={any(AppRoute.receive)} element={<ReceiveTonPage />} />
+          <Route path={any(AppRoute.buy)} element={<ReceiveRouter />} />
           <Route path={any(AppRoute.wallet)} element={<WalletSettings />} />
           <Route path={any(AppRoute.assets)} element={<AssetsRouter />} />
           <Route

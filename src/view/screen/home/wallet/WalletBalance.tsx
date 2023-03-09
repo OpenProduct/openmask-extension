@@ -7,6 +7,7 @@ import {
 } from "../../../components/BalanceButton";
 import { Container } from "../../../components/Components";
 import {
+  BuyIcon,
   ReceiveIcon,
   SendIcon,
   SwapIcon,
@@ -53,6 +54,9 @@ export const Balance: FC<BalanceProps> = ({ balance, price }) => {
       <Amount>{formatted} TON</Amount>
       <Fiat balance={balance} price={price} />
       <BallanceButtonRow>
+        <BallanceButton label="Buy" onClick={() => navigate(AppRoute.buy)}>
+          <BuyIcon />
+        </BallanceButton>
         <BallanceButton
           label="Receive"
           onClick={() => navigate(AppRoute.receive)}

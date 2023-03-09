@@ -5,6 +5,7 @@ export enum AppRoute {
   connect = "/connect",
   connections = "/connections",
   home = "/",
+  buy = "/buy",
   receive = "/receive",
   send = "/send",
   swap = "/swap",
