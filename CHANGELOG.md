@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.6] - 2023-03-09
+
+### Changed
+
+- Update index page layout
+
 ## [0.17.5] - 2023-03-01
 
 ### Add
@@ -303,7 +309,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.5...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.6...HEAD
+[0.17.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.5...v0.17.6
 [0.17.5]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.4...v0.17.5
 [0.17.4]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.3...v0.17.4
 [0.17.3]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.2...v0.17.3

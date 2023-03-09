@@ -74,9 +74,9 @@ const ReceiveIndex = () => {
           <SubTitle>CryptoGas.shop</SubTitle>
         </Row>
         <Text>
-          MixPay supports users paying cross-wallet, cross-chain and
-          cross-crypto to buy TON. Payment in ETH, BTC, BNB, TRON and other
-          networks.
+          Buy TON for crypto. MixPay supports users paying cross-wallet,
+          cross-chain and cross-crypto to buy TON. Payment in ETH, BTC, BNB,
+          TRON and other networks.
         </Text>
         <ButtonNegative
           title={network != "mainnet" ? "Please switch to mainnet!" : undefined}

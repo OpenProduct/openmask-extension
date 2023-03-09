@@ -1,6 +1,6 @@
 {
   "name": "@openmask/extension",
-  "version": "0.17.5",
+  "version": "0.17.6",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
   "dependencies": {
