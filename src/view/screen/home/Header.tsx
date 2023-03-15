@@ -180,6 +180,17 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
               <ListItem
                 onClick={() => {
                   onClose();
+                  ExtensionPlatform.openExtensionInBrowser(
+                    AppRoute.import + ConnectRoutes.hardware
+                  );
+                }}
+              >
+                Connect Hardware Wallet
+              </ListItem>
+              <Divider />
+              <ListItem
+                onClick={() => {
+                  onClose();
                   navigate(AppRoute.settings);
                 }}
               >
