@@ -1,56 +1,24 @@
-import {
-  Address,
-  jettonTransferBody,
-  Method,
-  toNano,
-  TransferParams,
-} from "@openproduct/web-sdk";
-import { useQuery } from "@tanstack/react-query";
-import BN from "bn.js";
+import { EstimateFeeValues, toNano } from "@openproduct/web-sdk";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { SendMode } from "ton-core";
+import { TonClient } from "ton";
+import { Address, beginCell } from "ton-core";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
+import { WalletState } from "../../../../../../../libs/entries/wallet";
+import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
+import {
+  createJettonTransfer,
+  createLedgerJettonTransfer,
+  SendJettonState,
+} from "../../../../../../../libs/service/transfer/jettonService";
 import { toCoinValue } from "../../../../../../../libs/state/decimalsService";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
-  TonProviderContext,
-  WalletContractContext,
+  TonClientContext,
   WalletStateContext,
 } from "../../../../../../context";
-import { checkBalanceOrDie } from "../../../../../api";
-import { useSelectedNetworkConfig } from "../../../../api";
-import { getTransactionsParams } from "../../../send/api";
-
-export interface SendJettonState {
-  /**
-   * The Jetton receiver main wallet address.
-   */
-  address: string;
-  /**
-   * Amount of jettons to transfer
-   */
-  amount: string;
-
-  /**
-   * TON Amount with would be transfer to handle internal transaction expenses
-   * By default community agreed to 0.1 TON
-   */
-  transactionAmount: string;
-
-  /**
-   * The amount of ton from `transactionAmount` with would be sent to the jetton receiver to notify it.
-   * The value should be less then `transactionAmount`.
-   * default - 0.000000001
-   */
-  forwardAmount?: string;
-
-  /**
-   * The forward comment with should show to jetton receiver with `forwardAmount`
-   * I can't send transaction to receiver have a forwarded message,
-   * if some one have an idea how wrap the text, I will appreciate for help
-   */
-  comment: string;
-}
+import { checkBalanceOrDie, getWalletKeyPair } from "../../../../../api";
+import { signLadgerTransaction } from "../../../../../ladger/api";
 
 export const toSendJettonState = (
   searchParams: URLSearchParams
@@ -59,7 +27,7 @@ export const toSendJettonState = (
     address: decodeURIComponent(searchParams.get("address") ?? ""),
     amount: decodeURIComponent(searchParams.get("amount") ?? ""),
     transactionAmount: decodeURIComponent(
-      searchParams.get("transactionAmount") ?? ""
+      searchParams.get("transactionAmount") ?? "0.1"
     ),
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
   };
@@ -72,72 +40,206 @@ export const stateToSearch = (state: SendJettonState) => {
   }, {} as Record<string, string>);
 };
 
-interface WrapperMethod {
-  method: Method;
-  seqno: number;
-}
+const getJettonWalletAddress = async (
+  tonClient: TonClient,
+  jettonMinter: string,
+  wallet: string
+) => {
+  const result = await tonClient.callGetMethod(
+    Address.parse(jettonMinter),
+    "get_wallet_address",
+    [
+      {
+        type: "slice",
+        cell: beginCell().storeAddress(Address.parse(wallet)).endCell(),
+      },
+    ]
+  );
 
-export const useSendJettonMethod = (
+  const jettonWalletAddress = result.stack.readAddress();
+  return jettonWalletAddress;
+};
+
+const getJettonMasterAddress = async (
+  tonClient: TonClient,
+  jettonWallet: Address
+) => {
+  const jettonData = await tonClient.callGetMethod(
+    jettonWallet,
+    "get_wallet_data"
+  );
+
+  const balance = jettonData.stack.readBigNumber();
+  const owner = jettonData.stack.readAddress();
+  const jettonMaster = jettonData.stack.readAddress();
+  return jettonMaster;
+};
+
+export const useJettonWalletAddress = (jetton: JettonAsset) => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useQuery<Address, Error>([QueryType.account, jetton], async () => {
+    const jettonWalletAddress = await getJettonWalletAddress(
+      tonClient,
+      jetton.minterAddress,
+      wallet.address
+    );
+    const jettonMasterAddress = await getJettonMasterAddress(
+      tonClient,
+      jettonWalletAddress
+    );
+    if (
+      jettonMasterAddress.toString() !==
+      Address.parse(jetton.minterAddress).toString()
+    ) {
+      throw new Error("Jetton minter address not match");
+    }
+    return jettonWalletAddress;
+  });
+};
+
+export const useEstimateJettonFee = (
+  jetton: JettonAsset,
+  state: SendJettonState
+) => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useQuery([QueryType.estimation, jetton], async () => {
+    if (!jetton.walletAddress) {
+      throw new Error("Missing jetton wallet address");
+    }
+
+    const transaction = createJettonTransfer(
+      0,
+      wallet,
+      jetton.walletAddress,
+      Address.parse(wallet.address),
+      state,
+      jetton
+    );
+    const data = await tonClient.estimateExternalMessageFee(
+      Address.parse(wallet.address),
+      {
+        body: transaction,
+        initCode: null,
+        initData: null,
+        ignoreSignature: true,
+      }
+    );
+    return data.source_fees as EstimateFeeValues;
+  });
+};
+
+const sendLadgerTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
   jetton: JettonAsset,
   state: SendJettonState,
-  balance: string | undefined
-) => {
-  const contract = useContext(WalletContractContext);
-  const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
-  const config = useSelectedNetworkConfig();
+  balance: string,
+  jettonWalletAddress: Address,
+  address: string
+): Promise<number> => {
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
 
-  return useQuery<WrapperMethod, Error>(
-    [QueryType.method, wallet.address, state],
-    async () => {
-      const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
+  const walletBalance = await tonContract.getBalance();
 
-      await checkBalanceOrDie(balance, jettonAmount);
-
-      if (!jetton.walletAddress) {
-        throw new Error("Jetton Wallet Not Found.");
-      }
-      const jettonWalletAddress = new Address(jetton.walletAddress);
-
-      const [toAddress, keyPair, seqno] = await getTransactionsParams(
-        ton,
-        config,
-        state.address,
-        wallet
-      );
-
-      const transactionAmount =
-        state.transactionAmount == ""
-          ? toNano("0.10")
-          : toNano(state.transactionAmount);
-
-      const forwardAmount = state.forwardAmount
-        ? toNano(state.forwardAmount)
-        : new BN(1, 10);
-
-      const forwardPayload = new TextEncoder().encode(state.comment ?? "");
-
-      const payload = jettonTransferBody({
-        toAddress: new Address(toAddress),
-        responseAddress: new Address(wallet.address),
-        jettonAmount,
-        forwardAmount,
-        forwardPayload,
-      });
-
-      const params: TransferParams = {
-        secretKey: keyPair.secretKey,
-        toAddress: jettonWalletAddress,
-        amount: transactionAmount,
-        seqno: seqno,
-        payload,
-        sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-      };
-
-      const method = contract.transfer(params);
-
-      return { method, seqno };
-    },
-    { enabled: balance != null, retry: 1 }
+  await checkBalanceOrDie(
+    walletBalance.toString(),
+    toNano(state.transactionAmount)
   );
+  const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
+  await checkBalanceOrDie(balance, jettonAmount);
+
+  const seqno = await tonContract.getSeqno();
+
+  const transaction = createLedgerJettonTransfer(
+    seqno,
+    wallet,
+    address,
+    jettonWalletAddress,
+    state,
+    jetton
+  );
+
+  const signed = await signLadgerTransaction(transaction);
+  await tonContract.send(signed);
+
+  return seqno;
+};
+
+const sendMnemonicTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  jetton: JettonAsset,
+  state: SendJettonState,
+  balance: string,
+  jettonWalletAddress: Address,
+  address: string
+) => {
+  const keyPair = await getWalletKeyPair(wallet);
+  const secretKey = Buffer.from(keyPair.secretKey);
+
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const walletBalance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(
+    walletBalance.toString(),
+    toNano(state.transactionAmount)
+  );
+  const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
+  await checkBalanceOrDie(balance, jettonAmount);
+
+  const seqno = await tonContract.getSeqno();
+
+  const transaction = createJettonTransfer(
+    seqno,
+    wallet,
+    address,
+    jettonWalletAddress,
+    state,
+    jetton,
+    secretKey
+  );
+
+  await tonContract.send(transaction);
+
+  return seqno;
+};
+
+export const useSendJetton = (jetton: JettonAsset, state: SendJettonState) => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useMutation<
+    number,
+    Error,
+    { balance: string; jettonWalletAddress: Address; address: string }
+  >(async ({ balance, jettonWalletAddress, address }) => {
+    if (wallet.isLadger) {
+      return sendLadgerTransaction(
+        tonClient,
+        wallet,
+        jetton,
+        state,
+        balance,
+        jettonWalletAddress,
+        address
+      );
+    } else {
+      return sendMnemonicTransaction(
+        tonClient,
+        wallet,
+        jetton,
+        state,
+        balance,
+        jettonWalletAddress,
+        address
+      );
+    }
+  });
 };

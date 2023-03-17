@@ -2,6 +2,7 @@ import React, { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
+import { SendJettonState } from "../../../../../../../libs/service/transfer/jettonService";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
@@ -18,9 +19,15 @@ import {
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
+import { FingerprintLabel } from "../../../../../../FingerprintLabel";
 import { fiatFees } from "../../../../../../utils";
-import { useEstimateFee, useSendMutation } from "../../../send/api";
-import { SendJettonState, toSendJettonState, useSendJettonMethod } from "./api";
+import { useTargetAddress } from "../../../send/api";
+import {
+  toSendJettonState,
+  useEstimateJettonFee,
+  useJettonWalletAddress,
+  useSendJetton,
+} from "./api";
 
 const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,14 +37,6 @@ const EditButton = React.memo(() => {
   };
   return <SendEditButton onEdit={onEdit} />;
 });
-
-const Comment = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
 
 const Quote = styled.div`
   margin-bottom: ${(props) => props.theme.padding};
@@ -59,24 +58,39 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
   const wallet = useContext(WalletStateContext);
 
   const {
-    data: method,
-    error,
-    isFetching,
-  } = useSendJettonMethod(jetton, state, balance);
-  const { data } = useEstimateFee(method);
+    data: address,
+    error: addressError,
+    isFetching: isAddressFetching,
+  } = useTargetAddress(state.address);
 
-  const { mutateAsync, isLoading } = useSendMutation();
+  const {
+    data: jettonWalletAddress,
+    error: jettonError,
+    isFetching: isJettonFetching,
+  } = useJettonWalletAddress(jetton);
+  const { data } = useEstimateJettonFee(jetton, state);
+
+  const {
+    mutateAsync,
+    isLoading: isSending,
+    error: sendError,
+  } = useSendJetton(jetton, state);
 
   const onConfirm = async () => {
-    if (!method) return;
-    const seqNo = await mutateAsync(method);
+    if (!balance || !address || !jettonWalletAddress) return;
+    const seqNo = await mutateAsync({ balance, address, jettonWalletAddress });
     onSend(seqNo);
   };
 
   const transaction =
     state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
-  const disabled = isLoading || isFetching || error != null;
+  const isLoading = isAddressFetching || isSending || isJettonFetching;
+  const disabled =
+    isLoading ||
+    addressError != null ||
+    sendError != null ||
+    jettonError != null;
 
   return (
     <>
@@ -90,13 +104,6 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
             {state.amount} {jetton.state.symbol}
           </b>
         </TextLine>
-        {state.comment && (
-          <>
-            <TextLine>Comment:</TextLine>
-            <Comment>{state.comment}</Comment>
-          </>
-        )}
-
         <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
         <TextLine>
@@ -108,13 +115,21 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
           the wallet.
         </Quote>
 
-        {error && <ErrorMessage>{error.message}</ErrorMessage>}
+        {addressError && <ErrorMessage>{addressError.message}</ErrorMessage>}
+        {jettonError && <ErrorMessage>{jettonError.message}</ErrorMessage>}
+        {sendError && <ErrorMessage>{sendError.message}</ErrorMessage>}
 
         <Gap />
         <ButtonRow>
           <SendCancelButton disabled={isLoading} homeRoute="../" />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
-            {isFetching ? <Dots>Validating</Dots> : "Confirm"}
+            {isAddressFetching || isJettonFetching ? (
+              <Dots>Validating</Dots>
+            ) : isSending ? (
+              <Dots>Loading</Dots>
+            ) : (
+              <FingerprintLabel>Confirm</FingerprintLabel>
+            )}
           </ButtonPositive>
         </ButtonRow>
       </Body>
