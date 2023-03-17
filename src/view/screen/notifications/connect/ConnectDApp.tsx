@@ -51,7 +51,7 @@ const Balance = styled(Row)`
   color: ${(props) => props.theme.darkGray};
 `;
 
-const Wallet: FC<{
+export const Wallet: FC<{
   wallet: WalletState;
   selected: boolean;
   onSelect: (value: boolean) => void;

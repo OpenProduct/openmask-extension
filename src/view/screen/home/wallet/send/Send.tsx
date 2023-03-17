@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { TransactionState } from "../../../../../libs/service/transfer/tonService";
 import {
   Body,
   ButtonBottomRow,
@@ -15,7 +16,7 @@ import { SendSuccessView } from "../../../../components/send/SendSuccessView";
 import { WalletAddressContext, WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { formatTonValue } from "../../../../utils";
-import { stateToSearch, toState, TransactionState } from "./api";
+import { stateToSearch, toState } from "./api";
 import { ConfirmView } from "./ConfirmView";
 
 const MaxRow = styled.div`
@@ -47,6 +48,8 @@ interface InputProps {
 }
 
 const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
+  const wallet = useContext(WalletStateContext);
+
   const formatted = useMemo(() => {
     return balance ? formatTonValue(balance) : "-";
   }, [balance]);
@@ -87,16 +90,20 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         onChange={(e) => onChange({ data: e.target.value })}
       />
 
-      <label>
-        <input
-          type="checkbox"
-          checked={state.isEncrypt}
-          onChange={(e) => onChange({
-            isEncrypt: e.target.checked
-          })}
-        />
-        Encrypt
-      </label>
+      {!wallet.isLadger && (
+        <label>
+          <input
+            type="checkbox"
+            checked={state.isEncrypt}
+            onChange={(e) =>
+              onChange({
+                isEncrypt: e.target.checked,
+              })
+            }
+          />
+          Encrypt
+        </label>
+      )}
 
       <Gap />
 

@@ -11,6 +11,10 @@ export interface WalletState {
   version: WalletVersion;
   isBounceable: boolean;
   assets?: Asset[];
+
+  isLadger?: boolean;
+  ladgerIndex?: number;
+  ladgerDriver?: "USB" | "HID";
 }
 
 export interface WalletInfo {
@@ -20,8 +24,8 @@ export interface WalletInfo {
     ["@type"]: string;
     hash: string;
     lt: string;
-  }
-  seqno: number
+  };
+  seqno: number;
   wallet: boolean;
   wallet_id: number;
   wallet_type: string;

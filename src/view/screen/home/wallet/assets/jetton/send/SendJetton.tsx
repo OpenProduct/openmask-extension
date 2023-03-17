@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
+import { SendJettonState } from "../../../../../../../libs/service/transfer/jettonService";
 import {
   Body,
   ButtonBottomRow,
@@ -16,7 +17,7 @@ import { WalletStateContext } from "../../../../../../context";
 import { sendBackground } from "../../../../../../event";
 import { useJettonWalletBalance } from "../../api";
 import { JettonMinterAddressContext, JettonStateContext } from "../context";
-import { SendJettonState, stateToSearch, toSendJettonState } from "./api";
+import { stateToSearch, toSendJettonState } from "./api";
 import { SendJettonConfirm } from "./SendJettonConfirm";
 
 interface InputProps {
@@ -48,6 +49,13 @@ const SendJettonInputView: FC<InputProps> = ({
         type="number"
         value={state.amount}
         onChange={(e) => onChange({ amount: e.target.value })}
+      />
+
+      <InputField
+        label="Transaction Amount"
+        type="number"
+        value={state.transactionAmount}
+        onChange={(e) => onChange({ transactionAmount: e.target.value })}
       />
 
       <Gap />

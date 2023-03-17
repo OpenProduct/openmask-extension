@@ -1,45 +1,36 @@
-import { getSharedSecret } from "@noble/ed25519";
 import {
   Address,
-  base64ToBytes,
-  bytesToHex,
-  Cell,
-  concatBytes,
   EstimateFeeValues,
   Method,
-  stringToBase64,
   toNano,
   TonDns,
   TonHttpProvider,
-  TransferParams,
 } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import nacl, { randomBytes } from "tweetnacl";
+import { TonClient } from "ton";
+import { Address as CoreAddress } from "ton-core";
 import { NetworkConfig } from "../../../../../libs/entries/network";
-import { SendMode } from "../../../../../libs/entries/tonSendMode";
-import { WalletInfo, WalletState } from "../../../../../libs/entries/wallet";
+import { WalletState } from "../../../../../libs/entries/wallet";
+import { getWalletContract } from "../../../../../libs/service/transfer/core";
+import {
+  getEstimatePayload,
+  getPayload,
+} from "../../../../../libs/service/transfer/payload";
+import {
+  createLadgerTonTransfer,
+  createTonTransfer,
+  TransactionState,
+} from "../../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
+  TonClientContext,
   TonProviderContext,
-  WalletContractContext,
   WalletStateContext,
 } from "../../../../context";
-import {
-  checkBalanceOrDie,
-  getPublicKey,
-  getWalletKeyPair,
-} from "../../../api";
+import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
+import { signLadgerTransaction } from "../../../ladger/api";
 import { useSelectedNetworkConfig } from "../../api";
-
-export interface TransactionState {
-  address: string;
-  amount: string;
-  max: string;
-  data: string | Uint8Array | Cell | undefined;
-  hex?: string;
-  isEncrypt?: boolean;
-}
 
 export const toState = (searchParams: URLSearchParams): TransactionState => {
   return {
@@ -106,78 +97,6 @@ export interface WrapperMethod {
   seqno: number;
 }
 
-export const useSendMethod = (state?: TransactionState, balance?: string) => {
-  const contract = useContext(WalletContractContext);
-  const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
-  const config = useSelectedNetworkConfig();
-
-  return useQuery<WrapperMethod, Error>(
-    [QueryType.method, wallet.address, state],
-    async () => {
-      if (!state) {
-        throw new Error("Missing send state");
-      }
-
-      await checkBalanceOrDie(balance, toNano(state.amount));
-
-      const [toAddress, keyPair, seqno] = await getTransactionsParams(
-        ton,
-        config,
-        state.address,
-        wallet
-      );
-
-      let payload = state.data || "";
-
-      if (state.isEncrypt && state.data && typeof state.data === "string") {
-        const walletInfo: WalletInfo = await ton.getWalletInfo(toAddress);
-
-        if (!walletInfo.wallet) {
-          throw new Error("The recipient is not a wallet");
-        }
-
-        const receiverPublicKey = await getPublicKey(ton, toAddress);
-        const sharedKey = await getSharedSecret(
-          bytesToHex(keyPair.secretKey.slice(0, 32)),
-          receiverPublicKey
-        );
-        const nonce = randomBytes(nacl.box.nonceLength);
-        const encrypted = nacl.box.after(
-          base64ToBytes(stringToBase64(state.data)),
-          nonce,
-          sharedKey
-        );
-
-        if (!encrypted) {
-          throw new Error("Encryption error");
-        }
-
-        payload = concatBytes(nonce, encrypted);
-      }
-
-      const sendMode =
-        state.max === "1"
-          ? SendMode.CARRRY_ALL_REMAINING_BALANCE
-          : SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS;
-
-      const params: TransferParams = {
-        secretKey: keyPair.secretKey,
-        toAddress,
-        amount: toNano(state.amount),
-        seqno: seqno,
-        payload,
-        sendMode,
-      };
-
-      const method = contract.transfer(params);
-
-      return { method, seqno };
-    },
-    { enabled: balance != null && state != null, retry: 0 }
-  );
-};
-
 export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
   return useQuery<EstimateFeeValues>(
     [QueryType.estimation],
@@ -196,4 +115,137 @@ export const useSendMutation = () => {
       return wmethod.seqno;
     }
   );
+};
+
+export const useTargetAddress = (address: string) => {
+  const ton = useContext(TonProviderContext);
+  const config = useSelectedNetworkConfig();
+
+  return useQuery<string, Error>([QueryType.address, address], () =>
+    getToAddress(ton, config, address)
+  );
+};
+
+export const useEstimateTransaction = (
+  state?: TransactionState,
+  address?: string
+) => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useQuery<EstimateFeeValues>(
+    [QueryType.estimation, state],
+    async () => {
+      if (!state || !address) {
+        throw new Error("missing state");
+      }
+
+      const transaction = createTonTransfer(
+        0,
+        wallet,
+        address,
+        state,
+        await getEstimatePayload(
+          tonClient,
+          address,
+          state.isEncrypt,
+          state.data
+        )
+      );
+
+      const data = await tonClient.estimateExternalMessageFee(
+        CoreAddress.parse(wallet.address),
+        {
+          body: transaction,
+          initCode: null,
+          initData: null,
+          ignoreSignature: true,
+        }
+      );
+      return data.source_fees as EstimateFeeValues;
+    },
+    { enabled: state != null && address != null }
+  );
+};
+
+const sendLadgerTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  address: string,
+  state: TransactionState
+): Promise<number> => {
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const balance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+
+  const seqno = await tonContract.getSeqno();
+
+  const transaction = createLadgerTonTransfer(
+    seqno,
+    address,
+    state,
+    await getPayload(tonClient, address, state.isEncrypt, state.data)
+  );
+
+  const signed = await signLadgerTransaction(transaction);
+  await tonContract.send(signed);
+
+  return seqno;
+};
+
+const sendMnemonicTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  address: string,
+  state: TransactionState
+) => {
+  const keyPair = await getWalletKeyPair(wallet);
+
+  const secretKey = Buffer.from(keyPair.secretKey);
+
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const balance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+
+  const seqno = await tonContract.getSeqno();
+  const transaction = createTonTransfer(
+    seqno,
+    wallet,
+    address,
+    state,
+    await getPayload(
+      tonClient,
+      address,
+      state.isEncrypt,
+      state.data,
+      secretKey
+    ),
+    secretKey
+  );
+
+  await tonContract.send(transaction);
+  return seqno;
+};
+
+export const useSendTransaction = () => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useMutation<
+    number,
+    Error,
+    { address: string; state: TransactionState }
+  >(async ({ address, state }) => {
+    if (wallet.isLadger) {
+      return sendLadgerTransaction(tonClient, wallet, address, state);
+    } else {
+      return sendMnemonicTransaction(tonClient, wallet, address, state);
+    }
+  });
 };

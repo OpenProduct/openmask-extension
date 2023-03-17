@@ -4,9 +4,8 @@ import { TonWebTransaction } from "../../../../../libs/entries/transaction";
 import { ActivitiesList } from "../../../../components/ActivitiesList";
 import { ButtonNegative } from "../../../../components/Components";
 import { Dots } from "../../../../components/Dots";
-import { FingerprintIcon } from "../../../../components/Icons";
-import { WalletAddressContext } from "../../../../context";
-import { useAuthConfiguration } from "../../../settings/api";
+import { WalletStateContext } from "../../../../context";
+import { FingerprintLabel } from "../../../../FingerprintLabel";
 import { useDecryptMutation, useTransactions } from "./api";
 
 const Row = styled.div`
@@ -14,13 +13,10 @@ const Row = styled.div`
 `;
 
 export const Activities = () => {
-  const address = useContext(WalletAddressContext);
+  const wallet = useContext(WalletStateContext);
 
   const [txs, setTxs] = useState<TonWebTransaction[] | undefined>();
   const { data: transactions, isLoading } = useTransactions();
-
-  const { data } = useAuthConfiguration();
-  const isWebAuth = data?.kind == "webauthn";
 
   useEffect(() => {
     setTxs(transactions);
@@ -35,18 +31,25 @@ export const Activities = () => {
 
   return (
     <>
-      <Row>
-        <ButtonNegative onClick={onDecrypt}>
-          {isDecrypting ? (
-            <Dots>Decrypting</Dots>
-          ) : (
-            <>
-              Decrypt e2e encrypted messages {isWebAuth && <FingerprintIcon />}
-            </>
-          )}
-        </ButtonNegative>
-      </Row>
-      <ActivitiesList isLoading={isLoading} data={txs} address={address} />
+      {!wallet.isLadger && (
+        <Row>
+          <ButtonNegative onClick={onDecrypt}>
+            {isDecrypting ? (
+              <Dots>Decrypting</Dots>
+            ) : (
+              <FingerprintLabel>
+                Decrypt e2e encrypted messages
+              </FingerprintLabel>
+            )}
+          </ButtonNegative>
+        </Row>
+      )}
+
+      <ActivitiesList
+        isLoading={isLoading}
+        data={txs}
+        address={wallet.address}
+      />
     </>
   );
 };

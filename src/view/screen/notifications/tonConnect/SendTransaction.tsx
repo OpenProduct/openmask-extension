@@ -20,13 +20,9 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { Dots } from "../../../components/Dots";
-import {
-  CheckIcon,
-  FingerprintIcon,
-  SpinnerIcon,
-  TimeIcon,
-} from "../../../components/Icons";
+import { CheckIcon, SpinnerIcon, TimeIcon } from "../../../components/Icons";
 import { sendBackground } from "../../../event";
+import { FingerprintLabel } from "../../../FingerprintLabel";
 import { formatTonValue, toShortAddress } from "../../../utils";
 import { useKeyPairMutation, useLastBocMutation, useSendMutation } from "./api";
 
@@ -157,9 +153,7 @@ export const ConnectSendTransaction: FC<
           {isSending ? (
             <Dots>Sending</Dots>
           ) : (
-            <>
-              Confirm <FingerprintIcon />
-            </>
+            <FingerprintLabel>Confirm</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>

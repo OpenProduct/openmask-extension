@@ -1,19 +1,21 @@
-import { base64ToBytes, Cell, fromNano } from "@openproduct/web-sdk";
 import { useQuery } from "@tanstack/react-query";
+import { Cell, fromNano } from "ton-core";
 import { TransactionParams } from "../../../../libs/entries/transaction";
+import { TransactionState } from "../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../libs/store/browserStore";
-import { TransactionState } from "../../home/wallet/send/api";
 
 const toData = (params: TransactionParams) => {
   if (!params.data) return undefined;
 
   switch (params.dataType) {
     case "hex":
-      return Cell.oneFromBoc(params.data);
+      return Cell.fromBase64(
+        Buffer.from(params.data, "hex").toString("base64")
+      );
     case "base64":
-      return base64ToBytes(params.data);
+      return Cell.fromBase64(params.data);
     case "boc":
-      return Cell.oneFromBoc(base64ToBytes(params.data));
+      return Cell.fromBoc(Buffer.from(params.data))[0];
     default:
       return params.data;
   }

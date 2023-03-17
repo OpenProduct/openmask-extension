@@ -8,8 +8,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
+import { SendMode } from "ton-core";
 import { DeployInputParams } from "../../../../libs/entries/notificationMessage";
-import { SendMode } from "../../../../libs/entries/tonSendMode";
 import { ErrorCode, RuntimeError } from "../../../../libs/exception";
 import { QueryType } from "../../../../libs/store/browserStore";
 import {

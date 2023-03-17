@@ -20,11 +20,11 @@ import { Dots } from "../../../components/Dots";
 import { Fees } from "../../../components/send/Fees";
 import { WalletStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { useBalance } from "../../home/api";
+import { FingerprintLabel } from "../../../FingerprintLabel";
 import {
-  useEstimateFee,
-  useSendMethod,
-  useSendMutation,
+  useEstimateTransaction,
+  useSendTransaction,
+  useTargetAddress,
 } from "../../home/wallet/send/api";
 import { Loading } from "../../Loading";
 import { useSendTransactionState } from "./api";
@@ -36,27 +36,24 @@ export const SendTransaction: FC<
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
 
-  const { data: balance, isFetching: isBalanceFetching } = useBalance(
-    wallet.address
-  );
   const { data: state, isFetching: isPreValidating } =
     useSendTransactionState(data);
 
   const {
-    data: method,
-    error: methodError,
-    isFetching: isPostValidating,
-  } = useSendMethod(state, balance);
-
-  const isValidating = isPreValidating || isPostValidating || isBalanceFetching;
-
-  const { data: estimation } = useEstimateFee(method);
+    data: address,
+    error: addressError,
+    isFetching: isAddressFetching,
+  } = useTargetAddress(data.to);
 
   const {
     mutateAsync,
     error: sendError,
     isLoading: isSending,
-  } = useSendMutation();
+  } = useSendTransaction();
+
+  const { data: estimation } = useEstimateTransaction(state, address);
+
+  const isValidating = isPreValidating || isAddressFetching;
 
   const onBack = () => {
     sendBackground.message("rejectRequest", id);
@@ -64,8 +61,8 @@ export const SendTransaction: FC<
   };
 
   const onConfirm = async () => {
-    if (!method) return;
-    const seqNo = await mutateAsync(method);
+    if (!address || !state) return;
+    const seqNo = await mutateAsync({ address, state });
 
     sendBackground.message("approveRequest", {
       id,
@@ -81,8 +78,8 @@ export const SendTransaction: FC<
 
   const loading = isValidating || isSending;
 
-  const disabledCancel = loading && methodError == null && sendError == null;
-  const disabledConfig = loading || methodError != null || sendError != null;
+  const disabledCancel = loading && addressError == null && sendError == null;
+  const disabledConfig = loading || addressError != null || sendError != null;
 
   return (
     <Body>
@@ -102,7 +99,7 @@ export const SendTransaction: FC<
 
       {state.hex && <CodeBlock label="Payload">{state.hex}</CodeBlock>}
 
-      {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
+      {addressError && <ErrorMessage>{addressError.message}</ErrorMessage>}
       {sendError && <ErrorMessage>{sendError.message}</ErrorMessage>}
 
       <Gap />
@@ -117,7 +114,7 @@ export const SendTransaction: FC<
           ) : isSending ? (
             <Dots>Sending</Dots>
           ) : (
-            "Confirm"
+            <FingerprintLabel>Confirm</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>
