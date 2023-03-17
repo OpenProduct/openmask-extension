@@ -7,7 +7,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import BN from "bn.js";
 import { useContext } from "react";
-import { SendMode } from "../../../../../../../libs/entries/tonSendMode";
+import { SendMode } from "ton-core";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
   TonProviderContext,

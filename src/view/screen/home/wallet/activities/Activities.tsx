@@ -4,9 +4,8 @@ import { TonWebTransaction } from "../../../../../libs/entries/transaction";
 import { ActivitiesList } from "../../../../components/ActivitiesList";
 import { ButtonNegative } from "../../../../components/Components";
 import { Dots } from "../../../../components/Dots";
-import { FingerprintIcon } from "../../../../components/Icons";
 import { WalletAddressContext } from "../../../../context";
-import { useAuthConfiguration } from "../../../settings/api";
+import { FingerprintLabel } from "../../../../FingerprintLabel";
 import { useDecryptMutation, useTransactions } from "./api";
 
 const Row = styled.div`
@@ -18,9 +17,6 @@ export const Activities = () => {
 
   const [txs, setTxs] = useState<TonWebTransaction[] | undefined>();
   const { data: transactions, isLoading } = useTransactions();
-
-  const { data } = useAuthConfiguration();
-  const isWebAuth = data?.kind == "webauthn";
 
   useEffect(() => {
     setTxs(transactions);
@@ -40,9 +36,7 @@ export const Activities = () => {
           {isDecrypting ? (
             <Dots>Decrypting</Dots>
           ) : (
-            <>
-              Decrypt e2e encrypted messages {isWebAuth && <FingerprintIcon />}
-            </>
+            <FingerprintLabel>Decrypt e2e encrypted messages</FingerprintLabel>
           )}
         </ButtonNegative>
       </Row>

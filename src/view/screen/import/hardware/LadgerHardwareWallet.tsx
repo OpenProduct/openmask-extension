@@ -24,6 +24,11 @@ import {
 const Block = styled.div`
   margin-bottom: ${(props) => props.theme.padding};
 `;
+
+const Step = styled.div`
+  min-height: 200px;
+`;
+
 export const LadgerWallet = () => {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState<WalletState[]>([]);
@@ -79,9 +84,21 @@ export const LadgerWallet = () => {
         <H1>Connect Ladger</H1>
       </Center>
 
-      {isConnecting && <Text>Step 1 of 3: Connect Ladger</Text>}
-      {isOpeningTonApp && <Text>Step 2 of 3: Open TON Ladger App</Text>}
-      {isAccountLoading && <Text>Step 3 of 3: Get Account data</Text>}
+      {isConnecting && (
+        <Step>
+          <Text>Step 1 of 3: Connect Ladger by USB and unlock</Text>
+        </Step>
+      )}
+      {isOpeningTonApp && (
+        <Step>
+          <Text>Step 2 of 3: Open TON Ladger App</Text>
+        </Step>
+      )}
+      {isAccountLoading && (
+        <Step>
+          <Text>Step 3 of 3: Get Account data</Text>
+        </Step>
+      )}
 
       <Block>
         {accounts.map((wallet) => {

@@ -6,10 +6,9 @@ import {
 } from "@openproduct/web-sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
-import { Address, Cell, fromNano, internal, toNano } from "ton-core";
+import { Address, Cell, fromNano, internal, SendMode, toNano } from "ton-core";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
-import { getWalletContract } from "../../../../libs/core";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
 import {
   TonAddressItemReply,
@@ -20,7 +19,7 @@ import {
   TonProofItemReplySuccess,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
-import { SendMode } from "../../../../libs/entries/tonSendMode";
+import { getWalletContract } from "../../../../libs/service/transfer/core";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,

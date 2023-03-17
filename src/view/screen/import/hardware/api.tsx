@@ -71,6 +71,7 @@ export const getLadgerWalletState = async (
     isBounceable: bounceable,
     isLadger: true,
     ladgerIndex: accountIndex,
+    ladgerDriver: "USB",
   };
 };
 

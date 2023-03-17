@@ -14,6 +14,7 @@ export interface WalletState {
 
   isLadger?: boolean;
   ladgerIndex?: number;
+  ladgerDriver?: "USB" | "HID";
 }
 
 export interface WalletInfo {

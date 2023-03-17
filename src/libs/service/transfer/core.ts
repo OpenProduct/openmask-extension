@@ -7,7 +7,7 @@ import {
   WalletContractV4,
 } from "ton";
 
-import { WalletState } from "./entries/wallet";
+import { WalletState } from "../../entries/wallet";
 
 const workchain = 0;
 

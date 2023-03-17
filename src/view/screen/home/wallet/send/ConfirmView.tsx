@@ -1,5 +1,4 @@
-import { fromNano } from "@openproduct/web-sdk";
-import React, { FC, useCallback, useContext } from "react";
+import React, { FC, useContext } from "react";
 import { URLSearchParamsInit, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { AddressTransfer } from "../../../../components/Address";
@@ -13,18 +12,20 @@ import {
   TextLine,
 } from "../../../../components/Components";
 import { Dots } from "../../../../components/Dots";
+import { Fees } from "../../../../components/send/Fees";
 import {
   SendCancelButton,
   SendEditButton,
 } from "../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../context";
+import { FingerprintLabel } from "../../../../FingerprintLabel";
 import { fiatFees } from "../../../../utils";
 import {
   toState,
   TransactionState,
-  useEstimateFee,
-  useSendMethod,
-  useSendMutation,
+  useEstimateTransaction,
+  useSendTransaction,
+  useTargetAddress,
 } from "./api";
 
 const EditButton = React.memo(() => {
@@ -43,14 +44,6 @@ const Fiat = styled.span`
   color: ${(props) => props.theme.darkGray};
 `;
 
-const Comment = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
-
 interface ConfirmProps {
   state: TransactionState;
   price?: number;
@@ -58,59 +51,33 @@ interface ConfirmProps {
   onSend: (seqNo: number) => void;
 }
 
-export const ConfirmView: FC<ConfirmProps> = ({
-  state,
-  balance,
-  price,
-  onSend,
-}) => {
-  const wallet = useContext(WalletStateContext);
-
+export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
   const {
-    data: method,
-    error: methodError,
-    isFetching,
-  } = useSendMethod(state, balance);
-  const { data } = useEstimateFee(method);
-
-  const { mutateAsync, error: sendError, isLoading } = useSendMutation();
+    data: address,
+    error: addressError,
+    isFetching: isAddressFetching,
+  } = useTargetAddress(state.address);
+  const { data } = useEstimateTransaction(state, address);
+  const {
+    mutateAsync,
+    error: sendError,
+    isLoading: isSending,
+  } = useSendTransaction();
 
   const onConfirm = async () => {
-    if (!method) return;
-    const seqNo = await mutateAsync(method);
+    if (!address) return;
+    const seqNo = await mutateAsync({ address, state });
     onSend(seqNo);
   };
-
-  const Fees = useCallback(() => {
-    if (!data) {
-      return (
-        <TextLine>
-          <Dots>Loading</Dots>
-        </TextLine>
-      );
-    }
-
-    const totalTon = parseFloat(
-      fromNano(
-        String(data.fwd_fee + data.in_fwd_fee + data.storage_fee + data.gas_fee)
-      )
-    );
-
-    const fiat = price ? `(USD ${fiatFees.format(totalTon * price)}$)` : "";
-
-    return (
-      <TextLine>
-        ~<b>{fiatFees.format(totalTon)} TON</b> <Fiat>{fiat}</Fiat>
-      </TextLine>
-    );
-  }, [data, price]);
 
   const inFiat = price
     ? ` (USD ${fiatFees.format(parseFloat(state.amount) * price)}$)`
     : "";
 
-  const disabled =
-    isLoading || isFetching || methodError != null || sendError != null;
+  const isLoading = isAddressFetching || isSending;
+  const disabled = isLoading || sendError != null || addressError != null;
+
+  const wallet = useContext(WalletStateContext);
 
   return (
     <>
@@ -122,8 +89,7 @@ export const ConfirmView: FC<ConfirmProps> = ({
           <b>{state.amount} TON</b> <Fiat>{inFiat}</Fiat>
         </TextLine>
 
-        <TextLine>Network fee estimation:</TextLine>
-        <Fees />
+        <Fees estimation={data} />
 
         {state.data && (
           <CodeBlock
@@ -133,14 +99,19 @@ export const ConfirmView: FC<ConfirmProps> = ({
           </CodeBlock>
         )}
 
-        {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
+        {addressError && <ErrorMessage>{addressError.message}</ErrorMessage>}
         {sendError && <ErrorMessage>{sendError.message}</ErrorMessage>}
+
         <Gap />
 
         <ButtonRow>
           <SendCancelButton disabled={isLoading} />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
-            {isFetching ? <Dots>Validating</Dots> : "Confirm"}
+            {isLoading ? (
+              <Dots>Loading</Dots>
+            ) : (
+              <FingerprintLabel>Confirm</FingerprintLabel>
+            )}
           </ButtonPositive>
         </ButtonRow>
       </Body>
