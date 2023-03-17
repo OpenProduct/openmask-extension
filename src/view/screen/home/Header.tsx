@@ -8,7 +8,14 @@ import { QueryType } from "../../../libs/store/browserStore";
 import { useMutateStore } from "../../api";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
-import { ArrowDownIcon, CheckIcon, UserIcon } from "../../components/Icons";
+import {
+  AddIcon,
+  ArrowDownIcon,
+  CheckIcon,
+  ImportIcon,
+  UsbIconSmall,
+  UserIcon,
+} from "../../components/Icons";
 import {
   AccountStateContext,
   NetworkContext,
@@ -55,6 +62,14 @@ const AccountItem = styled(ListItem)`
   white-space: nowrap;
 `;
 
+const BadgeLabel = styled.span`
+  margin-left: ${(props) => props.theme.padding};
+  border: 1px solid ${(props) => props.theme.darkGray};
+  background: ${(props) => props.theme.lightGray};
+  padding: 3px 8px;
+  border-radius: 20px;
+`;
+
 const Account: FC<{
   onClick: () => void;
   wallet: WalletState;
@@ -69,6 +84,7 @@ const Account: FC<{
         </>
       )}
       {wallet.name}
+      {wallet.isLadger && <BadgeLabel>Ladger</BadgeLabel>}
       {data && <Balance>{formatTonValue(data)} TON</Balance>}
     </AccountItem>
   );
@@ -164,7 +180,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
                   );
                 }}
               >
-                Create Wallet
+                <AddIcon /> Create Wallet
               </ListItem>
               <ListItem
                 onClick={() => {
@@ -174,9 +190,8 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
                   );
                 }}
               >
-                Import Wallet
+                <ImportIcon /> Import Wallet
               </ListItem>
-              <Divider />
               <ListItem
                 onClick={() => {
                   onClose();
@@ -185,7 +200,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
                   );
                 }}
               >
-                Connect Hardware Wallet
+                <UsbIconSmall /> Connect Hardware Wallet
               </ListItem>
               <Divider />
               <ListItem

@@ -75,40 +75,52 @@ const SettingsIndex = () => {
             onChange({ name });
           }}
         />
+        {!wallet.isLadger && (
+          <>
+            <SelectLabel>Address</SelectLabel>
+            <DropDownList
+              isLeft
+              options={bounceableOptions}
+              renderOption={(value) => value}
+              onSelect={(value) =>
+                onChange({ isBounceable: value === bounceableOptions[0] })
+              }
+            >
+              <SelectPayload>
+                {wallet.isBounceable
+                  ? bounceableOptions[0]
+                  : bounceableOptions[1]}
+                <ArrowDownIcon />
+              </SelectPayload>
+            </DropDownList>
+          </>
+        )}
+        {!wallet.isLadger && (
+          <>
+            <SelectLabel>Version</SelectLabel>
+            <DropDownList
+              isLeft
+              options={Object.keys(ALL)}
+              renderOption={(value) => value}
+              onSelect={(version) =>
+                onChange({ version: version as WalletVersion })
+              }
+            >
+              <SelectPayload>
+                {wallet.version} <ArrowDownIcon />
+              </SelectPayload>
+            </DropDownList>
+          </>
+        )}
 
-        <SelectLabel>Address</SelectLabel>
-        <DropDownList
-          isLeft
-          options={bounceableOptions}
-          renderOption={(value) => value}
-          onSelect={(value) =>
-            onChange({ isBounceable: value === bounceableOptions[0] })
-          }
-        >
-          <SelectPayload>
-            {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}
-            <ArrowDownIcon />
-          </SelectPayload>
-        </DropDownList>
-
-        <SelectLabel>Version</SelectLabel>
-        <DropDownList
-          isLeft
-          options={Object.keys(ALL)}
-          renderOption={(value) => value}
-          onSelect={(version) =>
-            onChange({ version: version as WalletVersion })
-          }
-        >
-          <SelectPayload>
-            {wallet.version} <ArrowDownIcon />
-          </SelectPayload>
-        </DropDownList>
-
-        <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
-        <Button onClick={() => navigate(relative(WalletRoutes.mnemonic))}>
-          Reveal Secret Recovery Phrase
-        </Button>
+        {!wallet.isLadger && (
+          <>
+            <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
+            <Button onClick={() => navigate(relative(WalletRoutes.mnemonic))}>
+              Reveal Secret Recovery Phrase
+            </Button>
+          </>
+        )}
 
         <SelectLabel>Delete Wallet</SelectLabel>
         <Button onClick={() => navigate(relative(WalletRoutes.delete))}>

@@ -48,6 +48,8 @@ interface InputProps {
 }
 
 const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
+  const wallet = useContext(WalletStateContext);
+
   const formatted = useMemo(() => {
     return balance ? formatTonValue(balance) : "-";
   }, [balance]);
@@ -88,18 +90,20 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         onChange={(e) => onChange({ data: e.target.value })}
       />
 
-      <label>
-        <input
-          type="checkbox"
-          checked={state.isEncrypt}
-          onChange={(e) =>
-            onChange({
-              isEncrypt: e.target.checked,
-            })
-          }
-        />
-        Encrypt
-      </label>
+      {!wallet.isLadger && (
+        <label>
+          <input
+            type="checkbox"
+            checked={state.isEncrypt}
+            onChange={(e) =>
+              onChange({
+                isEncrypt: e.target.checked,
+              })
+            }
+          />
+          Encrypt
+        </label>
+      )}
 
       <Gap />
 
