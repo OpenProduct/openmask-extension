@@ -1,6 +1,7 @@
 import React, { FC, useContext } from "react";
 import { URLSearchParamsInit, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { TransactionState } from "../../../../../libs/service/transfer/tonService";
 import { AddressTransfer } from "../../../../components/Address";
 import { CodeBlock } from "../../../../components/CodeBlock";
 import {
@@ -22,7 +23,6 @@ import { FingerprintLabel } from "../../../../FingerprintLabel";
 import { fiatFees } from "../../../../utils";
 import {
   toState,
-  TransactionState,
   useEstimateTransaction,
   useSendTransaction,
   useTargetAddress,

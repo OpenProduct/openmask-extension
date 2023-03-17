@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { WalletState } from "../../../../libs/entries/wallet";
+import { WalletState } from "../../../libs/entries/wallet";
 import {
   Body,
   ButtonNegative,
@@ -11,15 +11,14 @@ import {
   ErrorMessage,
   H1,
   Text,
-} from "../../../components/Components";
-import { AppRoute } from "../../../routes";
-import { Wallet } from "../../notifications/connect/ConnectDApp";
+} from "../../components/Components";
+import { AppRoute } from "../../routes";
 import {
   useAddWalletMutation,
-  useConnectLadgerDevice,
-  useGetLadgerTransport,
   useLadgerAccounts,
-} from "./api";
+} from "../import/hardware/api";
+import { Wallet } from "../notifications/connect/ConnectDApp";
+import { useConnectLadgerDevice, useGetLadgerTransport } from "./api";
 
 const Block = styled.div`
   margin-bottom: ${(props) => props.theme.padding};

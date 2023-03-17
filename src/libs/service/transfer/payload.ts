@@ -68,7 +68,7 @@ export const getPayload = async (
   address: string,
   isEncrypt: boolean | undefined,
   data: string | Cell | undefined,
-  secretKey: Buffer
+  secretKey: Buffer = Buffer.alloc(32)
 ): Promise<string | Cell | undefined> => {
   if (data === undefined || data === "") {
     return undefined;

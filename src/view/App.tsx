@@ -29,6 +29,7 @@ import { any, AppRoute } from "./routes";
 import { Header } from "./screen/home/Header";
 
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
+import { LadgerNotification } from "./screen/ladger/LadgerNotification";
 import { Loading } from "./screen/Loading";
 import { Unlock } from "./screen/unlock/Unlock";
 import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
@@ -94,6 +95,7 @@ const ContentRouter: FC<{
             <Route path="*" element={<Home />} />
           </Routes>
         </Suspense>
+        <LadgerNotification />
       </WalletContractContext.Provider>
     </WalletStateContext.Provider>
   );

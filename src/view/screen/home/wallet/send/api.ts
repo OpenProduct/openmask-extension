@@ -8,7 +8,8 @@ import {
 } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { Address as CoreAddress, Cell as CoreCell } from "ton-core";
+import { TonClient } from "ton";
+import { Address as CoreAddress } from "ton-core";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { WalletState } from "../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../libs/service/transfer/core";
@@ -16,7 +17,11 @@ import {
   getEstimatePayload,
   getPayload,
 } from "../../../../../libs/service/transfer/payload";
-import { createTonTransfer } from "../../../../../libs/service/transfer/tonService";
+import {
+  createLadgerTonTransfer,
+  createTonTransfer,
+  TransactionState,
+} from "../../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   TonClientContext,
@@ -24,16 +29,8 @@ import {
   WalletStateContext,
 } from "../../../../context";
 import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
+import { signLadgerTransaction } from "../../../ladger/api";
 import { useSelectedNetworkConfig } from "../../api";
-
-export interface TransactionState {
-  address: string;
-  amount: string;
-  max: string;
-  data: string | CoreCell | undefined;
-  hex?: string;
-  isEncrypt?: boolean;
-}
 
 export const toState = (searchParams: URLSearchParams): TransactionState => {
   return {
@@ -147,7 +144,7 @@ export const useEstimateTransaction = (
         0,
         wallet,
         address,
-        { max: state.max === "1", amount: state.amount },
+        state,
         await getEstimatePayload(
           tonClient,
           address,
@@ -171,6 +168,71 @@ export const useEstimateTransaction = (
   );
 };
 
+const sendLadgerTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  address: string,
+  state: TransactionState
+): Promise<number> => {
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const balance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+
+  const seqno = await tonContract.getSeqno();
+
+  const transaction = createLadgerTonTransfer(
+    seqno,
+    address,
+    state,
+    await getPayload(tonClient, address, state.isEncrypt, state.data)
+  );
+
+  const signed = await signLadgerTransaction(transaction);
+  await tonContract.send(signed);
+
+  return seqno;
+};
+
+const sendMnemonicTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  address: string,
+  state: TransactionState
+) => {
+  const keyPair = await getWalletKeyPair(wallet);
+
+  const secretKey = Buffer.from(keyPair.secretKey);
+
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const balance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+
+  const seqno = await tonContract.getSeqno();
+  const transaction = createTonTransfer(
+    seqno,
+    wallet,
+    address,
+    state,
+    await getPayload(
+      tonClient,
+      address,
+      state.isEncrypt,
+      state.data,
+      secretKey
+    ),
+    secretKey
+  );
+
+  await tonContract.send(transaction);
+  return seqno;
+};
+
 export const useSendTransaction = () => {
   const tonClient = useContext(TonClientContext);
   const wallet = useContext(WalletStateContext);
@@ -180,34 +242,10 @@ export const useSendTransaction = () => {
     Error,
     { address: string; state: TransactionState }
   >(async ({ address, state }) => {
-    const keyPair = await getWalletKeyPair(wallet);
-
-    const secretKey = Buffer.from(keyPair.secretKey);
-
-    const contract = getWalletContract(wallet);
-    const tonContract = tonClient.open(contract);
-
-    const balance = await tonContract.getBalance();
-
-    await checkBalanceOrDie(balance.toString(), toNano(state.amount));
-
-    const seqno = await tonContract.getSeqno();
-    const transaction = createTonTransfer(
-      seqno,
-      wallet,
-      address,
-      { max: state.max === "1", amount: state.amount },
-      await getPayload(
-        tonClient,
-        address,
-        state.isEncrypt,
-        state.data as any,
-        secretKey
-      ),
-      secretKey
-    );
-
-    await tonContract.send(transaction);
-    return seqno;
+    if (wallet.isLadger) {
+      return sendLadgerTransaction(tonClient, wallet, address, state);
+    } else {
+      return sendMnemonicTransaction(tonClient, wallet, address, state);
+    }
   });
 };

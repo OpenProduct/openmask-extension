@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Cell, fromNano } from "ton-core";
 import { TransactionParams } from "../../../../libs/entries/transaction";
+import { TransactionState } from "../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../libs/store/browserStore";
-import { TransactionState } from "../../home/wallet/send/api";
 
 const toData = (params: TransactionParams) => {
   if (!params.data) return undefined;

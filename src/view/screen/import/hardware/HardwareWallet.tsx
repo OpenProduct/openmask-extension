@@ -4,7 +4,7 @@ import { Body, H1 } from "../../../components/Components";
 import { HomeButton } from "../../../components/HomeButton";
 import { ArrowForwardIcon } from "../../../components/Icons";
 import { any, relative } from "../../../routes";
-import { LadgerWallet } from "./LadgerHardwareWallet";
+import { LadgerWallet } from "../../ladger/LadgerHardwareWallet";
 
 export enum HardwareRoutes {
   ladger = "/ladger",

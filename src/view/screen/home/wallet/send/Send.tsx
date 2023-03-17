@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { TransactionState } from "../../../../../libs/service/transfer/tonService";
 import {
   Body,
   ButtonBottomRow,
@@ -15,7 +16,7 @@ import { SendSuccessView } from "../../../../components/send/SendSuccessView";
 import { WalletAddressContext, WalletStateContext } from "../../../../context";
 import { sendBackground } from "../../../../event";
 import { formatTonValue } from "../../../../utils";
-import { stateToSearch, toState, TransactionState } from "./api";
+import { stateToSearch, toState } from "./api";
 import { ConfirmView } from "./ConfirmView";
 
 const MaxRow = styled.div`
@@ -91,9 +92,11 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         <input
           type="checkbox"
           checked={state.isEncrypt}
-          onChange={(e) => onChange({
-            isEncrypt: e.target.checked
-          })}
+          onChange={(e) =>
+            onChange({
+              isEncrypt: e.target.checked,
+            })
+          }
         />
         Encrypt
       </label>

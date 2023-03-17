@@ -20,7 +20,7 @@ import { Dots } from "../../../components/Dots";
 import { Fees } from "../../../components/send/Fees";
 import { WalletStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { useBalance } from "../../home/api";
+import { FingerprintLabel } from "../../../FingerprintLabel";
 import {
   useEstimateTransaction,
   useSendTransaction,
@@ -36,9 +36,6 @@ export const SendTransaction: FC<
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
 
-  const { data: balance, isFetching: isBalanceFetching } = useBalance(
-    wallet.address
-  );
   const { data: state, isFetching: isPreValidating } =
     useSendTransactionState(data);
 
@@ -56,8 +53,7 @@ export const SendTransaction: FC<
 
   const { data: estimation } = useEstimateTransaction(state, address);
 
-  const isValidating =
-    isPreValidating || isAddressFetching || isBalanceFetching;
+  const isValidating = isPreValidating || isAddressFetching;
 
   const onBack = () => {
     sendBackground.message("rejectRequest", id);
@@ -118,7 +114,7 @@ export const SendTransaction: FC<
           ) : isSending ? (
             <Dots>Sending</Dots>
           ) : (
-            "Confirm"
+            <FingerprintLabel>Confirm</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>
