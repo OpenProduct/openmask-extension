@@ -2,6 +2,7 @@ import { FC, useCallback, useContext, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { NftItem } from "../../../../../../../libs/entries/asset";
 import ExtensionPlatform from "../../../../../../../libs/service/extension";
+import { SendNftState } from "../../../../../../../libs/service/transfer/nftService";
 import {
   Body,
   ButtonBottomRow,
@@ -25,7 +26,7 @@ import { AppRoute } from "../../../../../../routes";
 import { useBalance, useSelectedNetworkConfig } from "../../../../api";
 import { useHideNftMutation } from "../api";
 import { NftItemStateContext, NftStateContext } from "../context";
-import { SendNftState, stateToSearch, toSendNftState } from "./api";
+import { stateToSearch, toSendNftState } from "./api";
 import { SendNftConfirm } from "./SendNftConfirm";
 
 interface SuccessProps {
@@ -101,6 +102,13 @@ const SendNftInputView: FC<InputProps> = ({ nft, state, onChange, onSend }) => {
         label="Enter wallet address"
         value={state.address}
         onChange={(e) => onChange({ address: e.target.value })}
+      />
+
+      <InputField
+        label="Transaction Amount"
+        type="number"
+        value={state.amount}
+        onChange={(e) => onChange({ amount: e.target.value })}
       />
 
       <Gap />

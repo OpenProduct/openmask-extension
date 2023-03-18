@@ -2,6 +2,7 @@ import React, { FC, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { NftItem } from "../../../../../../../libs/entries/asset";
+import { SendNftState } from "../../../../../../../libs/service/transfer/nftService";
 import { AddressTransfer } from "../../../../../../components/Address";
 import {
   Body,
@@ -18,9 +19,10 @@ import {
   SendEditButton,
 } from "../../../../../../components/send/SendButtons";
 import { WalletStateContext } from "../../../../../../context";
+import { FingerprintLabel } from "../../../../../../FingerprintLabel";
 import { fiatFees } from "../../../../../../utils";
-import { useEstimateFee, useSendMutation } from "../../../send/api";
-import { SendNftState, toSendNftState, useTransferNftMethod } from "./api";
+import { useTargetAddress } from "../../../send/api";
+import { toSendNftState, useEstimateNftFee, useSendNft } from "./api";
 
 const EditButton = React.memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,14 +32,6 @@ const EditButton = React.memo(() => {
   };
   return <SendEditButton onEdit={onEdit} />;
 });
-
-const Comment = styled.div`
-  padding: 10px;
-  background: ${(props) => props.theme.lightGray};
-  font-size: medium;
-  margin-bottom: ${(props) => props.theme.padding};
-  word-break: break-all;
-`;
 
 const Quote = styled.div`
   margin-bottom: ${(props) => props.theme.padding};
@@ -50,33 +44,28 @@ interface ConfirmProps {
   onSend: (seqNo: number) => void;
 }
 
-export const SendNftConfirm: FC<ConfirmProps> = ({
-  nft,
-  state,
-  balance,
-  onSend,
-}) => {
+export const SendNftConfirm: FC<ConfirmProps> = ({ nft, state, onSend }) => {
   const wallet = useContext(WalletStateContext);
 
   const {
-    data: method,
-    error,
-    isFetching,
-  } = useTransferNftMethod(state, balance);
+    data: address,
+    error: addressError,
+    isFetching: isAddressFetching,
+  } = useTargetAddress(state.address);
 
-  const { data } = useEstimateFee(method);
+  const { data } = useEstimateNftFee(state, nft);
 
-  const { mutateAsync, isLoading } = useSendMutation();
-
+  const { mutateAsync, isLoading: isSending, error } = useSendNft(state, nft);
   const onConfirm = async () => {
-    if (!method) return;
-    const seqNo = await mutateAsync(method);
+    if (!address) return;
+    const seqNo = await mutateAsync(address);
     onSend(seqNo);
   };
 
-  const transaction = state.amount != "" ? parseFloat(state.amount) : 0.05;
+  const transaction = parseFloat(state.amount);
 
-  const disabled = isLoading || isFetching || error != null;
+  const isLoading = isAddressFetching || isSending;
+  const disabled = isLoading || error != null || addressError != null;
 
   return (
     <>
@@ -87,12 +76,6 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
         <TextLine>
           <b>{nft.state?.name ?? "Unknown"}</b>
         </TextLine>
-        {state.comment && (
-          <>
-            <TextLine>Comment:</TextLine>
-            <Comment>{state.comment}</Comment>
-          </>
-        )}
 
         <Fees estimation={data} />
         <TextLine>Transaction fee estimation:</TextLine>
@@ -105,13 +88,20 @@ export const SendNftConfirm: FC<ConfirmProps> = ({
           be returned to the wallet.
         </Quote>
 
+        {addressError && <ErrorMessage>{addressError.message}</ErrorMessage>}
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
 
         <Gap />
         <ButtonRow>
           <SendCancelButton disabled={isLoading} homeRoute="../" />
           <ButtonPositive disabled={disabled} onClick={onConfirm}>
-            {isFetching ? <Dots>Validating</Dots> : "Confirm"}
+            {isAddressFetching ? (
+              <Dots>Validating</Dots>
+            ) : isSending ? (
+              <Dots>Loading</Dots>
+            ) : (
+              <FingerprintLabel>Confirm</FingerprintLabel>
+            )}
           </ButtonPositive>
         </ButtonRow>
       </Body>

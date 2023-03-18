@@ -1,54 +1,31 @@
-import {
-  Address,
-  nftTransferBody,
-  toNano,
-  TransferParams,
-} from "@openproduct/web-sdk";
-import { useQuery } from "@tanstack/react-query";
-import BN from "bn.js";
+import { EstimateFeeValues, toNano } from "@openproduct/web-sdk";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { SendMode } from "ton-core";
+import { TonClient } from "ton";
+import { Address } from "ton-core";
+import { NftItem } from "../../../../../../../libs/entries/asset";
+import { WalletState } from "../../../../../../../libs/entries/wallet";
+import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
+import {
+  createLadgerNftTransfer,
+  createNftTransfer,
+  SendNftState,
+} from "../../../../../../../libs/service/transfer/nftService";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
-  TonProviderContext,
-  WalletContractContext,
+  TonClientContext,
   WalletStateContext,
 } from "../../../../../../context";
-import { checkBalanceOrDie } from "../../../../../api";
-import { useSelectedNetworkConfig } from "../../../../api";
-import { getTransactionsParams, WrapperMethod } from "../../../send/api";
-import { NftItemStateContext } from "../context";
-
-export interface SendNftState {
-  /**
-   * The nft receiver wallet address.
-   */
-  address: string;
-  /**
-   * The amount of ton to cover transaction and storage cost.
-   * default - 0.05
-   */
-  amount: string;
-  /**
-   * The amount of ton from `amount` with would be sent to the nft receiver to notify it.
-   * The value should be less then `amount`.
-   * default - 0.000000001
-   */
-  forwardAmount: string;
-
-  /**
-   * The forward comment with should show to nft receiver with `forwardAmount`
-   * I can't send transaction to receiver have a forwarded message,
-   * if some one have an idea how wrap the text, I will appreciate for help
-   */
-  comment: string;
-}
+import { checkBalanceOrDie, getWalletKeyPair } from "../../../../../api";
+import { signLadgerTransaction } from "../../../../../ladger/api";
 
 export const toSendNftState = (searchParams: URLSearchParams): SendNftState => {
   return {
     address: decodeURIComponent(searchParams.get("address") ?? ""),
-    amount: decodeURIComponent(searchParams.get("amount") ?? ""),
-    forwardAmount: decodeURIComponent(searchParams.get("forwardAmount") ?? ""),
+    amount: decodeURIComponent(searchParams.get("amount") ?? "0.05"),
+    forwardAmount: decodeURIComponent(
+      searchParams.get("forwardAmount") ?? "0.0001"
+    ),
     comment: decodeURIComponent(searchParams.get("comment") ?? ""),
   };
 };
@@ -60,57 +37,101 @@ export const stateToSearch = (state: SendNftState) => {
   }, {} as Record<string, string>);
 };
 
-export const useTransferNftMethod = (
-  state: SendNftState,
-  balance: string | undefined
-) => {
-  const contract = useContext(WalletContractContext);
+export const useEstimateNftFee = (state: SendNftState, nft: NftItem) => {
+  const tonClient = useContext(TonClientContext);
   const wallet = useContext(WalletStateContext);
-  const ton = useContext(TonProviderContext);
-  const config = useSelectedNetworkConfig();
 
-  const nft = useContext(NftItemStateContext);
+  return useQuery([QueryType.estimation, nft], async () => {
+    const transaction = createNftTransfer(
+      0,
+      wallet,
+      wallet.address,
+      state,
+      nft
+    );
+    const data = await tonClient.estimateExternalMessageFee(
+      Address.parse(wallet.address),
+      {
+        body: transaction,
+        initCode: null,
+        initData: null,
+        ignoreSignature: true,
+      }
+    );
+    return data.source_fees as EstimateFeeValues;
+  });
+};
 
-  return useQuery<WrapperMethod, Error>(
-    [QueryType.method, wallet.address, state],
-    async () => {
-      const amount = toNano(state.amount ? state.amount : "0.05");
-      const forwardAmount = state.forwardAmount
-        ? toNano(state.forwardAmount)
-        : new BN(1, 10);
+const sendLadgerTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  state: SendNftState,
+  nft: NftItem,
+  address: string
+) => {
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
 
-      await checkBalanceOrDie(balance, amount);
+  const walletBalance = await tonContract.getBalance();
 
-      const nftAddress = new Address(nft.address);
-      const forwardPayload = new TextEncoder().encode(state.comment ?? "");
+  await checkBalanceOrDie(walletBalance.toString(), toNano(state.amount));
 
-      const [newOwnerAddress, keyPair, seqno] = await getTransactionsParams(
-        ton,
-        config,
-        state.address,
-        wallet
-      );
+  const seqno = await tonContract.getSeqno();
 
-      const payload = nftTransferBody({
-        newOwnerAddress: new Address(newOwnerAddress),
-        responseAddress: new Address(wallet.address),
-        forwardAmount,
-        forwardPayload,
-      });
-
-      const params: TransferParams = {
-        secretKey: keyPair.secretKey,
-        toAddress: nftAddress,
-        amount,
-        seqno: seqno,
-        payload,
-        sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-      };
-
-      const method = contract.transfer(params);
-
-      return { method, seqno };
-    },
-    { retry: 1 }
+  const transaction = createLadgerNftTransfer(
+    seqno,
+    wallet,
+    address,
+    state,
+    nft
   );
+
+  const signed = await signLadgerTransaction(transaction);
+  await tonContract.send(signed);
+
+  return seqno;
+};
+const sendMnemonicTransaction = async (
+  tonClient: TonClient,
+  wallet: WalletState,
+  state: SendNftState,
+  nft: NftItem,
+  address: string
+) => {
+  const keyPair = await getWalletKeyPair(wallet);
+  const secretKey = Buffer.from(keyPair.secretKey);
+
+  const contract = getWalletContract(wallet);
+  const tonContract = tonClient.open(contract);
+
+  const walletBalance = await tonContract.getBalance();
+
+  await checkBalanceOrDie(walletBalance.toString(), toNano(state.amount));
+
+  const seqno = await tonContract.getSeqno();
+
+  const transaction = createNftTransfer(
+    seqno,
+    wallet,
+    address,
+    state,
+    nft,
+    secretKey
+  );
+
+  await tonContract.send(transaction);
+
+  return seqno;
+};
+export const useSendNft = (state: SendNftState, nft: NftItem) => {
+  const tonClient = useContext(TonClientContext);
+  const wallet = useContext(WalletStateContext);
+
+  return useMutation<number, Error, string>(async (address) => {
+    if (wallet.isLadger) {
+      return sendLadgerTransaction(tonClient, wallet, state, nft, address);
+    } else {
+      return sendMnemonicTransaction(tonClient, wallet, state, nft, address);
+    }
+  });
 };

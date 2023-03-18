@@ -45,7 +45,6 @@ export interface SendJettonState {
 
 const DefaultDecimals = 9;
 
-const jettonTransferAmount = toNano("0.64");
 const jettonTransferForwardAmount = toNano("0.0001");
 
 const jettonTransferBody = (params: {
