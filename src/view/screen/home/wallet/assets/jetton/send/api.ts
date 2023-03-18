@@ -1,9 +1,10 @@
-import { EstimateFeeValues, toNano } from "@openproduct/web-sdk";
+import { toNano } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { TonClient } from "ton";
 import { Address, beginCell } from "ton-core";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
+import { EstimateFeeValues } from "../../../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
 import {

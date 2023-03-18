@@ -1,23 +1,27 @@
-import { ALL, hexToBytes, sha256_sync } from "@openproduct/web-sdk";
-import { useMutation } from "@tanstack/react-query";
+import { ALL, hexToBytes } from "@openproduct/web-sdk";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import BigNumber from "bignumber.js";
 import { useContext } from "react";
-import { Address, Cell, fromNano, internal, SendMode, toNano } from "ton-core";
-import { KeyPair } from "tonweb-mnemonic/dist/types";
+import { Address } from "ton-core";
+import { sha256_sync } from "ton-crypto";
 import nacl from "tweetnacl";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
 import {
   TonAddressItemReply,
   TonConnectItemReply,
   TonConnectRequest,
-  TonConnectTransactionPayloadMessage,
+  TonConnectTransactionPayload,
   TonProofItemReplySuccess,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
+import { EstimateFeeValues } from "../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
+import { createTonConnectTransfer } from "../../../../libs/service/transfer/tonService";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,
+  QueryType,
   setConnections,
 } from "../../../../libs/store/browserStore";
 import {
@@ -29,7 +33,7 @@ import {
   WalletStateContext,
 } from "../../../context";
 import { sendBackground } from "../../../event";
-import { getWalletKeyPair } from "../../api";
+import { checkBalanceOrDie2, getWalletKeyPair } from "../../api";
 
 interface ConnectParams {
   origin: string;
@@ -185,57 +189,40 @@ export const useAddConnectionMutation = () => {
   );
 };
 
-export const useKeyPairMutation = () => {
-  const wallet = useContext(WalletStateContext);
-
-  return useMutation<KeyPair, Error>(() => {
-    return getWalletKeyPair(wallet);
-  });
-};
-
-const toInit = (stateInit?: string) => {
-  if (!stateInit) {
-    return undefined;
-  }
-  const initSlice = Cell.fromBase64(stateInit).asSlice();
-  return {
-    code: initSlice.loadRef(),
-    data: initSlice.loadRef(),
-  };
-};
-export const useSendMutation = () => {
+export const useSendMnemonicMutation = () => {
   const wallet = useContext(WalletStateContext);
   const client = useContext(TonClientContext);
 
-  return useMutation<
-    void,
-    Error,
-    { state: TonConnectTransactionPayloadMessage[]; keyPair: KeyPair }
-  >(async ({ state, keyPair }) => {
-    const walletContract = getWalletContract(wallet);
-    const contract = client.open(walletContract);
+  return useMutation<void, Error, TonConnectTransactionPayload>(
+    async (data) => {
+      const now = Date.now() / 1000;
+      if (now > data.valid_until) {
+        throw new Error("Transaction expired");
+      }
 
-    const seqno = await contract.getSeqno();
+      const keyPair = await getWalletKeyPair(wallet);
+      const walletContract = getWalletContract(wallet);
+      const contract = client.open(walletContract);
 
-    const transfer = walletContract.createTransfer({
-      secretKey: Buffer.from(keyPair.secretKey),
-      seqno: seqno,
-      sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
-      messages: state.map((item) => {
-        return internal({
-          to: item.address,
-          value: toNano(fromNano(item.amount)),
-          bounce: Address.isFriendly(item.address)
-            ? Address.parseFriendly(item.address).isBounceable
-            : false,
-          init: toInit(item.stateInit),
-          body: item.payload ? Cell.fromBase64(item.payload) : undefined,
-        });
-      }),
-    });
+      const seqno = await contract.getSeqno();
+      const balance = await contract.getBalance();
 
-    await client.sendExternalMessage(walletContract, transfer);
-  });
+      const total = data.messages.reduce(
+        (acc, item) => acc.plus(item.amount),
+        new BigNumber("0")
+      );
+      await checkBalanceOrDie2(balance.toString(), total);
+
+      const transfer = createTonConnectTransfer(
+        wallet,
+        seqno,
+        data.messages,
+        Buffer.from(keyPair.secretKey)
+      );
+
+      await contract.send(transfer);
+    }
+  );
 };
 
 export const useLastBocMutation = () => {
@@ -247,5 +234,25 @@ export const useLastBocMutation = () => {
       limit: 1,
     });
     return tx.stateUpdate.newHash.toString();
+  });
+};
+
+export const useEstimateTransactions = (data: TonConnectTransactionPayload) => {
+  const wallet = useContext(WalletStateContext);
+  const client = useContext(TonClientContext);
+
+  return useQuery([QueryType.estimation, data], async () => {
+    const transfer = createTonConnectTransfer(wallet, 0, data.messages);
+
+    const result = await client.estimateExternalMessageFee(
+      Address.parse(wallet.address),
+      {
+        body: transfer,
+        initCode: null,
+        initData: null,
+        ignoreSignature: true,
+      }
+    );
+    return result.source_fees as EstimateFeeValues;
   });
 };

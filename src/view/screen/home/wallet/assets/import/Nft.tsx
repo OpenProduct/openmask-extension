@@ -17,7 +17,7 @@ import { Dots } from "../../../../../components/Dots";
 import { HomeButton } from "../../../../../components/HomeButton";
 import { InputField } from "../../../../../components/InputField";
 import { NftPayload } from "../../../../../components/NftPayload";
-import { WalletStateContext } from "../../../../../context";
+import { NetworkContext, WalletStateContext } from "../../../../../context";
 import { AppRoute } from "../../../../../routes";
 import {
   useAddNftMutation,
@@ -35,6 +35,7 @@ const Block = styled.div`
 export const ImportNft = () => {
   const navigate = useNavigate();
 
+  const network = useContext(NetworkContext);
   const wallet = useContext(WalletStateContext);
 
   const [nftData, setNftData] = useState<NftData | null>(null);
@@ -84,9 +85,15 @@ export const ImportNft = () => {
     const walletAddress = new Address(wallet.address).toString(
       true,
       true,
-      true
+      true,
+      network === "testnet"
     );
-    const nftOwner = nftData.ownerAddress?.toString(true, true, true);
+    const nftOwner = nftData.ownerAddress?.toString(
+      true,
+      true,
+      true,
+      network === "testnet"
+    );
     return walletAddress == nftOwner;
   }, [wallet, nftData]);
 

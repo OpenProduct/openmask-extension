@@ -1,5 +1,6 @@
-import { Address, Cell, internal, SendMode, toNano } from "ton-core";
+import { Address, Cell, fromNano, internal, SendMode, toNano } from "ton-core";
 import { TonPayloadFormat } from "ton-ledger";
+import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
 import { LadgerTransfer } from "./ladger";
@@ -28,6 +29,12 @@ export const getTonSendMode = (max: boolean | string) => {
     : SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS;
 };
 
+const seeIfBounceable = (address: string) => {
+  return Address.isFriendly(address)
+    ? Address.parseFriendly(address).isBounceable
+    : false;
+};
+
 export const createTonTransfer = (
   seqno: number,
   walletState: WalletState,
@@ -44,13 +51,48 @@ export const createTonTransfer = (
     messages: [
       internal({
         to: address,
-        bounce: Address.isFriendly(address)
-          ? Address.parseFriendly(address).isBounceable
-          : false,
+        bounce: seeIfBounceable(address),
         value: toNano(data.amount),
         body: comment,
       }),
     ],
+  });
+
+  return transfer;
+};
+
+const toInit = (stateInit?: string) => {
+  if (!stateInit) {
+    return undefined;
+  }
+  const initSlice = Cell.fromBase64(stateInit).asSlice();
+  return {
+    code: initSlice.loadRef(),
+    data: initSlice.loadRef(),
+  };
+};
+
+export const createTonConnectTransfer = (
+  wallet: WalletState,
+  seqno: number,
+  state: TonConnectTransactionPayloadMessage[],
+  secretKey: Buffer = Buffer.alloc(64)
+) => {
+  const walletContract = getWalletContract(wallet);
+
+  const transfer = walletContract.createTransfer({
+    secretKey,
+    seqno,
+    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    messages: state.map((item) => {
+      return internal({
+        to: item.address,
+        value: toNano(fromNano(item.amount)),
+        bounce: seeIfBounceable(item.address),
+        init: toInit(item.stateInit),
+        body: item.payload ? Cell.fromBase64(item.payload) : undefined,
+      });
+    }),
   });
 
   return transfer;

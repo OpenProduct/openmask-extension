@@ -1,4 +1,6 @@
+import { TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient } from "@tanstack/react-query";
+import BigNumber from "bignumber.js";
 import BN from "bn.js";
 import * as tonMnemonic from "tonweb-mnemonic";
 import browser from "webextension-polyfill";
@@ -9,7 +11,6 @@ import { decryptMnemonic } from "../../libs/state/accountService";
 import { QueryType } from "../../libs/store/browserStore";
 import { checkForError } from "../../libs/utils";
 import { getAppPassword } from "../api";
-import { TonHttpProvider } from "@openproduct/web-sdk";
 
 export const saveAccountState = async (
   network: string,
@@ -41,6 +42,20 @@ export const checkBalanceOrDie = (
   }
 };
 
+export const checkBalanceOrDie2 = (
+  balance: BigNumber.Value | undefined,
+  amount: BigNumber.Value
+) => {
+  if (balance) {
+    if (new BigNumber(balance).comparedTo(amount) === -1) {
+      throw new RuntimeError(
+        ErrorCode.unexpectedParams,
+        "Don't enough wallet balance"
+      );
+    }
+  }
+};
+
 export const getWalletKeyPair = async (wallet: WalletState) => {
   return getAppPassword(async (password) => {
     const mnemonic = await decryptMnemonic(wallet.mnemonic, password);
@@ -48,11 +63,14 @@ export const getWalletKeyPair = async (wallet: WalletState) => {
   });
 };
 
-export const getPublicKey = async (ton: TonHttpProvider, address: string): Promise<string> => {
-  const walletPubKeyBN =  await ton.call2(address, "get_public_key");
+export const getPublicKey = async (
+  ton: TonHttpProvider,
+  address: string
+): Promise<string> => {
+  const walletPubKeyBN = await ton.call2(address, "get_public_key");
   let walletPubKeyHex = walletPubKeyBN.toString(16);
   if (walletPubKeyHex.length % 2 !== 0) {
-    walletPubKeyHex = '0' + walletPubKeyHex;
+    walletPubKeyHex = "0" + walletPubKeyHex;
   }
   return walletPubKeyHex;
 };

@@ -1,6 +1,5 @@
 import {
   Address,
-  EstimateFeeValues,
   Method,
   toNano,
   TonDns,
@@ -11,6 +10,7 @@ import { useContext } from "react";
 import { TonClient } from "ton";
 import { Address as CoreAddress } from "ton-core";
 import { NetworkConfig } from "../../../../../libs/entries/network";
+import { EstimateFeeValues } from "../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../libs/service/transfer/core";
 import {
