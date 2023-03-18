@@ -16,9 +16,9 @@ import {
 } from "../../../components/Components";
 import { DAppBadge } from "../../../components/DAppBadge";
 import { Dots } from "../../../components/Dots";
-import { FingerprintIcon } from "../../../components/Icons";
 import { AccountStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
+import { FingerprintWalletLabel } from "../../../FingerprintLabel";
 import { formatTonValue } from "../../../utils";
 import { useBalance } from "../../home/api";
 import { useAddConnectionMutation } from "./api";
@@ -106,11 +106,16 @@ export const ConnectRequest: FC<
     onClose();
   };
 
+  const [wallet] = useMemo(() => {
+    return account.wallets.filter((item) => item.address === selectedWallet);
+  }, [account, selectedWallet]);
+
   const isSignature = useMemo(
     () => data.items.some((item) => item.name === "ton_proof"),
     [data]
   );
 
+  const disableConnect = isLoading || (isSignature && wallet.isLadger);
   return (
     <Body>
       <Center>
@@ -133,15 +138,13 @@ export const ConnectRequest: FC<
         <ButtonNegative onClick={onCancel} disabled={isLoading}>
           Cancel
         </ButtonNegative>
-        <ButtonPositive onClick={onConnect} disabled={isLoading}>
+        <ButtonPositive onClick={onConnect} disabled={disableConnect}>
           {isLoading ? (
             <Dots>Loading</Dots>
-          ) : !isSignature ? (
-            "Connect"
           ) : (
-            <>
-              Connect <FingerprintIcon />
-            </>
+            <FingerprintWalletLabel isSignature={isSignature} wallet={wallet}>
+              {isSignature && wallet.isLadger ? "Not Supported" : "Connect"}
+            </FingerprintWalletLabel>
           )}
         </ButtonPositive>
       </ButtonBottomRow>

@@ -1,3 +1,4 @@
+import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
@@ -84,7 +85,39 @@ export const useConnectLadgerDevice = () => {
   });
 };
 
-const getLadgerTransport = async () => {
+export const getLadgerTransportWebHID = async () => {
+  while (true) {
+    // Searching for devices
+    let [device] = await TransportWebHID.list();
+
+    if (device === undefined) {
+      await TransportWebHID.create();
+      await delay(3000);
+      continue;
+    }
+
+    let transportHID = device.opened
+      ? new TransportWebHID(device)
+      : await TransportWebHID.open(device);
+
+    let transport = new TonTransport(transportHID);
+    let appOpened = false;
+
+    try {
+      // We wrap it in a try-catch, because isAppOpen() can throw an error in case of an incorrect application
+      appOpened = await transport.isAppOpen();
+    } catch (e) {}
+
+    if (!appOpened) {
+      await delay(1000);
+      continue;
+    }
+
+    return transport;
+  }
+};
+
+export const getLadgerTransportWebUSB = async () => {
   while (true) {
     // Searching for devices
     let devices = await TransportWebUSB.list();
@@ -113,7 +146,7 @@ const getLadgerTransport = async () => {
 };
 
 export const useGetLadgerTransport = () => {
-  return useMutation<TonTransport, Error>(() => getLadgerTransport());
+  return useMutation<TonTransport, Error>(() => getLadgerTransportWebUSB());
 };
 
 export const useSignLadgerTransaction = () => {

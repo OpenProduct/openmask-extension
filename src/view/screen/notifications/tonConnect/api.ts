@@ -1,9 +1,4 @@
-import {
-  ALL,
-  bytesToBase64,
-  hexToBytes,
-  sha256_sync,
-} from "@openproduct/web-sdk";
+import { ALL, hexToBytes, sha256_sync } from "@openproduct/web-sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Address, Cell, fromNano, internal, SendMode, toNano } from "ton-core";
@@ -15,10 +10,10 @@ import {
   TonConnectItemReply,
   TonConnectRequest,
   TonConnectTransactionPayloadMessage,
-  TonProofItem,
   TonProofItemReplySuccess,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
+import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
@@ -44,12 +39,19 @@ interface ConnectParams {
   data: TonConnectRequest;
 }
 
-const tonConnectSignature = (
-  keyPair: KeyPair,
-  item: TonProofItem,
+interface ConnectProofPayload {
+  timestamp: number;
+  bufferToSign: Buffer;
+  domainBuffer: Buffer;
+  payload: string;
+  origin: string;
+}
+
+const tonConnectProofPayload = (
   origin: string,
-  wallet: string
-): TonProofItemReplySuccess => {
+  wallet: string,
+  payload: string
+): ConnectProofPayload => {
   const timestamp = Math.round(Date.now() / 1000);
   const timestampBuffer = Buffer.allocUnsafe(8);
   timestampBuffer.writeBigInt64LE(BigInt(timestamp));
@@ -71,7 +73,7 @@ const tonConnectSignature = (
     domainLengthBuffer,
     domainBuffer,
     timestampBuffer,
-    Buffer.from(item.payload),
+    Buffer.from(payload),
   ]);
 
   const bufferToSign = Buffer.concat([
@@ -80,25 +82,47 @@ const tonConnectSignature = (
     Buffer.from(sha256_sync(messageBuffer)),
   ]);
 
-  const signature = nacl.sign.detached(
-    Buffer.from(sha256_sync(bufferToSign)),
-    keyPair.secretKey
-  );
+  return {
+    timestamp,
+    bufferToSign,
+    domainBuffer,
+    payload,
+    origin,
+  };
+};
 
+const toTonProofItemReplySuccess = (
+  proof: ConnectProofPayload,
+  signature: Buffer
+) => {
   const result: TonProofItemReplySuccess = {
     name: "ton_proof",
     proof: {
-      timestamp: timestamp, // 64-bit unix epoch time of the signing operation (seconds)
+      timestamp: proof.timestamp, // 64-bit unix epoch time of the signing operation (seconds)
       domain: {
-        lengthBytes: domainBuffer.byteLength, // AppDomain Length
-        value: domainBuffer.toString("utf8"), // app domain name (as url part, without encoding)
+        lengthBytes: proof.domainBuffer.byteLength, // AppDomain Length
+        value: proof.domainBuffer.toString("utf8"), // app domain name (as url part, without encoding)
       },
-      signature: bytesToBase64(signature), // base64-encoded signature
-      payload: item.payload, // payload from the request
+      signature: signature.toString("base64"), // base64-encoded signature
+      payload: proof.payload, // payload from the request
     },
   };
 
   return result;
+};
+
+const tonConnectMnemonicSignature = async (
+  proof: ConnectProofPayload,
+  walletState: WalletState
+): Promise<TonProofItemReplySuccess> => {
+  const keyPair = await getWalletKeyPair(walletState);
+
+  const signature = nacl.sign.detached(
+    Buffer.from(sha256_sync(proof.bufferToSign)),
+    keyPair.secretKey
+  );
+
+  return toTonProofItemReplySuccess(proof, Buffer.from(signature));
 };
 
 export const useAddConnectionMutation = () => {
@@ -136,11 +160,17 @@ export const useAddConnectionMutation = () => {
           };
           payload.push(result);
         } else if (item.name === "ton_proof") {
-          const keyPair = await getWalletKeyPair(walletState);
-
-          payload.push(
-            tonConnectSignature(keyPair, item, origin, walletState.address)
+          const proof = tonConnectProofPayload(
+            origin,
+            walletState.address,
+            item.payload
           );
+
+          if (walletState.isLadger) {
+            throw new Error("Not implemented");
+          } else {
+            payload.push(await tonConnectMnemonicSignature(proof, walletState));
+          }
         }
       }
 
