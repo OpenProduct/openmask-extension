@@ -1,4 +1,12 @@
-import { Address, Cell, fromNano, internal, SendMode, toNano } from "ton-core";
+import {
+  Address,
+  Cell,
+  fromNano,
+  internal,
+  SendMode,
+  StateInit,
+  toNano,
+} from "ton-core";
 import { TonPayloadFormat } from "ton-ledger";
 import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import { WalletState } from "../../entries/wallet";
@@ -61,7 +69,7 @@ export const createTonTransfer = (
   return transfer;
 };
 
-const toInit = (stateInit?: string) => {
+export const toStateInit = (stateInit?: string) => {
   if (!stateInit) {
     return undefined;
   }
@@ -89,7 +97,7 @@ export const createTonConnectTransfer = (
         to: item.address,
         value: toNano(fromNano(item.amount)),
         bounce: seeIfBounceable(item.address),
-        init: toInit(item.stateInit),
+        init: toStateInit(item.stateInit),
         body: item.payload ? Cell.fromBase64(item.payload) : undefined,
       });
     }),
@@ -102,7 +110,8 @@ export const createLadgerTonTransfer = (
   seqno: number,
   address: string,
   state: TransactionState,
-  body: Cell | string | undefined
+  body: Cell | string | undefined,
+  stateInit?: StateInit
 ): LadgerTransfer => {
   const payload: TonPayloadFormat | undefined = (() => {
     if (body === undefined) {
@@ -121,6 +130,7 @@ export const createLadgerTonTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
+    stateInit,
     payload,
   };
 

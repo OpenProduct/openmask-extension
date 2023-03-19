@@ -2,7 +2,7 @@ import { ALL, hexToBytes } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
-import { Address } from "ton-core";
+import { Address, Cell, fromNano } from "ton-core";
 import { sha256_sync } from "ton-crypto";
 import nacl from "tweetnacl";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
@@ -11,13 +11,18 @@ import {
   TonConnectItemReply,
   TonConnectRequest,
   TonConnectTransactionPayload,
+  TonConnectTransactionPayloadMessage,
   TonProofItemReplySuccess,
 } from "../../../../libs/entries/notificationMessage";
 import { Permission } from "../../../../libs/entries/permission";
 import { EstimateFeeValues } from "../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
-import { createTonConnectTransfer } from "../../../../libs/service/transfer/tonService";
+import {
+  createLadgerTonTransfer,
+  createTonConnectTransfer,
+  toStateInit,
+} from "../../../../libs/service/transfer/tonService";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -34,6 +39,7 @@ import {
 } from "../../../context";
 import { sendBackground } from "../../../event";
 import { checkBalanceOrDie2, getWalletKeyPair } from "../../api";
+import { signLadgerTransaction } from "../../ladger/api";
 
 interface ConnectParams {
   origin: string;
@@ -255,4 +261,37 @@ export const useEstimateTransactions = (data: TonConnectTransactionPayload) => {
     );
     return result.source_fees as EstimateFeeValues;
   });
+};
+
+export const useSendLedgerMutation = () => {
+  const wallet = useContext(WalletStateContext);
+  const client = useContext(TonClientContext);
+
+  return useMutation<number, Error, TonConnectTransactionPayloadMessage>(
+    async (item) => {
+      const contract = getWalletContract(wallet);
+      const tonContract = client.open(contract);
+
+      const seqno = await tonContract.getSeqno();
+
+      const data = item.payload ? Cell.fromBase64(item.payload) : undefined;
+      const transaction = createLadgerTonTransfer(
+        seqno,
+        item.address,
+        {
+          address: item.address,
+          amount: fromNano(item.amount),
+          max: "0",
+          data,
+        },
+        data,
+        toStateInit(item.stateInit)
+      );
+
+      const signed = await signLadgerTransaction(transaction);
+      await tonContract.send(signed);
+
+      return seqno;
+    }
+  );
 };

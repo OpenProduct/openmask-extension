@@ -24,12 +24,13 @@ import { Dots } from "../../../components/Dots";
 import { CheckIcon, SpinnerIcon, TimeIcon } from "../../../components/Icons";
 import { Fees } from "../../../components/send/Fees";
 import { WalletStateContext } from "../../../context";
-import { sendBackground } from "../../../event";
+import { askBackground, sendBackground } from "../../../event";
 import { FingerprintLabel } from "../../../FingerprintLabel";
 import { formatTonValue, toShortAddress } from "../../../utils";
 import {
   useEstimateTransactions,
   useLastBocMutation,
+  useSendLedgerMutation,
   useSendMnemonicMutation,
 } from "./api";
 
@@ -44,6 +45,11 @@ const Row = styled.div`
   margin: 5px ${(props) => props.theme.padding};
   border-bottom: 1px solid ${(props) => props.theme.darkGray};
   align-items: center;
+`;
+
+const Column = styled.div`
+  margin: 5px ${(props) => props.theme.padding};
+  border-bottom: 1px solid ${(props) => props.theme.darkGray};
 `;
 
 const Icon = styled.span`
@@ -96,7 +102,108 @@ const TransactionItem: FC<{ message: PayloadMessage }> = ({ message }) => {
   );
 };
 
-const SendLadgerTransactions = () => {};
+const timeout = 60 * 1000; // 60 sec
+
+const SendLadgerTransactions: FC<{
+  data: TonConnectTransactionPayload;
+  onCancel: () => void;
+  onOk: (payload: string) => void;
+}> = ({ data, onCancel, onOk }) => {
+  const [isSending, setSending] = useState(false);
+  const [isConfirm, setConfirm] = useState(data.messages.length == 1);
+
+  const [items, setItems] = useState<PayloadMessage[]>(data.messages);
+  const [error, setError] = useState<Error | null>(null);
+
+  const { mutateAsync: getLastBoc } = useLastBocMutation();
+  const { data: estimation } = useEstimateTransactions(data);
+  const { mutateAsync: sendAsync, reset } = useSendLedgerMutation();
+
+  const onConfirm = async () => {
+    setSending(true);
+    try {
+      for (let state of items) {
+        reset();
+
+        setItems((s) =>
+          s.map((item) =>
+            item === state ? (state = { ...state, isSend: true }) : item
+          )
+        );
+
+        const seqno = await sendAsync(state);
+        await askBackground<void>(timeout).message("confirmSeqNo", seqno);
+
+        setItems((s) =>
+          s.map((item) =>
+            item === state ? (state = { ...state, isConfirmed: true }) : item
+          )
+        );
+      }
+
+      const payload = await getLastBoc().catch(() => "");
+      onOk(payload);
+    } catch (e) {
+      setError(e as Error);
+      setSending(false);
+    }
+  };
+
+  if (!isConfirm) {
+    return (
+      <>
+        <Column>
+          <Text>
+            The Ton Ledger App version 1.1 does not support sending multiple
+            transfers per transaction.
+          </Text>
+          <Text>You may sign and send multiple transfers one by one.</Text>
+          <Text>
+            Please do not interrupt the execution of transactions to get
+            multiple transfer expected result.
+          </Text>
+        </Column>
+        <Gap />
+        <ButtonRow>
+          <ButtonNegative onClick={onCancel}>Cancel</ButtonNegative>
+          <ButtonPositive onClick={() => setConfirm(true)}>
+            Continue
+          </ButtonPositive>
+        </ButtonRow>
+      </>
+    );
+  }
+
+  const disabledCancel = isSending;
+  const disabledConfirm = isSending || error != null;
+
+  return (
+    <>
+      {items.map((message, index) => (
+        <TransactionItem key={index} message={message} />
+      ))}
+      {estimation && (
+        <Row>
+          <Fees estimation={estimation} />
+        </Row>
+      )}
+
+      <Gap />
+      <ButtonRow>
+        <ButtonNegative onClick={onCancel} disabled={disabledCancel}>
+          Cancel
+        </ButtonNegative>
+        <ButtonPositive onClick={onConfirm} disabled={disabledConfirm}>
+          {isSending ? (
+            <Dots>Sending</Dots>
+          ) : (
+            <FingerprintLabel>Confirm</FingerprintLabel>
+          )}
+        </ButtonPositive>
+      </ButtonRow>
+    </>
+  );
+};
 
 const SendMnemonicTransactions: FC<{
   data: TonConnectTransactionPayload;
@@ -194,9 +301,8 @@ export const ConnectSendTransaction: FC<
         </H1>
         <Text>Would you like to send transaction?</Text>
       </Center>
-
       {wallet.isLadger ? (
-        <div></div>
+        <SendLadgerTransactions data={data} onCancel={onCancel} onOk={onOk} />
       ) : (
         <SendMnemonicTransactions data={data} onCancel={onCancel} onOk={onOk} />
       )}

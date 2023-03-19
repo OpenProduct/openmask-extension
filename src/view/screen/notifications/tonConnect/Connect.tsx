@@ -40,10 +40,18 @@ const Row = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 18px;
 `;
 
 const Balance = styled(Row)`
   color: ${(props) => props.theme.darkGray};
+`;
+const BadgeLabel = styled.span`
+  margin-left: ${(props) => props.theme.padding};
+  border: 1px solid ${(props) => props.theme.darkGray};
+  background: ${(props) => props.theme.lightGray};
+  padding: 0px 8px;
+  border-radius: 20px;
 `;
 
 const Wallet: FC<{
@@ -63,6 +71,7 @@ const Wallet: FC<{
       <Column>
         <Row>
           <b>{wallet.name}</b>
+          {wallet.isLadger && <BadgeLabel>Ladger</BadgeLabel>}
         </Row>
         <Row>{wallet.address}</Row>
         <Balance>{data ? formatTonValue(data) : "-"} TON</Balance>
