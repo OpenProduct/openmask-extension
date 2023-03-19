@@ -90,9 +90,7 @@ export const ConnectDApp: FC<
 
   const account = useContext(AccountStateContext);
 
-  const [selected, setSelected] = useState(
-    account.wallets.map((w) => w.address)
-  );
+  const [selected, setSelected] = useState([account.wallets[0].address]);
 
   const onCancel = () => {
     sendBackground.message("rejectRequest", id);
