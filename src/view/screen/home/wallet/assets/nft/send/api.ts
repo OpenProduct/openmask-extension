@@ -8,7 +8,7 @@ import { EstimateFeeValues } from "../../../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
 import {
-  createLadgerNftTransfer,
+  createLedgerNftTransfer,
   createNftTransfer,
   SendNftState,
 } from "../../../../../../../libs/service/transfer/nftService";
@@ -18,7 +18,7 @@ import {
   WalletStateContext,
 } from "../../../../../../context";
 import { checkBalanceOrDie, getWalletKeyPair } from "../../../../../api";
-import { signLadgerTransaction } from "../../../../../ladger/api";
+import { signLedgerTransaction } from "../../../../../ledger/api";
 
 export const toSendNftState = (searchParams: URLSearchParams): SendNftState => {
   return {
@@ -63,7 +63,7 @@ export const useEstimateNftFee = (state: SendNftState, nft: NftItem) => {
   });
 };
 
-const sendLadgerTransaction = async (
+const sendLedgerTransaction = async (
   tonClient: TonClient,
   wallet: WalletState,
   state: SendNftState,
@@ -79,7 +79,7 @@ const sendLadgerTransaction = async (
 
   const seqno = await tonContract.getSeqno();
 
-  const transaction = createLadgerNftTransfer(
+  const transaction = createLedgerNftTransfer(
     seqno,
     wallet,
     address,
@@ -87,7 +87,7 @@ const sendLadgerTransaction = async (
     nft
   );
 
-  const signed = await signLadgerTransaction(transaction);
+  const signed = await signLedgerTransaction(transaction);
   await tonContract.send(signed);
 
   return seqno;
@@ -129,8 +129,8 @@ export const useSendNft = (state: SendNftState, nft: NftItem) => {
   const wallet = useContext(WalletStateContext);
 
   return useMutation<number, Error, string>(async (address) => {
-    if (wallet.isLadger) {
-      return sendLadgerTransaction(tonClient, wallet, state, nft, address);
+    if (wallet.isLedger) {
+      return sendLedgerTransaction(tonClient, wallet, state, nft, address);
     } else {
       return sendMnemonicTransaction(tonClient, wallet, state, nft, address);
     }

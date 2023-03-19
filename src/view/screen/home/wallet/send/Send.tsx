@@ -90,7 +90,7 @@ const InputView: FC<InputProps> = ({ state, balance, onChange, onSend }) => {
         onChange={(e) => onChange({ data: e.target.value })}
       />
 
-      {!wallet.isLadger && (
+      {!wallet.isLedger && (
         <label>
           <input
             type="checkbox"

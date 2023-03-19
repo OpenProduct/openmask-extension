@@ -7,9 +7,9 @@ import { TonTransport } from "ton-ledger";
 import { WalletState } from "../../../libs/entries/wallet";
 import { popUpInternalEventEmitter } from "../../../libs/popUpEvent";
 import {
-  ladgerPathForAccount,
-  LadgerTransfer,
-} from "../../../libs/service/transfer/ladger";
+  LedgerPathForAccount,
+  LedgerTransfer,
+} from "../../../libs/service/transfer/ledger";
 import { delay } from "../../../libs/state/accountService";
 import {
   AccountStateContext,
@@ -21,13 +21,13 @@ import { saveAccountState } from "../api";
 let workchain = 0;
 let chain = workchain === -1 ? 255 : 0;
 
-export const getLadgerWalletState = async (
+export const getLedgerWalletState = async (
   network: string,
   transport: TonTransport,
   accountIndex: number
 ): Promise<WalletState> => {
   let bounceable = false;
-  let path = ladgerPathForAccount(network, workchain, accountIndex);
+  let path = LedgerPathForAccount(network, workchain, accountIndex);
   let response = await transport.getAddress(path, {
     chain,
     bounceable,
@@ -37,24 +37,24 @@ export const getLadgerWalletState = async (
   let address: string = response.address;
 
   return {
-    name: `Ladger ${accountIndex + 1}`,
+    name: `Ledger ${accountIndex + 1}`,
     mnemonic: "",
     address,
     publicKey: publiKey.toString("hex"),
     version: "v4R2",
     isBounceable: bounceable,
-    isLadger: true,
-    ladgerIndex: accountIndex,
-    ladgerDriver: "USB",
+    isLedger: true,
+    LedgerIndex: accountIndex,
+    LedgerDriver: "USB",
   };
 };
 
-export const useLadgerAccounts = () => {
+export const useLedgerAccounts = () => {
   const network = useContext(NetworkContext);
   return useMutation<WalletState[], Error, TonTransport>(async (transport) => {
     return Promise.all(
       [0, 1, 2, 3, 4].map((index) =>
-        getLadgerWalletState(network, transport, index)
+        getLedgerWalletState(network, transport, index)
       )
     );
   });
@@ -79,13 +79,13 @@ export const useAddWalletMutation = () => {
   });
 };
 
-export const useConnectLadgerDevice = () => {
+export const useConnectLedgerDevice = () => {
   return useMutation<void, Error>(async () => {
     await TransportWebUSB.create();
   });
 };
 
-export const getLadgerTransportWebHID = async () => {
+export const getLedgerTransportWebHID = async () => {
   while (true) {
     // Searching for devices
     let [device] = await TransportWebHID.list();
@@ -117,7 +117,7 @@ export const getLadgerTransportWebHID = async () => {
   }
 };
 
-export const getLadgerTransportWebUSB = async () => {
+export const getLedgerTransportWebUSB = async () => {
   while (true) {
     // Searching for devices
     let devices = await TransportWebUSB.list();
@@ -145,31 +145,31 @@ export const getLadgerTransportWebUSB = async () => {
   }
 };
 
-export const useGetLadgerTransport = () => {
-  return useMutation<TonTransport, Error>(() => getLadgerTransportWebUSB());
+export const useGetLedgerTransport = () => {
+  return useMutation<TonTransport, Error>(() => getLedgerTransportWebUSB());
 };
 
-export const useSignLadgerTransaction = () => {
+export const useSignLedgerTransaction = () => {
   const network = useContext(NetworkContext);
   const wallet = useContext(WalletStateContext);
   return useMutation<
     Cell,
     Error,
-    { transport: TonTransport; params: LadgerTransfer }
+    { transport: TonTransport; params: LedgerTransfer }
   >(async ({ transport, params }) => {
-    const path = ladgerPathForAccount(network, workchain, wallet.ladgerIndex!);
+    const path = LedgerPathForAccount(network, workchain, wallet.LedgerIndex!);
     const signed = await transport.signTransaction(path, params);
     return signed;
   });
 };
 
-export const signLadgerTransaction = async (
-  data: LadgerTransfer
+export const signLedgerTransaction = async (
+  data: LedgerTransfer
 ): Promise<Cell> => {
   const id = Date.now();
   return new Promise<Cell>((resolve, reject) => {
-    popUpInternalEventEmitter.emit("ladgerTransaction", {
-      method: "ladgerTransaction",
+    popUpInternalEventEmitter.emit("LedgerTransaction", {
+      method: "LedgerTransaction",
       id,
       params: data,
     });

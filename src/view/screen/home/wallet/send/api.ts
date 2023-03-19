@@ -18,7 +18,7 @@ import {
   getPayload,
 } from "../../../../../libs/service/transfer/payload";
 import {
-  createLadgerTonTransfer,
+  createLedgerTonTransfer,
   createTonTransfer,
   TransactionState,
 } from "../../../../../libs/service/transfer/tonService";
@@ -29,7 +29,7 @@ import {
   WalletStateContext,
 } from "../../../../context";
 import { checkBalanceOrDie, getWalletKeyPair } from "../../../api";
-import { signLadgerTransaction } from "../../../ladger/api";
+import { signLedgerTransaction } from "../../../ledger/api";
 import { useSelectedNetworkConfig } from "../../api";
 
 export const toState = (searchParams: URLSearchParams): TransactionState => {
@@ -168,7 +168,7 @@ export const useEstimateTransaction = (
   );
 };
 
-const sendLadgerTransaction = async (
+const sendLedgerTransaction = async (
   tonClient: TonClient,
   wallet: WalletState,
   address: string,
@@ -183,14 +183,14 @@ const sendLadgerTransaction = async (
 
   const seqno = await tonContract.getSeqno();
 
-  const transaction = createLadgerTonTransfer(
+  const transaction = createLedgerTonTransfer(
     seqno,
     address,
     state,
     await getPayload(tonClient, address, state.isEncrypt, state.data)
   );
 
-  const signed = await signLadgerTransaction(transaction);
+  const signed = await signLedgerTransaction(transaction);
   await tonContract.send(signed);
 
   return seqno;
@@ -242,8 +242,8 @@ export const useSendTransaction = () => {
     Error,
     { address: string; state: TransactionState }
   >(async ({ address, state }) => {
-    if (wallet.isLadger) {
-      return sendLadgerTransaction(tonClient, wallet, address, state);
+    if (wallet.isLedger) {
+      return sendLedgerTransaction(tonClient, wallet, address, state);
     } else {
       return sendMnemonicTransaction(tonClient, wallet, address, state);
     }

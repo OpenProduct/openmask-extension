@@ -104,7 +104,7 @@ const TransactionItem: FC<{ message: PayloadMessage }> = ({ message }) => {
 
 const timeout = 60 * 1000; // 60 sec
 
-const SendLadgerTransactions: FC<{
+const SendLedgerTransactions: FC<{
   data: TonConnectTransactionPayload;
   onCancel: () => void;
   onOk: (payload: string) => void;
@@ -301,8 +301,8 @@ export const ConnectSendTransaction: FC<
         </H1>
         <Text>Would you like to send transaction?</Text>
       </Center>
-      {wallet.isLadger ? (
-        <SendLadgerTransactions data={data} onCancel={onCancel} onOk={onOk} />
+      {wallet.isLedger ? (
+        <SendLedgerTransactions data={data} onCancel={onCancel} onOk={onOk} />
       ) : (
         <SendMnemonicTransactions data={data} onCancel={onCancel} onOk={onOk} />
       )}

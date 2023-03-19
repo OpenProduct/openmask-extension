@@ -1,7 +1,7 @@
 import { Address } from "ton-core";
 import { TonPayloadFormat } from "ton-ledger";
 
-export interface LadgerTransfer {
+export interface LedgerTransfer {
   to: Address;
   amount: bigint;
   sendMode: number;
@@ -11,7 +11,7 @@ export interface LadgerTransfer {
   payload: TonPayloadFormat | undefined;
 }
 
-export function ladgerPathForAccount(
+export function LedgerPathForAccount(
   network: string,
   workchain: number,
   account: number

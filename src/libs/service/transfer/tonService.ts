@@ -11,7 +11,7 @@ import { TonPayloadFormat } from "ton-ledger";
 import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
-import { LadgerTransfer } from "./ladger";
+import { LedgerTransfer } from "./ledger";
 
 export interface TransactionState {
   address: string;
@@ -106,13 +106,13 @@ export const createTonConnectTransfer = (
   return transfer;
 };
 
-export const createLadgerTonTransfer = (
+export const createLedgerTonTransfer = (
   seqno: number,
   address: string,
   state: TransactionState,
   body: Cell | string | undefined,
   stateInit?: StateInit
-): LadgerTransfer => {
+): LedgerTransfer => {
   const payload: TonPayloadFormat | undefined = (() => {
     if (body === undefined) {
       return undefined;

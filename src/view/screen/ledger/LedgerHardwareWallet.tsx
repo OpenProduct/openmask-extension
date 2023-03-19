@@ -15,10 +15,10 @@ import {
 import { AppRoute } from "../../routes";
 import {
   useAddWalletMutation,
-  useLadgerAccounts,
+  useLedgerAccounts,
 } from "../import/hardware/api";
 import { Wallet } from "../notifications/connect/ConnectDApp";
-import { useConnectLadgerDevice, useGetLadgerTransport } from "./api";
+import { useConnectLedgerDevice, useGetLedgerTransport } from "./api";
 
 const Block = styled.div`
   margin-bottom: ${(props) => props.theme.padding};
@@ -28,7 +28,7 @@ const Step = styled.div`
   min-height: 200px;
 `;
 
-export const LadgerWallet = () => {
+export const LedgerWallet = () => {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState<WalletState[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -38,20 +38,20 @@ export const LadgerWallet = () => {
     isLoading: isConnecting,
     error: connectError,
     reset: resetConnect,
-  } = useConnectLadgerDevice();
+  } = useConnectLedgerDevice();
   const {
     mutateAsync: openTonAppAsync,
     isLoading: isOpeningTonApp,
     error: tonAppError,
     reset: resetTonApp,
-  } = useGetLadgerTransport();
+  } = useGetLedgerTransport();
 
   const {
     mutateAsync: accountsAsync,
     isLoading: isAccountLoading,
     error: accountError,
     reset: resetAccounts,
-  } = useLadgerAccounts();
+  } = useLedgerAccounts();
 
   const { mutateAsync: addAccounts } = useAddWalletMutation();
   const isLoading = isConnecting || isOpeningTonApp || isAccountLoading;
@@ -80,17 +80,17 @@ export const LadgerWallet = () => {
   return (
     <Body>
       <Center>
-        <H1>Connect Ladger</H1>
+        <H1>Connect Ledger</H1>
       </Center>
 
       {isConnecting && (
         <Step>
-          <Text>Step 1 of 3: Connect Ladger by USB and unlock</Text>
+          <Text>Step 1 of 3: Connect Ledger by USB and unlock</Text>
         </Step>
       )}
       {isOpeningTonApp && (
         <Step>
-          <Text>Step 2 of 3: Open TON Ladger App</Text>
+          <Text>Step 2 of 3: Open TON Ledger App</Text>
         </Step>
       )}
       {isAccountLoading && (

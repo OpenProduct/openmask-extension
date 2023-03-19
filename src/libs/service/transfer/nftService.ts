@@ -9,7 +9,7 @@ import {
 import { NftItem } from "../../entries/asset";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
-import { LadgerTransfer } from "./ladger";
+import { LedgerTransfer } from "./ledger";
 
 export interface SendNftState {
   /**
@@ -89,13 +89,13 @@ export const createNftTransfer = (
   return transfer;
 };
 
-export const createLadgerNftTransfer = (
+export const createLedgerNftTransfer = (
   seqno: number,
   walletState: WalletState,
   recipientAddress: string,
   state: SendNftState,
   nft: NftItem
-): LadgerTransfer => {
+): LedgerTransfer => {
   const body = nftTransferBody({
     queryId: Date.now(),
     newOwnerAddress: Address.parse(recipientAddress),

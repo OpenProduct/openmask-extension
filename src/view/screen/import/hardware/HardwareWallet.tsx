@@ -4,10 +4,10 @@ import { Body, H1 } from "../../../components/Components";
 import { HomeButton } from "../../../components/HomeButton";
 import { ArrowForwardIcon } from "../../../components/Icons";
 import { any, relative } from "../../../routes";
-import { LadgerWallet } from "../../ladger/LadgerHardwareWallet";
+import { LedgerWallet } from "../../ledger/LedgerHardwareWallet";
 
 export enum HardwareRoutes {
-  ladger = "/ladger",
+  Ledger = "/Ledger",
   index = "/",
 }
 
@@ -31,8 +31,8 @@ const HardwareIndex = () => {
       <Body>
         <H1>Connect Harware</H1>
 
-        <Item onClick={() => navigator(relative(HardwareRoutes.ladger))}>
-          <span>Ladger Hardware Wallet USB</span>
+        <Item onClick={() => navigator(relative(HardwareRoutes.Ledger))}>
+          <span>Ledger Hardware Wallet USB</span>
           <ArrowForwardIcon />
         </Item>
       </Body>
@@ -43,7 +43,7 @@ const HardwareIndex = () => {
 export const Hardware = () => {
   return (
     <Routes>
-      <Route path={any(HardwareRoutes.ladger)} element={<LadgerWallet />} />
+      <Route path={any(HardwareRoutes.Ledger)} element={<LedgerWallet />} />
       <Route index element={<HardwareIndex />} />
     </Routes>
   );

@@ -19,7 +19,7 @@ import { EstimateFeeValues } from "../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
 import {
-  createLadgerTonTransfer,
+  createLedgerTonTransfer,
   createTonConnectTransfer,
   toStateInit,
 } from "../../../../libs/service/transfer/tonService";
@@ -39,7 +39,7 @@ import {
 } from "../../../context";
 import { sendBackground } from "../../../event";
 import { checkBalanceOrDie2, getWalletKeyPair } from "../../api";
-import { signLadgerTransaction } from "../../ladger/api";
+import { signLedgerTransaction } from "../../ledger/api";
 
 interface ConnectParams {
   origin: string;
@@ -176,7 +176,7 @@ export const useAddConnectionMutation = () => {
             item.payload
           );
 
-          if (walletState.isLadger) {
+          if (walletState.isLedger) {
             throw new Error("Not implemented");
           } else {
             payload.push(await tonConnectMnemonicSignature(proof, walletState));
@@ -275,7 +275,7 @@ export const useSendLedgerMutation = () => {
       const seqno = await tonContract.getSeqno();
 
       const data = item.payload ? Cell.fromBase64(item.payload) : undefined;
-      const transaction = createLadgerTonTransfer(
+      const transaction = createLedgerTonTransfer(
         seqno,
         item.address,
         {
@@ -288,7 +288,7 @@ export const useSendLedgerMutation = () => {
         toStateInit(item.stateInit)
       );
 
-      const signed = await signLadgerTransaction(transaction);
+      const signed = await signLedgerTransaction(transaction);
       await tonContract.send(signed);
 
       return seqno;

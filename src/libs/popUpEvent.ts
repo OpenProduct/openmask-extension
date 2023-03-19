@@ -1,8 +1,8 @@
 import { EventEmitter, IEventEmitter } from "./entries/eventEmitter";
-import { LadgerTransfer } from "./service/transfer/ladger";
+import { LedgerTransfer } from "./service/transfer/ledger";
 
 export interface PupUpInternalEvents {
-  ladgerTransaction: LadgerTransfer;
+  LedgerTransaction: LedgerTransfer;
   getWebAuthn: void;
   response: any;
 }

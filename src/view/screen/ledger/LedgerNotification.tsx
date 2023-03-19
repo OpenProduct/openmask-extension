@@ -1,15 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { popUpInternalEventEmitter } from "../../../libs/popUpEvent";
-import { LadgerTransfer } from "../../../libs/service/transfer/ladger";
+import { LedgerTransfer } from "../../../libs/service/transfer/ledger";
 import { delay } from "../../../libs/state/accountService";
 import { ButtonLink, Gap, Text } from "../../components/Components";
 import { WalletStateContext } from "../../context";
 import { Block, Grid, Splash } from "../Overlay";
 import {
-  useConnectLadgerDevice,
-  useGetLadgerTransport,
-  useSignLadgerTransaction,
+  useConnectLedgerDevice,
+  useGetLedgerTransport,
+  useSignLedgerTransaction,
 } from "./api";
 
 const CancelButton = styled(ButtonLink)`
@@ -18,10 +18,10 @@ const CancelButton = styled(ButtonLink)`
 
 interface Message {
   id: number;
-  params: LadgerTransfer;
+  params: LedgerTransfer;
 }
 
-export const LadgerNotification = () => {
+export const LedgerNotification = () => {
   const wallet = useContext(WalletStateContext);
 
   const [message, setMessage] = useState<Message | undefined>(undefined);
@@ -32,19 +32,19 @@ export const LadgerNotification = () => {
     mutateAsync: connectAsync,
     isLoading: isConnecting,
     reset: resetConnect,
-  } = useConnectLadgerDevice();
+  } = useConnectLedgerDevice();
 
   const {
     mutateAsync: openTonAppAsync,
     isLoading: isOpeningTonApp,
     reset: resetTonApp,
-  } = useGetLadgerTransport();
+  } = useGetLedgerTransport();
 
   const {
     mutateAsync: signAsync,
     isLoading: isSigning,
     reset: resetSign,
-  } = useSignLadgerTransaction();
+  } = useSignLedgerTransaction();
   useEffect(() => {
     if (message) {
       delay(20).then(() => setActive(true));
@@ -95,14 +95,14 @@ export const LadgerNotification = () => {
       params,
     }: {
       id?: number | undefined;
-      params: LadgerTransfer;
+      params: LedgerTransfer;
     }) => {
       setMessage((prev) => {
-        if (prev != null || !wallet.isLadger) {
+        if (prev != null || !wallet.isLedger) {
           popUpInternalEventEmitter.emit("response", {
             method: "response",
             id,
-            params: { error: new Error("Wallet is not a ladger account") },
+            params: { error: new Error("Wallet is not a Ledger account") },
           });
           return prev;
         } else {
@@ -110,10 +110,10 @@ export const LadgerNotification = () => {
         }
       });
     };
-    popUpInternalEventEmitter.on("ladgerTransaction", handler);
+    popUpInternalEventEmitter.on("LedgerTransaction", handler);
 
     return () => {
-      popUpInternalEventEmitter.off("ladgerTransaction", handler);
+      popUpInternalEventEmitter.off("LedgerTransaction", handler);
     };
   }, []);
 
@@ -139,9 +139,9 @@ export const LadgerNotification = () => {
         <Grid>
           <Gap />
           {isConnecting && (
-            <Text>Step 1 of 3: Connect Ladger by USB and unlock</Text>
+            <Text>Step 1 of 3: Connect Ledger by USB and unlock</Text>
           )}
-          {isOpeningTonApp && <Text>Step 2 of 3: Open TON Ladger App</Text>}
+          {isOpeningTonApp && <Text>Step 2 of 3: Open TON Ledger App</Text>}
           {isSigning && <Text>Step 3 of 3: Sign Transaction</Text>}
           {result && <Text>{result}</Text>}
           <Gap />

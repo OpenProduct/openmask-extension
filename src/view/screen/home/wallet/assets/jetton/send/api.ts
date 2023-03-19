@@ -19,7 +19,7 @@ import {
   WalletStateContext,
 } from "../../../../../../context";
 import { checkBalanceOrDie, getWalletKeyPair } from "../../../../../api";
-import { signLadgerTransaction } from "../../../../../ladger/api";
+import { signLedgerTransaction } from "../../../../../ledger/api";
 
 export const toSendJettonState = (
   searchParams: URLSearchParams
@@ -133,7 +133,7 @@ export const useEstimateJettonFee = (
   });
 };
 
-const sendLadgerTransaction = async (
+const sendLedgerTransaction = async (
   tonClient: TonClient,
   wallet: WalletState,
   jetton: JettonAsset,
@@ -165,7 +165,7 @@ const sendLadgerTransaction = async (
     jetton
   );
 
-  const signed = await signLadgerTransaction(transaction);
+  const signed = await signLedgerTransaction(transaction);
   await tonContract.send(signed);
 
   return seqno;
@@ -221,8 +221,8 @@ export const useSendJetton = (jetton: JettonAsset, state: SendJettonState) => {
     Error,
     { balance: string; jettonWalletAddress: Address; address: string }
   >(async ({ balance, jettonWalletAddress, address }) => {
-    if (wallet.isLadger) {
-      return sendLadgerTransaction(
+    if (wallet.isLedger) {
+      return sendLedgerTransaction(
         tonClient,
         wallet,
         jetton,

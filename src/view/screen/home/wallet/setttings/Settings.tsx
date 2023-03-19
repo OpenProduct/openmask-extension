@@ -75,7 +75,7 @@ const SettingsIndex = () => {
             onChange({ name });
           }}
         />
-        {!wallet.isLadger && (
+        {!wallet.isLedger && (
           <>
             <SelectLabel>Address</SelectLabel>
             <DropDownList
@@ -95,7 +95,7 @@ const SettingsIndex = () => {
             </DropDownList>
           </>
         )}
-        {!wallet.isLadger && (
+        {!wallet.isLedger && (
           <>
             <SelectLabel>Version</SelectLabel>
             <DropDownList
@@ -113,7 +113,7 @@ const SettingsIndex = () => {
           </>
         )}
 
-        {!wallet.isLadger && (
+        {!wallet.isLedger && (
           <>
             <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
             <Button onClick={() => navigate(relative(WalletRoutes.mnemonic))}>

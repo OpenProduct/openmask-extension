@@ -84,7 +84,7 @@ const Account: FC<{
         </>
       )}
       {wallet.name}
-      {wallet.isLadger && <BadgeLabel>Ladger</BadgeLabel>}
+      {wallet.isLedger && <BadgeLabel>Ledger</BadgeLabel>}
       {data && <Balance>{formatTonValue(data)} TON</Balance>}
     </AccountItem>
   );

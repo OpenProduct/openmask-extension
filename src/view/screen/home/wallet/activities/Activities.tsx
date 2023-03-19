@@ -31,7 +31,7 @@ export const Activities = () => {
 
   return (
     <>
-      {!wallet.isLadger && (
+      {!wallet.isLedger && (
         <Row>
           <ButtonNegative onClick={onDecrypt}>
             {isDecrypting ? (

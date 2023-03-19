@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Add
 
-- Ladger Hardwart Wallet Support
+- Ledger Hardwart Wallet Support
 - Update wallet to work with ton-core
 
 ## [0.17.6] - 2023-03-09

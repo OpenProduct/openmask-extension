@@ -12,9 +12,9 @@ export interface WalletState {
   isBounceable: boolean;
   assets?: Asset[];
 
-  isLadger?: boolean;
-  ladgerIndex?: number;
-  ladgerDriver?: "USB" | "HID";
+  isLedger?: boolean;
+  LedgerIndex?: number;
+  LedgerDriver?: "USB" | "HID";
 }
 
 export interface WalletInfo {

@@ -10,7 +10,7 @@ import {
 import { JettonAsset } from "../../entries/asset";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
-import { LadgerTransfer } from "./ladger";
+import { LedgerTransfer } from "./ledger";
 
 export interface SendJettonState {
   /**
@@ -126,7 +126,7 @@ export const createLedgerJettonTransfer = (
   jettonWalletAddress: Address,
   data: SendJettonState,
   jetton: JettonAsset
-): LadgerTransfer => {
+): LedgerTransfer => {
   const body = jettonTransferBody({
     queryId: Date.now(),
     jettonAmount: getJettonAmount(data, jetton),
