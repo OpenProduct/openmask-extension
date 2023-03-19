@@ -1,7 +1,6 @@
-import { ALL } from "@openproduct/web-sdk";
 import { Asset } from "./asset";
 
-export type WalletVersion = keyof typeof ALL;
+export type WalletVersion = "v2R1" | "v2R2" | "v3R1" | "v3R2" | "v4R1" | "v4R2";
 
 export type LedgerDriver = "USB" | "HID";
 

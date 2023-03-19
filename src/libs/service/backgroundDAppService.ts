@@ -5,8 +5,8 @@
  * @since: 0.1.0
  */
 
-import { Address } from "@openproduct/web-sdk";
 import Joi from "joi";
+import { Address } from "ton-core";
 import browser from "webextension-polyfill";
 import {
   AssetParams,
@@ -117,9 +117,10 @@ const validateWalletAddress = (
     return undefined;
   }
 
-  if (Address.isValid(address)) {
+  try {
+    Address.parse(address);
     return address;
-  } else {
+  } catch (e) {
     throw new RuntimeError(ErrorCode.unexpectedParams, "Invalid address");
   }
 };

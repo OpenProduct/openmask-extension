@@ -1,8 +1,7 @@
-import { ALL, hexToBytes } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
-import { Address, Cell, fromNano } from "ton-core";
+import { Address, beginCell, Cell, fromNano, storeStateInit } from "ton-core";
 import { sha256_sync } from "ton-crypto";
 import nacl from "tweetnacl";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
@@ -34,7 +33,6 @@ import {
   NetworkContext,
   NetworksContext,
   TonClientContext,
-  TonProviderContext,
   WalletStateContext,
 } from "../../../context";
 import { sendBackground } from "../../../event";
@@ -139,7 +137,6 @@ export const useAddConnectionMutation = () => {
   const network = useContext(NetworkContext);
   const networks = useContext(NetworksContext);
   const account = useContext(AccountStateContext);
-  const ton = useContext(TonProviderContext);
 
   return useMutation<void, Error, ConnectParams>(
     async ({ origin, wallet, id, logo, data }) => {
@@ -151,22 +148,23 @@ export const useAddConnectionMutation = () => {
         throw new Error("Unexpected wallet state");
       }
 
-      const WalletClass = ALL[walletState.version];
-      const walletContract = new WalletClass(ton, {
-        publicKey: hexToBytes(walletState.publicKey),
-        wc: 0,
-      });
+      const contract = getWalletContract(walletState);
+      const stateInit = beginCell()
+        .storeWritable(storeStateInit(contract.init))
+        .endCell();
 
-      const { stateInit, address } = await walletContract.createStateInit();
+      const address = new Address(contract.workchain, stateInit.hash());
 
       const payload: TonConnectItemReply[] = [];
       for (let item of data.items) {
         if (item.name === "ton_addr") {
           const result: TonAddressItemReply = {
             name: "ton_addr",
-            address: address.toString(false),
+            address: address.toRawString(),
             network: currentNetwork.id,
-            walletStateInit: stateInit.toBase64(),
+            walletStateInit: stateInit
+              .toBoc({ idx: true, crc32: true })
+              .toString("base64"),
           };
           payload.push(result);
         } else if (item.name === "ton_proof") {
@@ -280,7 +278,6 @@ export const useSendLedgerMutation = () => {
         item.address,
         {
           amount: fromNano(item.amount),
-          max: "0",
         },
         data,
         toStateInit(item.stateInit)
