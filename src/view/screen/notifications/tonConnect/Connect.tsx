@@ -71,7 +71,7 @@ const Wallet: FC<{
       <Column>
         <Row>
           <b>{wallet.name}</b>
-          {wallet.isLedger && <BadgeLabel>Ledger</BadgeLabel>}
+          {wallet.ledger && <BadgeLabel>Ledger</BadgeLabel>}
         </Row>
         <Row>{wallet.address}</Row>
         <Balance>{data ? formatTonValue(data) : "-"} TON</Balance>
@@ -124,7 +124,7 @@ export const ConnectRequest: FC<
     [data]
   );
 
-  const disableConnect = isLoading || (isSignature && wallet.isLedger);
+  const disableConnect = isLoading || (isSignature && !!wallet.ledger);
   return (
     <Body>
       <Center>
@@ -152,7 +152,7 @@ export const ConnectRequest: FC<
             <Dots>Loading</Dots>
           ) : (
             <FingerprintWalletLabel isSignature={isSignature} wallet={wallet}>
-              {isSignature && wallet.isLedger ? "Not Supported" : "Connect"}
+              {isSignature && wallet.ledger ? "Not Supported" : "Connect"}
             </FingerprintWalletLabel>
           )}
         </ButtonPositive>

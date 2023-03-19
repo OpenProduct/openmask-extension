@@ -90,6 +90,8 @@ export const InlineButtonLink = styled(ButtonLink)`
 `;
 
 export const ButtonDanger = styled(Button)`
+  width: 100%;
+
   border: 1px solid ${(props) => props.theme.red};
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.color};
@@ -224,6 +226,7 @@ export const Logo = styled.img`
 `;
 
 export const SelectLabel = styled.div`
+  font-weight: bold;
   margin: 40px 0 10px;
 `;
 

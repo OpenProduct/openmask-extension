@@ -197,7 +197,7 @@ const SendLedgerTransactions: FC<{
           {isSending ? (
             <Dots>Sending</Dots>
           ) : (
-            <FingerprintLabel>Confirm</FingerprintLabel>
+            <FingerprintLabel>Agree</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>
@@ -301,7 +301,7 @@ export const ConnectSendTransaction: FC<
         </H1>
         <Text>Would you like to send transaction?</Text>
       </Center>
-      {wallet.isLedger ? (
+      {wallet.ledger ? (
         <SendLedgerTransactions data={data} onCancel={onCancel} onOk={onOk} />
       ) : (
         <SendMnemonicTransactions data={data} onCancel={onCancel} onOk={onOk} />

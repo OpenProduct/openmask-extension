@@ -3,6 +3,15 @@ import { Asset } from "./asset";
 
 export type WalletVersion = keyof typeof ALL;
 
+export type LedgerDriver = "USB" | "HID";
+
+export interface LedgerState {
+  index: number;
+  driver: LedgerDriver;
+  productId?: string;
+  productName?: string;
+}
+
 export interface WalletState {
   name: string;
   mnemonic: string;
@@ -12,9 +21,7 @@ export interface WalletState {
   isBounceable: boolean;
   assets?: Asset[];
 
-  isLedger?: boolean;
-  LedgerIndex?: number;
-  LedgerDriver?: "USB" | "HID";
+  ledger?: LedgerState;
 }
 
 export interface WalletInfo {

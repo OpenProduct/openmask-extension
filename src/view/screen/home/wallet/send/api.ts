@@ -242,7 +242,7 @@ export const useSendTransaction = () => {
     Error,
     { address: string; state: TransactionState }
   >(async ({ address, state }) => {
-    if (wallet.isLedger) {
+    if (wallet.ledger) {
       return sendLedgerTransaction(tonClient, wallet, address, state);
     } else {
       return sendMnemonicTransaction(tonClient, wallet, address, state);

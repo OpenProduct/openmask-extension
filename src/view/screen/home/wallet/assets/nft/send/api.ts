@@ -129,7 +129,7 @@ export const useSendNft = (state: SendNftState, nft: NftItem) => {
   const wallet = useContext(WalletStateContext);
 
   return useMutation<number, Error, string>(async (address) => {
-    if (wallet.isLedger) {
+    if (wallet.ledger) {
       return sendLedgerTransaction(tonClient, wallet, state, nft, address);
     } else {
       return sendMnemonicTransaction(tonClient, wallet, state, nft, address);

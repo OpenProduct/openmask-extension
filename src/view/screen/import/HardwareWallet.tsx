@@ -1,10 +1,10 @@
 import { Route, Routes, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Body, H1 } from "../../../components/Components";
-import { HomeButton } from "../../../components/HomeButton";
-import { ArrowForwardIcon } from "../../../components/Icons";
-import { any, relative } from "../../../routes";
-import { LedgerWallet } from "../../ledger/LedgerHardwareWallet";
+import { Body, H1 } from "../../components/Components";
+import { HomeButton } from "../../components/HomeButton";
+import { ArrowForwardIcon } from "../../components/Icons";
+import { any, relative } from "../../routes";
+import { LedgerWallet } from "../ledger/LedgerHardwareWallet";
 
 export enum HardwareRoutes {
   Ledger = "/Ledger",
@@ -29,10 +29,9 @@ const HardwareIndex = () => {
     <>
       <HomeButton />
       <Body>
-        <H1>Connect Harware</H1>
-
+        <H1>Connect Hardware Wallet</H1>
         <Item onClick={() => navigator(relative(HardwareRoutes.Ledger))}>
-          <span>Ledger Hardware Wallet USB</span>
+          <span>Ledger Hardware Wallet</span>
           <ArrowForwardIcon />
         </Item>
       </Body>

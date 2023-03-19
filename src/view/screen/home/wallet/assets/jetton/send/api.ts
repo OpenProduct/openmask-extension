@@ -221,7 +221,7 @@ export const useSendJetton = (jetton: JettonAsset, state: SendJettonState) => {
     Error,
     { balance: string; jettonWalletAddress: Address; address: string }
   >(async ({ balance, jettonWalletAddress, address }) => {
-    if (wallet.isLedger) {
+    if (wallet.ledger) {
       return sendLedgerTransaction(
         tonClient,
         wallet,

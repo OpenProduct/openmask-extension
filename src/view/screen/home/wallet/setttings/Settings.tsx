@@ -31,23 +31,15 @@ import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
 import { useAuthConfiguration } from "../../../settings/api";
 import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
+import { LedgerSettings } from "./LedgerSettings";
+import { WalletRoutes } from "./route";
 
 const Text = styled.div`
   font-size: medium;
   margin-top: ${(props) => props.theme.padding};
 `;
 
-const Button = styled(ButtonDanger)`
-  width: 100%;
-`;
-
 const bounceableOptions = ["Bounceable", "Non Bounceable"];
-
-enum WalletRoutes {
-  index = "/",
-  mnemonic = "/mnemonic",
-  delete = "/delete",
-}
 
 const SettingsIndex = () => {
   const navigate = useNavigate();
@@ -75,57 +67,45 @@ const SettingsIndex = () => {
             onChange({ name });
           }}
         />
-        {!wallet.isLedger && (
-          <>
-            <SelectLabel>Address</SelectLabel>
-            <DropDownList
-              isLeft
-              options={bounceableOptions}
-              renderOption={(value) => value}
-              onSelect={(value) =>
-                onChange({ isBounceable: value === bounceableOptions[0] })
-              }
-            >
-              <SelectPayload>
-                {wallet.isBounceable
-                  ? bounceableOptions[0]
-                  : bounceableOptions[1]}
-                <ArrowDownIcon />
-              </SelectPayload>
-            </DropDownList>
-          </>
-        )}
-        {!wallet.isLedger && (
-          <>
-            <SelectLabel>Version</SelectLabel>
-            <DropDownList
-              isLeft
-              options={Object.keys(ALL)}
-              renderOption={(value) => value}
-              onSelect={(version) =>
-                onChange({ version: version as WalletVersion })
-              }
-            >
-              <SelectPayload>
-                {wallet.version} <ArrowDownIcon />
-              </SelectPayload>
-            </DropDownList>
-          </>
-        )}
 
-        {!wallet.isLedger && (
-          <>
-            <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
-            <Button onClick={() => navigate(relative(WalletRoutes.mnemonic))}>
-              Reveal Secret Recovery Phrase
-            </Button>
-          </>
-        )}
+        <SelectLabel>Address</SelectLabel>
+        <DropDownList
+          isLeft
+          options={bounceableOptions}
+          renderOption={(value) => value}
+          onSelect={(value) =>
+            onChange({ isBounceable: value === bounceableOptions[0] })
+          }
+        >
+          <SelectPayload>
+            {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}
+            <ArrowDownIcon />
+          </SelectPayload>
+        </DropDownList>
+
+        <SelectLabel>Version</SelectLabel>
+        <DropDownList
+          isLeft
+          options={Object.keys(ALL)}
+          renderOption={(value) => value}
+          onSelect={(version) =>
+            onChange({ version: version as WalletVersion })
+          }
+        >
+          <SelectPayload>
+            {wallet.version} <ArrowDownIcon />
+          </SelectPayload>
+        </DropDownList>
+
+        <SelectLabel>Reveal Secret Recovery Phrase</SelectLabel>
+        <ButtonDanger onClick={() => navigate(relative(WalletRoutes.mnemonic))}>
+          Reveal Secret Recovery Phrase
+        </ButtonDanger>
 
         <SelectLabel>Delete Wallet</SelectLabel>
-        <Button onClick={() => navigate(relative(WalletRoutes.delete))}>
+        <ButtonDanger onClick={() => navigate(relative(WalletRoutes.delete))}>
           Delete Wallet <DeleteIcon />
-        </Button>
+        </ButtonDanger>
       </Body>
     </>
   );
@@ -234,11 +214,16 @@ const SettingsDelete = () => {
 };
 
 export const WalletSettings = () => {
+  const wallet = useContext(WalletStateContext);
+
   return (
     <Routes>
       <Route path={WalletRoutes.mnemonic} element={<SettingsMnemonic />} />
       <Route path={WalletRoutes.delete} element={<SettingsDelete />} />
-      <Route path={WalletRoutes.index} element={<SettingsIndex />} />
+      <Route
+        path={WalletRoutes.index}
+        element={wallet.ledger ? <LedgerSettings /> : <SettingsIndex />}
+      />
     </Routes>
   );
 };

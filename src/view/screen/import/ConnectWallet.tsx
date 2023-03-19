@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { any } from "../../routes";
 import { Create } from "./CreateWallet";
-import { Hardware } from "./hardware/HardwareWallet";
+import { Hardware } from "./HardwareWallet";
 import { Import } from "./ImportWallet";
 
 export enum ConnectRoutes {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { WalletState } from "../../../libs/entries/wallet";
+import { LedgerDriver, WalletState } from "../../../libs/entries/wallet";
 import {
   Body,
   ButtonNegative,
@@ -10,58 +10,71 @@ import {
   Center,
   ErrorMessage,
   H1,
+  SelectPayload,
   Text,
 } from "../../components/Components";
+import { Dots } from "../../components/Dots";
+import { DropDownList } from "../../components/DropDown";
+import { ArrowDownIcon } from "../../components/Icons";
 import { AppRoute } from "../../routes";
+
+import { Wallet } from "../notifications/connect/ConnectDApp";
 import {
   useAddWalletMutation,
+  useConnectLedgerTransport,
   useLedgerAccounts,
-} from "../import/hardware/api";
-import { Wallet } from "../notifications/connect/ConnectDApp";
-import { useConnectLedgerDevice, useGetLedgerTransport } from "./api";
+  useUnPairLedgerDevice,
+} from "./api";
 
 const Block = styled.div`
   margin-bottom: ${(props) => props.theme.padding};
 `;
 
 const Step = styled.div`
-  min-height: 200px;
+  width: 100%;
+  text-align: center;
+  padding: ${(props) => props.theme.padding} 0;
 `;
+
+const drivers: LedgerDriver[] = ["USB", "HID"];
 
 export const LedgerWallet = () => {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState<WalletState[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [driver, setDriver] = useState<LedgerDriver>("USB");
+
+  const { mutateAsync, reset } = useUnPairLedgerDevice(driver);
+
+  const onChangeDriver = async (value: LedgerDriver) => {
+    reset();
+    await mutateAsync();
+    setDriver(value);
+    setAccounts([]);
+    setSelected([]);
+  };
 
   const {
     mutateAsync: connectAsync,
     isLoading: isConnecting,
     error: connectError,
     reset: resetConnect,
-  } = useConnectLedgerDevice();
-  const {
-    mutateAsync: openTonAppAsync,
-    isLoading: isOpeningTonApp,
-    error: tonAppError,
-    reset: resetTonApp,
-  } = useGetLedgerTransport();
+  } = useConnectLedgerTransport(driver);
 
   const {
     mutateAsync: accountsAsync,
     isLoading: isAccountLoading,
     error: accountError,
     reset: resetAccounts,
-  } = useLedgerAccounts();
+  } = useLedgerAccounts(driver);
 
   const { mutateAsync: addAccounts } = useAddWalletMutation();
-  const isLoading = isConnecting || isOpeningTonApp || isAccountLoading;
+  const isLoading = isConnecting || isAccountLoading;
 
   const onConnect = async () => {
     if (accounts) resetConnect();
-    resetTonApp();
     resetAccounts();
-    await connectAsync();
-    const transport = await openTonAppAsync();
+    const transport = await connectAsync();
     const wallets = await accountsAsync(transport);
     setAccounts(wallets);
     setSelected([wallets[0].address]);
@@ -83,19 +96,39 @@ export const LedgerWallet = () => {
         <H1>Connect Ledger</H1>
       </Center>
 
-      {isConnecting && (
+      <div>
+        <b>Driver</b>
+      </div>
+      <DropDownList
+        isLeft
+        options={drivers}
+        renderOption={(value) => value}
+        onSelect={onChangeDriver}
+      >
+        <SelectPayload>
+          {driver}
+          <ArrowDownIcon />
+        </SelectPayload>
+      </DropDownList>
+
+      {accounts.length === 0 && (
         <Step>
-          <Text>Step 1 of 3: Connect Ledger by USB and unlock</Text>
+          <img src="/ledger.png" width="300" />
         </Step>
       )}
-      {isOpeningTonApp && (
+
+      {isConnecting && (
         <Step>
-          <Text>Step 2 of 3: Open TON Ledger App</Text>
+          <Text>
+            <Dots>Unlock Ledger and Open TON App</Dots>
+          </Text>
         </Step>
       )}
       {isAccountLoading && (
         <Step>
-          <Text>Step 3 of 3: Get Account data</Text>
+          <Text>
+            <Dots>Loading Account data</Dots>
+          </Text>
         </Step>
       )}
 
@@ -121,7 +154,6 @@ export const LedgerWallet = () => {
       </Block>
 
       {connectError && <ErrorMessage>{connectError.message}</ErrorMessage>}
-      {tonAppError && <ErrorMessage>{tonAppError.message}</ErrorMessage>}
       {accountError && <ErrorMessage>{accountError.message}</ErrorMessage>}
 
       <ButtonRow>

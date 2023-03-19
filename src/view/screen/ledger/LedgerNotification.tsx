@@ -4,13 +4,10 @@ import { popUpInternalEventEmitter } from "../../../libs/popUpEvent";
 import { LedgerTransfer } from "../../../libs/service/transfer/ledger";
 import { delay } from "../../../libs/state/accountService";
 import { ButtonLink, Gap, Text } from "../../components/Components";
+import { Dots } from "../../components/Dots";
 import { WalletStateContext } from "../../context";
 import { Block, Grid, Splash } from "../Overlay";
-import {
-  useConnectLedgerDevice,
-  useGetLedgerTransport,
-  useSignLedgerTransaction,
-} from "./api";
+import { useConnectLedgerTransport, useSignLedgerTransaction } from "./api";
 
 const CancelButton = styled(ButtonLink)`
   padding-bottom: ${(props) => props.theme.padding};
@@ -32,19 +29,14 @@ export const LedgerNotification = () => {
     mutateAsync: connectAsync,
     isLoading: isConnecting,
     reset: resetConnect,
-  } = useConnectLedgerDevice();
-
-  const {
-    mutateAsync: openTonAppAsync,
-    isLoading: isOpeningTonApp,
-    reset: resetTonApp,
-  } = useGetLedgerTransport();
+  } = useConnectLedgerTransport(wallet.ledger?.driver);
 
   const {
     mutateAsync: signAsync,
     isLoading: isSigning,
     reset: resetSign,
   } = useSignLedgerTransaction();
+
   useEffect(() => {
     if (message) {
       delay(20).then(() => setActive(true));
@@ -54,12 +46,10 @@ export const LedgerNotification = () => {
   useEffect(() => {
     if (active) {
       resetConnect();
-      resetTonApp();
       resetSign();
 
       delay(10)
         .then(() => connectAsync())
-        .then(() => openTonAppAsync())
         .then((transport) => signAsync({ transport, params: message?.params! }))
         .then((cell) => {
           popUpInternalEventEmitter.emit("response", {
@@ -98,7 +88,7 @@ export const LedgerNotification = () => {
       params: LedgerTransfer;
     }) => {
       setMessage((prev) => {
-        if (prev != null || !wallet.isLedger) {
+        if (prev != null || !wallet.ledger) {
           popUpInternalEventEmitter.emit("response", {
             method: "response",
             id,
@@ -138,11 +128,17 @@ export const LedgerNotification = () => {
       <Block active={active}>
         <Grid>
           <Gap />
+          <img src="/ledger.png" width="180" />
           {isConnecting && (
-            <Text>Step 1 of 3: Connect Ledger by USB and unlock</Text>
+            <Text>
+              <Dots>Unlock Ledger and Open TON App</Dots>
+            </Text>
           )}
-          {isOpeningTonApp && <Text>Step 2 of 3: Open TON Ledger App</Text>}
-          {isSigning && <Text>Step 3 of 3: Sign Transaction</Text>}
+          {isSigning && (
+            <Text>
+              <Dots>Sign Transaction</Dots>
+            </Text>
+          )}
           {result && <Text>{result}</Text>}
           <Gap />
           <CancelButton onClick={onCancel}>Cancel</CancelButton>

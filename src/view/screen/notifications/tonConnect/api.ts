@@ -176,7 +176,7 @@ export const useAddConnectionMutation = () => {
             item.payload
           );
 
-          if (walletState.isLedger) {
+          if (walletState.ledger) {
             throw new Error("Not implemented");
           } else {
             payload.push(await tonConnectMnemonicSignature(proof, walletState));
