@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { setLockScreen } from "../../../../libs/store/browserStore";
 import {
   Body,
   ButtonColumn,
@@ -100,7 +101,8 @@ export const WebAuthnEnableMigration = () => {
     navigate(AppRoute.settings);
   }, []);
 
-  const onLock = useCallback(() => {
+  const onLock = useCallback(async () => {
+    await setLockScreen(true);
     sendBackground.message("lock");
   }, []);
 

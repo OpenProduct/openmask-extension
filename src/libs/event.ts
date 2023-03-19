@@ -73,6 +73,7 @@ export interface PupUpEvents {
   unlock: void;
   lock: void;
   locked: void;
+  getTemporalLock: void;
   getPassword: void;
   setPassword: string;
   approveRequest: PayloadRequest;

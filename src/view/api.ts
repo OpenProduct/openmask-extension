@@ -9,6 +9,7 @@ import { popUpInternalEventEmitter } from "../libs/popUpEvent";
 import { delay } from "../libs/state/accountService";
 import {
   getAuthConfiguration,
+  getLockScreen,
   getNetwork,
   getNetworkConfig,
   getNetworkStoreValue,
@@ -17,7 +18,7 @@ import {
   setStoreValue,
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
-import { askBackground } from "./event";
+import { askBackground, uiEventEmitter } from "./event";
 import { AppRoute } from "./routes";
 import { JettonRoute } from "./screen/home/wallet/assets/jetton/route";
 import { NftItemRoute } from "./screen/home/wallet/assets/nft/router";
@@ -73,26 +74,31 @@ export const useAccountState = () => {
 };
 
 export const useLock = () => {
-  const [lock, setLock] = useState(false);
-  // useEffect(() => {
-  //   askBackground<boolean>()
-  //     .message("isLock")
-  //     .then((value) => setLock(value));
+  const [lock, setLock] = useState<boolean | undefined>(undefined);
+  useEffect(() => {
+    getLockScreen().then((lock) => {
+      if (lock) {
+        askBackground<boolean>()
+          .message("isLock")
+          .then((value) => setLock(value));
+      } else {
+        setLock(false);
+      }
+    });
+    const unlock = () => {
+      setLock(false);
+    };
+    const locked = () => {
+      setLock(true);
+    };
+    uiEventEmitter.on("unlock", unlock);
+    uiEventEmitter.on("locked", locked);
 
-  //   const unlock = () => {
-  //     setLock(false);
-  //   };
-  //   const locked = () => {
-  //     setLock(true);
-  //   };
-  //   uiEventEmitter.on("unlock", unlock);
-  //   uiEventEmitter.on("locked", locked);
-
-  //   return () => {
-  //     uiEventEmitter.off("unlock", unlock);
-  //     uiEventEmitter.off("locked", locked);
-  //   };
-  // }, []);
+    return () => {
+      uiEventEmitter.off("unlock", unlock);
+      uiEventEmitter.off("locked", locked);
+    };
+  }, []);
 
   return lock;
 };

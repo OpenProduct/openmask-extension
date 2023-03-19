@@ -16,6 +16,7 @@ import { checkForError } from "../utils";
 export enum QueryType {
   proxy = "proxy",
   auth = "auth",
+  lock = "lock",
 
   price = "price",
   stock = "stock",
@@ -59,6 +60,14 @@ export const setStoreValue = async <T>(query: QueryType, value: T) => {
     throw err;
   }
   return value;
+};
+
+export const getLockScreen = () => {
+  return getStoreValue<boolean>(QueryType.lock, false);
+};
+
+export const setLockScreen = (lock: boolean) => {
+  return setStoreValue(QueryType.lock, lock);
 };
 
 export const getScript = () => {

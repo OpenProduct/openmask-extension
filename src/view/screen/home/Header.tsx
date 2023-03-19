@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { NetworkConfig } from "../../../libs/entries/network";
 import { WalletState } from "../../../libs/entries/wallet";
 import ExtensionPlatform from "../../../libs/service/extension";
-import { QueryType } from "../../../libs/store/browserStore";
+import { QueryType, setLockScreen } from "../../../libs/store/browserStore";
 import { useMutateStore } from "../../api";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
@@ -103,7 +103,8 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
   const { mutateAsync: mutateSelect, reset: resetSelect } =
     useSelectWalletMutation();
 
-  const onLock = useCallback(() => {
+  const onLock = useCallback(async () => {
+    await setLockScreen(true);
     sendBackground.message("lock");
   }, []);
 

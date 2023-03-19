@@ -123,7 +123,14 @@ const App = () => {
     ] as const;
   }, [config]);
 
-  if (isLoading || !data || !network || !networks || script === undefined) {
+  if (
+    isLoading ||
+    !data ||
+    !network ||
+    !networks ||
+    script === undefined ||
+    lock === undefined
+  ) {
     return <Loading />;
   }
 
