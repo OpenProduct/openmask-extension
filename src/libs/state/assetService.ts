@@ -17,6 +17,7 @@ import {
   NftItem,
   NftItemState,
 } from "../entries/asset";
+import { getWalletAssets, setWalletAssets } from "../entries/wallet";
 
 export interface JettonWalletData {
   balance: string;
@@ -41,7 +42,7 @@ const useActiveAssets = (
     ...account,
     wallets: account.wallets.map((wallet) => {
       if (wallet.address === account.activeWallet) {
-        return { ...wallet, assets: map(wallet.assets ?? []) };
+        return setWalletAssets(wallet, map(getWalletAssets(wallet)));
       }
       return wallet;
     }),

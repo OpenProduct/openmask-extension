@@ -5,6 +5,7 @@ import styled from "styled-components";
 import packageJson from "../../../../../../package.json";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import { AppStock, DexStocks } from "../../../../../libs/entries/stock";
+import { getWalletAssets } from "../../../../../libs/entries/wallet";
 import ExtensionPlatform from "../../../../../libs/service/extension";
 import { seeIfJettonAsset } from "../../../../../libs/state/assetService";
 import { AssetItemView, AssetJettonView } from "../../../../components/Asset";
@@ -129,6 +130,8 @@ export const AssetsList: FC<{
   const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
 
+  const assets = useMemo(() => getWalletAssets(wallet), [wallet.version]);
+
   return (
     <>
       <AssetJettonView
@@ -137,7 +140,7 @@ export const AssetsList: FC<{
         balance={balance}
         price={price}
       />
-      {(wallet.assets ?? []).map((asset) =>
+      {assets.map((asset) =>
         seeIfJettonAsset(asset) ? (
           <JettonRowView asset={asset} stocks={stocks} tonPrice={price} />
         ) : (

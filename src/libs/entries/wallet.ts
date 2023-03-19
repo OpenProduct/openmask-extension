@@ -19,10 +19,30 @@ export interface WalletState {
   publicKey: string;
   version: WalletVersion;
   isBounceable: boolean;
+
+  /**
+   * @deprecated use walletAssets
+   */
   assets?: Asset[];
+  walletAssets?: Record<WalletVersion, Asset[]>;
 
   ledger?: LedgerState;
 }
+
+export const getWalletAssets = (wallet: WalletState): Asset[] => {
+  if (wallet.walletAssets && wallet.walletAssets[wallet.version]) {
+    return wallet.walletAssets[wallet.version];
+  } else {
+    return wallet.assets ?? [];
+  }
+};
+
+export const setWalletAssets = (wallet: WalletState, newAssets: Asset[]) => {
+  let { assets, walletAssets, ...rest } = wallet;
+  walletAssets = walletAssets ?? ({} as Record<WalletVersion, Asset[]>);
+  walletAssets[wallet.version] = newAssets;
+  return { ...rest, walletAssets };
+};
 
 export interface WalletInfo {
   account_state: string;

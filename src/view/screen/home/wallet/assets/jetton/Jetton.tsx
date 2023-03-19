@@ -1,6 +1,7 @@
 import { FC, useContext, useMemo } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { JettonAsset } from "../../../../../../libs/entries/asset";
+import { getWalletAssets } from "../../../../../../libs/entries/wallet";
 import { seeIfJettonAsset } from "../../../../../../libs/state/assetService";
 import { Body } from "../../../../../components/Components";
 import { HomeButton } from "../../../../../components/HomeButton";
@@ -34,7 +35,7 @@ export const JettonRouter = () => {
   }, [params]);
 
   const jetton = useMemo(() => {
-    const asset = wallet.assets?.find(
+    const asset = getWalletAssets(wallet).find(
       (asset) =>
         seeIfJettonAsset(asset) && asset.minterAddress === minterAddress
     );

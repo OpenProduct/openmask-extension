@@ -7,6 +7,10 @@ import {
   JettonState,
   JettonStateSchema,
 } from "../../../../libs/entries/asset";
+import {
+  getWalletAssets,
+  setWalletAssets,
+} from "../../../../libs/entries/wallet";
 import { seeIfJettonAsset } from "../../../../libs/state/assetService";
 import {
   getJettonNameState,
@@ -118,7 +122,7 @@ export const useAddJettonMutation = (id: number) => {
         ...account,
         wallets: account.wallets.map((wallet) => {
           if (wallets.includes(wallet.address)) {
-            const assets = wallet.assets ?? [];
+            const assets = getWalletAssets(wallet);
             if (
               !assets.some(
                 (item) =>
@@ -128,7 +132,7 @@ export const useAddJettonMutation = (id: number) => {
             ) {
               // If not exists
               assets.push(state);
-              return { ...wallet, assets };
+              return setWalletAssets(wallet, assets);
             }
           }
           return wallet;

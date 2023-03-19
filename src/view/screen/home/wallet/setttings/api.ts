@@ -2,7 +2,11 @@ import { ALL, hexToBytes } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
-import { WalletState } from "../../../../../libs/entries/wallet";
+import {
+  getWalletAssets,
+  setWalletAssets,
+  WalletState,
+} from "../../../../../libs/entries/wallet";
 import { updateWalletAddress } from "../../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -12,6 +16,7 @@ import {
   AccountStateContext,
   NetworkContext,
   TonProviderContext,
+  WalletStateContext,
 } from "../../../../context";
 import { saveAccountState } from "../../../api";
 
@@ -39,10 +44,12 @@ export const useUpdateWalletMutation = () => {
   const network = useContext(NetworkContext);
   const ton = useContext(TonProviderContext);
   const client = useQueryClient();
+
+  const wallet = useContext(WalletStateContext);
+
   return useMutation<void, Error, Partial<WalletState>>(async (newFields) => {
-    const [active] = account.wallets.filter(
-      (w) => w.address === account.activeWallet
-    );
+    // Migration to new field with version
+    const active = setWalletAssets(wallet, getWalletAssets(wallet));
 
     let updatedWallet: WalletState = {
       ...active,

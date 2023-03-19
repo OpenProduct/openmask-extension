@@ -8,6 +8,10 @@ import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
 import { JettonAsset } from "../../../../../libs/entries/asset";
+import {
+  getWalletAssets,
+  setWalletAssets,
+} from "../../../../../libs/entries/wallet";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -46,22 +50,21 @@ const getJettonWalletAddress = async (
       ...account,
       wallets: account.wallets.map((wallet) => {
         if (wallet.address === account.activeWallet) {
-          return {
-            ...wallet,
-            assets: wallet.assets?.map((asset) => {
-              if (
-                "minterAddress" in asset &&
-                asset.minterAddress === jetton.minterAddress
-              ) {
-                return {
-                  ...asset,
-                  walletAddress: jettonWalletAddress.toString(true, true, true),
-                };
-              } else {
-                return asset;
-              }
-            }),
-          };
+          const assets = getWalletAssets(wallet).map((asset) => {
+            if (
+              "minterAddress" in asset &&
+              asset.minterAddress === jetton.minterAddress
+            ) {
+              return {
+                ...asset,
+                walletAddress: jettonWalletAddress.toString(true, true, true),
+              };
+            } else {
+              return asset;
+            }
+          });
+
+          return setWalletAssets(wallet, assets);
         } else {
           return wallet;
         }
