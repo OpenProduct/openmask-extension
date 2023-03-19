@@ -2,10 +2,13 @@ import { EstimateFeeValues } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { TonClient } from "ton";
-import { Address, beginCell, Cell, fromNano, storeStateInit } from "ton-core";
+import { Address, Cell, fromNano } from "ton-core";
 import { DeployInputParams } from "../../../../libs/entries/notificationMessage";
 import { WalletState } from "../../../../libs/entries/wallet";
-import { getWalletContract } from "../../../../libs/service/transfer/core";
+import {
+  getContractAddress,
+  getWalletContract,
+} from "../../../../libs/service/transfer/core";
 import {
   createLedgerTonTransfer,
   createTonTransfer,
@@ -14,19 +17,6 @@ import { QueryType } from "../../../../libs/store/browserStore";
 import { TonClientContext, WalletStateContext } from "../../../context";
 import { checkBalanceOrDie2, getWalletKeyPair } from "../../api";
 import { signLedgerTransaction } from "../../ledger/api";
-
-function contractAddress(source: {
-  workchain: number;
-  initialCode: Cell;
-  initialData: Cell;
-}) {
-  const cell = beginCell()
-    .storeWritable(
-      storeStateInit({ code: source.initialCode, data: source.initialData })
-    )
-    .endCell();
-  return new Address(source.workchain, cell.hash());
-}
 
 interface DeployState {
   workchain: number;
@@ -47,10 +37,10 @@ export const toDeployState = (
   const [initialData] = Cell.fromBoc(Buffer.from(initDataCell, "hex"));
   const [initialCode] = Cell.fromBoc(Buffer.from(initCodeCell, "hex"));
 
-  const address = contractAddress({
+  const address = getContractAddress({
     workchain: workchain ?? 0,
-    initialData,
-    initialCode,
+    data: initialData,
+    code: initialCode,
   });
 
   return {

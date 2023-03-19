@@ -1,4 +1,3 @@
-import { ALL, hexToBytes } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AccountState } from "../../../../../libs/entries/account";
@@ -7,6 +6,7 @@ import {
   setWalletAssets,
   WalletState,
 } from "../../../../../libs/entries/wallet";
+import { getWalletAddress } from "../../../../../libs/service/transfer/core";
 import { updateWalletAddress } from "../../../../../libs/state/connectionSerivce";
 import {
   getConnections,
@@ -15,7 +15,6 @@ import {
 import {
   AccountStateContext,
   NetworkContext,
-  TonProviderContext,
   WalletStateContext,
 } from "../../../../context";
 import { saveAccountState } from "../../../api";
@@ -42,31 +41,19 @@ export const useDeleteWalletMutation = () => {
 export const useUpdateWalletMutation = () => {
   const account = useContext(AccountStateContext);
   const network = useContext(NetworkContext);
-  const ton = useContext(TonProviderContext);
   const client = useQueryClient();
 
   const wallet = useContext(WalletStateContext);
 
   return useMutation<void, Error, Partial<WalletState>>(async (newFields) => {
-    // Migration to new field with version
+    // Migration assets to new field with version
     const active = setWalletAssets(wallet, getWalletAssets(wallet));
 
     let updatedWallet: WalletState = {
       ...active,
       ...newFields,
     };
-
-    const WalletClass = ALL[updatedWallet.version!];
-    const walletContract = new WalletClass(ton, {
-      publicKey: hexToBytes(updatedWallet.publicKey),
-      wc: 0,
-    });
-    const address = await walletContract.getAddress();
-    updatedWallet.address = address.toString(
-      true,
-      true,
-      updatedWallet.isBounceable
-    );
+    updatedWallet.address = getWalletAddress(updatedWallet, network);
 
     let connections = await getConnections(network);
 

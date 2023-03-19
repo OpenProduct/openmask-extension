@@ -1,5 +1,8 @@
 import {
-  TonClient,
+  Address,
+  beginCell,
+  Cell,
+  storeStateInit,
   WalletContractV2R1,
   WalletContractV2R2,
   WalletContractV3R1,
@@ -29,7 +32,27 @@ export const getWalletContract = (wallet: WalletState) => {
   }
 };
 
-export const getSeqno = async (client: TonClient, wallet: WalletState) => {
-  const contract = client.open(getWalletContract(wallet));
-  return await contract.getSeqno();
+export function getContractAddress(source: {
+  workchain: number;
+  code: Cell;
+  data: Cell;
+}) {
+  const cell = beginCell()
+    .storeWritable(storeStateInit({ code: source.code, data: source.data }))
+    .endCell();
+  return new Address(source.workchain, cell.hash());
+}
+
+export const getWalletAddress = (wallet: WalletState, network: string) => {
+  const contract = getWalletContract(wallet);
+  const address = getContractAddress({
+    workchain: contract.workchain,
+    code: contract.init.code,
+    data: contract.init.data,
+  });
+  return address.toString({
+    urlSafe: true,
+    bounceable: wallet.isBounceable,
+    testOnly: network === "testnet",
+  });
 };
