@@ -167,7 +167,7 @@ const SendLedgerTransactions: FC<{
         <ButtonRow>
           <ButtonNegative onClick={onCancel}>Cancel</ButtonNegative>
           <ButtonPositive onClick={() => setConfirm(true)}>
-            Continue
+            Agree
           </ButtonPositive>
         </ButtonRow>
       </>
@@ -197,7 +197,7 @@ const SendLedgerTransactions: FC<{
           {isSending ? (
             <Dots>Sending</Dots>
           ) : (
-            <FingerprintLabel>Agree</FingerprintLabel>
+            <FingerprintLabel>Continue</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>
