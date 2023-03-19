@@ -31,6 +31,7 @@ import { Header } from "./screen/home/Header";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { LedgerNotification } from "./screen/ledger/LedgerNotification";
 import { Loading } from "./screen/Loading";
+import { PasswordNotification } from "./screen/unlock/PasswordNotification";
 import { Unlock } from "./screen/unlock/Unlock";
 import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
 import defaultTheme from "./styles/defaultTheme";
@@ -141,6 +142,7 @@ const App = () => {
                 notification={notification}
                 justOpen={justOpen}
               />
+              <PasswordNotification />
               <WebAuthnNotification />
             </TonClientContext.Provider>
           </TonProviderContext.Provider>

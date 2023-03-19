@@ -17,7 +17,7 @@ import {
   setStoreValue,
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";
-import { askBackground, uiEventEmitter } from "./event";
+import { askBackground } from "./event";
 import { AppRoute } from "./routes";
 import { JettonRoute } from "./screen/home/wallet/assets/jetton/route";
 import { NftItemRoute } from "./screen/home/wallet/assets/nft/router";
@@ -73,26 +73,26 @@ export const useAccountState = () => {
 };
 
 export const useLock = () => {
-  const [lock, setLock] = useState(true);
-  useEffect(() => {
-    askBackground<boolean>()
-      .message("isLock")
-      .then((value) => setLock(value));
+  const [lock, setLock] = useState(false);
+  // useEffect(() => {
+  //   askBackground<boolean>()
+  //     .message("isLock")
+  //     .then((value) => setLock(value));
 
-    const unlock = () => {
-      setLock(false);
-    };
-    const locked = () => {
-      setLock(true);
-    };
-    uiEventEmitter.on("unlock", unlock);
-    uiEventEmitter.on("locked", locked);
+  //   const unlock = () => {
+  //     setLock(false);
+  //   };
+  //   const locked = () => {
+  //     setLock(true);
+  //   };
+  //   uiEventEmitter.on("unlock", unlock);
+  //   uiEventEmitter.on("locked", locked);
 
-    return () => {
-      uiEventEmitter.off("unlock", unlock);
-      uiEventEmitter.off("locked", locked);
-    };
-  }, []);
+  //   return () => {
+  //     uiEventEmitter.off("unlock", unlock);
+  //     uiEventEmitter.off("locked", locked);
+  //   };
+  // }, []);
 
   return lock;
 };
@@ -171,11 +171,49 @@ export const getAppPassword = async <R>(
 ) => {
   const config = await getAuthConfiguration();
   if (config.kind === "password") {
-    const password = await askBackgroundPassword();
-    return await useAction(password);
+    const password = await askBackgroundPassword().catch(() => null);
+    if (password !== null) {
+      return await useAction(password);
+    } else {
+      return await getPasswordByNotification(useAction);
+    }
   } else {
     return await getWebAuthnPassword(useAction);
   }
+};
+
+export const getPasswordByNotification = async <R>(
+  useAction: (password: string) => Promise<R>
+) => {
+  const id = Date.now();
+  return new Promise<R>((resolve, reject) => {
+    popUpInternalEventEmitter.emit("getPassword", {
+      method: "getPassword",
+      id,
+      params: undefined,
+    });
+
+    const onCallback = (message: {
+      method: "response";
+      id?: number | undefined;
+      params: string | Error;
+    }) => {
+      if (message.id === id) {
+        const { params } = message;
+        popUpInternalEventEmitter.off("response", onCallback);
+
+        if (typeof params === "string") {
+          Promise.all([useAction(params), delay(500)])
+            .then(([result]) => resolve(result))
+            .catch((e) => reject(e));
+        } else {
+          reject(params);
+        }
+      }
+    };
+
+    popUpInternalEventEmitter.on("response", onCallback);
+  });
 };
 
 export const getWebAuthnPassword = async <R>(

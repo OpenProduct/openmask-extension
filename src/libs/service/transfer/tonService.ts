@@ -30,12 +30,8 @@ export interface InitData {
   data?: Cell;
 }
 
-export const getTonSendMode = (max: boolean | string | undefined) => {
-  if (typeof max === "string") {
-    max = max === "1";
-  }
-
-  return max
+export const getTonSendMode = (max: string | undefined) => {
+  return max === "1"
     ? SendMode.CARRRY_ALL_REMAINING_BALANCE
     : SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS;
 };

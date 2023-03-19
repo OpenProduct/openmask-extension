@@ -23,6 +23,8 @@ export const reEncryptWallets = async (
     ...account,
     wallets: await Promise.all(
       account.wallets.map(async (wallet) => {
+        if (wallet.mnemonic === "") return wallet;
+
         const mnemonic = await decryptMnemonic(wallet.mnemonic, oldPassword);
         return {
           ...wallet,

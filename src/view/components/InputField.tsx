@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React from "react";
 import styled from "styled-components";
 import { ErrorText, Input } from "./Components";
 
@@ -12,12 +12,14 @@ export interface InputFieldProps
   error?: Error | null;
 }
 
-export const InputField: FC<InputFieldProps> = ({ label, error, ...props }) => {
-  return (
-    <>
-      <Label>{label}</Label>
-      <Input {...props} />
-      {error && <ErrorText>{error.message}</ErrorText>}
-    </>
-  );
-};
+export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+  ({ label, error, ...props }, ref) => {
+    return (
+      <>
+        <Label>{label}</Label>
+        <Input {...props} ref={ref} />
+        {error && <ErrorText>{error.message}</ErrorText>}
+      </>
+    );
+  }
+);

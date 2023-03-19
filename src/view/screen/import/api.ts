@@ -1,8 +1,4 @@
-import {
-  ALL,
-  bytesToHex,
-  TonHttpProvider,
-} from "@openproduct/web-sdk";
+import { ALL, bytesToHex, TonHttpProvider } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import * as tonMnemonic from "tonweb-mnemonic";
@@ -17,8 +13,8 @@ import {
   TonProviderContext,
 } from "../../context";
 import { askBackground } from "../../event";
-import { saveAccountState } from "../api";
 import { findContract, lastWalletVersion } from "../../utils";
+import { saveAccountState } from "../api";
 
 export const askBackgroundPassword = async () => {
   const password = await askBackground<string | null>().message("getPassword");
@@ -38,7 +34,8 @@ const createWallet = async (
   ton: TonHttpProvider,
   mnemonic: string,
   password: string,
-  index: number
+  index: number,
+  network: string
 ): Promise<WalletState> => {
   const encryptedMnemonic = await encrypt(mnemonic, password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic.split(" "));
@@ -53,7 +50,7 @@ const createWallet = async (
   return {
     name: `Account ${index}`,
     mnemonic: encryptedMnemonic,
-    address: address.toString(true, true, true),
+    address: address.toString(true, true, true, network === "testnet"),
     publicKey: bytesToHex(keyPair.publicKey),
     version: lastWalletVersion,
     isBounceable: true,
@@ -72,7 +69,8 @@ export const useCreateWalletMutation = () => {
         ton,
         mnemonic,
         password,
-        account.wallets.length + 1
+        account.wallets.length + 1,
+        network
       );
 
       const value = {
@@ -89,7 +87,8 @@ export const importWallet = async (
   ton: TonHttpProvider,
   mnemonic: string[],
   password: string,
-  index: number
+  index: number,
+  network: string
 ): Promise<WalletState> => {
   const encryptedMnemonic = await encrypt(mnemonic.join(" "), password);
   const keyPair = await tonMnemonic.mnemonicToKeyPair(mnemonic);
@@ -98,7 +97,7 @@ export const importWallet = async (
   return {
     name: `Account ${index}`,
     mnemonic: encryptedMnemonic,
-    address: address.toString(true, true, true),
+    address: address.toString(true, true, true, network === "testnet"),
     publicKey: bytesToHex(keyPair.publicKey),
     version,
     isBounceable: true,
@@ -120,7 +119,8 @@ export const useImportWalletMutation = () => {
         ton,
         mnemonic,
         password,
-        data.wallets.length + 1
+        data.wallets.length + 1,
+        network
       );
       if (data.wallets.some((w) => w.address === wallet.address)) {
         throw new Error("Wallet already connect");

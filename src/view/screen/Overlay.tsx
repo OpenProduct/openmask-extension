@@ -18,7 +18,7 @@ export const Splash = styled.div<{ active: boolean }>`
     `}
 `;
 
-export const Block = styled.div<{ active: boolean }>`
+export const Block = styled.form<{ active: boolean }>`
   z-index: 20;
   position: fixed;
   left: 0;

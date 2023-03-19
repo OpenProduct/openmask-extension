@@ -4,6 +4,7 @@ import { LedgerTransfer } from "./service/transfer/ledger";
 export interface PupUpInternalEvents {
   LedgerTransaction: LedgerTransfer;
   getWebAuthn: void;
+  getPassword: void;
   response: any;
 }
 

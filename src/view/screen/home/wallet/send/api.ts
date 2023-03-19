@@ -1,10 +1,4 @@
-import {
-  Address,
-  Method,
-  toNano,
-  TonDns,
-  TonHttpProvider,
-} from "@openproduct/web-sdk";
+import { Address, toNano, TonDns, TonHttpProvider } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { TonClient } from "ton";
@@ -54,19 +48,6 @@ export const stateToSearch = (state: TransactionState) => {
   }, {} as Record<string, string>);
 };
 
-export const getTransactionsParams = (
-  ton: TonHttpProvider,
-  config: NetworkConfig,
-  toAddress: string,
-  wallet: WalletState
-) => {
-  return Promise.all([
-    getToAddress(ton, config, toAddress),
-    getWalletKeyPair(wallet),
-    ton.getSeqno(wallet.address),
-  ] as const);
-};
-
 export const getToAddress = async (
   ton: TonHttpProvider,
   config: NetworkConfig,
@@ -90,31 +71,6 @@ export const getToAddress = async (
   } else {
     throw new Error("Invalid address");
   }
-};
-
-export interface WrapperMethod {
-  method: Method;
-  seqno: number;
-}
-
-export const useEstimateFee = (wmethod: WrapperMethod | undefined) => {
-  return useQuery<EstimateFeeValues>(
-    [QueryType.estimation],
-    async () => {
-      const all_fees = await wmethod!.method.estimateFee();
-      return all_fees.source_fees;
-    },
-    { enabled: wmethod != null }
-  );
-};
-
-export const useSendMutation = () => {
-  return useMutation<number, Error, WrapperMethod>(
-    async (wmethod: WrapperMethod) => {
-      await wmethod.method.send();
-      return wmethod.seqno;
-    }
-  );
 };
 
 export const useTargetAddress = (address: string) => {
@@ -173,9 +129,9 @@ const sendLedgerTransaction = async (
   const tonContract = tonClient.open(contract);
 
   const balance = await tonContract.getBalance();
-
-  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
-
+  if (state.max !== "1") {
+    await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+  }
   const seqno = await tonContract.getSeqno();
 
   const payload = await getPayload(
@@ -207,7 +163,9 @@ const sendMnemonicTransaction = async (
 
   const balance = await tonContract.getBalance();
 
-  await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+  if (state.max !== "1") {
+    await checkBalanceOrDie(balance.toString(), toNano(state.amount));
+  }
 
   const seqno = await tonContract.getSeqno();
 
