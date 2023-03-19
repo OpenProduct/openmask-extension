@@ -128,20 +128,21 @@ export const LedgerNotification = () => {
       <Block active={active}>
         <Grid>
           <Gap />
-          <Text>Ledger Hardware Wallet</Text>
+          <Text>
+            <b>Ledger Hardware Wallet</b>
+          </Text>
           <img src="/ledger.png" width="180" />
-          {isConnecting && (
+          {isConnecting && !result && (
             <Text>
               <Dots>Unlock Ledger and Open TON App</Dots>
             </Text>
           )}
-          {isSigning && (
+          {isSigning && !result && (
             <Text>
               <Dots>Sign Transaction</Dots>
             </Text>
           )}
           {result && <Text>{result}</Text>}
-          <Gap />
           <CancelButton onClick={onCancel}>Cancel</CancelButton>
         </Grid>
       </Block>

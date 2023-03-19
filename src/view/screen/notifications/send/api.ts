@@ -9,9 +9,7 @@ const toData = (params: TransactionParams) => {
 
   switch (params.dataType) {
     case "hex":
-      return Cell.fromBase64(
-        Buffer.from(params.data, "hex").toString("base64")
-      );
+      return Cell.fromBoc(Buffer.from(params.data, "hex"))[0];
     case "base64":
       return Cell.fromBase64(params.data);
     case "boc":
