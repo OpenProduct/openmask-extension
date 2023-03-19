@@ -1,5 +1,5 @@
 import { fromNano } from "@openproduct/web-sdk";
-import { FC, useContext } from "react";
+import { FC, useContext, useMemo } from "react";
 import {
   DeployInputParams,
   DeployOutputParams,
@@ -22,32 +22,25 @@ import {
 import { DAppBadge } from "../../../components/DAppBadge";
 import { Dots } from "../../../components/Dots";
 import { Fees } from "../../../components/send/Fees";
-import { WalletStateContext } from "../../../context";
+import { NetworkContext, WalletStateContext } from "../../../context";
 import { sendBackground } from "../../../event";
-import { useBalance } from "../../home/api";
-import { useEstimateFee, useSendMutation } from "../../home/wallet/send/api";
-import { useDeployContractMutation, useSmartContractAddress } from "./api";
+import { FingerprintLabel } from "../../../FingerprintLabel";
+import { toDeployState, useEstimateDeploy, useSendDeploy } from "./api";
 
 export const DeployContract: FC<
   NotificationFields<"deploy", DeployInputParams> & { onClose: () => void }
 > = ({ id, logo, origin, data, onClose }) => {
   const wallet = useContext(WalletStateContext);
+  const network = useContext(NetworkContext);
 
-  const { data: balance } = useBalance(wallet.address);
-  const { data: address } = useSmartContractAddress(data);
+  const state = useMemo(() => toDeployState(data, network), [data, network]);
+  const { data: estimation } = useEstimateDeploy(state);
 
-  const {
-    data: method,
-    isFetching: isValidating,
-    error: methodError,
-  } = useDeployContractMutation(data, balance);
-
-  const { data: estimation } = useEstimateFee(method);
   const {
     mutateAsync,
     isLoading: isDeploying,
     error: deployError,
-  } = useSendMutation();
+  } = useSendDeploy(state);
 
   const onBack = () => {
     sendBackground.message("rejectRequest", id);
@@ -55,13 +48,11 @@ export const DeployContract: FC<
   };
 
   const onDeploy = async () => {
-    if (!method || !address) return;
-
-    await mutateAsync(method);
+    const seqno = await mutateAsync();
 
     const payload: DeployOutputParams = {
-      walletSeqNo: method.seqno,
-      newContractAddress: address.toString(true, true, true),
+      walletSeqNo: seqno,
+      newContractAddress: state.address.toString(),
     };
 
     sendBackground.message("approveRequest", {
@@ -71,7 +62,7 @@ export const DeployContract: FC<
     onClose();
   };
 
-  const loading = isValidating || isDeploying;
+  const loading = isDeploying;
 
   return (
     <Body>
@@ -81,10 +72,7 @@ export const DeployContract: FC<
         <Text>Would you like to deploy contract?</Text>
       </Center>
 
-      <AddressTransfer
-        left={wallet.name}
-        right={address ? address.toString(true, true, true) : null}
-      />
+      <AddressTransfer left={wallet.name} right={state.address.toString()} />
 
       <TextLine>Forward amount:</TextLine>
       <TextLine>
@@ -100,7 +88,6 @@ export const DeployContract: FC<
         <CodeBlock label="Initial Message">{data.initMessageCell}</CodeBlock>
       )}
 
-      {methodError && <ErrorMessage>{methodError.message}</ErrorMessage>}
       {deployError && <ErrorMessage>{deployError.message}</ErrorMessage>}
 
       <Gap />
@@ -110,14 +97,12 @@ export const DeployContract: FC<
         </ButtonNegative>
         <ButtonPositive
           onClick={onDeploy}
-          disabled={loading || deployError != null || methodError != null}
+          disabled={loading || deployError != null}
         >
-          {isValidating ? (
-            <Dots>Validating</Dots>
-          ) : isDeploying ? (
+          {isDeploying ? (
             <Dots>Deploying</Dots>
           ) : (
-            "Deploy"
+            <FingerprintLabel>Deploy</FingerprintLabel>
           )}
         </ButtonPositive>
       </ButtonRow>

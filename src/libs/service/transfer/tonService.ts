@@ -13,21 +13,24 @@ import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
 import { LedgerTransfer } from "./ledger";
 
-export interface TransactionState {
-  address: string;
+export interface AmountValue {
+  max?: string;
   amount: string;
-  max: string;
+}
+
+export interface TransactionState extends AmountValue {
+  address: string;
   data: string | Cell | undefined;
   hex?: string;
   isEncrypt?: boolean;
 }
 
-export interface AmountValue {
-  max: boolean;
-  amount: string;
+export interface InitData {
+  code?: Cell;
+  data?: Cell;
 }
 
-export const getTonSendMode = (max: boolean | string) => {
+export const getTonSendMode = (max: boolean | string | undefined) => {
   if (typeof max === "string") {
     max = max === "1";
   }
@@ -47,8 +50,9 @@ export const createTonTransfer = (
   seqno: number,
   walletState: WalletState,
   address: string,
-  data: TransactionState,
+  data: AmountValue,
   comment: Cell | string | undefined,
+  init?: InitData,
   secretKey: Buffer = Buffer.alloc(64)
 ) => {
   const contract = getWalletContract(walletState);
@@ -61,6 +65,7 @@ export const createTonTransfer = (
         to: address,
         bounce: seeIfBounceable(address),
         value: toNano(data.amount),
+        init,
         body: comment,
       }),
     ],
@@ -69,7 +74,7 @@ export const createTonTransfer = (
   return transfer;
 };
 
-export const toStateInit = (stateInit?: string) => {
+export const toStateInit = (stateInit?: string): InitData | undefined => {
   if (!stateInit) {
     return undefined;
   }
@@ -109,7 +114,7 @@ export const createTonConnectTransfer = (
 export const createLedgerTonTransfer = (
   seqno: number,
   address: string,
-  state: TransactionState,
+  state: AmountValue,
   body: Cell | string | undefined,
   stateInit?: StateInit
 ): LedgerTransfer => {

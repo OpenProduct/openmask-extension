@@ -128,6 +128,7 @@ export const LedgerNotification = () => {
       <Block active={active}>
         <Grid>
           <Gap />
+          <Text>Ledger Hardware Wallet</Text>
           <img src="/ledger.png" width="180" />
           {isConnecting && (
             <Text>

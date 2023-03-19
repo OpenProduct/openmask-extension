@@ -140,18 +140,13 @@ export const useEstimateTransaction = (
         throw new Error("missing state");
       }
 
-      const transaction = createTonTransfer(
-        0,
-        wallet,
+      const payload = await getEstimatePayload(
+        tonClient,
         address,
-        state,
-        await getEstimatePayload(
-          tonClient,
-          address,
-          state.isEncrypt,
-          state.data
-        )
+        state.isEncrypt,
+        state.data
       );
+      const transaction = createTonTransfer(0, wallet, address, state, payload);
 
       const data = await tonClient.estimateExternalMessageFee(
         CoreAddress.parse(wallet.address),
@@ -183,12 +178,13 @@ const sendLedgerTransaction = async (
 
   const seqno = await tonContract.getSeqno();
 
-  const transaction = createLedgerTonTransfer(
-    seqno,
+  const payload = await getPayload(
+    tonClient,
     address,
-    state,
-    await getPayload(tonClient, address, state.isEncrypt, state.data)
+    state.isEncrypt,
+    state.data
   );
+  const transaction = createLedgerTonTransfer(seqno, address, state, payload);
 
   const signed = await signLedgerTransaction(transaction);
   await tonContract.send(signed);
@@ -214,18 +210,21 @@ const sendMnemonicTransaction = async (
   await checkBalanceOrDie(balance.toString(), toNano(state.amount));
 
   const seqno = await tonContract.getSeqno();
+
+  const payload = await getPayload(
+    tonClient,
+    address,
+    state.isEncrypt,
+    state.data,
+    secretKey
+  );
   const transaction = createTonTransfer(
     seqno,
     wallet,
     address,
     state,
-    await getPayload(
-      tonClient,
-      address,
-      state.isEncrypt,
-      state.data,
-      secretKey
-    ),
+    payload,
+    undefined,
     secretKey
   );
 

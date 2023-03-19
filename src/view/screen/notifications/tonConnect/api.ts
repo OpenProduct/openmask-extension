@@ -279,10 +279,8 @@ export const useSendLedgerMutation = () => {
         seqno,
         item.address,
         {
-          address: item.address,
           amount: fromNano(item.amount),
           max: "0",
-          data,
         },
         data,
         toStateInit(item.stateInit)

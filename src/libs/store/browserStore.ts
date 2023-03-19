@@ -92,9 +92,18 @@ export const getAuthConfiguration = () => {
 };
 
 // Hack to fix bug with empty connect list
-const filterConnection = (connection: Connections): Connections => {
+const filterConnection = async (
+  connection: Connections,
+  network?: string
+): Promise<Connections> => {
+  const account = await getAccountState(network);
+
   return Object.entries(connection).reduce((acc, [origin, connection]) => {
-    if (Object.keys(connection.connect).length > 0) {
+    // Remove connection from removed wallets
+    const wallets = Object.keys(connection.connect).filter((address) => {
+      return account.wallets.some((item) => item.address === address);
+    });
+    if (wallets.length > 0) {
       acc[origin] = connection;
     }
     return acc;
@@ -107,7 +116,8 @@ export const getConnections = async (network?: string) => {
       QueryType.connection,
       defaultConnections,
       network
-    )
+    ),
+    network
   );
 };
 
@@ -131,10 +141,10 @@ export const setAccountState = (value: AccountState, network?: string) => {
   return setNetworkStoreValue<AccountState>(QueryType.account, value, network);
 };
 
-export const setConnections = (value: Connections, network?: string) => {
+export const setConnections = async (value: Connections, network?: string) => {
   return setNetworkStoreValue(
     QueryType.connection,
-    filterConnection(value),
+    await filterConnection(value, network),
     network
   );
 };
