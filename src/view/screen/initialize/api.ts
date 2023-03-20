@@ -1,9 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { encrypt } from "../../../libs/service/cryptoService";
 import { QueryType, setStoreValue } from "../../../libs/store/browserStore";
 import { askBackground } from "../../event";
 
 export const useCreatePasswordMutation = () => {
+  const client = useQueryClient();
   return useMutation<void, Error, [string, string]>(
     async ([password, confirm]) => {
       if (password !== confirm) {
@@ -16,6 +17,7 @@ export const useCreatePasswordMutation = () => {
 
       await setStoreValue(QueryType.script, script);
       await askBackground<void>().message("setPassword", password);
+      await client.invalidateQueries([QueryType.script]);
     }
   );
 };

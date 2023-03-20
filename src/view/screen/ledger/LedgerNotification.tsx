@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { WalletState } from "../../../libs/entries/wallet";
 import { popUpInternalEventEmitter } from "../../../libs/popUpEvent";
 import { LedgerTransfer } from "../../../libs/service/transfer/ledger";
 import { delay } from "../../../libs/state/accountService";
@@ -19,7 +20,7 @@ interface Message {
 }
 
 export const LedgerNotification = () => {
-  const wallet = useContext(WalletStateContext);
+  const wallet: WalletState | undefined = useContext(WalletStateContext);
 
   const [message, setMessage] = useState<Message | undefined>(undefined);
   const [active, setActive] = useState(false);
@@ -29,7 +30,7 @@ export const LedgerNotification = () => {
     mutateAsync: connectAsync,
     isLoading: isConnecting,
     reset: resetConnect,
-  } = useConnectLedgerTransport(wallet.ledger?.driver);
+  } = useConnectLedgerTransport(wallet?.ledger?.driver);
 
   const {
     mutateAsync: signAsync,

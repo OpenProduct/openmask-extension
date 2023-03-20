@@ -16,8 +16,6 @@
     "crypto-browserify": "^3.12.0",
     "ethjs-unit": "^0.1.6",
     "joi": "^17.6.1",
-    "os-browserify": "^0.3.0",
-    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -31,7 +29,6 @@
     "tonweb-mnemonic": "^1.0.1",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
-    "util": "^0.12.5",
     "web-vitals": "^2.1.4",
     "webextension-polyfill": "^0.10.0"
   },

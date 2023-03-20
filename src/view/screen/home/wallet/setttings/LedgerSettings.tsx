@@ -34,7 +34,7 @@ const DeviceSelect = () => {
   const wallet = useContext(WalletStateContext);
   const { data: device } = useLedgerDevice(wallet);
   const { mutate: unpair, isLoading: isUnpairing } = useUnPairLedgerDevice(
-    wallet.ledger?.driver
+    wallet?.ledger?.driver
   );
 
   const { mutate: connect, isLoading: isConnecting } =

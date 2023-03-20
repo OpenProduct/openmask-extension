@@ -80,7 +80,7 @@ const ContentRouter: FC<{
   ) {
     return <Initialize />;
   }
-  if (lock) {
+  if (lock || script == null) {
     return <CreatePassword />;
   }
 
