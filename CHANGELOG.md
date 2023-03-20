@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2023-03-20
+
+### Fixed
+
+- Fixed create wallet from scratch flow
+
 ## [0.18.0] - 2023-03-18
 
 ### Add
@@ -316,7 +322,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.0...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.1...HEAD
+[0.18.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.6...v0.18.0
 [0.17.6]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.5...v0.17.6
 [0.17.5]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.4...v0.17.5
