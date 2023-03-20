@@ -14,13 +14,27 @@ import {
 } from "../../../libs/entries/proxy";
 import {
   getAuthConfiguration,
+  getLockScreen,
   getProxyConfiguration,
   QueryType,
+  setLockScreen,
   setNetworkConfig,
   setProxyConfiguration,
 } from "../../../libs/store/browserStore";
 import { NetworksContext } from "../../context";
 import { sendBackground } from "../../event";
+
+export const useLockScreen = () => {
+  return useQuery<boolean, Error>([QueryType.lock], () => getLockScreen());
+};
+
+export const useSetLockScreen = () => {
+  const client = useQueryClient();
+  return useMutation<void, Error, boolean>(async (value) => {
+    await setLockScreen(value);
+    await client.invalidateQueries([QueryType.lock]);
+  });
+};
 
 export const useAuthConfiguration = () => {
   return useQuery<AuthConfiguration, Error>([QueryType.auth], () =>

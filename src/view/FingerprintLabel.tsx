@@ -10,6 +10,10 @@ export const FingerprintWalletLabel: FC<
   const { data } = useAuthConfiguration();
   const isWebAuth = data?.kind == "webauthn";
 
+  if (!isSignature) {
+    return <>{children}</>;
+  }
+
   if (wallet.ledger) {
     return (
       <>

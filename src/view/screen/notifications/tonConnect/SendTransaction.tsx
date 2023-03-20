@@ -122,7 +122,8 @@ const SendLedgerTransactions: FC<{
   const onConfirm = async () => {
     setSending(true);
     try {
-      for (let state of items) {
+      for (let i = 0; i < items.length; i++) {
+        let state = items[i];
         reset();
 
         setItems((s) =>
@@ -132,7 +133,10 @@ const SendLedgerTransactions: FC<{
         );
 
         const seqno = await sendAsync(state);
-        await askBackground<void>(timeout).message("confirmSeqNo", seqno);
+
+        if (i !== items.length - 1) {
+          await askBackground<void>(timeout).message("confirmSeqNo", seqno);
+        }
 
         setItems((s) =>
           s.map((item) =>

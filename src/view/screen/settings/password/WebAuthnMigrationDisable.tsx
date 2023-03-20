@@ -17,6 +17,7 @@ import { Fingerprint } from "../../../components/Fingerprint";
 import { InputField } from "../../../components/InputField";
 import { sendBackground } from "../../../event";
 import { AppRoute } from "../../../routes";
+import { useLockScreen } from "../api";
 import { useAuthorizationMigration, useChangePasswordMigration } from "./api";
 
 export const WebAuthnDisableMigration = () => {
@@ -64,6 +65,8 @@ export const WebAuthnDisableMigration = () => {
   const onCancel = useCallback(() => {
     navigate(AppRoute.settings);
   }, []);
+
+  const { data: isLockScreen } = useLockScreen();
 
   const onLock = useCallback(() => {
     sendBackground.message("lock");
@@ -133,7 +136,13 @@ export const WebAuthnDisableMigration = () => {
       )}
       {isDone && (
         <ButtonColumn>
-          <ButtonPositive onClick={onLock}>Lock Account</ButtonPositive>
+          {isLockScreen ? (
+            <ButtonPositive onClick={onLock}>Lock Account</ButtonPositive>
+          ) : (
+            <ButtonPositive onClick={() => navigate(AppRoute.home)}>
+              Home
+            </ButtonPositive>
+          )}
         </ButtonColumn>
       )}
     </Body>

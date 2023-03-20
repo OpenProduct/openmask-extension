@@ -18,6 +18,7 @@ import { Logger } from "../../logger";
 import {
   getAccountState,
   getConnections,
+  getLockScreen,
   getNetwork,
   getNetworkConfig,
 } from "../../store/browserStore";
@@ -39,7 +40,8 @@ export const getConnectedWallets = async (
   network: string,
   providerPublicKey: boolean
 ): Promise<ConnectDAppOutputParams> => {
-  if (memoryStore.isLock()) {
+  const lookScreen = await getLockScreen();
+  if (memoryStore.isLock() && lookScreen) {
     const permissions = await getDAppPermissions(network, origin);
 
     if (!permissions.includes(Permission.locked)) {
@@ -98,6 +100,8 @@ export const connectDApp = async (
     return await getConnectedWallets(origin, network, providerPublicKey);
   }
   const whitelist = await getConnections();
+  console.log(whitelist);
+
   if (whitelist[origin] == null) {
     memoryStore.addNotification({
       kind: "connectDApp",
@@ -114,7 +118,9 @@ export const connectDApp = async (
       memoryStore.removeNotification(id);
     }
   }
-  if (memoryStore.isLock()) {
+  const lookScreen = await getLockScreen();
+
+  if (memoryStore.isLock() && lookScreen) {
     const permissions = await getDAppPermissions(network, origin);
     if (!permissions.includes(Permission.locked)) {
       const popupId = await openNotificationPopUp();

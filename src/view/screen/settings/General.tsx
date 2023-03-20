@@ -13,7 +13,12 @@ import { DropDownList } from "../../components/DropDown";
 import { HomeButton } from "../../components/HomeButton";
 import { ArrowDownIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute } from "../../routes";
-import { useProxyConfiguration, useUpdateProxyMutation } from "./api";
+import {
+  useLockScreen,
+  useProxyConfiguration,
+  useSetLockScreen,
+  useUpdateProxyMutation,
+} from "./api";
 
 const Quote = styled.div`
   padding: 5px 0;
@@ -80,11 +85,24 @@ const ProxySelect = () => {
 };
 
 export const GeneralSettings = () => {
+  const { data: isLockScreen } = useLockScreen();
+  const { mutate } = useSetLockScreen();
+
   return (
     <>
       <HomeButton path={AppRoute.settings} text="Back to Settings" />
       <Body>
         <H1>General</H1>
+
+        <SelectLabel>Lock Screen</SelectLabel>
+        <label>
+          <input
+            type="checkbox"
+            checked={isLockScreen}
+            onChange={(e) => mutate(e.target.checked)}
+          />
+          Enable Lock Screen
+        </label>
 
         <ProxySelect />
       </Body>

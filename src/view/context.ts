@@ -11,6 +11,9 @@ export const AccountStateContext = React.createContext<AccountState>(
 
 export const WalletStateContext = React.createContext<WalletState>(undefined!);
 
+/**
+ * @deprecated
+ */
 export const WalletContractContext = React.createContext<WalletContract>(
   undefined!
 );

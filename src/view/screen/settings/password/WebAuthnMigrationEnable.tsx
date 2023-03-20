@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setLockScreen } from "../../../../libs/store/browserStore";
 import {
   Body,
   ButtonColumn,
@@ -16,6 +15,7 @@ import {
 import { Fingerprint } from "../../../components/Fingerprint";
 import { sendBackground } from "../../../event";
 import { AppRoute } from "../../../routes";
+import { useLockScreen } from "../api";
 import {
   useChangePasswordMigration,
   useLargeBlobMigration,
@@ -101,8 +101,9 @@ export const WebAuthnEnableMigration = () => {
     navigate(AppRoute.settings);
   }, []);
 
+  const { data: isLockScreen } = useLockScreen();
+
   const onLock = useCallback(async () => {
-    await setLockScreen(true);
     sendBackground.message("lock");
   }, []);
 
@@ -173,7 +174,13 @@ export const WebAuthnEnableMigration = () => {
       )}
       {isDone && (
         <ButtonColumn>
-          <ButtonPositive onClick={onLock}>Lock Account</ButtonPositive>
+          {isLockScreen ? (
+            <ButtonPositive onClick={onLock}>Lock Account</ButtonPositive>
+          ) : (
+            <ButtonPositive onClick={() => navigate(AppRoute.home)}>
+              Home
+            </ButtonPositive>
+          )}
         </ButtonColumn>
       )}
     </Body>

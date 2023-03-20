@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { NetworkConfig } from "../../../libs/entries/network";
 import { WalletState } from "../../../libs/entries/wallet";
 import ExtensionPlatform from "../../../libs/service/extension";
-import { QueryType, setLockScreen } from "../../../libs/store/browserStore";
+import { QueryType } from "../../../libs/store/browserStore";
 import { useMutateStore } from "../../api";
 import { Badge, Container, Icon } from "../../components/Components";
 import { DropDown, DropDownList, ListItem } from "../../components/DropDown";
@@ -25,6 +25,7 @@ import { sendBackground } from "../../event";
 import { AppRoute } from "../../routes";
 import { formatTonValue } from "../../utils";
 import { ConnectRoutes } from "../import/ConnectWallet";
+import { useLockScreen } from "../settings/api";
 import { useBalance, useSelectWalletMutation } from "./api";
 
 const Head = styled(Container)`
@@ -102,9 +103,9 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
 
   const { mutateAsync: mutateSelect, reset: resetSelect } =
     useSelectWalletMutation();
+  const { data: isLockScreen } = useLockScreen();
 
   const onLock = useCallback(async () => {
-    await setLockScreen(true);
     sendBackground.message("lock");
   }, []);
 
@@ -158,7 +159,7 @@ export const Header: FC<{ lock: boolean }> = ({ lock }) => {
             <Menu>
               <Item>
                 <span>Accounts</span>
-                <Badge onClick={onLock}>Lock</Badge>
+                {isLockScreen && <Badge onClick={onLock}>Lock</Badge>}
               </Item>
               <Divider />
               {account.wallets.map((wallet) => (
