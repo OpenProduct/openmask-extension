@@ -75,7 +75,7 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
     : "";
 
   const isLoading = isAddressFetching || isSending;
-  const disabled = isLoading || sendError != null || addressError != null;
+  const disabled = isLoading || addressError != null;
 
   const wallet = useContext(WalletStateContext);
 

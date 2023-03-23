@@ -19,6 +19,7 @@ export const SendCancelButton: FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const onCancel = () => {
+    sendBackground.message("storeOperation", null);
     if (transactionId) {
       sendBackground.message("rejectRequest", Number(transactionId));
     }

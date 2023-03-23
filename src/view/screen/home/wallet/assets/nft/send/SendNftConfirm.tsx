@@ -65,7 +65,7 @@ export const SendNftConfirm: FC<ConfirmProps> = ({ nft, state, onSend }) => {
   const transaction = parseFloat(state.amount);
 
   const isLoading = isAddressFetching || isSending;
-  const disabled = isLoading || error != null || addressError != null;
+  const disabled = isLoading || addressError != null;
 
   return (
     <>

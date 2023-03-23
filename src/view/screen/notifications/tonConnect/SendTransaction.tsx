@@ -124,6 +124,9 @@ const SendLedgerTransactions: FC<{
     try {
       for (let i = 0; i < items.length; i++) {
         let state = items[i];
+        if (state.isConfirmed) {
+          continue;
+        }
         reset();
 
         setItems((s) =>
@@ -150,6 +153,9 @@ const SendLedgerTransactions: FC<{
     } catch (e) {
       setError(e as Error);
       setSending(false);
+      setItems((s) =>
+        s.map((item) => (item.isConfirmed ? item : { ...item, isSend: false }))
+      );
     }
   };
 
@@ -179,7 +185,7 @@ const SendLedgerTransactions: FC<{
   }
 
   const disabledCancel = isSending;
-  const disabledConfirm = isSending || error != null;
+  const disabledConfirm = isSending;
 
   return (
     <>
@@ -193,6 +199,8 @@ const SendLedgerTransactions: FC<{
       )}
 
       <Gap />
+      {error && <ErrorMessage>{error.message}</ErrorMessage>}
+
       <ButtonRow>
         <ButtonNegative onClick={onCancel} disabled={disabledCancel}>
           Cancel

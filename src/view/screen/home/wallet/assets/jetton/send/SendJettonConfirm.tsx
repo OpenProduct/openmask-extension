@@ -86,11 +86,7 @@ export const SendJettonConfirm: FC<ConfirmProps> = ({
     state.transactionAmount != "" ? parseFloat(state.transactionAmount) : 0.1;
 
   const isLoading = isAddressFetching || isSending || isJettonFetching;
-  const disabled =
-    isLoading ||
-    addressError != null ||
-    sendError != null ||
-    jettonError != null;
+  const disabled = isLoading || addressError != null || jettonError != null;
 
   return (
     <>

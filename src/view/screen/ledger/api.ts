@@ -182,7 +182,9 @@ export const useConnectLedgerTransport = (driver?: LedgerDriver) => {
     const transportWeb =
       driver === "USB" ? await connectWebUSB() : await connectWebHID();
 
-    while (true) {
+    let index = 0;
+
+    while (index < 20) {
       let transport = new TonTransport(transportWeb);
       let appOpened = false;
 
@@ -193,11 +195,16 @@ export const useConnectLedgerTransport = (driver?: LedgerDriver) => {
 
       if (!appOpened) {
         await delay(1000);
+        index++;
         continue;
       }
 
       return transport;
     }
+
+    throw new Error(
+      "Unable to connect to a Ledger. Please open Ton Ledger App to 'Ton is ready' screen and try one more time."
+    );
   });
 };
 
