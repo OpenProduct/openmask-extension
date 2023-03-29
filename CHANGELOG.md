@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.3] - 2023-03-30
+
+### Add
+
+- Support On chain Content for NFT
+
 ## [0.18.2] - 2023-03-23
 
 ### Fixed
@@ -328,7 +334,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.2...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.3...HEAD
+[0.18.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.2...v0.18.3
 [0.18.2]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/OpenProduct/openmask-extension/compare/v0.17.6...v0.18.0
