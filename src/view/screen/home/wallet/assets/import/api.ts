@@ -7,6 +7,7 @@ import {
 } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
+import { Cell as CoreCell } from "ton-core";
 import {
   DomainNftState,
   NftCollectionState,
@@ -25,6 +26,7 @@ import {
   getJettonFullData,
   JettonFullData,
 } from "../../../../../../libs/state/jettonService";
+import { readOnchainMetadata } from "../../../../../../libs/state/onchainContent";
 import {
   AccountStateContext,
   NetworkContext,
@@ -64,10 +66,20 @@ export const useNftDataMutation = () => {
 };
 
 export const useNftContentMutation = () => {
-  return useMutation<NftItemState, Error, string>(async (jsonUrl) => {
-    const state = await requestJson<NftItemState>(jsonUrl!);
-    return await NftItemStateSchema.validateAsync(state);
-  });
+  return useMutation<NftItemState, Error, NftData>(
+    async ({ contentUri, contentCell }) => {
+      if (contentUri) {
+        const state = await requestJson<NftItemState>(contentUri);
+        return await NftItemStateSchema.validateAsync(state);
+      } else {
+        const state = readOnchainMetadata(
+          CoreCell.fromBase64(contentCell.toBase64()),
+          ["image", "name", "description"]
+        );
+        return await NftItemStateSchema.validateAsync(state);
+      }
+    }
+  );
 };
 
 export const useNftCollectionDataMutation = () => {
@@ -75,14 +87,20 @@ export const useNftCollectionDataMutation = () => {
   return useMutation<NftCollectionState, Error, Address>(async (address) => {
     const dao = new NftCollectionDao(provider, address);
     const data = await dao.getCollectionData();
-    if (!data.collectionContentUri) {
-      throw new Error("Missing collection content");
-    }
-    const state = await requestJson<NftCollectionState>(
-      data.collectionContentUri
-    );
 
-    return await NftCollectionStateSchema.validateAsync(state);
+    if (data.collectionContentUri) {
+      const state = await requestJson<NftCollectionState>(
+        data.collectionContentUri
+      );
+      return await NftCollectionStateSchema.validateAsync(state);
+    } else if (data.collectionContentCell) {
+      const state = readOnchainMetadata<NftCollectionState>(
+        CoreCell.fromBase64(data.collectionContentCell.toBase64()),
+        ["image", "name", "description"]
+      );
+      return await NftCollectionStateSchema.validateAsync(state);
+    }
+    throw new Error("Missing collection content");
   });
 };
 

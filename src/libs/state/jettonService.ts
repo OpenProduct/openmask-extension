@@ -44,7 +44,7 @@ export const getJettonFullData = async (
     minter,
     walletAddress,
     name
-  );
+  ).catch((e) => null);
 
   return { data, wallet, name };
 };
@@ -70,8 +70,8 @@ export const getJettonWalletData = async (
     throw new Error("Missing jetton minter address.");
   }
   if (
-    data.jettonMinterAddress?.toString(true, true, true) !==
-    new Address(jettonMinterAddress).toString(true, true, true)
+    data.jettonMinterAddress?.toString(false) !==
+    new Address(jettonMinterAddress).toString(false)
   ) {
     throw new Error("Jetton minter address not match.");
   }

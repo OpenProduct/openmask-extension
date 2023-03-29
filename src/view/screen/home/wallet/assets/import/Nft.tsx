@@ -110,10 +110,9 @@ export const ImportNft = () => {
       const state = await domainNftStateAsync({ collection, address });
       if (state) setNftState(state);
     }
-    if (data.contentUri) {
-      const state = await nftStateAsync(data.contentUri);
-      setNftState(state);
-    }
+
+    const nftItemState = await nftStateAsync(data).catch(() => null);
+    if (nftItemState) setNftState(nftItemState);
   };
 
   const onAdd = async () => {

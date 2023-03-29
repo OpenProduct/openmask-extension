@@ -87,10 +87,8 @@ export const ImportNft: FC<
         if (state) setNftState(state);
       }
 
-      if (data.contentUri) {
-        const state = await nftStateAsync(data.contentUri);
-        setNftState(state);
-      }
+      const nftItemState = await nftStateAsync(data).catch(() => null);
+      if (nftItemState) setNftState(nftItemState);
     })();
   }, []);
 
