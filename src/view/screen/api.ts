@@ -42,12 +42,16 @@ export const checkBalanceOrDie = (
   }
 };
 
+const createBigNumber = (value: BigNumber.Value | bigint) => {
+  return new BigNumber(typeof value === "bigint" ? value.toString() : value);
+};
+
 export const checkBalanceOrDie2 = (
-  balance: BigNumber.Value | undefined,
-  amount: BigNumber.Value
+  balance: BigNumber.Value | bigint | undefined,
+  amount: BigNumber.Value | bigint
 ) => {
   if (balance) {
-    if (new BigNumber(balance).comparedTo(amount) === -1) {
+    if (createBigNumber(balance).comparedTo(createBigNumber(amount)) === -1) {
       throw new RuntimeError(
         ErrorCode.unexpectedParams,
         "Don't enough wallet balance"

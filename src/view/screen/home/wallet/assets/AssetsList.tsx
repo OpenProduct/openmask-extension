@@ -130,7 +130,7 @@ export const AssetsList: FC<{
   const navigate = useNavigate();
   const wallet = useContext(WalletStateContext);
 
-  const assets = useMemo(() => getWalletAssets(wallet), [wallet.version]);
+  const assets = useMemo(() => getWalletAssets(wallet), [wallet]);
 
   return (
     <>

@@ -1,8 +1,7 @@
-import { toNano } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { TonClient } from "ton";
-import { Address, beginCell } from "ton-core";
+import { Address, beginCell, toNano } from "ton-core";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { EstimateFeeValues } from "../../../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../../../libs/entries/wallet";
@@ -18,7 +17,7 @@ import {
   TonClientContext,
   WalletStateContext,
 } from "../../../../../../context";
-import { checkBalanceOrDie, getWalletKeyPair } from "../../../../../api";
+import { checkBalanceOrDie2, getWalletKeyPair } from "../../../../../api";
 import { signLedgerTransaction } from "../../../../../ledger/api";
 
 export const toSendJettonState = (
@@ -147,12 +146,12 @@ const sendLedgerTransaction = async (
 
   const walletBalance = await tonContract.getBalance();
 
-  await checkBalanceOrDie(
+  await checkBalanceOrDie2(
     walletBalance.toString(),
     toNano(state.transactionAmount)
   );
   const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
-  await checkBalanceOrDie(balance, jettonAmount);
+  await checkBalanceOrDie2(balance, jettonAmount);
 
   const seqno = await tonContract.getSeqno();
 
@@ -188,12 +187,12 @@ const sendMnemonicTransaction = async (
 
   const walletBalance = await tonContract.getBalance();
 
-  await checkBalanceOrDie(
+  await checkBalanceOrDie2(
     walletBalance.toString(),
     toNano(state.transactionAmount)
   );
   const jettonAmount = toCoinValue(state.amount, jetton.state.decimals);
-  await checkBalanceOrDie(balance, jettonAmount);
+  await checkBalanceOrDie2(balance, jettonAmount);
 
   const seqno = await tonContract.getSeqno();
 
