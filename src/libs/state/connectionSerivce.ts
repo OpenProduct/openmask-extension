@@ -6,7 +6,7 @@
  * @since: 0.7.0
  */
 
-import { Connections } from "../entries/connection";
+import { Connection, Connections } from "../entries/connection";
 import { Permission } from "../entries/permission";
 
 export const addDAppAccess = (
@@ -16,14 +16,10 @@ export const addDAppAccess = (
   wallets: string[],
   permissions: Permission[]
 ) => {
-  const connection = connections[origin] ?? { logo, connect: {} };
+  const connection: Connection = { logo, connect: {} };
 
   wallets.forEach((wallet) => {
-    if (connection.connect[wallet]) {
-      connection.connect[wallet].push(...permissions);
-    } else {
-      connection.connect[wallet] = permissions;
-    }
+    connection.connect[wallet] = permissions;
   });
 
   connections[origin] = connection;

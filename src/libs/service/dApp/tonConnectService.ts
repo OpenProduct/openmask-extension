@@ -65,33 +65,45 @@ export const tonReConnectRequest = async (
   return [result];
 };
 
+const connectWithNotification = async (
+  id: number,
+  origin: string,
+  data: TonConnectRequest,
+  logo: string
+) => {
+  memoryStore.addNotification({
+    kind: "tonConnectRequest",
+    id,
+    logo,
+    origin,
+    data,
+  });
+
+  try {
+    const popupId = await openNotificationPopUp();
+    const result = await waitApprove<TonConnectItemReply[]>(id, popupId);
+
+    return result;
+  } finally {
+    memoryStore.removeNotification(id);
+  }
+};
+
 export const tonConnectRequest = async (
   id: number,
   origin: string,
   data: TonConnectRequest
 ) => {
-  const whitelist = await getConnections();
+  const logo = await getActiveTabLogo();
   const isTonProof = data.items.some((item) => item.name === "ton_proof");
-
-  if (whitelist[origin] == null || isTonProof) {
-    memoryStore.addNotification({
-      kind: "tonConnectRequest",
-      id,
-      logo: await getActiveTabLogo(),
-      origin,
-      data,
-    });
-
-    try {
-      const popupId = await openNotificationPopUp();
-      const result = await waitApprove<TonConnectItemReply[]>(id, popupId);
-
-      return result;
-    } finally {
-      memoryStore.removeNotification(id);
-    }
+  if (isTonProof) {
+    return connectWithNotification(id, origin, data, logo);
+  }
+  const reconnect = await tonReConnectRequest(origin).catch(() => null);
+  if (reconnect) {
+    return reconnect;
   } else {
-    return tonReConnectRequest(origin);
+    return connectWithNotification(id, origin, data, logo);
   }
 };
 

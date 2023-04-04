@@ -17,18 +17,13 @@ import { ClosePopUpError, ErrorCode, RuntimeError } from "../../exception";
 import { Logger } from "../../logger";
 import {
   getAccountState,
-  getConnections,
   getLockScreen,
   getNetwork,
   getNetworkConfig,
 } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
 import { getWalletsByOrigin } from "../walletService";
-import {
-  closeCurrentPopUp,
-  getActiveTabLogo,
-  openNotificationPopUp,
-} from "./notificationService";
+import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import {
   checkBaseDAppPermission,
   getDAppPermissions,
@@ -87,6 +82,27 @@ const waitUnlock = (popupId?: number) => {
   });
 };
 
+const openNotificationAndConnect = async (
+  id: number,
+  origin: string,
+  logo: string
+) => {
+  memoryStore.addNotification({
+    kind: "connectDApp",
+    id,
+    logo,
+    origin,
+    data: {},
+  });
+
+  try {
+    const popupId = await openNotificationPopUp();
+    await waitApprove(id, popupId);
+  } finally {
+    memoryStore.removeNotification(id);
+  }
+};
+
 export const connectDApp = async (
   id: number,
   origin: string,
@@ -95,43 +111,29 @@ export const connectDApp = async (
 ) => {
   const providerPublicKey = (params && params.publicKey) || false;
 
+  const logo = await getActiveTabLogo();
   const network = await getNetwork();
-  if (!isEvent) {
+  const lookScreen = await getLockScreen();
+  const permissions = await getDAppPermissions(network, origin);
+
+  const haveOpenNotification =
+    !isEvent ||
+    (memoryStore.isLock() &&
+      lookScreen &&
+      !permissions.includes(Permission.locked));
+
+  const reconnect = await getConnectedWallets(
+    origin,
+    network,
+    providerPublicKey
+  ).catch(() => null);
+
+  if (reconnect === null || haveOpenNotification) {
+    return reconnect;
+  } else {
+    await openNotificationAndConnect(id, origin, logo);
     return await getConnectedWallets(origin, network, providerPublicKey);
   }
-  const whitelist = await getConnections();
-  console.log(whitelist);
-
-  if (whitelist[origin] == null) {
-    memoryStore.addNotification({
-      kind: "connectDApp",
-      id,
-      logo: await getActiveTabLogo(),
-      origin,
-      data: {},
-    });
-
-    try {
-      const popupId = await openNotificationPopUp();
-      await waitApprove(id, popupId);
-    } finally {
-      memoryStore.removeNotification(id);
-    }
-  }
-  const lookScreen = await getLockScreen();
-
-  if (memoryStore.isLock() && lookScreen) {
-    const permissions = await getDAppPermissions(network, origin);
-    if (!permissions.includes(Permission.locked)) {
-      const popupId = await openNotificationPopUp();
-      try {
-        await waitUnlock(popupId);
-      } finally {
-        await closeCurrentPopUp(popupId);
-      }
-    }
-  }
-  return await getConnectedWallets(origin, network, providerPublicKey);
 };
 
 export const getBalance = async (
