@@ -36,6 +36,7 @@ const ImportMnemonic = () => {
       <H1>Import existing wallet</H1>
       <Text>To connect wallet, please enter your mnemonic here</Text>
       <Textarea
+        placeholder="thought borrow spend aisle...."
         disabled={isLoading}
         rows={10}
         value={value}
