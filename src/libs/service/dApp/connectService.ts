@@ -108,7 +108,7 @@ export const connectDApp = async (
   origin: string,
   isEvent: boolean,
   params?: ConnectDAppParams
-) => {
+): Promise<ConnectDAppOutputParams> => {
   const providerPublicKey = (params && params.publicKey) || false;
 
   const logo = await getActiveTabLogo();
@@ -129,10 +129,10 @@ export const connectDApp = async (
   ).catch(() => null);
 
   if (reconnect === null || haveOpenNotification) {
-    return reconnect;
-  } else {
     await openNotificationAndConnect(id, origin, logo);
     return await getConnectedWallets(origin, network, providerPublicKey);
+  } else {
+    return reconnect;
   }
 };
 
