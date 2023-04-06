@@ -60,20 +60,20 @@ const SwapIndex = () => {
       <Source>
         <Row>
           <img
-            src="https://tegro.finance/assets/images/logotype.svg"
+            src="https://static.ston.fi/favicon/favicon-32x32.png"
             width="30"
           />
-          <SubTitle>tegro.finance</SubTitle>
+          <SubTitle>ston.fi</SubTitle>
         </Row>
-        <Text>DEX on The Open Network from tegro.money</Text>
+        <Text>An AMM DEX for the TON blockchain</Text>
         <ButtonNegative
           onClick={() =>
             ExtensionPlatform.openTab({
-              url: `https://tegro.finance/swap?utm_source=openmask.app`,
+              url: `https://app.ston.fi/swap?utm_source=openmask.app`,
             })
           }
         >
-          Continue to tegro.finance <LinkIcon />
+          Continue to ston.fi <LinkIcon />
         </ButtonNegative>
       </Source>
     </div>
