@@ -1,22 +1,12 @@
+import { DeviceInfo } from "@tonconnect/protocol";
 import { OpenMaskError } from "../entries/message";
 import {
   TonConnectItemReply,
-  TonConnectRequest
+  TonConnectRequest,
 } from "../entries/notificationMessage";
 import { TonConnectError } from "../exception";
 import { TonProvider } from "../provider";
 import packageJson from "/package.json";
-
-export type Feature = "SendTransaction";
-
-export type DeviceInfo = {
-  platform: "iphone" | "ipad" | "android" | "windows" | "mac" | "linux";
-  appName: string; // e.g. "Tonkeeper"
-  appVersion: string; // e.g. "2.3.367"
-  maxProtocolVersion: number;
-  features: Feature[]; // list of supported features and methods in RPC
-  // Currently there is only one feature -- 'SendTransaction';
-};
 
 function getPlatform(): DeviceInfo["platform"] {
   const platform =
@@ -55,7 +45,13 @@ export const getDeviceInfo = (): DeviceInfo => {
     appName: "OpenMask",
     appVersion: packageJson.version,
     maxProtocolVersion: 2,
-    features: ["SendTransaction"],
+    features: [
+      "SendTransaction",
+      {
+        name: "SendTransaction",
+        maxMessages: 4,
+      },
+    ],
   };
 };
 
