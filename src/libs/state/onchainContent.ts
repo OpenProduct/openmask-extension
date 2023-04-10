@@ -1,6 +1,10 @@
 import { beginCell, Cell } from "ton";
-import { Dictionary } from "ton-core";
+import { Dictionary, Slice } from "ton-core";
 import { sha256_sync } from "ton-crypto";
+
+const ONCHAIN_CONTENT_PREFIX = 0x00;
+const SNAKE_PREFIX = 0x00;
+const CELL_MAX_SIZE_BYTES = Math.floor((1023 - 8) / 8);
 
 function bufferToChunks(buff: Buffer, chunkSize: number) {
   let chunks: Buffer[] = [];
@@ -10,7 +14,6 @@ function bufferToChunks(buff: Buffer, chunkSize: number) {
   }
   return chunks;
 }
-const CELL_MAX_SIZE_BYTES = Math.floor((1023 - 8) / 8);
 
 export function makeSnakeCell(data: Buffer) {
   let chunks = bufferToChunks(data, CELL_MAX_SIZE_BYTES);
@@ -29,9 +32,8 @@ export function makeSnakeCell(data: Buffer) {
   return b.endCell();
 }
 
-export function readSnakeCell(cell: Cell): Buffer | null {
-  let sl = cell.beginParse();
-  if (sl.remainingBits < 8 || sl.loadUint(8) !== SNAKE_PREFIX) {
+export function readOffChainMetadata(sl: Slice) {
+  if (sl.remainingBits < 8) {
     return null;
   }
   let result = sl.loadBuffer(sl.remainingBits / 8);
@@ -43,9 +45,13 @@ export function readSnakeCell(cell: Cell): Buffer | null {
 
   return result;
 }
-
-const ONCHAIN_CONTENT_PREFIX = 0x00;
-const SNAKE_PREFIX = 0x00;
+export function readSnakeCell(cell: Cell): Buffer | null {
+  let sl = cell.beginParse();
+  if (sl.remainingBits < 8 || sl.loadUint(8) !== SNAKE_PREFIX) {
+    return null;
+  }
+  return readOffChainMetadata(sl);
+}
 
 const toKey = (key: string) => {
   return BigInt(`0x${sha256_sync(key).toString("hex")}`);

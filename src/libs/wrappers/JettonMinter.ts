@@ -1,7 +1,10 @@
 import { Address, beginCell, Cell, Contract, ContractProvider } from "ton-core";
 import { JettonStateSchema } from "../entries/asset";
 import { requestJson } from "../service/requestService";
-import { readOnchainMetadata, readSnakeCell } from "../state/onchainContent";
+import {
+  readOffChainMetadata,
+  readOnchainMetadata,
+} from "../state/onchainContent";
 
 const ONCHAIN_CONTENT_PREFIX = 0x00;
 
@@ -66,9 +69,10 @@ const getJettonContent = async (jettonContentCell: Cell) => {
         return await JettonStateSchema.validateAsync(jettonContent);
       }
     } else {
-      const content = readSnakeCell(jettonContentCell);
-      if (content) {
-        const state = await getJettonNameState(content.toString("utf8"));
+      const contentUrl = readOffChainMetadata(contentSlice);
+
+      if (contentUrl) {
+        const state = await getJettonNameState(contentUrl.toString("utf8"));
         return await JettonStateSchema.validateAsync(state);
       } else {
         throw new Error("Unexpected jetton metadata content prefix");

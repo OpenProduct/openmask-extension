@@ -42,8 +42,7 @@ export const getJettonFullData = async (
   const wallet = await getJettonWalletData(
     client,
     jettonWalletAddress,
-    minterAddress,
-    data.jettonContent
+    minterAddress
   ).catch((e) => null);
 
   return { data, wallet, name };
@@ -52,8 +51,7 @@ export const getJettonFullData = async (
 export const getJettonWalletData = async (
   client: TonClient,
   jettonWalletAddress: Address,
-  jettonMinterAddress: Address,
-  jetton?: Partial<JettonMinterData> | null
+  jettonMinterAddress: Address
 ): Promise<JettonWalletData> => {
   const jettonWallet = client.open(
     JettonWallet.createFromAddress(jettonWalletAddress)
