@@ -37,6 +37,20 @@ const toSymbolError = (symbol: string): string | undefined => {
   return undefined;
 };
 
+const toDecimalsError = (decimals: string): string | undefined => {
+  if (decimals == "") {
+    return "The decimals is required";
+  }
+  if (
+    Number(decimals) != parseInt(decimals) ||
+    Number(decimals) < 0 ||
+    Number(decimals) > 18
+  ) {
+    return "The decimals should be an integer from 0 to 18";
+  }
+  return undefined;
+};
+
 export const ImportJetton = () => {
   const navigate = useNavigate();
 
@@ -50,6 +64,11 @@ export const ImportJetton = () => {
 
   const [symbol, setSymbol] = useState("");
   const [symbolError, setSymbolError] = useState<Error | undefined>(undefined);
+
+  const [decimals, setDecimals] = useState("9");
+  const [decimalsError, setDecimalsError] = useState<Error | undefined>(
+    undefined
+  );
 
   const {
     mutateAsync: jettonFullDataAsync,
@@ -88,10 +107,16 @@ export const ImportJetton = () => {
         setSymbolError(new Error(error));
         return;
       }
+      const error2 = toDecimalsError(decimals);
+      if (error2) {
+        setDecimalsError(new Error(error2));
+        return;
+      }
 
       jettonState = {
         symbol: symbol.toUpperCase(),
         name: symbol,
+        decimals,
       };
     }
 
@@ -128,8 +153,9 @@ export const ImportJetton = () => {
     return {
       symbol: symbol != "" ? symbol.toUpperCase() : "COIN",
       name: "Name not loaded",
+      decimals: toDecimalsError(decimals) === undefined ? decimals : "9",
     };
-  }, [jettonName, symbol]);
+  }, [jettonName, symbol, decimals]);
 
   return (
     <>
@@ -151,6 +177,16 @@ export const ImportJetton = () => {
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
             error={symbolError}
+          />
+        )}
+        {!isLoading && jetton != null && jettonName == null && (
+          <InputField
+            type="number"
+            label="Jetton Decimals"
+            disabled={isAddLoading}
+            value={decimals}
+            onChange={(e) => setDecimals(e.target.value)}
+            error={decimalsError}
           />
         )}
 

@@ -15,7 +15,6 @@ import {
 } from "../wrappers/JettonMinter";
 import { JettonWallet } from "../wrappers/JettonWallet";
 import { JettonWalletData } from "./assetService";
-import { formatAmountValue } from "./decimalsService";
 
 export interface JettonFullData {
   data: JettonData;
@@ -71,10 +70,8 @@ export const getJettonWalletData = async (
     throw new Error("Jetton minter address not match.");
   }
 
-  const decimals = parseInt(jetton?.decimals ?? "9");
-
   return {
-    balance: formatAmountValue(data.balance.toString(), decimals),
+    balance: data.balance.toString(),
     address: jettonWalletAddress.toString(),
   };
 };

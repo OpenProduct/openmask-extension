@@ -1,7 +1,8 @@
-import React, { FC } from "react";
+import React, { FC, useMemo } from "react";
 import styled from "styled-components";
 import { JettonState } from "../../libs/entries/asset";
 import { ipfsProxy } from "../../libs/service/requestService";
+import { formatAmountValue } from "../../libs/state/decimalsService";
 import { IconSize } from "./Components";
 import { BaseLogoIcon } from "./Icons";
 
@@ -24,11 +25,16 @@ interface Props {
 }
 
 export const JettonRow: FC<Props> = React.memo(({ state, balance }) => {
+  const amount = useMemo(() => {
+    if (!balance) return "0";
+    return formatAmountValue(balance, state.decimals);
+  }, [state, balance]);
+
   return (
     <Row>
       <JettonLogo image={state.image} />
       <Font>
-        {state.name} ({balance ?? 0} {state.symbol})
+        {state.name} ({amount} {state.symbol})
       </Font>
     </Row>
   );
