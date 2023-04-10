@@ -6,72 +6,67 @@
  * @since: 0.12.0
  */
 
+import { TonClient } from "ton";
+import { Address } from "ton-core";
 import {
-  Address,
   JettonData,
-  JettonMinterDao,
-  JettonWalletDao,
-  TonHttpProvider,
-} from "@openproduct/web-sdk";
-import { JettonState, JettonStateSchema } from "../entries/asset";
-import { requestJson } from "../service/requestService";
+  JettonMinter,
+  JettonMinterData,
+} from "../wrappers/JettonMinter";
+import { JettonWallet } from "../wrappers/JettonWallet";
 import { JettonWalletData } from "./assetService";
 import { formatAmountValue } from "./decimalsService";
 
 export interface JettonFullData {
   data: JettonData;
   wallet: JettonWalletData | null;
-  name: JettonState | null;
+  name: JettonMinterData | null;
 }
 
 export const getJettonFullData = async (
-  provider: TonHttpProvider,
+  client: TonClient,
   walletAddress: string,
   jettonMinterAddress: string
 ): Promise<JettonFullData> => {
-  const minter = new JettonMinterDao(
-    provider,
-    new Address(jettonMinterAddress)
-  );
+  const minterAddress = Address.parse(jettonMinterAddress);
+
+  const minter = client.open(JettonMinter.createFromAddress(minterAddress));
 
   const data = await minter.getJettonData();
 
-  const name = await getJettonNameState(data).catch((e) => null);
+  const name = data.jettonContent;
+
+  const jettonWalletAddress = await minter.getJettonWalletAddress(
+    Address.parse(walletAddress)
+  );
 
   const wallet = await getJettonWalletData(
-    jettonMinterAddress,
-    provider,
-    minter,
-    walletAddress,
-    name
+    client,
+    jettonWalletAddress,
+    minterAddress,
+    data.jettonContent
   ).catch((e) => null);
 
   return { data, wallet, name };
 };
 
 export const getJettonWalletData = async (
-  jettonMinterAddress: string,
-  provider: TonHttpProvider,
-  minter: JettonMinterDao,
-  walletAddress: string,
-  jetton?: JettonState | null
+  client: TonClient,
+  jettonWalletAddress: Address,
+  jettonMinterAddress: Address,
+  jetton?: Partial<JettonMinterData> | null
 ): Promise<JettonWalletData> => {
-  const jettonWalletAddress = await minter.getJettonWalletAddress(
-    new Address(walletAddress)
+  const jettonWallet = client.open(
+    JettonWallet.createFromAddress(jettonWalletAddress)
   );
-  if (!jettonWalletAddress) {
-    throw new Error("Missing jetton wallet address.");
-  }
 
-  const dao = new JettonWalletDao(provider, jettonWalletAddress);
-  const data = await dao.getData();
+  const data = await jettonWallet.getData();
 
   if (!data.jettonMinterAddress) {
     throw new Error("Missing jetton minter address.");
   }
   if (
-    data.jettonMinterAddress?.toString(false) !==
-    new Address(jettonMinterAddress).toString(false)
+    data.jettonMinterAddress.toRawString() !== jettonMinterAddress.toRawString()
   ) {
     throw new Error("Jetton minter address not match.");
   }
@@ -79,26 +74,7 @@ export const getJettonWalletData = async (
   const decimals = parseInt(jetton?.decimals ?? "9");
 
   return {
-    balance: formatAmountValue(data.balance, decimals),
-    address: jettonWalletAddress.toString(true, true, true),
+    balance: formatAmountValue(data.balance.toString(), decimals),
+    address: jettonWalletAddress.toString(),
   };
-};
-
-export const getJettonNameState = async (data: JettonData) => {
-  let state: Partial<JettonState> = {};
-  const { jettonContentUri, jettonContent } = data;
-
-  if (jettonContentUri) {
-    state = await requestJson<Partial<JettonState>>(jettonContentUri);
-  } else if (jettonContent) {
-    state = jettonContent;
-  }
-  if (state.name) {
-    state.name = state.name.replace(/\0.*$/g, ""); // remove null bytes
-  }
-  if (state.decimals && typeof state.decimals == "number") {
-    state.decimals = String(state.decimals);
-  }
-
-  return await JettonStateSchema.validateAsync(state);
 };

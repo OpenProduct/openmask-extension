@@ -1,6 +1,6 @@
-import { Address, JettonData, JettonMinterDao } from "@openproduct/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
+import { Address } from "ton-core";
 import {
   JettonAsset,
   JettonParams,
@@ -12,15 +12,16 @@ import {
   setWalletAssets,
 } from "../../../../libs/entries/wallet";
 import { seeIfJettonAsset } from "../../../../libs/state/assetService";
-import {
-  getJettonNameState,
-  getJettonWalletData,
-} from "../../../../libs/state/jettonService";
+import { getJettonFullData } from "../../../../libs/state/jettonService";
 import { QueryType } from "../../../../libs/store/browserStore";
+import {
+  JettonData,
+  JettonMinter,
+} from "../../../../libs/wrappers/JettonMinter";
 import {
   AccountStateContext,
   NetworkContext,
-  TonProviderContext,
+  TonClientContext,
 } from "../../../context";
 import { askBackground, sendBackground } from "../../../event";
 import { saveAccountState } from "../../api";
@@ -43,9 +44,9 @@ export const useOriginWallets = (origin: string) => {
 };
 
 const getJettonName = async (data: JettonData, params: JettonParams) => {
-  try {
-    return await getJettonNameState(data);
-  } catch (e) {
+  if (data.jettonContent) {
+    return data.jettonContent;
+  } else {
     const state = {
       symbol: params.symbol,
       image: params.image,
@@ -62,13 +63,15 @@ export interface JettonMinterData {
 }
 
 export const useJettonMinterData = (params: JettonParams) => {
-  const provider = useContext(TonProviderContext);
+  const client = useContext(TonClientContext);
   return useQuery<JettonMinterData, Error>(
     [QueryType.jetton, params.address],
     async () => {
-      const dao = new JettonMinterDao(provider, new Address(params.address));
+      const minter = client.open(
+        JettonMinter.createFromAddress(Address.parse(params.address))
+      );
 
-      const data = await dao.getJettonData();
+      const data = await minter.getJettonData();
 
       const state = await getJettonName(data, params);
 
@@ -80,25 +83,18 @@ export const useJettonMinterData = (params: JettonParams) => {
 export const useJettonWalletBalance = (
   id: number,
   jettonMinterAddress: string,
-  walletAddress: string,
-  data: JettonState
+  walletAddress: string
 ) => {
-  const provider = useContext(TonProviderContext);
+  const client = useContext(TonClientContext);
   return useQuery(
     [QueryType.jetton, jettonMinterAddress, walletAddress, id],
     async () => {
-      const minter = new JettonMinterDao(
-        provider,
-        new Address(jettonMinterAddress)
-      );
-
-      return getJettonWalletData(
-        jettonMinterAddress,
-        provider,
-        minter,
+      const { wallet } = await getJettonFullData(
+        client,
         walletAddress,
-        data
+        jettonMinterAddress
       );
+      return wallet;
     }
   );
 };

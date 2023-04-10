@@ -30,13 +30,14 @@ import { readOnchainMetadata } from "../../../../../../libs/state/onchainContent
 import {
   AccountStateContext,
   NetworkContext,
+  TonClientContext,
   TonProviderContext,
   WalletStateContext,
 } from "../../../../../context";
 import { saveAccountState } from "../../../../api";
 
 export const useJettonFullData = () => {
-  const client = useContext(TonProviderContext);
+  const client = useContext(TonClientContext);
   const wallet = useContext(WalletStateContext);
   return useMutation<JettonFullData, Error, string>(
     (jettonMinterAddress: string) => {

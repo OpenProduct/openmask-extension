@@ -36,8 +36,7 @@ const JettonWallet: FC<JettonWalletProps> = React.memo(
     const { data: jettonBallance } = useJettonWalletBalance(
       id,
       jettonMinterAddress,
-      wallet,
-      state
+      wallet
     );
     return (
       <>

@@ -29,7 +29,7 @@ export function makeSnakeCell(data: Buffer) {
   return b.endCell();
 }
 
-function readSnakeCell(cell: Cell): Buffer | null {
+export function readSnakeCell(cell: Cell): Buffer | null {
   let sl = cell.beginParse();
   if (sl.remainingBits < 8 || sl.loadUint(8) !== SNAKE_PREFIX) {
     return null;
