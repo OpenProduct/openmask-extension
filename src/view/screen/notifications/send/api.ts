@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Cell, fromNano } from "ton-core";
+import { beginCell, Cell, fromNano } from "ton-core";
 import { TransactionParams } from "../../../../libs/entries/transaction";
 import { TransactionState } from "../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../libs/store/browserStore";
@@ -11,9 +11,11 @@ const toData = (params: TransactionParams) => {
     case "hex":
       return Cell.fromBoc(Buffer.from(params.data, "hex"))[0];
     case "base64":
-      return Cell.fromBase64(params.data);
+      return beginCell()
+        .storeBuffer(Buffer.from(params.data, "base64"))
+        .endCell();
     case "boc":
-      return Cell.fromBoc(Buffer.from(params.data))[0];
+      return Cell.fromBase64(params.data);
     default:
       return params.data;
   }

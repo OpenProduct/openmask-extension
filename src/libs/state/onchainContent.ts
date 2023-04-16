@@ -39,7 +39,7 @@ export function readOffChainMetadata(sl: Slice) {
   let result = sl.loadBuffer(sl.remainingBits / 8);
   while (sl.remainingRefs) {
     const next = sl.loadRef().beginParse();
-    result = Buffer.concat([result, next.loadBuffer(sl.remainingBits / 8)]);
+    result = Buffer.concat([result, next.loadBuffer(next.remainingBits / 8)]);
     sl = next;
   }
 
