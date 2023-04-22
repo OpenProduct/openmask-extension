@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
 import { selectNetworkConfig } from "../../../libs/entries/network";
 import { DexStocks } from "../../../libs/entries/stock";
-import { getCachedDeDustStock } from "../../../libs/service/dexService";
+import {
+  getCachedDeDustStock,
+  getCachedStonFiStock,
+} from "../../../libs/service/dexService";
 import { QueryType } from "../../../libs/store/browserStore";
 import {
   AccountStateContext,
@@ -71,8 +74,8 @@ export const useDexStock = (enabled: boolean) => {
     [QueryType.stock],
     async () => {
       const dedust = await getCachedDeDustStock();
-
-      return { dedust };
+      const ston = await getCachedStonFiStock();
+      return { dedust, ston };
     },
     { enabled }
   );

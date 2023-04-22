@@ -11,4 +11,5 @@ export type AppStocks = {
 
 export type DexStocks = {
   dedust: AppStocks;
+  ston: AppStocks;
 };

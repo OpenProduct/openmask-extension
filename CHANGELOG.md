@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.11] - 2023-04-22
+
+### Added
+
+- Load Ston Fi stock rates
+
 ## [0.18.10] - 2023-04-22
 
 ### Fixed
@@ -378,7 +384,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.10...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.11...HEAD
+[0.18.11]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.10...v0.18.11
 [0.18.10]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.9...v0.18.10
 [0.18.9]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.8...v0.18.9
 [0.18.8]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.7...v0.18.8
