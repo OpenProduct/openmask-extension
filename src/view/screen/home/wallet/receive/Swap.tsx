@@ -40,7 +40,7 @@ const SwapIndex = () => {
     <div>
       <Source>
         <Row>
-          <img src="https://dedust.io/icons/dedust-512.png" width="30" />
+          <img src="https://dedust.io/_nuxt/dedust.aa7c2391.png" width="30" />
           <SubTitle>DeDust.io</SubTitle>
         </Row>
         <Text>
