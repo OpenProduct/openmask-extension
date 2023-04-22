@@ -115,6 +115,7 @@ const getDeDustStock = async () => {
 };
 
 const StonFiTon = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
+const StonFiWton = "EQDQoc5M3Bh8eWFephi9bClhevelbZZvWhkqdo80XuY_0qXv";
 
 export interface StonFiItem {
   address: string; //"EQCSqjXUUfo7txZVeIpiB5ObyJ_dBOOdtXQNBIwvjMefNpF0"
@@ -150,12 +151,12 @@ export interface StonFiAsset {
 export const getCachedStonFiStock = async (): Promise<AppStocks> => {
   try {
     let data = await getCachedStoreValue<AppStocks>(
-      `${QueryType.stock}_stonfi`
+      `${QueryType.stock}_ston_fi`
     );
 
     if (!data) {
       data = await geStonFiStock();
-      await setCachedStoreValue(`${QueryType.stock}_stonfi`, data);
+      await setCachedStoreValue(`${QueryType.stock}_ston_fi`, data);
     }
 
     return data;
@@ -188,38 +189,53 @@ const geStonFiStock = async (): Promise<AppStocks> => {
   const data: StonFiItem[] = (await result.json()).result.pools;
   const assetList: StonFiAsset[] = (await assets.json()).result.assets;
 
-  const stocks = data
-    .filter((item) => {
-      return (
-        item.token1_address === StonFiTon &&
-        new BigNumber(item.reserve1).isGreaterThanOrEqualTo(
-          new BigNumber(minTonReverse).shiftedBy(defaultDecimals)
-        )
-      );
-    })
-    .reduce((acc, item) => {
-      const asset = assetList.find(
-        (a) => a.contract_address === item.token0_address
-      );
-      if (!asset) return acc;
+  const stocks = data.reduce((acc, item) => {
+    let tonReverse: string | undefined = undefined;
+    let jettonReverse: string | undefined = undefined;
+    let jettonAddress: string | undefined = undefined;
+    if (
+      item.token1_address === StonFiTon ||
+      item.token1_address === StonFiWton
+    ) {
+      tonReverse = item.reserve1;
+      jettonReverse = item.reserve0;
+      jettonAddress = item.token0_address;
+    }
+    if (
+      item.token0_address === StonFiTon ||
+      item.token0_address === StonFiWton
+    ) {
+      tonReverse = item.reserve0;
+      jettonReverse = item.reserve1;
+      jettonAddress = item.token1_address;
+    }
+    if (!tonReverse || !jettonReverse || !jettonAddress) return acc;
 
-      const tonReserves = new BigNumber(item.reserve1).shiftedBy(
-        -defaultDecimals
-      );
-      const tokenReserves = new BigNumber(item.reserve0).shiftedBy(
-        -asset.decimals
-      );
-      const rate = tonReserves.div(tokenReserves).toString();
-
-      acc[item.token0_address] = {
-        dex: "ston.fi",
-        url: item.token0_address,
-        symbol: item.token0_address,
-        price: rate, // in TON
-      };
-
+    if (
+      new BigNumber(tonReverse).isLessThan(
+        new BigNumber(minTonReverse).shiftedBy(defaultDecimals)
+      )
+    )
       return acc;
-    }, {} as AppStocks);
+
+    const asset = assetList.find((a) => a.contract_address === jettonAddress);
+    if (!asset) return acc;
+
+    const tonReserves = new BigNumber(tonReverse).shiftedBy(-defaultDecimals);
+    const tokenReserves = new BigNumber(jettonReverse).shiftedBy(
+      -asset.decimals
+    );
+    const rate = tonReserves.div(tokenReserves).toString();
+
+    acc[jettonAddress] = {
+      dex: "ston.fi",
+      url: jettonAddress,
+      symbol: jettonAddress,
+      price: rate, // in TON
+    };
+
+    return acc;
+  }, {} as AppStocks);
 
   return stocks;
 };
