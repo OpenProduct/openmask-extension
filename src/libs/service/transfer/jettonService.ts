@@ -105,7 +105,7 @@ export const createJettonTransfer = (
   const transfer = contract.createTransfer({
     seqno,
     secretKey,
-    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     messages: [
       internal({
         to: jettonWalletAddress,
@@ -139,7 +139,7 @@ export const createLedgerJettonTransfer = (
   const transaction = {
     to: jettonWalletAddress,
     amount: toNano(data.transactionAmount),
-    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,

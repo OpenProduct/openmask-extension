@@ -2,9 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Address } from "ton-core";
 import {
+  JettonMinter,
+  JettonMinterContent,
+  JettonMinterData,
+} from "ton-wrappers";
+import {
   JettonAsset,
   JettonParams,
-  JettonState,
   JettonStateSchema,
 } from "../../../../libs/entries/asset";
 import {
@@ -14,10 +18,6 @@ import {
 import { seeIfJettonAsset } from "../../../../libs/state/assetService";
 import { getJettonFullData } from "../../../../libs/state/jettonService";
 import { QueryType } from "../../../../libs/store/browserStore";
-import {
-  JettonData,
-  JettonMinter,
-} from "../../../../libs/wrappers/JettonMinter";
 import {
   AccountStateContext,
   NetworkContext,
@@ -43,9 +43,9 @@ export const useOriginWallets = (origin: string) => {
   );
 };
 
-const getJettonName = async (data: JettonData, params: JettonParams) => {
+const getJettonName = async (data: JettonMinterData, params: JettonParams) => {
   if (data.jettonContent) {
-    return data.jettonContent;
+    return await JettonStateSchema.validateAsync(data.jettonContent);
   } else {
     const state = {
       symbol: params.symbol,
@@ -57,14 +57,14 @@ const getJettonName = async (data: JettonData, params: JettonParams) => {
   }
 };
 
-export interface JettonMinterData {
-  data: JettonData;
-  state: JettonState;
+export interface JettonMinterState {
+  data: JettonMinterData;
+  state: JettonMinterContent;
 }
 
 export const useJettonMinterData = (params: JettonParams) => {
   const client = useContext(TonClientContext);
-  return useQuery<JettonMinterData, Error>(
+  return useQuery<JettonMinterState, Error>(
     [QueryType.jetton, params.address],
     async () => {
       const minter = client.open(

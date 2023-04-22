@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from "react";
 import styled from "styled-components";
-import { JettonState } from "../../libs/entries/asset";
+import { JettonMinterContent } from "ton-wrappers";
 import { ipfsProxy } from "../../libs/service/requestService";
 import { formatAmountValue } from "../../libs/state/decimalsService";
 import { IconSize } from "./Components";
@@ -20,7 +20,7 @@ const Font = styled.span`
 `;
 
 interface Props {
-  state: JettonState;
+  state: JettonMinterContent;
   balance: string | undefined;
 }
 

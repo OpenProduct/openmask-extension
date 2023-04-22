@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { JettonState } from "../../../../../../libs/entries/asset";
+import { JettonMinterContent, JettonMinterData } from "ton-wrappers";
 import { JettonWalletData } from "../../../../../../libs/state/assetService";
-import { JettonData } from "../../../../../../libs/wrappers/JettonMinter";
 import {
   Body,
   ButtonColumn,
@@ -54,8 +53,10 @@ const toDecimalsError = (decimals: string): string | undefined => {
 export const ImportJetton = () => {
   const navigate = useNavigate();
 
-  const [jetton, setJetton] = useState<JettonData | null>(null);
-  const [jettonName, setJettonName] = useState<JettonState | null>(null);
+  const [jetton, setJetton] = useState<JettonMinterData | null>(null);
+  const [jettonName, setJettonName] = useState<JettonMinterContent | null>(
+    null
+  );
   const [jettonWallet, setJettonWallet] = useState<JettonWalletData | null>(
     null
   );
@@ -97,7 +98,7 @@ export const ImportJetton = () => {
 
     resetAdd();
 
-    let jettonState: JettonState;
+    let jettonState: JettonMinterContent;
 
     if (jettonName != null) {
       jettonState = jettonName;
@@ -146,7 +147,7 @@ export const ImportJetton = () => {
     return <ButtonPositive onClick={onAdd}>Add Jetton</ButtonPositive>;
   };
 
-  const state = useMemo<JettonState>(() => {
+  const state = useMemo<JettonMinterContent>(() => {
     if (jettonName) {
       return jettonName;
     }

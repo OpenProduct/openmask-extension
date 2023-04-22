@@ -7,11 +7,11 @@
  */
 
 import { NftData } from "@openproduct/web-sdk";
+import { JettonMinterContent } from "ton-wrappers";
 import { AccountState } from "../entries/account";
 import {
   Asset,
   JettonAsset,
-  JettonState,
   NftAsset,
   NftCollectionState,
   NftItem,
@@ -26,7 +26,7 @@ export interface JettonWalletData {
 
 export interface AddJettonProps {
   minter: string;
-  jettonState: JettonState;
+  jettonState: JettonMinterContent;
   jettonWallet: JettonWalletData | null;
 }
 

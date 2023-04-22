@@ -32,8 +32,8 @@ export interface InitData {
 
 export const getTonSendMode = (max: string | undefined) => {
   return max === "1"
-    ? SendMode.CARRRY_ALL_REMAINING_BALANCE
-    : SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS;
+    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+    : SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS;
 };
 
 const seeIfBounceable = (address: string) => {
@@ -92,7 +92,7 @@ export const createTonConnectTransfer = (
   const transfer = walletContract.createTransfer({
     secretKey,
     seqno,
-    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     messages: state.map((item) => {
       return internal({
         to: item.address,

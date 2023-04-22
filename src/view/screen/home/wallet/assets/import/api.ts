@@ -8,6 +8,8 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Cell as CoreCell } from "ton-core";
+import { requestJson } from "ton-wrappers";
+import { readOnchainMetadata } from "ton-wrappers/dist/libs/onchainContent";
 import {
   DomainNftState,
   NftCollectionState,
@@ -15,7 +17,6 @@ import {
   NftItemState,
   NftItemStateSchema,
 } from "../../../../../../libs/entries/asset";
-import { requestJson } from "../../../../../../libs/service/requestService";
 import {
   AddJettonProps,
   addJettonToWallet,
@@ -26,7 +27,6 @@ import {
   getJettonFullData,
   JettonFullData,
 } from "../../../../../../libs/state/jettonService";
-import { readOnchainMetadata } from "../../../../../../libs/state/onchainContent";
 import {
   AccountStateContext,
   NetworkContext,

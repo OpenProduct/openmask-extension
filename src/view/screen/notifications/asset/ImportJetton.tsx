@@ -1,5 +1,6 @@
 import React, { FC, useCallback } from "react";
-import { JettonParams, JettonState } from "../../../../libs/entries/asset";
+import { JettonMinterContent } from "ton-wrappers";
+import { JettonParams } from "../../../../libs/entries/asset";
 import { NotificationFields } from "../../../../libs/event";
 import {
   Body,
@@ -28,7 +29,7 @@ import {
 interface JettonWalletProps {
   wallet: string;
   id: number;
-  state: JettonState;
+  state: JettonMinterContent;
   jettonMinterAddress: string;
 }
 const JettonWallet: FC<JettonWalletProps> = React.memo(

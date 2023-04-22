@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { JettonMinterContent } from "ton-wrappers";
 
 export interface JettonParams {
   type: "jetton";
@@ -36,15 +37,7 @@ export const NftParamsSchema = Joi.object<NftParams>({
 
 export type AssetParams = JettonParams | NftParams;
 
-export interface JettonState {
-  symbol: string;
-  name: string;
-  image?: string;
-  description?: string;
-  decimals?: string;
-}
-
-export const JettonStateSchema = Joi.object<JettonState>({
+export const JettonStateSchema = Joi.object<JettonMinterContent>({
   name: Joi.string().required(),
   symbol: Joi.string().required(),
   description: Joi.string(),
@@ -53,7 +46,7 @@ export const JettonStateSchema = Joi.object<JettonState>({
 }).unknown();
 
 export interface JettonAsset {
-  state: JettonState;
+  state: JettonMinterContent;
   minterAddress: string;
   walletAddress?: string;
 }

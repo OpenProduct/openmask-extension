@@ -9,17 +9,18 @@
 import { TonClient } from "ton";
 import { Address } from "ton-core";
 import {
-  JettonData,
   JettonMinter,
+  JettonMinterContent,
   JettonMinterData,
-} from "../wrappers/JettonMinter";
-import { JettonWallet } from "../wrappers/JettonWallet";
+  JettonWallet,
+} from "ton-wrappers";
+import { JettonStateSchema } from "../entries/asset";
 import { JettonWalletData } from "./assetService";
 
 export interface JettonFullData {
-  data: JettonData;
+  data: JettonMinterData;
   wallet: JettonWalletData | null;
-  name: JettonMinterData | null;
+  name: JettonMinterContent | null;
 }
 
 export const getJettonFullData = async (
@@ -33,9 +34,9 @@ export const getJettonFullData = async (
 
   const data = await minter.getJettonData();
 
-  const name = data.jettonContent;
+  const name = await JettonStateSchema.validateAsync(data.jettonContent);
 
-  const jettonWalletAddress = await minter.getJettonWalletAddress(
+  const jettonWalletAddress = await minter.getWalletAddress(
     Address.parse(walletAddress)
   );
 

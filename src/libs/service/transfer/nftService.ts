@@ -75,7 +75,7 @@ export const createNftTransfer = (
   const transfer = contract.createTransfer({
     seqno,
     secretKey,
-    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     messages: [
       internal({
         to: Address.parse(nft.address),
@@ -107,7 +107,7 @@ export const createLedgerNftTransfer = (
   const transaction = {
     to: Address.parse(nft.address),
     amount: toNano(state.amount),
-    sendMode: SendMode.PAY_GAS_SEPARATLY + SendMode.IGNORE_ERRORS,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
