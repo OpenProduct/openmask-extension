@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import React, { FC, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Address } from "ton-core";
 import packageJson from "../../../../../../package.json";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import { AppStock, DexStocks } from "../../../../../libs/entries/stock";
@@ -37,7 +38,7 @@ const JettonRowView: FC<{
     const result = [] as AppStock[];
     if (stocks) {
       const stock: AppStock | undefined =
-        stocks.dedust[asset.state.symbol.replace(/\0.*$/g, "")]; // For old saved jettons ....
+        stocks.dedust[Address.parse(asset.minterAddress).toString()];
       if (stock) {
         result.push(stock);
       }

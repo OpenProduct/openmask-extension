@@ -5,6 +5,7 @@
  * @since: 0.14.6
  */
 
+import BigNumber from "bignumber.js";
 import { AppStocks } from "../entries/stock";
 import {
   getCachedStoreValue,
@@ -12,21 +13,38 @@ import {
   setCachedStoreValue,
 } from "../store/browserStore";
 
-interface DeDustCMCItem {
-  url: string; //"https://dedust.io/dex/swap?from=EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE&to=EQBPAVa6fjMigxsnHF33UQ3auufVrg2Z8lBZTY9R-isfjIFr",
-  base_id: string; // "EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE",
-  base_name: string; // "Scaleton",
-  base_symbol: string; // "SCALE",
-  quote_id: string; //"EQBPAVa6fjMigxsnHF33UQ3auufVrg2Z8lBZTY9R-isfjIFr",
-  quote_name: string; // "Wrapped TON",
-  quote_symbol: string; //"JTON",
-  last_price: string; // "0.145870483",
-  base_volume: string; //"1671670.536031563",
-  quote_volume: string; //"226558.297595634"
+interface DeDustAssetMetadata {
+  name: string; // "Toncoin",
+  symbol: string; // "TON",
+  image: string; // "https://assets.dedust.io/ton/images/ton.png",
+  decimals: number; //9
+}
+interface DeDustNativeAsset {
+  type: "native";
+  address?: string;
+  metadata: DeDustAssetMetadata | null;
 }
 
-interface DeDustCMC {
-  [key: string]: DeDustCMCItem;
+interface DeDustJettonAsset {
+  type: "jetton";
+  address: string; // "EQAS2elYb6_hqWyOl7gpuYTzf1sqmjLJQ0lQ4X_4d_MvtMWR",
+  metadata: DeDustAssetMetadata | null;
+}
+
+export type DeDustAsset = DeDustNativeAsset | DeDustJettonAsset;
+
+interface DeDustItem {
+  address: string; //"EQAeOyDl0k4gJ1DHNO8S58QTfUfswthRilI37CE-A5be2pUM",
+  lt: string; // "37027667000009",
+  totalSupply: string; //"160143257000001000",
+  type: string; //"volatile",
+  tradeFee: string; // "0.4",
+  assets: [DeDustAsset, DeDustAsset];
+  reserves: [string, string];
+  stats: {
+    fees: [string, string];
+    volume: [string, string];
+  };
 }
 
 export const getCachedDeDustStock = async (): Promise<AppStocks> => {
@@ -47,28 +65,50 @@ export const getCachedDeDustStock = async (): Promise<AppStocks> => {
 };
 
 const getDeDustStock = async () => {
-  const result = await fetch("https://api.dedust.io/cmc/dex", {
+  const result = await fetch("https://api.dedust.io/v2/pools", {
     method: "GET",
   });
 
-  const data: DeDustCMC = await result.json();
+  const data: DeDustItem[] = await result.json();
 
-  const stocks = Object.values(data).reduce((acc, item) => {
-    if (item.quote_symbol === "JTON") {
-      acc[item.base_symbol] = {
+  const defaultDecimals = 9;
+
+  const stocks = data
+    .filter((item) => {
+      const [one] = item.assets;
+      const [reserves] = item.reserves;
+      return (
+        one &&
+        reserves &&
+        one.type === "native" &&
+        new BigNumber(reserves).isGreaterThanOrEqualTo(
+          new BigNumber(500).shiftedBy(defaultDecimals)
+        )
+      );
+    })
+    .reduce((acc, item) => {
+      const [ton, jetton] = item.assets;
+
+      if (jetton.type !== "jetton") return acc;
+
+      const [tonAmount, jettonAmount] = item.reserves;
+      const tokenDecimals = jetton.metadata?.decimals || 9;
+
+      const tonReserves = new BigNumber(tonAmount).shiftedBy(-defaultDecimals);
+      const tokenReserves = new BigNumber(jettonAmount).shiftedBy(
+        -tokenDecimals
+      );
+      const rate = tonReserves.div(tokenReserves).toString();
+
+      acc[jetton.address] = {
         dex: "DeDust.io",
-        url: item.url,
-        symbol: item.base_symbol,
-        price: item.last_price, // in TON
+        url: jetton.address,
+        symbol: jetton.address,
+        price: rate, // in TON
       };
-    }
-    return acc;
-  }, {} as AppStocks);
 
-  stocks["JTON"] = {
-    dex: "DeDust.io",
-    symbol: "JTON",
-    price: "1",
-  };
+      return acc;
+    }, {} as AppStocks);
+
   return stocks;
 };
