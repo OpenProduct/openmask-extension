@@ -1,3 +1,4 @@
+import * as amplitude from "@amplitude/analytics-browser";
 import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { FC, Suspense, useMemo } from "react";
@@ -25,9 +26,8 @@ import {
 } from "./context";
 import { useInitialRendering } from "./hooks/useInitialRendering";
 import { any, AppRoute } from "./routes";
-
+import { useAnalytics } from "./screen/Analytics";
 import { Header } from "./screen/home/Header";
-
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { LedgerNotification } from "./screen/ledger/LedgerNotification";
 import { Loading } from "./screen/Loading";
@@ -35,6 +35,15 @@ import { PasswordNotification } from "./screen/unlock/PasswordNotification";
 import { Unlock } from "./screen/unlock/Unlock";
 import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
 import defaultTheme from "./styles/defaultTheme";
+
+amplitude.init("3add95f67c400a6e10d5b5ec8903603d", undefined, {
+  defaultTracking: {
+    sessions: true,
+    pageViews: true,
+    formInteractions: true,
+    fileDownloads: true,
+  },
+});
 
 const ConnectWallet = React.lazy(() => import("./screen/import/ConnectWallet"));
 const Connections = React.lazy(
@@ -61,6 +70,7 @@ const ContentRouter: FC<{
   );
 
   useInitialRedirect(notification, wallet?.address);
+  useAnalytics(account, wallet);
 
   const walletContract = useMemo(() => {
     if (!wallet) return undefined;

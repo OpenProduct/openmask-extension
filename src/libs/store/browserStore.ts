@@ -41,6 +41,8 @@ export enum QueryType {
   encryptedPayload = "encrypted_payload",
   publicKey = "public_key",
   ledger = "ledger",
+
+  analytics = "analytics",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
@@ -68,6 +70,14 @@ export const getLockScreen = () => {
 
 export const setLockScreen = (lock: boolean) => {
   return setStoreValue(QueryType.lock, lock);
+};
+
+export const getAnalytics = () => {
+  return getStoreValue<boolean>(QueryType.analytics, true); // TODO: False for release
+};
+
+export const seAnalytics = (analytics: boolean) => {
+  return setStoreValue(QueryType.analytics, analytics);
 };
 
 export const getScript = () => {

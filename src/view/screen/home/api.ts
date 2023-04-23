@@ -1,4 +1,3 @@
-import { Address } from "@openproduct/web-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo } from "react";
 import { selectNetworkConfig } from "../../../libs/entries/network";
@@ -13,8 +12,6 @@ import {
   NetworkContext,
   NetworksContext,
   TonProviderContext,
-  WalletContractContext,
-  WalletStateContext,
 } from "../../context";
 import { saveAccountState } from "../api";
 
@@ -37,17 +34,6 @@ export const useBalance = (address: string) => {
 
   return useQuery<string>([network, address, QueryType.balance], async () =>
     ton.getBalance(address)
-  );
-};
-
-export const useAddress = () => {
-  const network = useContext(NetworkContext);
-  const wallet = useContext(WalletStateContext);
-  const contract = useContext(WalletContractContext);
-
-  return useQuery<Address>(
-    [network, wallet.address, wallet.version, QueryType.address],
-    () => contract.getAddress()
   );
 };
 
