@@ -10,6 +10,7 @@ export const Container = styled.div`
 export const H1 = styled.h1`
   font-size: 1.5rem;
   line-height: 130%;
+  margin: 4px;
 `;
 
 export const H3 = styled.h3`
@@ -227,7 +228,7 @@ export const Logo = styled.img`
 
 export const SelectLabel = styled.div`
   font-weight: bold;
-  margin: 40px 0 10px;
+  margin: 30px 0 10px;
 `;
 
 export const SelectPayload = styled.div<{ disabled?: boolean }>`

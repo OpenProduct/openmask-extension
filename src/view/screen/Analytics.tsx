@@ -29,11 +29,11 @@ export const useInitAnalytics = (
 
     if (!enabled || !key) return false;
 
-    const userId = wallet
+    const walletId = wallet
       ? sha256_sync(wallet.address).toString("hex")
       : "new-user";
 
-    amplitude.init(key, userId, {
+    amplitude.init(key, undefined, {
       defaultTracking: {
         sessions: true,
         pageViews: true,
@@ -43,13 +43,13 @@ export const useInitAnalytics = (
     });
 
     const event = new amplitude.Identify();
-    event.setOnce("userId", userId);
-    event.setOnce("network", await getNetwork());
-    event.setOnce("accounts", account.wallets.length);
-    event.setOnce("authType", (await getAuthConfiguration()).kind);
-    event.setOnce("walletType", toWalletType(wallet));
-    event.setOnce("isHardware", wallet?.ledger != null);
-    event.setOnce(
+    event.set("walletId", walletId);
+    event.set("network", await getNetwork());
+    event.set("accounts", account.wallets.length);
+    event.set("authType", (await getAuthConfiguration()).kind);
+    event.set("walletType", toWalletType(wallet));
+    event.set("isHardware", wallet?.ledger != null);
+    event.set(
       "isCustomNetwork",
       (await getNetworkConfig()).some((item) => item.isCustom)
     );

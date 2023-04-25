@@ -76,7 +76,7 @@ export const getAnalytics = () => {
   return getStoreValue<boolean>(QueryType.analytics, true); // TODO: False for release
 };
 
-export const seAnalytics = (analytics: boolean) => {
+export const setAnalytics = (analytics: boolean) => {
   return setStoreValue(QueryType.analytics, analytics);
 };
 
