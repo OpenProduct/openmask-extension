@@ -73,7 +73,7 @@ export const setLockScreen = (lock: boolean) => {
 };
 
 export const getAnalytics = () => {
-  return getStoreValue<boolean>(QueryType.analytics, true); // TODO: False for release
+  return getStoreValue<boolean>(QueryType.analytics, true);
 };
 
 export const setAnalytics = (analytics: boolean) => {
