@@ -42,7 +42,7 @@ export const useInitAnalytics = (
     const network = await getNetwork();
 
     const event = new amplitude.Identify();
-    event.set(`accounts_${network}`, account.wallets.length);
+    event.set(`accounts`, `${network}-${account.wallets.length}`);
     event.set("authType", (await getAuthConfiguration()).kind);
     event.set(
       "isCustomNetwork",
