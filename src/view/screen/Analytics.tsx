@@ -44,10 +44,10 @@ export const useInitAnalytics = (
 
     const event = new amplitude.Identify();
     event.set("walletId", walletId);
-    event.set("network", await getNetwork());
+    event.append("network", [await getNetwork()]);
     event.set("accounts", account.wallets.length);
     event.set("authType", (await getAuthConfiguration()).kind);
-    event.set("walletType", toWalletType(wallet));
+    event.append("walletType", [toWalletType(wallet)]);
     event.set("isHardware", wallet?.ledger != null);
     event.set(
       "isCustomNetwork",
