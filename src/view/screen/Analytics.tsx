@@ -12,6 +12,7 @@ import {
   getNetworkConfig,
   QueryType,
 } from "../../libs/store/browserStore";
+import { useNetwork } from "../api";
 
 const toWalletType = (wallet?: WalletState): string => {
   if (!wallet) return "new-user";
@@ -29,10 +30,6 @@ export const useInitAnalytics = (
 
     if (!enabled || !key) return false;
 
-    const walletId = wallet
-      ? sha256_sync(wallet.address).toString("hex")
-      : "new-user";
-
     amplitude.init(key, undefined, {
       defaultTracking: {
         sessions: true,
@@ -42,13 +39,11 @@ export const useInitAnalytics = (
       },
     });
 
+    const network = await getNetwork();
+
     const event = new amplitude.Identify();
-    event.set("walletId", walletId);
-    event.append("network", [await getNetwork()]);
-    event.set("accounts", account.wallets.length);
+    event.set(`accounts_${network}`, account.wallets.length);
     event.set("authType", (await getAuthConfiguration()).kind);
-    event.append("walletType", [toWalletType(wallet)]);
-    event.set("isHardware", wallet?.ledger != null);
     event.set(
       "isCustomNetwork",
       (await getNetworkConfig()).some((item) => item.isCustom)
@@ -63,12 +58,21 @@ export const useInitAnalytics = (
 export const useAnalytics = (account: AccountState, wallet?: WalletState) => {
   const location = useLocation();
   const { data } = useInitAnalytics(account, wallet);
-
+  const { data: network } = useNetwork();
   useEffect(() => {
     if (data === true) {
-      amplitude.track("Page View", {
+      const walletId = wallet
+        ? sha256_sync(wallet.address).toString("hex")
+        : "new-user";
+
+      const eventProperties = {
         pathname: location.pathname,
-      });
+        network,
+        walletId,
+        walletType: toWalletType(wallet),
+        isHardware: wallet?.ledger != null,
+      };
+      amplitude.track("Page View", eventProperties);
     }
-  }, [data, location.pathname]);
+  }, [data, wallet, location.pathname, network]);
 };
