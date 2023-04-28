@@ -13,10 +13,12 @@ import {
   ProxyHost,
 } from "../../../libs/entries/proxy";
 import {
+  getAnalytics,
   getAuthConfiguration,
   getLockScreen,
   getProxyConfiguration,
   QueryType,
+  setAnalytics,
   setLockScreen,
   setNetworkConfig,
   setProxyConfiguration,
@@ -33,6 +35,18 @@ export const useSetLockScreen = () => {
   return useMutation<void, Error, boolean>(async (value) => {
     await setLockScreen(value);
     await client.invalidateQueries([QueryType.lock]);
+  });
+};
+
+export const useDataCollection = () => {
+  return useQuery<boolean, Error>([QueryType.analytics], () => getAnalytics());
+};
+
+export const useSetDataCollection = () => {
+  const client = useQueryClient();
+  return useMutation<void, Error, boolean>(async (value) => {
+    await setAnalytics(value);
+    await client.invalidateQueries([QueryType.analytics]);
   });
 };
 

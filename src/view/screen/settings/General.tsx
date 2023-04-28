@@ -14,8 +14,10 @@ import { HomeButton } from "../../components/HomeButton";
 import { ArrowDownIcon, LinkIcon } from "../../components/Icons";
 import { AppRoute } from "../../routes";
 import {
+  useDataCollection,
   useLockScreen,
   useProxyConfiguration,
+  useSetDataCollection,
   useSetLockScreen,
   useUpdateProxyMutation,
 } from "./api";
@@ -84,26 +86,51 @@ const ProxySelect = () => {
   );
 };
 
-export const GeneralSettings = () => {
+const LockScreenSelect = () => {
   const { data: isLockScreen } = useLockScreen();
   const { mutate } = useSetLockScreen();
+  return (
+    <>
+      <SelectLabel>Lock Screen</SelectLabel>
+      <label>
+        <input
+          type="checkbox"
+          checked={isLockScreen}
+          onChange={(e) => mutate(e.target.checked)}
+        />
+        Enable Lock Screen
+      </label>
+    </>
+  );
+};
 
+const DataCollectionSelect = () => {
+  const { data: isEnabled } = useDataCollection();
+  const { mutate } = useSetDataCollection();
+
+  return (
+    <>
+      <SelectLabel>Data Collection</SelectLabel>
+      <label>
+        <input
+          type="checkbox"
+          checked={isEnabled}
+          onChange={(e) => mutate(e.target.checked)}
+        />
+        Enable Data Collection
+      </label>
+    </>
+  );
+};
+
+export const GeneralSettings = () => {
   return (
     <>
       <HomeButton path={AppRoute.settings} text="Back to Settings" />
       <Body>
         <H1>General</H1>
-
-        <SelectLabel>Lock Screen</SelectLabel>
-        <label>
-          <input
-            type="checkbox"
-            checked={isLockScreen}
-            onChange={(e) => mutate(e.target.checked)}
-          />
-          Enable Lock Screen
-        </label>
-
+        <LockScreenSelect />
+        <DataCollectionSelect />
         <ProxySelect />
       </Body>
     </>
