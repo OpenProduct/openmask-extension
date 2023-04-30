@@ -11,8 +11,7 @@ import {
   getNetworkConfig,
   QueryType,
 } from "../../../../libs/store/browserStore";
-import { getWebAuthnPassword } from "../../../api";
-import { askBackgroundPassword } from "../../import/api";
+import { getAppPassword, getWebAuthnPassword } from "../../../api";
 
 declare global {
   interface AuthenticationExtensionsClientInputs {
@@ -68,7 +67,7 @@ export interface RegistrationResponse {
 
 export const useRegistrationMigration = () => {
   return useMutation<RegistrationResponse, Error, void>(async () => {
-    const oldPassword = await askBackgroundPassword();
+    const oldPassword = await getAppPassword(async (pass) => pass);
 
     const { rpID } = getHost();
 
