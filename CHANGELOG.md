@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.14] - 2023-05-01
+
+### Fixed
+
+- Fix getting password in enabling webauthn
+
 ## [0.18.13] - 2023-04-29
 
 ### Added
