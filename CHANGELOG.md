@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.15] - 2023-05-02
+
+### Changed
+
+- Use Ton Access by default RPC API
+
 ## [0.18.14] - 2023-05-01
 
 ### Fixed
@@ -402,7 +408,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fiat balance, activity list
 - Wallets settings to manage version and bounceable address type
 
-[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.11...HEAD
+[unreleased]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.15...HEAD
+[0.18.15]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.14...v0.18.15
+[0.18.14]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.13...v0.18.14
+[0.18.13]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.12...v0.18.13
+[0.18.12]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.11...v0.18.12
 [0.18.11]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.10...v0.18.11
 [0.18.10]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.9...v0.18.10
 [0.18.9]: https://github.com/OpenProduct/openmask-extension/compare/v0.18.8...v0.18.9
