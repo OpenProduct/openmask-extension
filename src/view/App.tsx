@@ -1,17 +1,11 @@
 import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
-import { getHttpEndpoint, Network } from "@orbs-network/ton-access";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
-import { NetworkConfig, selectNetworkConfig } from "../libs/entries/network";
-import { QueryType } from "../libs/store/browserStore";
+import { selectNetworkConfig } from "../libs/entries/network";
 import {
   useAccountState,
   useInitialRedirect,
@@ -108,23 +102,6 @@ const ContentRouter: FC<{
   );
 };
 
-const useProviders = (network: string | undefined, config: NetworkConfig) => {
-  return useQuery([QueryType.provider, network, config], async () => {
-    if (config.isCustom) {
-      return [
-        new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey }),
-        new TonClient({ endpoint: config.rpcUrl, apiKey: config.apiKey }),
-      ] as const;
-    } else {
-      const endpoint = await getHttpEndpoint({ network: network as Network });
-      return [
-        new TonHttpProvider(endpoint),
-        new TonClient({ endpoint }),
-      ] as const;
-    }
-  });
-};
-
 const App = () => {
   const lock = useLock();
   const { data: script } = useScript();
@@ -139,7 +116,12 @@ const App = () => {
     return window.location.hash.includes(AppRoute.notifications);
   }, []);
 
-  const { data: providers } = useProviders(network, config);
+  const [tonProvider, tonClient] = useMemo(() => {
+    return [
+      new TonHttpProvider(config.rpcUrl, { apiKey: config.apiKey }),
+      new TonClient({ endpoint: config.rpcUrl, apiKey: config.apiKey }),
+    ] as const;
+  }, [config]);
 
   if (
     isLoading ||
@@ -147,13 +129,11 @@ const App = () => {
     !network ||
     !networks ||
     script === undefined ||
-    lock === undefined ||
-    providers === undefined
+    lock === undefined
   ) {
     return <Loading />;
   }
 
-  const [tonProvider, tonClient] = providers;
   return (
     <AccountStateContext.Provider value={data}>
       <NetworkContext.Provider value={network}>

@@ -1,3 +1,4 @@
+import { getHttpEndpoint, Network } from "@orbs-network/ton-access";
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
 import {
@@ -43,7 +44,6 @@ export enum QueryType {
   ledger = "ledger",
 
   analytics = "analytics",
-  provider = "provider",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
@@ -89,8 +89,28 @@ export const getNetwork = () => {
   return getStoreValue(QueryType.network, defaultNetworkConfigs[0].name);
 };
 
-export const getNetworkConfig = () => {
-  return getStoreValue(QueryType.networkConfig, defaultNetworkConfigs);
+export const getNetworkConfig = async () => {
+  const configs = await getStoreValue(
+    QueryType.networkConfig,
+    defaultNetworkConfigs
+  );
+
+  return await Promise.all(
+    configs.map(async (config) => {
+      if (["testnet", "mainnet"].includes(config.name) && !config.isCustom) {
+        const endpoint = await getHttpEndpoint({
+          network: config.name as Network,
+        });
+        return {
+          ...config,
+          rpcUrl: endpoint,
+          apiKey: undefined,
+        };
+      } else {
+        return config;
+      }
+    })
+  );
 };
 
 export const setNetworkConfig = (value: NetworkConfig[]) => {
