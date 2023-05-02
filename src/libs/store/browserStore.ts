@@ -43,6 +43,7 @@ export enum QueryType {
   ledger = "ledger",
 
   analytics = "analytics",
+  provider = "provider",
 }
 
 export const getStoreValue = <T>(query: QueryType, defaultValue: T) => {
