@@ -26,7 +26,9 @@ import { AssetRoutes } from "./screen/home/wallet/assets/route";
 import { askBackgroundPassword } from "./screen/import/api";
 
 export const useNetworkConfig = () => {
-  return useQuery([QueryType.networkConfig], () => getNetworkConfig());
+  return useQuery([QueryType.networkConfig], () => getNetworkConfig(), {
+    staleTime: 1800000,
+  });
 };
 
 export const useNetwork = () => {
