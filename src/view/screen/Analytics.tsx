@@ -60,7 +60,7 @@ export const useAnalytics = (account: AccountState, wallet?: WalletState) => {
   const { data } = useInitAnalytics(account, wallet);
   const { data: network } = useNetwork();
   useEffect(() => {
-    if (data === true) {
+    if (data === true && network) {
       const walletId = wallet
         ? sha256_sync(wallet.address).toString("hex")
         : "new-user";
