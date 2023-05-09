@@ -63,15 +63,19 @@ const Blue = styled.span`
 const TransactionItem: FC<{ message: PayloadMessage }> = ({ message }) => {
   const name = useMemo(() => {
     if (!message.payload) return;
-    const cell = Cell.fromBase64(message.payload);
-    const operation = cell.asSlice().loadUint(32);
-    switch (operation) {
-      case 0x5fcc3d14:
-        return "NFT Transfer";
-      case 0xf8a7ea5:
-        return "Jetton Transfer";
-      default:
-        return undefined;
+    try {
+      const cell = Cell.fromBase64(message.payload);
+      const operation = cell.asSlice().loadUint(32);
+      switch (operation) {
+        case 0x5fcc3d14:
+          return "NFT Transfer";
+        case 0xf8a7ea5:
+          return "Jetton Transfer";
+        default:
+          return undefined;
+      }
+    } catch (e) {
+      return undefined;
     }
   }, [message]);
 
