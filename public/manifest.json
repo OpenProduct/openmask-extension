@@ -2,7 +2,7 @@
   "name": "OpenMask",
   "short_name": "OpenMask",
   "description": "A TON Wallet in your Browser",
-  "version": "0.18.15",
+  "version": "0.18.16",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",

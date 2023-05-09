@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.16] - 2023-05-09
+
+### Fixed
+
+- Minot bug fix
+
 ## [0.18.15] - 2023-05-02
 
 ### Changed
