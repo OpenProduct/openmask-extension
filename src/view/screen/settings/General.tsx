@@ -110,14 +110,14 @@ const DataCollectionSelect = () => {
 
   return (
     <>
-      <SelectLabel>Data Collection</SelectLabel>
+      <SelectLabel>Analytics</SelectLabel>
       <label>
         <input
           type="checkbox"
           checked={isEnabled}
           onChange={(e) => mutate(e.target.checked)}
         />
-        Enable Data Collection
+        Enable Data Collection to help OpenMask improve user experience
       </label>
     </>
   );
