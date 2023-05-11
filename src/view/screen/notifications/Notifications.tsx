@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { NotificationData } from "../../../libs/event";
 import { delay } from "../../../libs/state/accountService";
 import { askBackground, sendBackground } from "../../event";
+import { useNotificationAnalytics } from "../Analytics";
 import { Loading } from "../Loading";
 import { ImportJetton } from "./asset/ImportJetton";
 import { ImportNft } from "./asset/ImportNft";
@@ -19,25 +20,30 @@ import { ConnectSendTransaction } from "./tonConnect/SendTransaction";
 
 export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
+  const track = useNotificationAnalytics();
 
-  const reloadNotification = useCallback(async (wait = true) => {
-    setData(undefined);
-    if (wait) {
-      await delay(200);
-    }
-    try {
-      const item = await askBackground<NotificationData | undefined>().message(
-        "getNotification"
-      );
-      if (item) {
-        setData(item);
-      } else {
+  const reloadNotification = useCallback(
+    async (wait = true) => {
+      setData(undefined);
+      if (wait) {
+        await delay(200);
+      }
+      try {
+        const item = await askBackground<
+          NotificationData | undefined
+        >().message("getNotification");
+        if (item) {
+          setData(item);
+          track(item);
+        } else {
+          sendBackground.message("closePopUp");
+        }
+      } catch (e) {
         sendBackground.message("closePopUp");
       }
-    } catch (e) {
-      sendBackground.message("closePopUp");
-    }
-  }, []);
+    },
+    [track]
+  );
 
   useEffect(() => {
     reloadNotification(false);

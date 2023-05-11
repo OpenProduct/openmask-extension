@@ -25,7 +25,7 @@ import {
 } from "./context";
 import { useInitialRendering } from "./hooks/useInitialRendering";
 import { any, AppRoute } from "./routes";
-import { useAnalytics } from "./screen/Analytics";
+import { AnalyticsContext, useAnalytics } from "./screen/Analytics";
 import { Header } from "./screen/home/Header";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { LedgerNotification } from "./screen/ledger/LedgerNotification";
@@ -60,7 +60,7 @@ const ContentRouter: FC<{
   );
 
   useInitialRedirect(notification, wallet?.address);
-  useAnalytics(account, wallet);
+  const enable = useAnalytics(account, wallet);
 
   const walletContract = useMemo(() => {
     if (!wallet) return undefined;
@@ -85,20 +85,25 @@ const ContentRouter: FC<{
   }
 
   return (
-    <WalletStateContext.Provider value={wallet!}>
-      <WalletContractContext.Provider value={walletContract!}>
-        <Suspense fallback={<Loading />}>
-          <Routes>
-            <Route path={AppRoute.notifications} element={<Notifications />} />
-            <Route path={any(AppRoute.settings)} element={<Settings />} />
-            <Route path={AppRoute.connections} element={<Connections />} />
-            <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </Suspense>
-        <LedgerNotification />
-      </WalletContractContext.Provider>
-    </WalletStateContext.Provider>
+    <AnalyticsContext.Provider value={enable}>
+      <WalletStateContext.Provider value={wallet!}>
+        <WalletContractContext.Provider value={walletContract!}>
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              <Route
+                path={AppRoute.notifications}
+                element={<Notifications />}
+              />
+              <Route path={any(AppRoute.settings)} element={<Settings />} />
+              <Route path={AppRoute.connections} element={<Connections />} />
+              <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </Suspense>
+          <LedgerNotification />
+        </WalletContractContext.Provider>
+      </WalletStateContext.Provider>
+    </AnalyticsContext.Provider>
   );
 };
 
