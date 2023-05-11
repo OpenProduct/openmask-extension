@@ -20,35 +20,31 @@ import { ConnectSendTransaction } from "./tonConnect/SendTransaction";
 
 export const Notifications = () => {
   const [data, setData] = useState<NotificationData | undefined>(undefined);
-  const track = useNotificationAnalytics();
 
-  const reloadNotification = useCallback(
-    async (wait = true) => {
-      setData(undefined);
-      if (wait) {
-        await delay(200);
-      }
-      try {
-        const item = await askBackground<
-          NotificationData | undefined
-        >().message("getNotification");
-        if (item) {
-          setData(item);
-          track(item);
-        } else {
-          sendBackground.message("closePopUp");
-        }
-      } catch (e) {
+  const reloadNotification = useCallback(async (wait = true) => {
+    setData(undefined);
+    if (wait) {
+      await delay(200);
+    }
+    try {
+      const item = await askBackground<NotificationData | undefined>().message(
+        "getNotification"
+      );
+      if (item) {
+        setData(item);
+      } else {
         sendBackground.message("closePopUp");
       }
-    },
-    [track]
-  );
+    } catch (e) {
+      sendBackground.message("closePopUp");
+    }
+  }, []);
 
   useEffect(() => {
     reloadNotification(false);
   }, []);
 
+  useNotificationAnalytics(data);
   if (!data) {
     return <Loading />;
   }

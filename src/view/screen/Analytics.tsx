@@ -1,6 +1,6 @@
 import * as amplitude from "@amplitude/analytics-browser";
 import { useQuery } from "@tanstack/react-query";
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { sha256_sync } from "ton-crypto";
 import { AccountState } from "../../libs/entries/account";
@@ -81,18 +81,17 @@ export const AnalyticsContext = React.createContext<boolean | undefined>(
   undefined
 );
 
-export const useNotificationAnalytics = () => {
+export const useNotificationAnalytics = (
+  item: NotificationData | undefined
+) => {
   const enable = useContext(AnalyticsContext);
 
-  return useCallback(
-    (item: NotificationData) => {
-      if (enable === true) {
-        amplitude.track("Notification", {
-          name: item.kind,
-          origin: item.origin,
-        });
-      }
-    },
-    [enable]
-  );
+  useEffect(() => {
+    if (enable === true && item != null) {
+      amplitude.track("Notification", {
+        name: item.kind,
+        origin: item.origin,
+      });
+    }
+  }, [enable, item]);
 };
