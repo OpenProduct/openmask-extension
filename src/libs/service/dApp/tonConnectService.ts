@@ -1,4 +1,4 @@
-import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
+import { Address, beginCell, storeStateInit } from "ton-core";
 import { selectNetworkConfig } from "../../entries/network";
 import {
   TonAddressItemReply,
@@ -17,6 +17,7 @@ import {
   setConnections,
 } from "../../store/browserStore";
 import memoryStore from "../../store/memoryStore";
+import { getWalletContract } from "../transfer/core";
 import { getWalletsByOrigin } from "../walletService";
 import { getActiveTabLogo, openNotificationPopUp } from "./notificationService";
 import {
@@ -41,25 +42,23 @@ export const tonReConnectRequest = async (
     throw new RuntimeError(ErrorCode.unauthorize, "Missing wallet state");
   }
 
+  const contract = getWalletContract(walletState);
+  const stateInit = beginCell()
+    .storeWritable(storeStateInit(contract.init))
+    .endCell();
+
+  const address = new Address(contract.workchain, stateInit.hash());
+
   const networks = await getNetworkConfig();
   const config = selectNetworkConfig(network, networks);
 
-  const provider = new TonHttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
-
-  const WalletClass = ALL[walletState.version];
-  const walletContract = new WalletClass(provider, {
-    publicKey: hexToBytes(walletState.publicKey),
-    wc: 0,
-  });
-
-  const { stateInit, address } = await walletContract.createStateInit();
   const result: TonAddressItemReply = {
     name: "ton_addr",
-    address: address.toString(false),
+    address: address.toRawString(),
     network: config.id,
-    walletStateInit: stateInit.toBase64(),
+    walletStateInit: stateInit
+      .toBoc({ idx: true, crc32: true })
+      .toString("base64"),
   };
 
   return [result];
