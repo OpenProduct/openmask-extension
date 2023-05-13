@@ -48,7 +48,8 @@ export interface TonWebTransactionOutMessage {
 
 export type TonWebTransactionMessageData =
   | TonWebTransactionMessageRaw
-  | TonWebTransactionMessageText;
+  | TonWebTransactionMessageText
+  | TonWebTransactionMessageEncryptedText;
 
 export interface TonWebTransactionMessageRaw {
   "@type": "msg.dataRaw";
@@ -61,6 +62,13 @@ export interface TonWebTransactionMessageRaw {
 export interface TonWebTransactionMessageText {
   "@type": "msg.dataText";
   text: string;
+}
+
+export interface TonWebTransactionMessageEncryptedText {
+  "@type": "msg.dataEncryptedText";
+  text: string;
+
+  openmask_decrypted_payload?: string;
 }
 
 export interface TransactionParams {

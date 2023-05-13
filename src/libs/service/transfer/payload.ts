@@ -7,13 +7,9 @@ export const getWalletPublicKey = async (
   tonClient: TonClient,
   address: string
 ): Promise<string> => {
-  const target = Address.parse(address);
-  const deployed = await tonClient.isContractDeployed(target);
-  if (!deployed) {
-    throw new Error("Missing target contract public key");
-  }
-
-  const contract = tonClient.open(AnyWallet.createFromAddress(target));
+  const contract = tonClient.open(
+    AnyWallet.createFromAddress(Address.parse(address))
+  );
   return await contract.getPublicKey();
 };
 
@@ -28,9 +24,9 @@ const encryptedComment = (data: string, sharedKey: Uint8Array) => {
   if (!encrypted) {
     throw new Error("Encryption error");
   }
-  const payload = Buffer.concat([nonce, encrypted]).toString();
+  const payload = Buffer.concat([nonce, encrypted]);
 
-  return beginCell().storeUint(1, 32).storeStringTail(payload).endCell();
+  return beginCell().storeUint(1, 32).storeBuffer(payload).endCell();
 };
 
 export const getEstimatePayload = async (

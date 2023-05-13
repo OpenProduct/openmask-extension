@@ -77,7 +77,7 @@ const decodeText = (value: string): string => {
 const CommentBlock: FC<{ msg: TonWebTransactionMessage }> = ({ msg }) => {
   const [hasComment, encrypted, value] = useMemo(() => {
     if (
-      msg.msg_data["@type"] === "msg.dataRaw" &&
+      "openmask_decrypted_payload" in msg.msg_data &&
       msg.msg_data.openmask_decrypted_payload
     ) {
       return [
