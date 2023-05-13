@@ -1,20 +1,14 @@
 import { getSharedSecret } from "@noble/ed25519";
 import { Address, beginCell, Cell, TonClient } from "ton";
 import nacl, { randomBytes } from "tweetnacl";
+import { Wallet } from "./core";
 
 export const getWalletPublicKey = async (
   tonClient: TonClient,
   address: Address
 ): Promise<string> => {
-  const walletPubKeyBN = await tonClient.callGetMethodWithError(
-    address,
-    "get_public_key"
-  );
-  let walletPubKeyHex = walletPubKeyBN.stack.readBigNumber().toString(16);
-  if (walletPubKeyHex.length % 2 !== 0) {
-    walletPubKeyHex = "0" + walletPubKeyHex;
-  }
-  return walletPubKeyHex;
+  const contract = tonClient.open(Wallet.createFromAddress(address));
+  return await contract.getPublicKey();
 };
 
 export const getEstimatePayload = async (

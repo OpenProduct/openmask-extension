@@ -1,6 +1,4 @@
-import { TonHttpProvider } from "@openproduct/web-sdk";
-import BN from "bn.js";
-import { selectNetworkConfig } from "../entries/network";
+import { Address } from "ton-core";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
@@ -8,8 +6,9 @@ import {
   getAccountState,
   getConnections,
   getNetwork,
-  getNetworkConfig,
 } from "../store/browserStore";
+import { getBackgroundTonClient } from "./tonService";
+import { Wallet } from "./transfer/core";
 
 export const getActiveWallet = async () => {
   const network = await getNetwork();
@@ -28,16 +27,13 @@ export const confirmWalletSeqNo = async (
   walletSeqNo: number,
   activeWallet: string
 ) => {
-  const network = await getNetwork();
-  const networks = await getNetworkConfig();
-  const config = selectNetworkConfig(network, networks);
+  const client = await getBackgroundTonClient();
 
-  const provider = new TonHttpProvider(config.rpcUrl, {
-    apiKey: config.apiKey,
-  });
+  const wallet = client.open(
+    Wallet.createFromAddress(Address.parse(activeWallet))
+  );
 
-  const bn: BN = await provider.call2(activeWallet, "seqno");
-  let currentSeqNo = bn.toNumber();
+  let currentSeqNo = await wallet.getSeqno();
   if (walletSeqNo === currentSeqNo - 1) {
     return;
   }
@@ -49,8 +45,7 @@ export const confirmWalletSeqNo = async (
     await new Promise((resolve) => setTimeout(resolve, 4000));
 
     try {
-      const bn: BN = await provider.call2(activeWallet, "seqno");
-      currentSeqNo = bn.toNumber();
+      currentSeqNo = await wallet.getSeqno();
     } catch (e) {
       Logger.error(e);
     }

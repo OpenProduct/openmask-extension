@@ -1,12 +1,9 @@
 import { getSharedSecret } from "@noble/ed25519";
-import {
-  base64ToBytes,
-  bytesToHex,
-  Cell,
-  TonHttpProvider,
-} from "@openproduct/web-sdk";
+import { base64ToBytes, Cell } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
+import { TonClient } from "ton";
+import { Address } from "ton-core";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
@@ -16,13 +13,15 @@ import {
   TonWebTransactionMessageRaw,
   TonWebTransactionOutMessage,
 } from "../../../../../libs/entries/transaction";
+import { getWalletPublicKey } from "../../../../../libs/service/transfer/payload";
 import { QueryType } from "../../../../../libs/store/browserStore";
 import {
   NetworkContext,
+  TonClientContext,
   TonProviderContext,
   WalletStateContext,
 } from "../../../../context";
-import { getPublicKey, getWalletKeyPair } from "../../../api";
+import { getWalletKeyPair } from "../../../api";
 
 const decryptMessage = (
   sharedKey: Uint8Array,
@@ -43,13 +42,16 @@ const decryptMessage = (
 };
 
 const decryptOutMessage = async (
-  ton: TonHttpProvider,
+  client: TonClient,
   keyPair: KeyPair,
   outMessage: TonWebTransactionOutMessage
 ): Promise<TonWebTransactionOutMessage> => {
-  const senderPublicKey = await getPublicKey(ton, outMessage.destination);
+  const senderPublicKey = await getWalletPublicKey(
+    client,
+    Address.parse(outMessage.destination)
+  );
   const sharedKey = await getSharedSecret(
-    bytesToHex(keyPair.secretKey.slice(0, 32)),
+    Buffer.from(keyPair.secretKey.slice(0, 32)).toString("hex"),
     senderPublicKey
   );
   if (outMessage.msg_data["@type"] === "msg.dataRaw") {
@@ -68,7 +70,7 @@ const decryptOutMessage = async (
 };
 
 const decryptInMessage = async (
-  ton: TonHttpProvider,
+  client: TonClient,
   keyPair: KeyPair,
   inMessage: TonWebTransactionInMessage
 ): Promise<TonWebTransactionInMessage> => {
@@ -76,9 +78,12 @@ const decryptInMessage = async (
     return inMessage;
   }
 
-  const senderPublicKey = await getPublicKey(ton, inMessage.source);
+  const senderPublicKey = await getWalletPublicKey(
+    client,
+    Address.parse(inMessage.source)
+  );
   const sharedKey = await getSharedSecret(
-    bytesToHex(keyPair.secretKey.slice(0, 32)),
+    Buffer.from(keyPair.secretKey.slice(0, 32)).toString("hex"),
     senderPublicKey
   );
 
@@ -92,18 +97,18 @@ const decryptInMessage = async (
 };
 
 const tryToDecrypt = async (
-  ton: TonHttpProvider,
+  client: TonClient,
   keyPair: KeyPair,
   transaction: TonWebTransaction
 ): Promise<TonWebTransaction> => {
   const decryptedOutMessages = await Promise.all(
     transaction.out_msgs.map((outMessage) =>
-      decryptOutMessage(ton, keyPair, outMessage).catch(() => outMessage)
+      decryptOutMessage(client, keyPair, outMessage).catch(() => outMessage)
     )
   );
 
   const inMessage = await decryptInMessage(
-    ton,
+    client,
     keyPair,
     transaction.in_msg
   ).catch(() => transaction.in_msg);
@@ -116,7 +121,7 @@ const tryToDecrypt = async (
 };
 
 export const useDecryptMutation = () => {
-  const ton = useContext(TonProviderContext);
+  const client = useContext(TonClientContext);
   const wallet = useContext(WalletStateContext);
 
   return useMutation<TonWebTransaction[], Error, TonWebTransaction[]>(
@@ -129,7 +134,7 @@ export const useDecryptMutation = () => {
           result.push(transaction);
         } else {
           try {
-            result.push(await tryToDecrypt(ton, keyPair, transaction));
+            result.push(await tryToDecrypt(client, keyPair, transaction));
           } catch (e) {
             result.push(transaction);
           }

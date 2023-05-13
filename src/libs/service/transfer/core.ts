@@ -1,15 +1,18 @@
 import {
-  Address,
-  beginCell,
-  Cell,
-  storeStateInit,
   WalletContractV2R1,
   WalletContractV2R2,
   WalletContractV3R1,
   WalletContractV3R2,
   WalletContractV4,
 } from "ton";
-
+import {
+  Address,
+  beginCell,
+  Cell,
+  Contract,
+  ContractProvider,
+  storeStateInit,
+} from "ton-core";
 import { WalletState } from "../../entries/wallet";
 
 const workchain = 0;
@@ -56,3 +59,40 @@ export const getWalletAddress = (wallet: WalletState, network: string) => {
     testOnly: network === "testnet",
   });
 };
+
+export class Wallet implements Contract {
+  constructor(
+    readonly address: Address,
+    readonly init?: { code: Cell; data: Cell }
+  ) {}
+
+  static createFromAddress(address: Address) {
+    return new Wallet(address);
+  }
+
+  async getSeqno(provider: ContractProvider): Promise<number> {
+    let state = await provider.getState();
+    if (state.state.type === "active") {
+      let res = await provider.get("seqno", []);
+      return res.stack.readNumber();
+    } else {
+      return 0;
+    }
+  }
+
+  async getPublicKey(provider: ContractProvider): Promise<string> {
+    let state = await provider.getState();
+
+    if (state.state.type !== "active") {
+      throw new Error(`Wallet is not deployed: ${state.state.type}`);
+    }
+
+    const res = await provider.get("get_public_key", []);
+    const walletPubKeyBN = res.stack.readBigNumber();
+    let walletPubKeyHex = walletPubKeyBN.toString(16);
+    if (walletPubKeyHex.length % 2 !== 0) {
+      walletPubKeyHex = "0" + walletPubKeyHex;
+    }
+    return walletPubKeyHex;
+  }
+}
