@@ -1,11 +1,12 @@
 import * as amplitude from "@amplitude/analytics-browser";
 import { useQuery } from "@tanstack/react-query";
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { sha256_sync } from "ton-crypto";
 import { AccountState } from "../../libs/entries/account";
 import { WalletState } from "../../libs/entries/wallet";
 import { NotificationData } from "../../libs/event";
+import { TransactionState } from "../../libs/service/transfer/tonService";
 import {
   getAnalytics,
   getAuthConfiguration,
@@ -94,4 +95,21 @@ export const useNotificationAnalytics = (
       });
     }
   }, [enable, item]);
+};
+
+export const useTransactionAnalytics = () => {
+  const enable = useContext(AnalyticsContext);
+
+  return useCallback(
+    (state: TransactionState) => {
+      if (enable === true) {
+        amplitude.track("Send Transaction", {
+          kind: "ton",
+          isEncrypt: state.isEncrypt,
+          max: state.max,
+        });
+      }
+    },
+    [enable]
+  );
 };

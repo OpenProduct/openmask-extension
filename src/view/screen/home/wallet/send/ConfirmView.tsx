@@ -21,6 +21,7 @@ import {
 import { WalletStateContext } from "../../../../context";
 import { FingerprintLabel } from "../../../../FingerprintLabel";
 import { fiatFees } from "../../../../utils";
+import { useTransactionAnalytics } from "../../../Analytics";
 import {
   toState,
   useEstimateTransaction,
@@ -63,9 +64,11 @@ export const ConfirmView: FC<ConfirmProps> = ({ state, price, onSend }) => {
     error: sendError,
     isLoading: isSending,
   } = useSendTransaction();
+  const track = useTransactionAnalytics();
 
   const onConfirm = async () => {
     if (!address) return;
+    track(state);
     const seqNo = await mutateAsync({ address, state });
     onSend(seqNo);
   };
