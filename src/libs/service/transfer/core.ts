@@ -60,14 +60,14 @@ export const getWalletAddress = (wallet: WalletState, network: string) => {
   });
 };
 
-export class Wallet implements Contract {
+export class AnyWallet implements Contract {
   constructor(
     readonly address: Address,
     readonly init?: { code: Cell; data: Cell }
   ) {}
 
   static createFromAddress(address: Address) {
-    return new Wallet(address);
+    return new AnyWallet(address);
   }
 
   async getSeqno(provider: ContractProvider): Promise<number> {

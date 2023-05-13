@@ -1,13 +1,13 @@
 import { getSharedSecret } from "@noble/ed25519";
 import { Address, beginCell, Cell, TonClient } from "ton";
 import nacl, { randomBytes } from "tweetnacl";
-import { Wallet } from "./core";
+import { AnyWallet } from "./core";
 
 export const getWalletPublicKey = async (
   tonClient: TonClient,
   address: Address
 ): Promise<string> => {
-  const contract = tonClient.open(Wallet.createFromAddress(address));
+  const contract = tonClient.open(AnyWallet.createFromAddress(address));
   return await contract.getPublicKey();
 };
 

@@ -8,7 +8,7 @@ import {
   getNetwork,
 } from "../store/browserStore";
 import { getBackgroundTonClient } from "./tonService";
-import { Wallet } from "./transfer/core";
+import { AnyWallet } from "./transfer/core";
 
 export const getActiveWallet = async () => {
   const network = await getNetwork();
@@ -30,7 +30,7 @@ export const confirmWalletSeqNo = async (
   const client = await getBackgroundTonClient();
 
   const wallet = client.open(
-    Wallet.createFromAddress(Address.parse(activeWallet))
+    AnyWallet.createFromAddress(Address.parse(activeWallet))
   );
 
   let currentSeqNo = await wallet.getSeqno();
