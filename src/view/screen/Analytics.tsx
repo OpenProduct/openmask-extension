@@ -103,13 +103,26 @@ export const useTransactionAnalytics = () => {
   return useCallback(
     (state: TransactionState) => {
       if (enable === true) {
+        const kind = state.isEncrypt
+          ? "encrypted-message"
+          : typeof state.data == "string"
+          ? "text-message"
+          : "ton";
         amplitude.track("Send Transaction", {
-          kind: "ton",
-          isEncrypt: state.isEncrypt,
-          max: state.max,
+          kind,
         });
       }
     },
     [enable]
   );
+};
+
+export const useDecryptAnalytics = () => {
+  const enable = useContext(AnalyticsContext);
+
+  return useCallback(() => {
+    if (enable === true) {
+      amplitude.track("Decrypt message");
+    }
+  }, [enable]);
 };

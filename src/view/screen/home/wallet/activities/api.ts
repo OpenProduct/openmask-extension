@@ -21,6 +21,7 @@ import {
   TonProviderContext,
   WalletStateContext,
 } from "../../../../context";
+import { useDecryptAnalytics } from "../../../Analytics";
 import { getWalletKeyPair } from "../../../api";
 
 const decryptMessage = (
@@ -123,6 +124,7 @@ const tryToDecrypt = async (
 export const useDecryptMutation = () => {
   const client = useContext(TonClientContext);
   const wallet = useContext(WalletStateContext);
+  const track = useDecryptAnalytics();
 
   return useMutation<TonWebTransaction[], Error, TonWebTransaction[]>(
     async (transactions) => {
@@ -135,6 +137,7 @@ export const useDecryptMutation = () => {
         } else {
           try {
             result.push(await tryToDecrypt(client, keyPair, transaction));
+            track();
           } catch (e) {
             result.push(transaction);
           }
