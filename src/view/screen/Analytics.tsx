@@ -14,6 +14,7 @@ import {
   getNetworkConfig,
   QueryType,
 } from "../../libs/store/browserStore";
+import { WalletStateContext } from "../context";
 
 const toWalletType = (wallet?: WalletState): string => {
   if (!wallet) return "new-user";
@@ -97,19 +98,28 @@ export const useNotificationAnalytics = (
   }, [enable, item]);
 };
 
+const getTransactionKind = (state: TransactionState, wallet: WalletState) => {
+  if (state.isEncrypt) {
+    return "encrypted-message";
+  }
+  if (wallet.ledger) {
+    return "ledger-transaction";
+  }
+  if (typeof state.data == "string") {
+    return "text-message";
+  }
+  return "ton";
+};
+
 export const useTransactionAnalytics = () => {
   const enable = useContext(AnalyticsContext);
+  const wallet = useContext(WalletStateContext);
 
   return useCallback(
     (state: TransactionState) => {
       if (enable === true) {
-        const kind = state.isEncrypt
-          ? "encrypted-message"
-          : typeof state.data == "string"
-          ? "text-message"
-          : "ton";
         amplitude.track("Send Transaction", {
-          kind,
+          kind: getTransactionKind(state, wallet),
         });
       }
     },

@@ -5,10 +5,32 @@ import { AnyWallet } from "./core";
 
 export const getWalletPublicKey = async (
   tonClient: TonClient,
-  address: Address
+  address: string
 ): Promise<string> => {
-  const contract = tonClient.open(AnyWallet.createFromAddress(address));
+  const target = Address.parse(address);
+  const deployed = await tonClient.isContractDeployed(target);
+  if (!deployed) {
+    throw new Error("Missing target contract public key");
+  }
+
+  const contract = tonClient.open(AnyWallet.createFromAddress(target));
   return await contract.getPublicKey();
+};
+
+const encryptedComment = (data: string, sharedKey: Uint8Array) => {
+  const nonce = randomBytes(nacl.box.nonceLength);
+  const encrypted = nacl.box.after(
+    new TextEncoder().encode(data),
+    nonce,
+    sharedKey
+  );
+
+  if (!encrypted) {
+    throw new Error("Encryption error");
+  }
+  const payload = Buffer.concat([nonce, encrypted]).toString();
+
+  return beginCell().storeUint(1, 32).storeStringTail(payload).endCell();
 };
 
 export const getEstimatePayload = async (
@@ -20,41 +42,16 @@ export const getEstimatePayload = async (
   if (data === undefined || data === "") {
     return undefined;
   }
-  if (data === undefined) {
-    return undefined;
-  }
-  if (!isEncrypt) {
+  if (!isEncrypt || typeof data !== "string") {
     return data;
   }
 
-  if (typeof data !== "string") {
-    return data;
-  }
-
-  const target = Address.parse(address);
-  const deployed = await tonClient.isContractDeployed(target);
-  if (!deployed) {
-    throw new Error("Missing target contract public key");
-  }
-
-  const receiverPublicKey = await getWalletPublicKey(tonClient, target);
-
+  const receiverPublicKey = await getWalletPublicKey(tonClient, address);
   const sharedKey = await getSharedSecret(
     Buffer.alloc(32).toString("hex"),
     receiverPublicKey
   );
-  const nonce = randomBytes(nacl.box.nonceLength);
-  const encrypted = nacl.box.after(
-    new TextEncoder().encode(data),
-    nonce,
-    sharedKey
-  );
-
-  if (!encrypted) {
-    throw new Error("Encryption error");
-  }
-  const payload = Buffer.concat([Buffer.from(nonce), Buffer.from(encrypted)]);
-  return beginCell().storeBuffer(payload).endCell();
+  return encryptedComment(data, sharedKey);
 };
 
 export const getPayload = async (
@@ -67,36 +64,14 @@ export const getPayload = async (
   if (data === undefined || data === "") {
     return undefined;
   }
-  if (!isEncrypt) {
+  if (!isEncrypt || typeof data !== "string") {
     return data;
   }
 
-  if (typeof data !== "string") {
-    return data;
-  }
-
-  const target = Address.parse(address);
-  const deployed = await tonClient.isContractDeployed(target);
-  if (!deployed) {
-    throw new Error("Missing target contract public key");
-  }
-
-  const receiverPublicKey = await getWalletPublicKey(tonClient, target);
-
+  const receiverPublicKey = await getWalletPublicKey(tonClient, address);
   const sharedKey = await getSharedSecret(
     secretKey.subarray(0, 32).toString("hex"),
     receiverPublicKey
   );
-  const nonce = randomBytes(nacl.box.nonceLength);
-  const encrypted = nacl.box.after(
-    new TextEncoder().encode(data),
-    nonce,
-    sharedKey
-  );
-
-  if (!encrypted) {
-    throw new Error("Encryption error");
-  }
-  const payload = Buffer.concat([Buffer.from(nonce), Buffer.from(encrypted)]);
-  return beginCell().storeBuffer(payload).endCell();
+  return encryptedComment(data, sharedKey);
 };

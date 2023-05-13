@@ -3,7 +3,6 @@ import { base64ToBytes, Cell } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { TonClient } from "ton";
-import { Address } from "ton-core";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
@@ -49,7 +48,7 @@ const decryptOutMessage = async (
 ): Promise<TonWebTransactionOutMessage> => {
   const senderPublicKey = await getWalletPublicKey(
     client,
-    Address.parse(outMessage.destination)
+    outMessage.destination
   );
   const sharedKey = await getSharedSecret(
     Buffer.from(keyPair.secretKey.slice(0, 32)).toString("hex"),
@@ -79,10 +78,7 @@ const decryptInMessage = async (
     return inMessage;
   }
 
-  const senderPublicKey = await getWalletPublicKey(
-    client,
-    Address.parse(inMessage.source)
-  );
+  const senderPublicKey = await getWalletPublicKey(client, inMessage.source);
   const sharedKey = await getSharedSecret(
     Buffer.from(keyPair.secretKey.slice(0, 32)).toString("hex"),
     senderPublicKey
