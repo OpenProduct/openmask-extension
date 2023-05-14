@@ -37,3 +37,33 @@ export const reEncryptWallets = async (
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export interface RetryConfig {
+  retries: number;
+  delay: number;
+}
+
+const defaultConfig: RetryConfig = {
+  retries: 3,
+  delay: 60,
+};
+
+export async function retry<T>(
+  f: () => Promise<T>,
+  config: RetryConfig = defaultConfig
+): Promise<T> {
+  let lastError: Error;
+
+  let retries: number = config.retries;
+
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const result = await f();
+      return result;
+    } catch (error) {
+      lastError = error as Error;
+    }
+    await delay(Math.pow(i + 1, config.delay));
+  }
+  throw new Error(`All retries failed. Last error: ${lastError!}`, lastError!);
+}

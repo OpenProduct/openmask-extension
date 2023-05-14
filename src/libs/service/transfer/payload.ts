@@ -1,5 +1,6 @@
 import { getSharedSecret } from "@noble/ed25519";
-import { Address, beginCell, Cell, TonClient } from "ton";
+import { TonClient } from "ton";
+import { Address, beginCell, Builder, Cell } from "ton-core";
 import nacl, { randomBytes } from "tweetnacl";
 import { AnyWallet } from "./core";
 
@@ -12,6 +13,22 @@ export const getWalletPublicKey = async (
   );
   return await contract.getPublicKey();
 };
+
+function writeBuffer(src: Buffer, builder: Builder) {
+  if (src.length > 0) {
+    let bytes = Math.floor(builder.availableBits / 8);
+    if (src.length > bytes) {
+      let a = src.subarray(0, bytes);
+      let t = src.subarray(bytes);
+      builder = builder.storeBuffer(a);
+      let bb = beginCell();
+      writeBuffer(t, bb);
+      builder = builder.storeRef(bb.endCell());
+    } else {
+      builder = builder.storeBuffer(src);
+    }
+  }
+}
 
 const encryptedComment = (data: string, sharedKey: Uint8Array) => {
   const nonce = randomBytes(nacl.box.nonceLength);
@@ -26,7 +43,9 @@ const encryptedComment = (data: string, sharedKey: Uint8Array) => {
   }
   const payload = Buffer.concat([nonce, encrypted]);
 
-  return beginCell().storeUint(1, 32).storeBuffer(payload).endCell();
+  let builder = beginCell().storeUint(1, 32);
+  writeBuffer(payload, builder);
+  return builder.endCell();
 };
 
 export const getEstimatePayload = async (

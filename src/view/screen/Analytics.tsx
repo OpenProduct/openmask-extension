@@ -130,9 +130,12 @@ export const useTransactionAnalytics = () => {
 export const useDecryptAnalytics = () => {
   const enable = useContext(AnalyticsContext);
 
-  return useCallback(() => {
-    if (enable === true) {
-      amplitude.track("Decrypt message");
-    }
-  }, [enable]);
+  return useCallback(
+    (king: "v1" | "standard") => {
+      if (enable === true) {
+        amplitude.track("Decrypt payload", { king });
+      }
+    },
+    [enable]
+  );
 };

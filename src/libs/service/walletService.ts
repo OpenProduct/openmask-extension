@@ -2,6 +2,7 @@ import { Address } from "ton-core";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";
+import { delay, retry } from "../state/accountService";
 import {
   getAccountState,
   getConnections,
@@ -33,8 +34,8 @@ export const confirmWalletSeqNo = async (
     AnyWallet.createFromAddress(Address.parse(activeWallet))
   );
 
-  let currentSeqNo = await wallet.getSeqno();
-  if (walletSeqNo === currentSeqNo - 1) {
+  let currentSeqNo = await retry(wallet.getSeqno);
+  if (currentSeqNo > walletSeqNo) {
     return;
   }
   if (walletSeqNo !== currentSeqNo) {
@@ -42,7 +43,7 @@ export const confirmWalletSeqNo = async (
   }
 
   do {
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await delay(4000);
 
     try {
       currentSeqNo = await wallet.getSeqno();

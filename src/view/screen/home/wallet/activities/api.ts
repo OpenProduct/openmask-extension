@@ -25,27 +25,11 @@ import { getWalletKeyPair } from "../../../api";
 const decryptMessageV1 = (cell: Cell, sharedKey: Uint8Array) => {
   const slice = cell.beginParse();
   const buffer = slice.loadBuffer(slice.remainingBits / 8);
-  if (buffer.length <= nacl.box.nonceLength) {
-    return undefined;
-  }
 
-  const nonce = buffer.slice(0, nacl.box.nonceLength);
-  const message = buffer.slice(nacl.box.nonceLength, buffer.length);
-
-  console.log({ buffer, nonce, message });
-
-  const decrypted = nacl.box.open.after(
-    new Uint8Array(message),
-    new Uint8Array(nonce),
-    sharedKey
-  );
-
-  return decrypted ? encodeBase64(decrypted) : undefined;
+  return decryptMessage(buffer, sharedKey);
 };
 
-const decryptMessage = (text: string, sharedKey: Uint8Array) => {
-  const buffer = Buffer.from(text, "base64");
-
+const decryptMessage = (buffer: Buffer, sharedKey: Uint8Array) => {
   if (buffer.length <= nacl.box.nonceLength) {
     return undefined;
   }
@@ -65,7 +49,8 @@ const decryptMessage = (text: string, sharedKey: Uint8Array) => {
 const decryptOutMessage = async (
   client: TonClient,
   keyPair: KeyPair,
-  outMessage: TonWebTransactionOutMessage
+  outMessage: TonWebTransactionOutMessage,
+  track: (king: "v1" | "standard") => void
 ): Promise<TonWebTransactionOutMessage> => {
   const senderPublicKey = await getWalletPublicKey(
     client,
@@ -77,26 +62,35 @@ const decryptOutMessage = async (
   );
 
   if (outMessage.msg_data["@type"] === "msg.dataEncryptedText") {
+    const openmask_decrypted_payload = decryptMessage(
+      Buffer.from(outMessage.msg_data.text, "base64"),
+      sharedKey
+    );
+    if (openmask_decrypted_payload) {
+      track("standard");
+    }
+
     return {
       ...outMessage,
       msg_data: {
         ...outMessage.msg_data,
-        openmask_decrypted_payload: decryptMessage(
-          outMessage.msg_data.text,
-          sharedKey
-        ),
+        openmask_decrypted_payload,
       },
     };
   }
   if (outMessage.msg_data["@type"] === "msg.dataRaw") {
+    const openmask_decrypted_payload = decryptMessageV1(
+      Cell.fromBase64(outMessage.msg_data.body),
+      sharedKey
+    );
+    if (openmask_decrypted_payload) {
+      track("v1");
+    }
     return {
       ...outMessage,
       msg_data: {
         ...outMessage.msg_data,
-        openmask_decrypted_payload: decryptMessageV1(
-          Cell.fromBase64(outMessage.msg_data.body),
-          sharedKey
-        ),
+        openmask_decrypted_payload,
       },
     };
   }
@@ -106,7 +100,8 @@ const decryptOutMessage = async (
 const decryptInMessage = async (
   client: TonClient,
   keyPair: KeyPair,
-  inMessage: TonWebTransactionInMessage
+  inMessage: TonWebTransactionInMessage,
+  track: (king: "v1" | "standard") => void
 ): Promise<TonWebTransactionInMessage> => {
   if (!inMessage.source || inMessage.msg_data["@type"] === "msg.dataText") {
     return inMessage;
@@ -119,26 +114,35 @@ const decryptInMessage = async (
   );
 
   if (inMessage.msg_data["@type"] === "msg.dataEncryptedText") {
+    const openmask_decrypted_payload = decryptMessage(
+      Buffer.from(inMessage.msg_data.text, "base64"),
+      sharedKey
+    );
+    if (openmask_decrypted_payload) {
+      track("standard");
+    }
     return {
       ...inMessage,
       msg_data: {
         ...inMessage.msg_data,
-        openmask_decrypted_payload: decryptMessage(
-          inMessage.msg_data.text,
-          sharedKey
-        ),
+        openmask_decrypted_payload,
       },
     };
   }
   if (inMessage.msg_data["@type"] === "msg.dataRaw") {
+    const openmask_decrypted_payload = decryptMessageV1(
+      Cell.fromBase64(inMessage.msg_data.body),
+      sharedKey
+    );
+    if (openmask_decrypted_payload) {
+      track("v1");
+    }
+
     return {
       ...inMessage,
       msg_data: {
         ...inMessage.msg_data,
-        openmask_decrypted_payload: decryptMessageV1(
-          Cell.fromBase64(inMessage.msg_data.body),
-          sharedKey
-        ),
+        openmask_decrypted_payload,
       },
     };
   }
@@ -149,22 +153,22 @@ const decryptInMessage = async (
 const tryToDecrypt = async (
   client: TonClient,
   keyPair: KeyPair,
-  transaction: TonWebTransaction
+  transaction: TonWebTransaction,
+  track: (king: "v1" | "standard") => void
 ): Promise<TonWebTransaction> => {
-  const tx = Cell.fromBase64(transaction.data);
-
-  // console.log(tx.toString());
-
   const decryptedOutMessages = await Promise.all(
     transaction.out_msgs.map((outMessage) =>
-      decryptOutMessage(client, keyPair, outMessage).catch(() => outMessage)
+      decryptOutMessage(client, keyPair, outMessage, track).catch(
+        () => outMessage
+      )
     )
   );
 
   const inMessage = await decryptInMessage(
     client,
     keyPair,
-    transaction.in_msg
+    transaction.in_msg,
+    track
   ).catch(() => transaction.in_msg);
 
   return {
@@ -189,8 +193,9 @@ export const useDecryptMutation = () => {
           result.push(transaction);
         } else {
           try {
-            result.push(await tryToDecrypt(client, keyPair, transaction));
-            track();
+            result.push(
+              await tryToDecrypt(client, keyPair, transaction, track)
+            );
           } catch (e) {
             result.push(transaction);
           }
