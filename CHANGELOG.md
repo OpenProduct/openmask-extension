@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.18] - 2023-05-14
+
+### Changed
+
+- Reduce Ton Access init call
+- Update encrypted messaging
+- Encrypted messaging analytics
+
 ## [0.18.17] - 2023-05-11
 
 ### Added
