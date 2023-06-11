@@ -20,6 +20,10 @@ const Text = styled.div`
 const Wrapper = styled(Grid)`
   padding: ${(props) => props.theme.padding};
   box-sizing: border-box;
+
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 const LogoBlock = styled.div`

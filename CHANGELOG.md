@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.19] - 2023-06-11
+
+### Fixed
+
+- Update modal layout
+
 ## [0.18.18] - 2023-05-14
 
 ### Changed
