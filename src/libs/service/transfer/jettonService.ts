@@ -69,17 +69,14 @@ const jettonTransferBody = (params: {
 };
 
 const getJettonAmount = (data: SendJettonState, jetton: JettonAsset) => {
+  const decimals = jetton.state.decimals
+    ? parseInt(String(jetton.state.decimals))
+    : DefaultDecimals;
+
   return BigInt(
     new BigNumber(data.amount)
-      .multipliedBy(
-        Math.pow(
-          10,
-          jetton.state.decimals
-            ? parseInt(String(jetton.state.decimals))
-            : DefaultDecimals
-        )
-      )
-      .toString()
+      .shiftedBy(decimals)
+      .toFormat({ decimalSeparator: ".", groupSeparator: "" })
   );
 };
 

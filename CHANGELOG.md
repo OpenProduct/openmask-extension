@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.20] - 2023-06-22
+
+### Fixed
+
+- Cannot convert 4.541e+21 to a BigInt
+
 ## [0.18.19] - 2023-06-11
 
 ### Fixed
