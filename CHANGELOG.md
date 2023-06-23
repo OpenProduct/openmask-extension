@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.21] - 2023-06-23
+
+### Fixed
+
+- Send non-bouncable message to non-active contracts
+
 ## [0.18.20] - 2023-06-22
 
 ### Fixed

@@ -20,7 +20,6 @@ import {
   NetworksContext,
   TonClientContext,
   TonProviderContext,
-  WalletContractContext,
   WalletStateContext,
 } from "./context";
 import { useInitialRendering } from "./hooks/useInitialRendering";
@@ -87,21 +86,16 @@ const ContentRouter: FC<{
   return (
     <AnalyticsContext.Provider value={enable}>
       <WalletStateContext.Provider value={wallet!}>
-        <WalletContractContext.Provider value={walletContract!}>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route
-                path={AppRoute.notifications}
-                element={<Notifications />}
-              />
-              <Route path={any(AppRoute.settings)} element={<Settings />} />
-              <Route path={AppRoute.connections} element={<Connections />} />
-              <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
-              <Route path="*" element={<Home />} />
-            </Routes>
-          </Suspense>
-          <LedgerNotification />
-        </WalletContractContext.Provider>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path={AppRoute.notifications} element={<Notifications />} />
+            <Route path={any(AppRoute.settings)} element={<Settings />} />
+            <Route path={AppRoute.connections} element={<Connections />} />
+            <Route path={any(AppRoute.import)} element={<ConnectWallet />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
+        <LedgerNotification />
       </WalletStateContext.Provider>
     </AnalyticsContext.Provider>
   );

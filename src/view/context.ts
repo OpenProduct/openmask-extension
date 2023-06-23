@@ -1,4 +1,4 @@
-import { TonHttpProvider, WalletContract } from "@openproduct/web-sdk";
+import { TonHttpProvider } from "@openproduct/web-sdk";
 import React from "react";
 import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
@@ -10,13 +10,6 @@ export const AccountStateContext = React.createContext<AccountState>(
 );
 
 export const WalletStateContext = React.createContext<WalletState>(undefined!);
-
-/**
- * @deprecated
- */
-export const WalletContractContext = React.createContext<WalletContract>(
-  undefined!
-);
 
 export const WalletAddressContext = React.createContext<string>(undefined!);
 

@@ -74,12 +74,16 @@ export const getToAddress = async (
 };
 
 export const useTargetAddress = (address: string) => {
+  const client = useContext(TonClientContext);
   const ton = useContext(TonProviderContext);
   const config = useSelectedNetworkConfig();
 
-  return useQuery<string, Error>([QueryType.address, address], () =>
-    getToAddress(ton, config, address)
-  );
+  return useQuery<string, Error>([QueryType.address, address], async () => {
+    const value = await getToAddress(ton, config, address);
+    const coreAddress = CoreAddress.parse(value);
+    const deployed = await client.isContractDeployed(coreAddress);
+    return coreAddress.toString({ urlSafe: true, bounceable: deployed });
+  });
 };
 
 export const useEstimateTransaction = (
