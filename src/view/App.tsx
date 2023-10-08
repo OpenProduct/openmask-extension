@@ -1,8 +1,8 @@
-import { ALL, hexToBytes, TonHttpProvider } from "@openproduct/web-sdk";
+import { TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
 import { selectNetworkConfig } from "../libs/entries/network";
@@ -23,12 +23,12 @@ import {
   WalletStateContext,
 } from "./context";
 import { useInitialRendering } from "./hooks/useInitialRendering";
-import { any, AppRoute } from "./routes";
+import { AppRoute, any } from "./routes";
 import { AnalyticsContext, useAnalytics } from "./screen/Analytics";
+import { Loading } from "./screen/Loading";
 import { Header } from "./screen/home/Header";
 import { CreatePassword, Initialize } from "./screen/initialize/Initialize";
 import { LedgerNotification } from "./screen/ledger/LedgerNotification";
-import { Loading } from "./screen/Loading";
 import { PasswordNotification } from "./screen/unlock/PasswordNotification";
 import { Unlock } from "./screen/unlock/Unlock";
 import { WebAuthnNotification } from "./screen/unlock/WebAuthnNotification";
@@ -46,12 +46,11 @@ const Notifications = React.lazy(
 
 const ContentRouter: FC<{
   account: AccountState;
-  ton: TonHttpProvider;
   lock: boolean;
   script: string | null;
   notification: boolean;
   justOpen: boolean;
-}> = ({ account, ton, lock, script, notification, justOpen }) => {
+}> = ({ account, lock, script, notification, justOpen }) => {
   const location = useLocation();
 
   const wallet = account.wallets.find(
@@ -60,15 +59,6 @@ const ContentRouter: FC<{
 
   useInitialRedirect(notification, wallet?.address);
   const enable = useAnalytics(account, wallet);
-
-  const walletContract = useMemo(() => {
-    if (!wallet) return undefined;
-    const WalletClass = ALL[wallet.version];
-    return new WalletClass(ton, {
-      publicKey: hexToBytes(wallet.publicKey),
-      wc: 0,
-    });
-  }, [wallet, ton]);
 
   if (script != null && lock) {
     return <Unlock justOpen={justOpen} />;
@@ -142,7 +132,6 @@ const App = () => {
               <Header lock={lock || notification} />
               <ContentRouter
                 account={data}
-                ton={tonProvider}
                 lock={lock}
                 script={script}
                 notification={notification}

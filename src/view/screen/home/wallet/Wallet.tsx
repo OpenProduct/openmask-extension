@@ -1,17 +1,18 @@
 import { FC, useCallback, useContext } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useNonBounceableAddress } from "../../../../libs/address";
 import { DexStocks } from "../../../../libs/entries/stock";
 import { Container } from "../../../components/Components";
 import { ConnectBadge } from "../../../components/ConnectBadge";
 import { Tabs } from "../../../components/Tabs";
 import { WalletStateContext } from "../../../context";
 import { AppRoute } from "../../../routes";
-import { Activities } from "./activities/Activities";
-import { AssetsList } from "./assets/AssetsList";
 import { Balance } from "./WalletBalance";
 import { WalletMenu } from "./WalletMenu";
 import { WalletName } from "./WalletName";
+import { Activities } from "./activities/Activities";
+import { AssetsList } from "./assets/AssetsList";
 
 const Block = styled(Container)`
   flex-shrink: 0;
@@ -26,12 +27,13 @@ const Block = styled(Container)`
 
 export const WalletInfo = () => {
   const wallet = useContext(WalletStateContext);
+  const address = useNonBounceableAddress(wallet.address);
 
   return (
     <Block>
       <ConnectBadge />
-      <WalletName address={wallet.address} name={wallet.name} />
-      <WalletMenu address={wallet.address} />
+      <WalletName address={address} name={wallet.name} />
+      <WalletMenu address={address} />
     </Block>
   );
 };

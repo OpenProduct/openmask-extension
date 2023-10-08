@@ -1,15 +1,16 @@
 import { useContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import styled from "styled-components";
+import { useNonBounceableAddress } from "../../../libs/address";
 import { WalletAddressContext, WalletStateContext } from "../../context";
-import { any, AppRoute } from "../../routes";
+import { AppRoute, any } from "../../routes";
 import { useBalance, useCoinPrice, useDexStock } from "./api";
+import { WalletHome, WalletInfo } from "./wallet/Wallet";
 import { AssetsRouter } from "./wallet/assets/Assets";
 import { ReceiveRouter, ReceiveTonPage } from "./wallet/receive/Receive";
 import { SwapRouter } from "./wallet/receive/Swap";
 import { Send } from "./wallet/send/Send";
 import { WalletSettings } from "./wallet/setttings/Settings";
-import { WalletHome, WalletInfo } from "./wallet/Wallet";
 
 const Body = styled.div`
   width: 100%;
@@ -25,8 +26,10 @@ export const Home = () => {
   const { data: balance } = useBalance(wallet.address);
   const { data: price } = useCoinPrice(balance != null);
   const { data: stocks } = useDexStock(balance != null);
+
+  const address = useNonBounceableAddress(wallet.address);
   return (
-    <WalletAddressContext.Provider value={wallet.address}>
+    <WalletAddressContext.Provider value={address}>
       <Body>
         <WalletInfo />
         <Routes>

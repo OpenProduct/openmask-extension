@@ -1,9 +1,11 @@
 import { base64ToBytes } from "@openproduct/web-sdk";
 import React, { FC, useMemo } from "react";
 import styled from "styled-components";
+import { useNonBounceableAddress } from "../../libs/address";
 import {
   TonWebTransaction,
   TonWebTransactionMessage,
+  TonWebTransactionOutMessage,
 } from "../../libs/entries/transaction";
 import ExtensionPlatform from "../../libs/service/extension";
 import { useSelectedNetworkConfig } from "../screen/home/api";
@@ -106,45 +108,63 @@ const CommentBlock: FC<{ msg: TonWebTransactionMessage }> = ({ msg }) => {
   }
 };
 
+const TransactionOut: FC<{
+  item: TonWebTransaction;
+  out: TonWebTransactionOutMessage;
+}> = ({ item, out }) => {
+  const address = useNonBounceableAddress(out.destination);
+  return (
+    <Block key={out.body_hash}>
+      <First>
+        <SendIcon />
+      </First>
+      <Text>
+        <Line>
+          <b>Send</b>
+          <span>-{formatTonValue(out.value)} TON</span>
+        </Line>
+        <Line>
+          <span>{toShortAddress(address)}</span>
+          <span>{new Date(item.utime * 1000).toLocaleString()}</span>
+        </Line>
+        <CommentBlock msg={out} />
+      </Text>
+    </Block>
+  );
+};
+
+const TransactionIn: FC<{
+  item: TonWebTransaction;
+}> = ({ item }) => {
+  const address = useNonBounceableAddress(item.in_msg.source);
+
+  return (
+    <Block>
+      <First>
+        <ReceiveIcon />
+      </First>
+      <Text>
+        <Line>
+          <b>Receive</b>
+          <span>+{formatTonValue(item.in_msg.value)} TON</span>
+        </Line>
+        <Line>
+          <span>{toShortAddress(address)}</span>
+          <span>{new Date(item.utime * 1000).toLocaleString()}</span>
+        </Line>
+        <CommentBlock msg={item.in_msg} />
+      </Text>
+    </Block>
+  );
+};
+
 const Transaction: FC<{ item: TonWebTransaction }> = React.memo(({ item }) => {
   return (
     <>
       {item.out_msgs.map((out) => (
-        <Block key={out.body_hash}>
-          <First>
-            <SendIcon />
-          </First>
-          <Text>
-            <Line>
-              <b>Send</b>
-              <span>-{formatTonValue(out.value)} TON</span>
-            </Line>
-            <Line>
-              <span>{toShortAddress(out.destination)}</span>
-              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
-            </Line>
-            <CommentBlock msg={out} />
-          </Text>
-        </Block>
+        <TransactionOut key={out.body_hash} item={item} out={out} />
       ))}
-      {item.in_msg && item.in_msg.source && (
-        <Block>
-          <First>
-            <ReceiveIcon />
-          </First>
-          <Text>
-            <Line>
-              <b>Receive</b>
-              <span>+{formatTonValue(item.in_msg.value)} TON</span>
-            </Line>
-            <Line>
-              <span>{toShortAddress(item.in_msg.source)}</span>
-              <span>{new Date(item.utime * 1000).toLocaleString()}</span>
-            </Line>
-            <CommentBlock msg={item.in_msg} />
-          </Text>
-        </Block>
-      )}
+      {item.in_msg && item.in_msg.source && <TransactionIn item={item} />}
     </>
   );
 });

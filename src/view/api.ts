@@ -8,13 +8,13 @@ import { Logger } from "../libs/logger";
 import { popUpInternalEventEmitter } from "../libs/popUpEvent";
 import { delay } from "../libs/state/accountService";
 import {
+  QueryType,
   getAuthConfiguration,
   getLockScreen,
   getNetwork,
   getNetworkConfig,
   getNetworkStoreValue,
   getScript,
-  QueryType,
   setStoreValue,
 } from "../libs/store/browserStore";
 import { checkForError } from "../libs/utils";

@@ -30,16 +30,14 @@ import {
 import { WalletStateContext } from "../../../../context";
 import { AppRoute, relative } from "../../../../routes";
 import { useAuthConfiguration } from "../../../settings/api";
-import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 import { LedgerSettings } from "./LedgerSettings";
+import { useDeleteWalletMutation, useUpdateWalletMutation } from "./api";
 import { WalletRoutes } from "./route";
 
 const Text = styled.div`
   font-size: medium;
   margin-top: ${(props) => props.theme.padding};
 `;
-
-const bounceableOptions = ["Bounceable", "Non Bounceable"];
 
 const SettingsIndex = () => {
   const navigate = useNavigate();
@@ -67,21 +65,6 @@ const SettingsIndex = () => {
             onChange({ name });
           }}
         />
-
-        <SelectLabel>Address</SelectLabel>
-        <DropDownList
-          isLeft
-          options={bounceableOptions}
-          renderOption={(value) => value}
-          onSelect={(value) =>
-            onChange({ isBounceable: value === bounceableOptions[0] })
-          }
-        >
-          <SelectPayload>
-            {wallet.isBounceable ? bounceableOptions[0] : bounceableOptions[1]}
-            <ArrowDownIcon />
-          </SelectPayload>
-        </DropDownList>
 
         <SelectLabel>Version</SelectLabel>
         <DropDownList
