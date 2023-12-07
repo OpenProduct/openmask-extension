@@ -7,6 +7,7 @@ import {
 } from "../../../../libs/entries/notificationMessage";
 import { NotificationFields } from "../../../../libs/event";
 import { delay } from "../../../../libs/state/accountService";
+import { FingerprintLabel } from "../../../FingerprintLabel";
 import {
   Body,
   ButtonNegative,
@@ -25,7 +26,6 @@ import { CheckIcon, SpinnerIcon, TimeIcon } from "../../../components/Icons";
 import { Fees } from "../../../components/send/Fees";
 import { WalletStateContext } from "../../../context";
 import { askBackground, sendBackground } from "../../../event";
-import { FingerprintLabel } from "../../../FingerprintLabel";
 import { formatTonValue, toShortAddress } from "../../../utils";
 import {
   useEstimateTransactions,
@@ -223,9 +223,10 @@ const SendLedgerTransactions: FC<{
 
 const SendMnemonicTransactions: FC<{
   data: TonConnectTransactionPayload;
+  origin: string;
   onCancel: () => void;
   onOk: (payload: string) => void;
-}> = ({ data, onCancel, onOk }) => {
+}> = ({ data, origin, onCancel, onOk }) => {
   const [isSending, setSending] = useState(false);
 
   const [items, setItems] = useState<PayloadMessage[]>(data.messages);
@@ -233,7 +234,11 @@ const SendMnemonicTransactions: FC<{
 
   const { data: estimation } = useEstimateTransactions(data);
 
-  const { mutateAsync, reset, error: sendError } = useSendMnemonicMutation();
+  const {
+    mutateAsync,
+    reset,
+    error: sendError,
+  } = useSendMnemonicMutation(origin);
   const { mutateAsync: getLastBoc } = useLastBocMutation();
 
   const onConfirm = async () => {
@@ -320,7 +325,12 @@ export const ConnectSendTransaction: FC<
       {wallet.ledger ? (
         <SendLedgerTransactions data={data} onCancel={onCancel} onOk={onOk} />
       ) : (
-        <SendMnemonicTransactions data={data} onCancel={onCancel} onOk={onOk} />
+        <SendMnemonicTransactions
+          data={data}
+          origin={origin}
+          onCancel={onCancel}
+          onOk={onOk}
+        />
       )}
     </Body>
   );

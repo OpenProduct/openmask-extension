@@ -9,6 +9,7 @@ import {
   getContractAddress,
   getWalletContract,
 } from "../../../../libs/service/transfer/core";
+import { validateAddressRestrictions } from "../../../../libs/service/transfer/restrictionService";
 import {
   createLedgerTonTransfer,
   createTonTransfer,
@@ -117,6 +118,7 @@ const sendMnemonicDeploy = async (
   wallet: WalletState,
   state: DeployState
 ) => {
+  await validateAddressRestrictions(state.address);
   const keyPair = await getWalletKeyPair(wallet);
 
   const secretKey = Buffer.from(keyPair.secretKey);

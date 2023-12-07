@@ -30,15 +30,6 @@ export interface InitData {
   data?: Cell;
 }
 
-const NullAddress = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
-
-export const disableNullAddress = (address: string) => {
-  if (Address.parse(address).equals(Address.parse(NullAddress))) {
-    throw new Error("Null Address restricted");
-  }
-  return address;
-};
-
 export const getTonSendMode = (max: string | undefined) => {
   return max === "1"
     ? SendMode.CARRY_ALL_REMAINING_BALANCE
@@ -67,7 +58,7 @@ export const createTonTransfer = (
     sendMode: getTonSendMode(data.max),
     messages: [
       internal({
-        to: disableNullAddress(address),
+        to: address,
         bounce: seeIfBounceable(address),
         value: toNano(data.amount),
         init,
@@ -104,7 +95,7 @@ export const createTonConnectTransfer = (
     sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
     messages: state.map((item) => {
       return internal({
-        to: disableNullAddress(item.address),
+        to: item.address,
         value: toNano(fromNano(item.amount)),
         bounce: seeIfBounceable(item.address),
         init: toStateInit(item.stateInit),

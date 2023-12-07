@@ -11,6 +11,7 @@ import {
   getEstimatePayload,
   getPayload,
 } from "../../../../../libs/service/transfer/payload";
+import { validateAddressRestrictions } from "../../../../../libs/service/transfer/restrictionService";
 import {
   createLedgerTonTransfer,
   createTonTransfer,
@@ -158,6 +159,7 @@ const sendMnemonicTransaction = async (
   address: string,
   state: TransactionState
 ) => {
+  await validateAddressRestrictions(address);
   const keyPair = await getWalletKeyPair(wallet);
 
   const secretKey = Buffer.from(keyPair.secretKey);

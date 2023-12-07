@@ -7,7 +7,7 @@ import {
   WebAuthn,
 } from "../entries/auth";
 import { Connections, defaultConnections } from "../entries/connection";
-import { defaultNetworkConfigs, NetworkConfig } from "../entries/network";
+import { NetworkConfig, defaultNetworkConfigs } from "../entries/network";
 import {
   DisabledProxyConfiguration,
   ProxyConfiguration,
@@ -21,6 +21,7 @@ export enum QueryType {
 
   price = "price",
   stock = "stock",
+  restriction = "restriction",
 
   script = "script",
   network = "network",

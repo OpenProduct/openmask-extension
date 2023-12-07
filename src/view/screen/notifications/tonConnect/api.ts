@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
-import { Address, beginCell, Cell, fromNano, storeStateInit } from "ton-core";
+import { Address, Cell, beginCell, fromNano, storeStateInit } from "ton-core";
 import { sha256_sync } from "ton-crypto";
 import nacl from "tweetnacl";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
@@ -17,6 +17,7 @@ import { Permission } from "../../../../libs/entries/permission";
 import { EstimateFeeValues } from "../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
+import { validateTonConnectRestrictions } from "../../../../libs/service/transfer/restrictionService";
 import {
   createLedgerTonTransfer,
   createTonConnectTransfer,
@@ -24,8 +25,8 @@ import {
 } from "../../../../libs/service/transfer/tonService";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
-  getConnections,
   QueryType,
+  getConnections,
   setConnections,
 } from "../../../../libs/store/browserStore";
 import {
@@ -193,7 +194,7 @@ export const useAddConnectionMutation = () => {
   );
 };
 
-export const useSendMnemonicMutation = () => {
+export const useSendMnemonicMutation = (origin: string) => {
   const wallet = useContext(WalletStateContext);
   const client = useContext(TonClientContext);
 
@@ -203,6 +204,8 @@ export const useSendMnemonicMutation = () => {
       if (now > data.valid_until) {
         throw new Error("Transaction expired");
       }
+
+      await validateTonConnectRestrictions(origin, data.messages);
 
       const keyPair = await getWalletKeyPair(wallet);
       const walletContract = getWalletContract(wallet);
