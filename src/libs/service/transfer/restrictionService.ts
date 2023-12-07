@@ -17,7 +17,7 @@ export const getRestrictions = async () => {
 
     if (!data) {
       const response = await fetch(
-        "https://raw.githubusercontent.com/OpenProduct/openmask-extension/main/resourses/restrictions.json"
+        "https://raw.githubusercontent.com/OpenProduct/openmask-extension/main/resources/restrictions.json"
       );
 
       data = (await response.json()) as Restrictions;
