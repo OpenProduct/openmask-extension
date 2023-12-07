@@ -20,12 +20,16 @@ export const getRestrictions = async () => {
         "https://raw.githubusercontent.com/OpenProduct/openmask-extension/main/resources/restrictions.json"
       );
 
+      if (response.status !== 200) {
+        throw new Error(response.statusText);
+      }
       data = (await response.json()) as Restrictions;
       await setCachedStoreValue(QueryType.restriction, data);
     }
 
     return data;
   } catch (e) {
+    console.log(e);
     return { origin: [], address: [] };
   }
 };
