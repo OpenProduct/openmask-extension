@@ -22,15 +22,6 @@ To learn how to develop OpenMask-compatible applications, visit our [Developer D
 
 - Install [Node.js](https://nodejs.org) version 16
 - Install dependencies: `npm install`
-- Create `.env` file with variables
-
-```
-REACT_APP_TONCENTER_API_KEY=0000000000000000000000000000000000000000
-REACT_APP_TONCENTER_TESTNET_API_KEY=0000000000000000000000000000000000000000
-```
-
-You may create public toncenter api keys [here](https://toncenter.com/)
-
 - Build `npm run build`
 
 Compressed builds can be found in `/build` once they're built.
