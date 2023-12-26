@@ -145,7 +145,13 @@ const sendLedgerTransaction = async (
     state.isEncrypt,
     state.data
   );
-  const transaction = createLedgerTonTransfer(seqno, address, state, payload);
+  const transaction = createLedgerTonTransfer(
+    wallet,
+    seqno,
+    address,
+    state,
+    payload
+  );
 
   const signed = await signLedgerTransaction(transaction);
   await tonContract.send(signed);

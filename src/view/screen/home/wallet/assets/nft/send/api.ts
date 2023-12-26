@@ -80,8 +80,8 @@ const sendLedgerTransaction = async (
   const seqno = await tonContract.getSeqno();
 
   const transaction = createLedgerNftTransfer(
-    seqno,
     wallet,
+    seqno,
     address,
     state,
     nft

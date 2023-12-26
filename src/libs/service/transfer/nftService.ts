@@ -90,12 +90,14 @@ export const createNftTransfer = (
 };
 
 export const createLedgerNftTransfer = (
+  wallet: WalletState,
   seqno: number,
-  walletState: WalletState,
   recipientAddress: string,
   state: SendNftState,
   nft: NftItem
 ): LedgerTransfer => {
+  const walletContract = getWalletContract(wallet);
+
   const transaction = {
     to: Address.parse(nft.address),
     amount: toNano(state.amount),
@@ -103,11 +105,12 @@ export const createLedgerNftTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
+    stateInit: walletContract.init,
     payload: {
       type: "nft-transfer",
       queryId: BigInt(Date.now()),
       newOwner: Address.parse(recipientAddress),
-      responseDestination: Address.parse(walletState.address),
+      responseDestination: Address.parse(wallet.address),
       customPayload: null,
       forwardAmount: toNano(state.forwardAmount),
       forwardPayload: null,

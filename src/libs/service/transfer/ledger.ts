@@ -1,14 +1,15 @@
 import { TonPayloadFormat } from "@ton-community/ton-ledger";
-import { Address } from "@ton/core";
+import { Address, SendMode, StateInit } from "@ton/core";
 
 export interface LedgerTransfer {
   to: Address;
   amount: bigint;
-  sendMode: number;
+  sendMode: SendMode;
   seqno: number;
   timeout: number;
   bounce: boolean;
-  payload: TonPayloadFormat | undefined;
+  stateInit?: StateInit | undefined;
+  payload?: TonPayloadFormat | undefined;
 }
 
 export function LedgerPathForAccount(

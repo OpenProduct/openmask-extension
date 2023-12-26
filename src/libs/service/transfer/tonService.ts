@@ -1,13 +1,5 @@
 import { TonPayloadFormat } from "@ton-community/ton-ledger";
-import {
-  Address,
-  Cell,
-  fromNano,
-  internal,
-  SendMode,
-  StateInit,
-  toNano,
-} from "@ton/core";
+import { Address, Cell, fromNano, internal, SendMode, toNano } from "@ton/core";
 import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
@@ -74,6 +66,7 @@ export const toStateInit = (stateInit?: string): InitData | undefined => {
   if (!stateInit) {
     return undefined;
   }
+
   const initSlice = Cell.fromBase64(stateInit).asSlice();
   return {
     code: initSlice.loadRef(),
@@ -108,12 +101,14 @@ export const createTonConnectTransfer = (
 };
 
 export const createLedgerTonTransfer = (
+  wallet: WalletState,
   seqno: number,
   address: string,
   state: AmountValue,
-  body: Cell | string | undefined,
-  stateInit?: StateInit
+  body: Cell | string | undefined
 ): LedgerTransfer => {
+  const walletContract = getWalletContract(wallet);
+
   const payload: TonPayloadFormat | undefined = (() => {
     if (body === undefined) {
       return undefined;
@@ -121,7 +116,8 @@ export const createLedgerTonTransfer = (
     if (typeof body === "string") {
       return { type: "comment", text: body };
     }
-    return undefined;
+
+    throw new Error("Complex transaction is not supported");
   })();
 
   const transaction = {
@@ -131,7 +127,7 @@ export const createLedgerTonTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
-    stateInit,
+    stateInit: walletContract.init,
     payload,
   };
 

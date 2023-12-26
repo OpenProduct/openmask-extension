@@ -117,13 +117,15 @@ export const createJettonTransfer = (
 };
 
 export const createLedgerJettonTransfer = (
+  wallet: WalletState,
   seqno: number,
-  walletState: WalletState,
   recipientAddress: string,
   jettonWalletAddress: Address,
   data: SendJettonState,
   jetton: JettonAsset
 ): LedgerTransfer => {
+  const walletContract = getWalletContract(wallet);
+
   const transaction = {
     to: jettonWalletAddress,
     amount: toNano(data.transactionAmount),
@@ -131,12 +133,13 @@ export const createLedgerJettonTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
+    stateInit: walletContract.init,
     payload: {
       type: "jetton-transfer",
       queryId: BigInt(Date.now()),
       amount: getJettonAmount(data, jetton),
       destination: Address.parse(recipientAddress),
-      responseDestination: Address.parse(walletState.address),
+      responseDestination: Address.parse(wallet.address),
       customPayload: null,
       forwardAmount: jettonTransferForwardAmount,
       forwardPayload: null,

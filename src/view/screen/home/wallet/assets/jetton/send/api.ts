@@ -156,8 +156,8 @@ const sendLedgerTransaction = async (
   const seqno = await tonContract.getSeqno();
 
   const transaction = createLedgerJettonTransfer(
-    seqno,
     wallet,
+    seqno,
     address,
     jettonWalletAddress,
     state,

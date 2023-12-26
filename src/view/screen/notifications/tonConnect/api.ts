@@ -21,7 +21,6 @@ import { validateTonConnectRestrictions } from "../../../../libs/service/transfe
 import {
   createLedgerTonTransfer,
   createTonConnectTransfer,
-  toStateInit,
 } from "../../../../libs/service/transfer/tonService";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
@@ -277,13 +276,13 @@ export const useSendLedgerMutation = () => {
 
       const data = item.payload ? Cell.fromBase64(item.payload) : undefined;
       const transaction = createLedgerTonTransfer(
+        wallet,
         seqno,
         item.address,
         {
           amount: fromNano(item.amount),
         },
-        data,
-        toStateInit(item.stateInit)
+        data
       );
 
       const signed = await signLedgerTransaction(transaction);

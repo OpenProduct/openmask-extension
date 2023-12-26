@@ -100,11 +100,11 @@ const sendLedgerDeploy = async (
   const seqno = await tonContract.getSeqno();
 
   const transaction = createLedgerTonTransfer(
+    wallet,
     seqno,
     address,
     { amount: fromNano(amount) },
-    initialMessage,
-    { code: initialCode, data: initialData }
+    initialMessage
   );
 
   const signed = await signLedgerTransaction(transaction);
