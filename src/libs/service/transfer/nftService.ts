@@ -5,7 +5,7 @@ import {
   internal,
   SendMode,
   toNano,
-} from "ton-core";
+} from "@ton/core";
 import { NftItem } from "../../entries/asset";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
@@ -96,14 +96,6 @@ export const createLedgerNftTransfer = (
   state: SendNftState,
   nft: NftItem
 ): LedgerTransfer => {
-  const body = nftTransferBody({
-    queryId: Date.now(),
-    newOwnerAddress: Address.parse(recipientAddress),
-    responseAddress: Address.parse(walletState.address),
-    forwardAmount: toNano(state.forwardAmount),
-    forwardPayload: null,
-  });
-
   const transaction = {
     to: Address.parse(nft.address),
     amount: toNano(state.amount),
@@ -111,7 +103,15 @@ export const createLedgerNftTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
-    payload: { type: "unsafe", message: body } as const,
+    payload: {
+      type: "nft-transfer",
+      queryId: BigInt(Date.now()),
+      newOwner: Address.parse(recipientAddress),
+      responseDestination: Address.parse(walletState.address),
+      customPayload: null,
+      forwardAmount: toNano(state.forwardAmount),
+      forwardPayload: null,
+    } as const,
   };
 
   return transaction;

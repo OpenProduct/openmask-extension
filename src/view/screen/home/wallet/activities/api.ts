@@ -1,8 +1,8 @@
 import { getSharedSecret } from "@noble/ed25519";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Cell } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { useContext } from "react";
-import { TonClient } from "ton";
-import { Cell } from "ton-core";
 import { KeyPair } from "tonweb-mnemonic/dist/types";
 import nacl from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Address } from "@ton/core";
 import { useContext } from "react";
-import { Address } from "ton-core";
 import {
   JettonMinter,
   JettonMinterContent,

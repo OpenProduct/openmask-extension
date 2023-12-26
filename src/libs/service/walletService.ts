@@ -1,4 +1,4 @@
-import { Address } from "ton-core";
+import { Address } from "@ton/core";
 import { backgroundEventsEmitter } from "../event";
 import { ErrorCode, RuntimeError } from "../exception";
 import { Logger } from "../logger";

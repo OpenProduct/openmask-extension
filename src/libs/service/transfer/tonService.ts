@@ -1,3 +1,4 @@
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
 import {
   Address,
   Cell,
@@ -6,8 +7,7 @@ import {
   SendMode,
   StateInit,
   toNano,
-} from "ton-core";
-import { TonPayloadFormat } from "ton-ledger";
+} from "@ton/core";
 import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
@@ -121,7 +121,7 @@ export const createLedgerTonTransfer = (
     if (typeof body === "string") {
       return { type: "comment", text: body };
     }
-    return { type: "unsafe", message: body };
+    return undefined;
   })();
 
   const transaction = {

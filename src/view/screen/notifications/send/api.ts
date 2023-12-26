@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { beginCell, Cell, fromNano } from "ton-core";
+import { beginCell, Cell, fromNano } from "@ton/core";
 import { TransactionParams } from "../../../../libs/entries/transaction";
 import { TransactionState } from "../../../../libs/service/transfer/tonService";
 import { QueryType } from "../../../../libs/store/browserStore";

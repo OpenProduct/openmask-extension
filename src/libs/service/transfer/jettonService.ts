@@ -1,4 +1,3 @@
-import BigNumber from "bignumber.js";
 import {
   Address,
   beginCell,
@@ -6,7 +5,8 @@ import {
   internal,
   SendMode,
   toNano,
-} from "ton-core";
+} from "@ton/core";
+import BigNumber from "bignumber.js";
 import { JettonAsset } from "../../entries/asset";
 import { WalletState } from "../../entries/wallet";
 import { getWalletContract } from "./core";
@@ -124,15 +124,6 @@ export const createLedgerJettonTransfer = (
   data: SendJettonState,
   jetton: JettonAsset
 ): LedgerTransfer => {
-  const body = jettonTransferBody({
-    queryId: Date.now(),
-    jettonAmount: getJettonAmount(data, jetton),
-    toAddress: Address.parse(recipientAddress),
-    responseAddress: Address.parse(walletState.address),
-    forwardAmount: jettonTransferForwardAmount,
-    forwardPayload: null,
-  });
-
   const transaction = {
     to: jettonWalletAddress,
     amount: toNano(data.transactionAmount),
@@ -140,8 +131,16 @@ export const createLedgerJettonTransfer = (
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
     bounce: true,
-    payload: { type: "unsafe", message: body } as const,
+    payload: {
+      type: "jetton-transfer",
+      queryId: BigInt(Date.now()),
+      amount: getJettonAmount(data, jetton),
+      destination: Address.parse(recipientAddress),
+      responseDestination: Address.parse(walletState.address),
+      customPayload: null,
+      forwardAmount: jettonTransferForwardAmount,
+      forwardPayload: null,
+    } as const,
   };
-
   return transaction;
 };

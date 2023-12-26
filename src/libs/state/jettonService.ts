@@ -6,8 +6,8 @@
  * @since: 0.12.0
  */
 
-import { TonClient } from "ton";
-import { Address } from "ton-core";
+import { Address } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import {
   JettonMinter,
   JettonMinterContent,

@@ -1,4 +1,4 @@
-import { Address } from "ton-core";
+import { Address } from "@ton/core";
 import { TonConnectTransactionPayloadMessage } from "../../entries/notificationMessage";
 import {
   QueryType,

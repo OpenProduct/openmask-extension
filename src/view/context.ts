@@ -1,6 +1,6 @@
 import { TonHttpProvider } from "@openproduct/web-sdk";
+import { TonClient } from "@ton/ton";
 import React from "react";
-import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
 import { NetworkConfig } from "../libs/entries/network";
 import { WalletState } from "../libs/entries/wallet";

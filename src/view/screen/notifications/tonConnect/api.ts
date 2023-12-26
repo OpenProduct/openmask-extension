@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Address, Cell, beginCell, fromNano, storeStateInit } from "@ton/core";
+import { sha256_sync } from "@ton/crypto";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
-import { Address, Cell, beginCell, fromNano, storeStateInit } from "ton-core";
-import { sha256_sync } from "ton-crypto";
 import nacl from "tweetnacl";
 import { selectNetworkConfig } from "../../../../libs/entries/network";
 import {

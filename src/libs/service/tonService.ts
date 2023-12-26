@@ -1,5 +1,5 @@
+import { TonClient } from "@ton/ton/dist/client/TonClient";
 import fetchAdapter from "@vespaiach/axios-fetch-adapter";
-import { TonClient } from "ton-wrappers/dist/client/TonClient";
 import { selectNetworkConfig } from "../entries/network";
 import { getNetwork, getNetworkConfig } from "../store/browserStore";
 

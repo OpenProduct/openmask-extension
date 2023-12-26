@@ -1,18 +1,18 @@
 import * as amplitude from "@amplitude/analytics-browser";
 import { useQuery } from "@tanstack/react-query";
+import { sha256_sync } from "@ton/crypto";
 import React, { useCallback, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { sha256_sync } from "ton-crypto";
 import { AccountState } from "../../libs/entries/account";
 import { WalletState } from "../../libs/entries/wallet";
 import { NotificationData } from "../../libs/event";
 import { TransactionState } from "../../libs/service/transfer/tonService";
 import {
+  QueryType,
   getAnalytics,
   getAuthConfiguration,
   getNetwork,
   getNetworkConfig,
-  QueryType,
 } from "../../libs/store/browserStore";
 import { WalletStateContext } from "../context";
 

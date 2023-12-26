@@ -5,8 +5,8 @@
  * @since: 0.1.0
  */
 
+import { Address } from "@ton/core";
 import Joi from "joi";
-import { Address } from "ton-core";
 import browser from "webextension-polyfill";
 import {
   AssetParams,

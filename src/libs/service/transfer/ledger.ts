@@ -1,5 +1,5 @@
-import { Address } from "ton-core";
-import { TonPayloadFormat } from "ton-ledger";
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
+import { Address } from "@ton/core";
 
 export interface LedgerTransfer {
   to: Address;

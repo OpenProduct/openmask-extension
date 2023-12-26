@@ -1,6 +1,6 @@
+import { Cell } from "@ton/core";
 import { FC, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Cell } from "ton-core";
 import {
   TonConnectTransactionPayload,
   TonConnectTransactionPayloadMessage,

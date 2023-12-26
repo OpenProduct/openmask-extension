@@ -1,9 +1,9 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TonTransport } from "@ton-community/ton-ledger";
+import { Cell } from "@ton/core";
 import { useContext } from "react";
-import { Cell } from "ton-core";
-import { TonTransport } from "ton-ledger";
 import { LedgerDriver, WalletState } from "../../../libs/entries/wallet";
 import { popUpInternalEventEmitter } from "../../../libs/popUpEvent";
 import {
@@ -211,19 +211,23 @@ export const useConnectLedgerTransport = (driver?: LedgerDriver) => {
 export const useSignLedgerTransaction = () => {
   const network = useContext(NetworkContext);
   const wallet = useContext(WalletStateContext);
-  return useMutation<
-    Cell,
-    Error,
-    { transport: TonTransport; params: LedgerTransfer }
-  >(async ({ transport, params }) => {
-    const path = LedgerPathForAccount(
-      network,
-      workchain,
-      wallet.ledger?.index!
-    );
-    const signed = await transport.signTransaction(path, params);
-    return signed;
-  });
+  return useMutation(
+    async ({
+      transport,
+      params,
+    }: {
+      transport: TonTransport;
+      params: LedgerTransfer;
+    }) => {
+      const path = LedgerPathForAccount(
+        network,
+        workchain,
+        wallet.ledger?.index!
+      );
+      const signed = await transport.signTransaction(path, params);
+      return signed;
+    }
+  );
 };
 
 export const signLedgerTransaction = async (

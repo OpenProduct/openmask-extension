@@ -1,4 +1,4 @@
-import { Address, beginCell, storeStateInit } from "ton-core";
+import { Address, beginCell, storeStateInit } from "@ton/core";
 import { selectNetworkConfig } from "../../entries/network";
 import {
   TonAddressItemReply,

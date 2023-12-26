@@ -1,5 +1,5 @@
+import { Address } from "@ton/core";
 import { useMemo } from "react";
-import { Address } from "ton-core";
 import { useNetwork } from "../view/api";
 
 export const useNonBounceableAddress = (address: string) => {

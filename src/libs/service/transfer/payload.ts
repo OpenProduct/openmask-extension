@@ -1,6 +1,6 @@
 import { getSharedSecret } from "@noble/ed25519";
-import { TonClient } from "ton";
-import { Address, beginCell, Builder, Cell } from "ton-core";
+import { Address, beginCell, Builder, Cell } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import nacl, { randomBytes } from "tweetnacl";
 import { AnyWallet } from "./core";
 

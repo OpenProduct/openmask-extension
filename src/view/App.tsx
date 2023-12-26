@@ -1,9 +1,9 @@
 import { TonHttpProvider } from "@openproduct/web-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TonClient } from "@ton/ton";
 import React, { FC, Suspense, useMemo } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
-import { TonClient } from "ton";
 import { AccountState } from "../libs/entries/account";
 import { selectNetworkConfig } from "../libs/entries/network";
 import {

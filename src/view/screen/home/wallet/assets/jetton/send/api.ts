@@ -1,15 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Address, beginCell, toNano } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { useContext } from "react";
-import { TonClient } from "ton";
-import { Address, beginCell, toNano } from "ton-core";
 import { JettonAsset } from "../../../../../../../libs/entries/asset";
 import { EstimateFeeValues } from "../../../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
 import {
+  SendJettonState,
   createJettonTransfer,
   createLedgerJettonTransfer,
-  SendJettonState,
 } from "../../../../../../../libs/service/transfer/jettonService";
 import { toCoinValue } from "../../../../../../../libs/state/decimalsService";
 import { QueryType } from "../../../../../../../libs/store/browserStore";

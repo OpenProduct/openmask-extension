@@ -1,8 +1,8 @@
+import { Address } from "@ton/core";
 import BigNumber from "bignumber.js";
 import React, { FC, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Address } from "ton-core";
 import packageJson from "../../../../../../package.json";
 import { JettonAsset, NftAsset } from "../../../../../libs/entries/asset";
 import { AppStock, DexStocks } from "../../../../../libs/entries/stock";

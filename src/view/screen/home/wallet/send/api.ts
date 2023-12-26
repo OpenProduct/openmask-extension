@@ -1,8 +1,8 @@
 import { Address, toNano, TonDns, TonHttpProvider } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Address as CoreAddress } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { useContext } from "react";
-import { TonClient } from "ton";
-import { Address as CoreAddress } from "ton-core";
 import { NetworkConfig } from "../../../../../libs/entries/network";
 import { EstimateFeeValues } from "../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../libs/entries/wallet";

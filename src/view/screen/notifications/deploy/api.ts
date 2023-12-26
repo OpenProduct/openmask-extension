@@ -1,8 +1,8 @@
 import { EstimateFeeValues } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Address, Cell, fromNano } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { useContext } from "react";
-import { TonClient } from "ton";
-import { Address, Cell, fromNano } from "ton-core";
 import { DeployInputParams } from "../../../../libs/entries/notificationMessage";
 import { WalletState } from "../../../../libs/entries/wallet";
 import {

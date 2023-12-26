@@ -1,18 +1,18 @@
 import {
+  Address,
+  Cell,
+  Contract,
+  ContractProvider,
+  beginCell,
+  storeStateInit,
+} from "@ton/core";
+import {
   WalletContractV2R1,
   WalletContractV2R2,
   WalletContractV3R1,
   WalletContractV3R2,
   WalletContractV4,
-} from "ton";
-import {
-  Address,
-  beginCell,
-  Cell,
-  Contract,
-  ContractProvider,
-  storeStateInit,
-} from "ton-core";
+} from "@ton/ton";
 import { WalletState } from "../../entries/wallet";
 
 const workchain = 0;

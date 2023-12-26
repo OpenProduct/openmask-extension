@@ -6,8 +6,8 @@ import {
   NftData,
 } from "@openproduct/web-sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Cell as CoreCell } from "@ton/core";
 import { useContext } from "react";
-import { Cell as CoreCell } from "ton-core";
 import { requestJson } from "ton-wrappers";
 import { readOnchainMetadata } from "ton-wrappers/dist/libs/onchainContent";
 import {
@@ -19,13 +19,13 @@ import {
 } from "../../../../../../libs/entries/asset";
 import {
   AddJettonProps,
-  addJettonToWallet,
   AddNftProps,
+  addJettonToWallet,
   addNftToWallet,
 } from "../../../../../../libs/state/assetService";
 import {
-  getJettonFullData,
   JettonFullData,
+  getJettonFullData,
 } from "../../../../../../libs/state/jettonService";
 import {
   AccountStateContext,

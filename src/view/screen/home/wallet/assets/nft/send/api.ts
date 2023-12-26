@@ -1,16 +1,16 @@
 import { toNano } from "@openproduct/web-sdk";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Address } from "@ton/core";
+import { TonClient } from "@ton/ton";
 import { useContext } from "react";
-import { TonClient } from "ton";
-import { Address } from "ton-core";
 import { NftItem } from "../../../../../../../libs/entries/asset";
 import { EstimateFeeValues } from "../../../../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../../../../libs/service/transfer/core";
 import {
+  SendNftState,
   createLedgerNftTransfer,
   createNftTransfer,
-  SendNftState,
 } from "../../../../../../../libs/service/transfer/nftService";
 import { QueryType } from "../../../../../../../libs/store/browserStore";
 import {
