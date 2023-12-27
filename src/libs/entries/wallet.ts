@@ -36,12 +36,18 @@ export const getWalletAssets = (wallet: WalletState): Asset[] => {
     assets = wallet.assets ?? [];
   }
 
+  // null-byte in address
   return assets.map((item) => {
     if ("minterAddress" in item) {
-      // null-byte in address
       return { ...item, minterAddress: item.minterAddress.replace(/\0/g, "") };
     } else {
-      return item;
+      return {
+        ...item,
+        items: item.items.map((nft) => ({
+          ...nft,
+          address: nft.address.replace(/\0/g, ""),
+        })),
+      };
     }
   });
 };
