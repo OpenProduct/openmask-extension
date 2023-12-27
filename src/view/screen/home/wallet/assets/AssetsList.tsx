@@ -36,19 +36,24 @@ const JettonRowView: FC<{
 
   const jettonStocks = useMemo(() => {
     const result = [] as AppStock[];
-    if (stocks) {
-      const stockD: AppStock | undefined =
-        stocks.dedust[Address.parse(asset.minterAddress).toString()];
-      if (stockD) {
-        result.push(stockD);
-      }
+    try {
+      if (stocks) {
+        const stockD: AppStock | undefined =
+          stocks.dedust[Address.parse(asset.minterAddress).toString()];
+        if (stockD) {
+          result.push(stockD);
+        }
 
-      const stockS: AppStock | undefined =
-        stocks.ston[Address.parse(asset.minterAddress).toString()];
-      if (stockS) {
-        result.push(stockS);
+        const stockS: AppStock | undefined =
+          stocks.ston[Address.parse(asset.minterAddress).toString()];
+        if (stockS) {
+          result.push(stockS);
+        }
       }
+    } catch (e) {
+      console.error(e);
     }
+
     return result;
   }, [stocks, asset]);
 

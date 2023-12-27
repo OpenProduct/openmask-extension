@@ -29,11 +29,21 @@ export interface WalletState {
 }
 
 export const getWalletAssets = (wallet: WalletState): Asset[] => {
+  let assets: Asset[];
   if (wallet.walletAssets && wallet.walletAssets[wallet.version]) {
-    return wallet.walletAssets[wallet.version];
+    assets = wallet.walletAssets[wallet.version];
   } else {
-    return wallet.assets ?? [];
+    assets = wallet.assets ?? [];
   }
+
+  return assets.map((item) => {
+    if ("minterAddress" in item) {
+      // null-byte in address
+      return { ...item, minterAddress: item.minterAddress.replace(/\0/g, "") };
+    } else {
+      return item;
+    }
+  });
 };
 
 export const setWalletAssets = (wallet: WalletState, newAssets: Asset[]) => {
