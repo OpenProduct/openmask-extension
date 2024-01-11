@@ -126,7 +126,7 @@ export const createLedgerTonTransfer = (
     sendMode: getTonSendMode(state.max),
     seqno,
     timeout: Math.floor(Date.now() / 1000 + 60),
-    bounce: true,
+    bounce: seeIfBounceable(address),
     stateInit: walletContract.init,
     payload,
   };
