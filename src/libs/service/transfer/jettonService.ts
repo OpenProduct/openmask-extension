@@ -1,7 +1,9 @@
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
 import {
   Address,
   beginCell,
   Builder,
+  Cell,
   internal,
   SendMode,
   toNano,
@@ -47,6 +49,8 @@ const DefaultDecimals = 9;
 
 const jettonTransferForwardAmount = toNano("0.0001");
 
+export const JettonTransferOpCode = 0xf8a7ea5;
+
 const jettonTransferBody = (params: {
   queryId?: number;
   jettonAmount: bigint;
@@ -66,6 +70,40 @@ const jettonTransferBody = (params: {
     .storeBit(false) // forward_payload in this slice, not separate cell
     .storeMaybeBuilder(params.forwardPayload)
     .endCell();
+};
+
+export const parseJettonTransfer = (data: Cell): TonPayloadFormat => {
+  const slice = data.asSlice();
+
+  const operation = slice.loadUint(32);
+  if (operation != JettonTransferOpCode) {
+    throw new Error("Invalid operator");
+  }
+
+  const queryId = slice.loadUint(64);
+  const jettonAmount = slice.loadCoins();
+  const toAddress = slice.loadMaybeAddress();
+  const responseAddress = slice.loadMaybeAddress();
+  const isCustomPayload = slice.loadBit();
+  const customPayload = isCustomPayload ? slice.loadRef() : null;
+  const forwardAmount = slice.loadCoins();
+  const isForwardPayload = slice.loadBit();
+  const forwardPayload = isForwardPayload
+    ? slice.loadRef()
+    : slice.remainingBits > 0
+    ? slice.asCell()
+    : null;
+
+  return {
+    type: "jetton-transfer",
+    queryId: BigInt(queryId),
+    amount: jettonAmount,
+    destination: toAddress!,
+    responseDestination: responseAddress!,
+    customPayload: customPayload,
+    forwardAmount: forwardAmount,
+    forwardPayload: forwardPayload,
+  };
 };
 
 const getJettonAmount = (data: SendJettonState, jetton: JettonAsset) => {
@@ -126,15 +164,12 @@ export const createLedgerJettonTransfer = (
 ): LedgerTransfer => {
   const walletContract = getWalletContract(wallet);
 
-  const transaction = {
-    to: jettonWalletAddress,
-    amount: toNano(data.transactionAmount),
-    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+  return createLedgerJettonTransferPayload(
+    jettonWalletAddress,
+    toNano(data.transactionAmount),
     seqno,
-    timeout: Math.floor(Date.now() / 1000 + 60),
-    bounce: true,
-    stateInit: walletContract.init,
-    payload: {
+    walletContract.init,
+    {
       type: "jetton-transfer",
       queryId: BigInt(Date.now()),
       amount: getJettonAmount(data, jetton),
@@ -143,7 +178,26 @@ export const createLedgerJettonTransfer = (
       customPayload: null,
       forwardAmount: jettonTransferForwardAmount,
       forwardPayload: null,
-    } as const,
+    }
+  );
+};
+
+export const createLedgerJettonTransferPayload = (
+  address: Address,
+  amount: bigint,
+  seqno: number,
+  stateInit: { data: Cell; code: Cell },
+  payload: TonPayloadFormat
+): LedgerTransfer => {
+  const transaction = {
+    to: address,
+    amount: amount,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+    seqno,
+    timeout: Math.floor(Date.now() / 1000 + 60),
+    bounce: true,
+    stateInit: stateInit,
+    payload,
   };
   return transaction;
 };

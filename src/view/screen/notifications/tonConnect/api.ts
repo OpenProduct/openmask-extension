@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Address, Cell, beginCell, fromNano, storeStateInit } from "@ton/core";
+import { Address, beginCell, storeStateInit } from "@ton/core";
 import { sha256_sync } from "@ton/crypto";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
@@ -17,11 +17,9 @@ import { Permission } from "../../../../libs/entries/permission";
 import { EstimateFeeValues } from "../../../../libs/entries/tonCenter";
 import { WalletState } from "../../../../libs/entries/wallet";
 import { getWalletContract } from "../../../../libs/service/transfer/core";
+import { parseLedgerTransaction } from "../../../../libs/service/transfer/ledgerService";
 import { validateTonConnectRestrictions } from "../../../../libs/service/transfer/restrictionService";
-import {
-  createLedgerTonTransfer,
-  createTonConnectTransfer,
-} from "../../../../libs/service/transfer/tonService";
+import { createTonConnectTransfer } from "../../../../libs/service/transfer/tonService";
 import { addDAppAccess } from "../../../../libs/state/connectionSerivce";
 import {
   QueryType,
@@ -274,16 +272,7 @@ export const useSendLedgerMutation = () => {
 
       const seqno = await tonContract.getSeqno();
 
-      const data = item.payload ? Cell.fromBase64(item.payload) : undefined;
-      const transaction = createLedgerTonTransfer(
-        wallet,
-        seqno,
-        item.address,
-        {
-          amount: fromNano(item.amount),
-        },
-        data
-      );
+      const transaction = parseLedgerTransaction(wallet, seqno, item);
 
       const signed = await signLedgerTransaction(transaction);
       await tonContract.send(signed);

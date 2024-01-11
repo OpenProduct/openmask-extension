@@ -168,7 +168,7 @@ const SendLedgerTransactions: FC<{
       <>
         <Column>
           <Text>
-            The Ton Ledger App version 1.1 does not support sending multiple
+            The Ton Ledger App version 2.0 does not support sending multiple
             transfers per transaction.
           </Text>
           <Text>You may sign and send multiple transfers one by one.</Text>

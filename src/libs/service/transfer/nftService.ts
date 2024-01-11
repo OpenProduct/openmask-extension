@@ -1,7 +1,9 @@
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
 import {
   Address,
   beginCell,
   Builder,
+  Cell,
   internal,
   SendMode,
   toNano,
@@ -36,6 +38,8 @@ export interface SendNftState {
   comment: string;
 }
 
+export const NftTransferOpCode = 0x5fcc3d14;
+
 const nftTransferBody = (params: {
   queryId?: number;
   newOwnerAddress: Address;
@@ -53,6 +57,38 @@ const nftTransferBody = (params: {
     .storeBit(false) // forward_payload in this slice, not separate cell
     .storeMaybeBuilder(params.forwardPayload)
     .endCell();
+};
+
+export const parseNftTransfer = (data: Cell): TonPayloadFormat => {
+  const slice = data.asSlice();
+
+  const operation = slice.loadUint(32);
+  if (operation != NftTransferOpCode) {
+    throw new Error("Invalid operator");
+  }
+
+  const queryId = slice.loadUint(64);
+  const newOwnerAddress = slice.loadMaybeAddress();
+  const responseAddress = slice.loadMaybeAddress();
+  const isCustomPayload = slice.loadBit();
+  const customPayload = isCustomPayload ? slice.loadRef() : null;
+  const forwardAmount = slice.loadCoins();
+  const isForwardPayload = slice.loadBit();
+  const forwardPayload = isForwardPayload
+    ? slice.loadRef()
+    : slice.remainingBits > 0
+    ? slice.asCell()
+    : null;
+
+  return {
+    type: "nft-transfer",
+    queryId: BigInt(queryId),
+    newOwner: newOwnerAddress!,
+    responseDestination: responseAddress!,
+    customPayload: customPayload,
+    forwardAmount: forwardAmount,
+    forwardPayload: forwardPayload,
+  };
 };
 
 export const createNftTransfer = (
@@ -98,15 +134,12 @@ export const createLedgerNftTransfer = (
 ): LedgerTransfer => {
   const walletContract = getWalletContract(wallet);
 
-  const transaction = {
-    to: Address.parse(nft.address),
-    amount: toNano(state.amount),
-    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+  return createLedgerNftTransferPayload(
+    nft.address,
+    toNano(state.amount),
     seqno,
-    timeout: Math.floor(Date.now() / 1000 + 60),
-    bounce: true,
-    stateInit: walletContract.init,
-    payload: {
+    walletContract.init,
+    {
       type: "nft-transfer",
       queryId: BigInt(Date.now()),
       newOwner: Address.parse(recipientAddress),
@@ -114,8 +147,26 @@ export const createLedgerNftTransfer = (
       customPayload: null,
       forwardAmount: toNano(state.forwardAmount),
       forwardPayload: null,
-    } as const,
-  };
+    }
+  );
+};
 
+export const createLedgerNftTransferPayload = (
+  address: string,
+  amount: bigint,
+  seqno: number,
+  stateInit: { data: Cell; code: Cell },
+  payload: TonPayloadFormat
+): LedgerTransfer => {
+  const transaction = {
+    to: Address.parse(address),
+    amount: amount,
+    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+    seqno,
+    timeout: Math.floor(Date.now() / 1000 + 60),
+    bounce: true,
+    stateInit,
+    payload: payload,
+  };
   return transaction;
 };
