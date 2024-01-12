@@ -239,7 +239,6 @@ const SendMnemonicTransactions: FC<{
     reset,
     error: sendError,
   } = useSendMnemonicMutation(origin);
-  const { mutateAsync: getLastBoc } = useLastBocMutation();
 
   const onConfirm = async () => {
     setSending(true);
@@ -247,12 +246,11 @@ const SendMnemonicTransactions: FC<{
       reset();
       setItems((s) => s.map((item) => ({ ...item, isSend: true })));
 
-      await mutateAsync(data);
+      const message = await mutateAsync(data);
 
       setItems((s) => s.map((item) => ({ ...item, isConfirmed: true })));
 
-      const payload = await getLastBoc().catch(() => "");
-      onOk(payload);
+      onOk(message);
     } catch (e) {
       setError(e as Error);
       setSending(false);
