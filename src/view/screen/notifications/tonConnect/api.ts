@@ -1,5 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Address, beginCell, storeStateInit } from "@ton/core";
+import {
+  Address,
+  beginCell,
+  external,
+  storeMessage,
+  storeStateInit,
+} from "@ton/core";
 import { sha256_sync } from "@ton/crypto";
 import BigNumber from "bignumber.js";
 import { useContext } from "react";
@@ -195,7 +201,7 @@ export const useSendMnemonicMutation = (origin: string) => {
   const wallet = useContext(WalletStateContext);
   const client = useContext(TonClientContext);
 
-  return useMutation<void, Error, TonConnectTransactionPayload>(
+  return useMutation<string, Error, TonConnectTransactionPayload>(
     async (data) => {
       const now = Date.now() / 1000;
       if (now > data.valid_until) {
@@ -225,6 +231,22 @@ export const useSendMnemonicMutation = (origin: string) => {
       );
 
       await contract.send(transfer);
+
+      const externalMessage = beginCell()
+        .storeWritable(
+          storeMessage(
+            external({
+              to: contract.address,
+              init: seqno === 0 ? contract.init : undefined,
+              body: transfer,
+            })
+          )
+        )
+        .endCell()
+        .toBoc({ idx: false })
+        .toString("base64");
+
+      return externalMessage;
     }
   );
 };
