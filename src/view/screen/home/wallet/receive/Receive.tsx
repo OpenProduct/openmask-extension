@@ -25,6 +25,7 @@ import {
   WalletStateContext,
 } from "../../../../context";
 import { useCopyToClipboard } from "../../../../hooks/useCopyToClipbpard";
+import { StealthEX } from "./Icons";
 
 const Body = styled(Container)`
   width: 100%;
@@ -70,24 +71,24 @@ const ReceiveIndex = () => {
     <div>
       <Source>
         <Row>
-          <img src="https://cryptogas.shop/images/logo_v3.svg" width="30" />
-          <SubTitle>CryptoGas.shop</SubTitle>
+          <StealthEX />
+          <SubTitle>StealthEX</SubTitle>
         </Row>
         <Text>
-          Buy TON for crypto. MixPay supports users paying cross-wallet,
-          cross-chain and cross-crypto to buy TON. Payment in ETH, BTC, BNB,
-          TRON and other networks.
+          StealthEX is an instant cryptocurrency exchange for limitless swaps.
+          Service is free from registration and does not store user’s funds on
+          the platform.
         </Text>
         <ButtonNegative
           title={network != "mainnet" ? "Please switch to mainnet!" : undefined}
           disabled={network != "mainnet"}
           onClick={() =>
             ExtensionPlatform.openTab({
-              url: `https://cryptogas.shop/ton?ref=${process.env.REACT_APP_MIXIN_ID}&address=${address}`,
+              url: `https://stealthex.io/?ref=${process.env.REACT_APP_STEALTHEX_ID}&from=usd&to=ton`,
             })
           }
         >
-          Continue to CryptoGas.shop <LinkIcon />
+          Continue to StealthEX <LinkIcon />
         </ButtonNegative>
       </Source>
       <Source>

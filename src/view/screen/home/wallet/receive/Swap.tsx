@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import styled from "styled-components";
 import ExtensionPlatform from "../../../../../libs/service/extension";
 import {
@@ -8,6 +9,8 @@ import {
 } from "../../../../components/Components";
 import { HomeButton } from "../../../../components/HomeButton";
 import { LinkIcon } from "../../../../components/Icons";
+import { NetworkContext } from "../../../../context";
+import { Dedust, StealthEX } from "./Icons";
 
 const Body = styled(Container)`
   width: 100%;
@@ -36,11 +39,13 @@ const SubTitle = styled(H3)`
 `;
 
 const SwapIndex = () => {
+  const network = useContext(NetworkContext);
+
   return (
     <div>
       <Source>
         <Row>
-          <img src="https://dedust.io/_nuxt/dedust.aa7c2391.png" width="30" />
+          <Dedust />
           <SubTitle>DeDust.io</SubTitle>
         </Row>
         <Text>
@@ -74,6 +79,27 @@ const SwapIndex = () => {
           }
         >
           Continue to ston.fi <LinkIcon />
+        </ButtonNegative>
+      </Source>
+      <Source>
+        <Row>
+          <StealthEX />
+          <SubTitle>StealthEX</SubTitle>
+        </Row>
+        <Text>
+          StealthEX is an instant cryptocurrency exchange for limitless swaps.
+          Cross-chain ETH, BTC, BNB, TRON and other networks cross-crypto swaps.
+        </Text>
+        <ButtonNegative
+          title={network != "mainnet" ? "Please switch to mainnet!" : undefined}
+          disabled={network != "mainnet"}
+          onClick={() =>
+            ExtensionPlatform.openTab({
+              url: `https://stealthex.io/?ref=${process.env.REACT_APP_STEALTHEX_ID}&from=ton&to=btc`,
+            })
+          }
+        >
+          Continue to StealthEX <LinkIcon />
         </ButtonNegative>
       </Source>
     </div>
