@@ -1,4 +1,3 @@
-import { Access, Network } from "@orbs-network/ton-access";
 import browser from "webextension-polyfill";
 import { AccountState, defaultAccountState } from "../entries/account";
 import {
@@ -96,30 +95,32 @@ export const getNetworkConfig = async () => {
     defaultNetworkConfigs
   );
 
-  try {
-    const access = new Access();
-    await access.init();
+  return configs;
 
-    return configs.map((config) => {
-      if (["testnet", "mainnet"].includes(config.name) && !config.isCustom) {
-        const [endpoint] = access.buildUrls(
-          config.name as Network,
-          "toncenter-api-v2",
-          "jsonRPC",
-          true
-        );
-        return {
-          ...config,
-          rpcUrl: endpoint,
-          apiKey: undefined,
-        };
-      } else {
-        return config;
-      }
-    });
-  } catch (e) {
-    return configs;
-  }
+  // try {
+  //   const access = new Access();
+  //   await access.init();
+
+  //   return configs.map((config) => {
+  //     if (["testnet", "mainnet"].includes(config.name) && !config.isCustom) {
+  //       const [endpoint] = access.buildUrls(
+  //         config.name as Network,
+  //         "toncenter-api-v2",
+  //         "jsonRPC",
+  //         true
+  //       );
+  //       return {
+  //         ...config,
+  //         rpcUrl: endpoint,
+  //         apiKey: undefined,
+  //       };
+  //     } else {
+  //       return config;
+  //     }
+  //   });
+  // } catch (e) {
+  //   return configs;
+  // }
 };
 
 export const setNetworkConfig = (value: NetworkConfig[]) => {

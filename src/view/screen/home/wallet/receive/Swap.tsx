@@ -38,6 +38,12 @@ const SubTitle = styled(H3)`
   margin: 0;
 `;
 
+const ChangeHero = styled.div`
+  background: #2f92f6;
+  border-radius: 5px;
+  padding: 5px;
+`;
+
 const SwapIndex = () => {
   const network = useContext(NetworkContext);
 
@@ -100,6 +106,31 @@ const SwapIndex = () => {
           }
         >
           Continue to StealthEX <LinkIcon />
+        </ButtonNegative>
+      </Source>
+      <Source>
+        <Row>
+          <ChangeHero>
+            <img
+              src="https://pretty-picture.s3.eu-central-1.amazonaws.com/logo_bf4f0a8ce6.svg"
+              height="30"
+            />
+          </ChangeHero>
+        </Row>
+        <Text>
+          ChangeHero is an instant cryptocurrency exchange, cross-chain swap
+          service. Instantly Convert Bitcoin And Over 150 Popular Cryptos.
+        </Text>
+        <ButtonNegative
+          title={network != "mainnet" ? "Please switch to mainnet!" : undefined}
+          disabled={network != "mainnet"}
+          onClick={() =>
+            ExtensionPlatform.openTab({
+              url: `https://changehero.io/?ref=${process.env.REACT_APP_CHANGEHERO}&cur_from=TON `,
+            })
+          }
+        >
+          Continue to ChangeHero <LinkIcon />
         </ButtonNegative>
       </Source>
     </div>

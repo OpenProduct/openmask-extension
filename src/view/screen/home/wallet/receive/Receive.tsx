@@ -115,7 +115,7 @@ const ReceiveIndex = () => {
           disabled={network != "mainnet"}
           onClick={() =>
             ExtensionPlatform.openTab({
-              url: `https://changehero.io/?ref=b803de09bf6b4cbdb36d14974b3c6ad8&to=TON`,
+              url: `https://changehero.io/?ref=${process.env.REACT_APP_CHANGEHERO}&cur_to=TON `,
             })
           }
         >
