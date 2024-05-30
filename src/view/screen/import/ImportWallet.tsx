@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import {
   Body,
   ButtonBottomRow,
@@ -8,7 +9,6 @@ import {
   ErrorMessage,
   H1,
   Text,
-  Textarea,
 } from "../../components/Components";
 import { CheckIcon, CloseIcon } from "../../components/Icons";
 import { AppRoute, relative } from "../../routes";
@@ -18,6 +18,21 @@ enum ImportRoutes {
   index = "/",
   mnemonic = "/mnemonic",
 }
+
+const MnemonicBlock = styled.div`
+  background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(59, 59, 59, 0.3));
+  color: light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
+  border-color: rgba(118, 118, 118, 0.3);
+  padding: 10px;
+  margin-bottom: 15px;
+  height: 100px;
+  border: 1px solid;
+
+  &:focus,
+  &:active {
+    border-color: blue;
+  }
+`;
 
 const ImportMnemonic = () => {
   const navigate = useNavigate();
@@ -35,13 +50,13 @@ const ImportMnemonic = () => {
     <Body>
       <H1>Import existing wallet</H1>
       <Text>To connect wallet, please enter your mnemonic here</Text>
-      <Textarea
-        placeholder="thought borrow spend aisle...."
-        disabled={isLoading}
-        rows={10}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
+      <Text>24 words separated by a space: thought borrow spend aisle....</Text>
+      <MnemonicBlock
+        contentEditable
+        onBlur={(t) => !isLoading && setValue(t.currentTarget.innerHTML)}
+      >
+        {value}
+      </MnemonicBlock>
       {error && <ErrorMessage>{error.message}</ErrorMessage>}
       <ButtonBottomRow>
         <ButtonNegative

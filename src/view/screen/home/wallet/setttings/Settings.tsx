@@ -18,7 +18,6 @@ import {
   Input,
   SelectLabel,
   SelectPayload,
-  Textarea,
 } from "../../../../components/Components";
 import { DropDownList } from "../../../../components/DropDown";
 import { HomeButton } from "../../../../components/HomeButton";
@@ -37,6 +36,16 @@ import { WalletRoutes } from "./route";
 const Text = styled.div`
   font-size: medium;
   margin-top: ${(props) => props.theme.padding};
+`;
+
+const MnemonicBlock = styled.div`
+  background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(59, 59, 59, 0.3));
+  color: light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
+  border-color: rgba(118, 118, 118, 0.3);
+  padding: 10px;
+  margin-bottom: 15px;
+  height: 100px;
+  border: 1px solid;
 `;
 
 const SettingsIndex = () => {
@@ -137,7 +146,7 @@ const SettingsMnemonic = () => {
         your wallet.
       </ErrorMessage>
       {isShow ? (
-        <Textarea disabled rows={9} value={mnemonic} />
+        <MnemonicBlock>{mnemonic}</MnemonicBlock>
       ) : !isWebAuth ? (
         <div>
           <label>Enter password to continue</label>

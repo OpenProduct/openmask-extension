@@ -13,11 +13,20 @@ import {
   H1,
   Input,
   Text,
-  Textarea,
 } from "../../components/Components";
 import { BackIcon } from "../../components/Icons";
 import { AppRoute } from "../../routes";
 import { useCreateWalletMutation } from "./api";
+
+const MnemonicBlock = styled.div`
+  background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(59, 59, 59, 0.3));
+  color: light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
+  border-color: rgba(118, 118, 118, 0.3);
+  padding: 10px;
+  margin-bottom: 15px;
+  height: 100px;
+  border: 1px solid;
+`;
 
 export const Create = () => {
   const navigate = useNavigate();
@@ -71,7 +80,7 @@ export const Create = () => {
         WARNING: Never disclose your Secret Recovery Phrase. Anyone with this
         phrase can take your crypto forever.
       </ErrorMessage>
-      <Textarea disabled rows={8} value={show ? mnemonic : ""} />
+      <MnemonicBlock>{show ? mnemonic : ""}</MnemonicBlock>
       <Text>OpenMask cannot recover your Secret Recovery Phrase.</Text>
       <ButtonRow>
         <ButtonNegative
