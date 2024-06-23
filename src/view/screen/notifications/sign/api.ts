@@ -26,6 +26,7 @@ export const usePersonalSignMutation = () => {
       throw new Error("Missing sign data");
     }
 
+    const valueHash = nacl.hash(Buffer.from(value, "utf8"));
     /**
      * According: https://github.com/ton-foundation/specs/blob/main/specs/wtf-0002.md
      */
@@ -37,7 +38,7 @@ export const usePersonalSignMutation = () => {
     const hex = Buffer.concat([
       Buffer.from([0xff, 0xff]),
       Buffer.from("ton-safe-sign-magic"),
-      Buffer.from(value, "utf8"),
+      valueHash,
     ]).toString("hex");
 
     const keyPair = await getWalletKeyPair(wallet);
