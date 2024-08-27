@@ -35,5 +35,5 @@ Compressed builds can be found in `/build` once they're built.
 
 OpenMask TON wallet for donations and rewards:
 
-EQCV4FC_GjwyRDx4RAfI9-f1z3Tfi6JBxEOHol8SUpI2xTxT
+UQAvi305JcHbZnOy1gX7If_RKZ2JyKQMXiNYAAgRibrEsV7K
 
