@@ -96,6 +96,7 @@ export const parseJettonTransfer = (data: Cell): TonPayloadFormat => {
 
   return {
     type: "jetton-transfer",
+    knownJetton: null,
     queryId: BigInt(queryId),
     amount: jettonAmount,
     destination: toAddress!,
@@ -171,6 +172,7 @@ export const createLedgerJettonTransfer = (
     walletContract.init,
     {
       type: "jetton-transfer",
+      knownJetton: null,
       queryId: BigInt(Date.now()),
       amount: getJettonAmount(data, jetton),
       destination: Address.parse(recipientAddress),

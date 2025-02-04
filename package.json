@@ -1,6 +1,6 @@
 {
   "name": "@openmask/extension",
-  "version": "0.21.1",
+  "version": "0.22.0",
   "private": false,
   "repository": "https://github.com/OpenProduct/openmask-extension",
   "dependencies": {
@@ -11,7 +11,7 @@
     "@openproduct/web-sdk": "^0.23.0",
     "@orbs-network/ton-access": "^2.3.3",
     "@tanstack/react-query": "^4.3.4",
-    "@ton-community/ton-ledger": "^7.0.0",
+    "@ton-community/ton-ledger": "^7.2.0-pre.3",
     "@ton/core": "^0.53.0",
     "@ton/crypto": "^3.2.0",
     "@ton/ton": "^13.9.0",

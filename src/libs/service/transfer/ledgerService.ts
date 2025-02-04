@@ -58,8 +58,17 @@ export const parseLedgerTransaction = (
         transfer
       );
     }
-
-    default:
-      throw new Error("App Ledger 2.0 is not support custom transaction");
+    default: {
+      const transfer = createLedgerTonTransfer(
+        wallet,
+        seqno,
+        item.address,
+        {
+          amount: fromNano(item.amount),
+        },
+        data
+      );
+      return transfer;
+    }
   }
 };

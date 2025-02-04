@@ -117,7 +117,7 @@ export const createLedgerTonTransfer = (
       return { type: "comment", text: body };
     }
 
-    throw new Error("Complex transaction is not supported");
+    return { type: "unsafe", message: body };
   })();
 
   const transaction = {

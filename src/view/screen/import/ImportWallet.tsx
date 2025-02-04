@@ -53,7 +53,7 @@ const ImportMnemonic = () => {
       <Text>24 words separated by a space: thought borrow spend aisle....</Text>
       <MnemonicBlock
         contentEditable
-        onBlur={(t) => !isLoading && setValue(t.currentTarget.innerHTML)}
+        onBlur={(t) => !isLoading && setValue(t.currentTarget.innerText)}
       >
         {value}
       </MnemonicBlock>
