@@ -26,7 +26,7 @@ export const defaultNetworkConfigs: NetworkConfig[] = [
     id: TonConnectNETWORK.MAINNET,
     rpcUrl: "https://toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_API_KEY,
-    scanUrl: "https://tonscan.org/address/",
+    scanUrl: "https://tonviewer.com/",
     rootDnsAddress: mainnetRootDnsAddress,
   },
   {
@@ -35,7 +35,7 @@ export const defaultNetworkConfigs: NetworkConfig[] = [
     id: TonConnectNETWORK.TESTNET,
     rpcUrl: "https://testnet.toncenter.com/api/v2/jsonRPC",
     apiKey: process.env.REACT_APP_TONCENTER_TESTNET_API_KEY,
-    scanUrl: "https://testnet.tonscan.org/address/",
+    scanUrl: "https://testnet.tonviewer.com/",
     rootDnsAddress: testnetRootDnsAddress,
   },
 ];
